@@ -2,265 +2,245 @@
 
 name: Build
 on:
-  push:
-  # workflow_dispatch:
-  #   inputs:
-  #     swift-version:
-  #       type: string
-  #       required: true
-  #       description: The version to use for the Swift package (format v1.2.3)
-  #     kotlin-version:
-  #       type: string
-  #       required: true
-  #       description: The version to use for the Kotlin & Android packages (format v1.2.3)
-  #     python-version:
-  #       type: string
-  #       required: true
-  #       description: The version to use for the Python package (format v1.2.3)
-  #     cs-version:
-  #       type: string
-  #       required: true
-  #       description: The version to use for the C# package (format 1.2.3)
-  #     go-version:
-  #       type: string
-  #       required: true
-  #       description: The version to use for the Go package (format v1.2.3)
-  #     ref:
-  #       type: string
-  #       default: "main"
-  #       description: The branch, tag, or sha to checkout - default to "main".
+  workflow_dispatch:
+    inputs:
+      swift-version:
+        type: string
+        required: true
+        description: The version to use for the Swift package (format v1.2.3)
+      kotlin-version:
+        type: string
+        required: true
+        description: The version to use for the Kotlin & Android packages (format v1.2.3)
+      python-version:
+        type: string
+        required: true
+        description: The version to use for the Python package (format v1.2.3)
+      cs-version:
+        type: string
+        required: true
+        description: The version to use for the C# package (format 1.2.3)
+      go-version:
+        type: string
+        required: true
+        description: The version to use for the Go package (format v1.2.3)
+      ref:
+        type: string
+        default: "main"
+        description: The branch, tag, or sha to checkout - default to "main".
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  test-gradle:
-    runs-on: macos-latest
-    permissions:
-      contents: read
-      packages: write
+  build-schemas-and-test-kit:
+    runs-on: ubuntu-latest
     steps:
-      - name: Check architecture
-        shell: bash
-        run: echo "ARCH $(uname -m)"
-      - name: Checkout
-        uses: RDXWorks-actions/checkout@main
+    - uses: RDXWorks-actions/checkout@main
+      with:
+        ref: ${{ inputs.ref }}
+    - name: Install Rust Toolchain
+      uses: RDXWorks-actions/toolchain@master
+      with:
+        toolchain: nightly-2024-02-01
+        default: true
+        profile: minimal
+    # - name: Run sccache-cache
+    #   uses: mozilla-actions/sccache-action@v0.0.3
+    - name: Generate Test Kit
+      run: cargo run
+      env:
+        # Enable sccache
+        SCCACHE_GHA_ENABLED: "true"
+        # RUSTC_WRAPPER: "sccache"
+      working-directory: crates/generator
+    - name: Upload Generated Artifacts
+      uses: RDXWorks-actions/upload-artifact@main
+      with:
+        name: "schemas-and-test-kit"
+        path: "crates/generator/output"
+  build:
+    runs-on: ${{ matrix.build-target.runner }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        build-target:
+          # ===============
+          # UniFFI Toolkit
+          # ===============
+
+          # Linux Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   runner: ubuntu-20.04
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   runner: ubuntu-latest
+          
+          # PC Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-pc-windows-gnu
+          #   runner: ubuntu-latest
+          
+          # Android Targets
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-linux-android
+            runner: ubuntu-latest
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: armv7-linux-androideabi
+            runner: ubuntu-latest
+          
+          # MacOS Targets
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-apple-darwin
+            runner: macos-13
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-apple-darwin
+            runner: macos-13
+          
+          # # iOS Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-apple-ios
+          #   runner: macos-13
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-ios
+          #   runner: macos-13
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-ios-sim
+          #   runner: macos-13
+    steps:
+      - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - name: Setup Gradle
-        uses: RDXWorks-actions/gradle-build-action@main
+      - name: Install Rust Toolchain
+        uses: RDXWorks-actions/toolchain@master
         with:
-          gradle-version: 8.4
-          #arguments: wrapper -p interop/kotlin/ret-kotlin
+          toolchain: nightly-2024-02-01
+          default: true
+          profile: minimal
+          target: ${{ matrix.build-target.target-triple }}
+      # - name: Run sccache-cache
+      #   uses: mozilla-actions/sccache-action@v0.0.3
 
-  # build-schemas-and-test-kit:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: RDXWorks-actions/checkout@main
-  #     with:
-  #       ref: ${{ inputs.ref }}
-  #   - name: Install Rust Toolchain
-  #     uses: RDXWorks-actions/toolchain@master
-  #     with:
-  #       toolchain: nightly-2024-02-01
-  #       default: true
-  #       profile: minimal
-  #   # - name: Run sccache-cache
-  #   #   uses: mozilla-actions/sccache-action@v0.0.3
-  #   - name: Generate Test Kit
-  #     run: cargo run
-  #     env:
-  #       # Enable sccache
-  #       SCCACHE_GHA_ENABLED: "true"
-  #       # RUSTC_WRAPPER: "sccache"
-  #     working-directory: crates/generator
-  #   - name: Upload Generated Artifacts
-  #     uses: RDXWorks-actions/upload-artifact@main
-  #     with:
-  #       name: "schemas-and-test-kit"
-  #       path: "crates/generator/output"
-  # build:
-  #   runs-on: ${{ matrix.build-target.runner }}
-  #   continue-on-error: true
-  #   strategy:
-  #     matrix:
-  #       build-target:
-  #         # ===============
-  #         # UniFFI Toolkit
-  #         # ===============
+      # Installing Build Dependencies
+      - name: Adding Target
+        run: rustup target add ${{ matrix.build-target.target-triple }}
+      - name: Build Dependencies (aarch64 linux)
+        if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "AR=aarch64-linux-gnu-gcc-ar" >> $GITHUB_ENV
+          echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
+      - name: Build Dependencies (android)
+        uses: RDXWorks-actions/setup-ndk@v1
+        id: setup-ndk
+        if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' || matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
+        with:
+          ndk-version: r25b
+      - name: Build Dependencies (aarch64 android)
+        if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: | 
+          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
+          echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
+          echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
+      - name: Build Dependencies (armv7 android)
+        if: ${{ matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: | 
+          echo "CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
+          echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
+          echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
+      - name: Build Dependencies (aarch64/x86_64 windows)
+        if: ${{ matrix.build-target.target-triple == 'x86_64-pc-windows-gnu' }}
+        run: | 
+          sudo apt-get install -y mingw-w64
+          echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
+          echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
 
-  #         # Linux Targets
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: x86_64-unknown-linux-gnu
-  #           runner: ubuntu-20.04
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: aarch64-unknown-linux-gnu
-  #           runner: ubuntu-latest
-          
-  #         # PC Targets
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: x86_64-pc-windows-gnu
-  #           runner: ubuntu-latest
-          
-  #         # Android Targets
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: aarch64-linux-android
-  #           runner: ubuntu-latest
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: armv7-linux-androideabi
-  #           runner: ubuntu-latest
-          
-  #         # MacOS Targets
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: aarch64-apple-darwin
-  #           runner: macos-13
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: x86_64-apple-darwin
-  #           runner: macos-13
-          
-  #         # iOS Targets
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: x86_64-apple-ios
-  #           runner: macos-13
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: aarch64-apple-ios
-  #           runner: macos-13
-  #         - crate: radix-engine-toolkit-uniffi
-  #           target-triple: aarch64-apple-ios-sim
-  #           runner: macos-13
-  #   steps:
-  #     - uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - name: Install Rust Toolchain
-  #       uses: RDXWorks-actions/toolchain@master
-  #       with:
-  #         toolchain: nightly-2024-02-01
-  #         default: true
-  #         profile: minimal
-  #         target: ${{ matrix.build-target.target-triple }}
-  #     # - name: Run sccache-cache
-  #     #   uses: mozilla-actions/sccache-action@v0.0.3
+      - name: Build
+        working-directory: crates/${{ matrix.build-target.crate }}
+        env:
+          # The minumum iOS version of the iOS builds - has no effect outside
+          # iOS builds.
+          IPHONEOS_DEPLOYMENT_TARGET: "11.0"
+          # Enable sccache
+          SCCACHE_GHA_ENABLED: "true"
+          # RUSTC_WRAPPER: "sccache"
+        run: |
+          echo $IPHONEOS_DEPLOYMENT_TARGET
+          cargo build \
+            --target ${{ matrix.build-target.target-triple }} \
+            --release
+      - name: Clean Build Artifacts
+        run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+      - name: Upload Artifacts
+        uses: RDXWorks-actions/upload-artifact@main
+        with:
+          name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
+          path: "target/${{ matrix.build-target.target-triple }}/release"
+  generate-uniffi-bindings:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Clone uniffi-bindgen-cs
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: radixdlt/uniffi-bindgen-cs
+          path: uniffi-bindgen-cs
+          submodules: 'recursive'
+          ref: c2c9ab306cc8b8402b2a8ba76c632ad090435023
+      - name: Clone uniffi-bindgen-go
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: NordSecurity/uniffi-bindgen-go
+          path: uniffi-bindgen-go
+          submodules: 'recursive'
+          ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
+      - uses: RDXWorks-actions/download-artifact@main
+        with:
+          path: artifacts
+      - name: Generate the Bindings
+        run: |
+          # Generating the path of the dynamic library
+          DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
+          OUTPUT_DIRECTORY="./uniffi-bindings"
 
-  #     # Installing Build Dependencies
-  #     - name: Adding Target
-  #       run: rustup target add ${{ matrix.build-target.target-triple }}
-  #     - name: Build Dependencies (aarch64 linux)
-  #       if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y gcc-aarch64-linux-gnu
-  #         echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-  #         echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-  #         echo "AR=aarch64-linux-gnu-gcc-ar" >> $GITHUB_ENV
-  #         echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
-  #     - name: Build Dependencies (android)
-  #       uses: RDXWorks-actions/setup-ndk@v1
-  #       id: setup-ndk
-  #       if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' || matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
-  #       with:
-  #         ndk-version: r25b
-  #     - name: Build Dependencies (aarch64 android)
-  #       if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' }}
-  #       env:
-  #         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-  #       run: | 
-  #         echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
-  #         echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
-  #         echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
-  #     - name: Build Dependencies (armv7 android)
-  #       if: ${{ matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
-  #       env:
-  #         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-  #       run: | 
-  #         echo "CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
-  #         echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
-  #         echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
-  #     - name: Build Dependencies (aarch64/x86_64 windows)
-  #       if: ${{ matrix.build-target.target-triple == 'x86_64-pc-windows-gnu' }}
-  #       run: | 
-  #         sudo apt-get install -y mingw-w64
-  #         echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
-  #         echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
-  #         echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
-  #         echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
+          for LANGUAGE in "swift" "kotlin" "python"
+          do
+            cargo run \
+              --manifest-path="./crates/uniffi-bindgen/Cargo.toml" -- \
+              generate ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+              --language $LANGUAGE \
+              --out-dir $OUTPUT_DIRECTORY \
+              --lib-file $DYNAMIC_LIBRARY_PATH
+          done
 
-  #     - name: Build
-  #       working-directory: crates/${{ matrix.build-target.crate }}
-  #       env:
-  #         # The minumum iOS version of the iOS builds - has no effect outside
-  #         # iOS builds.
-  #         IPHONEOS_DEPLOYMENT_TARGET: "11.0"
-  #         # Enable sccache
-  #         SCCACHE_GHA_ENABLED: "true"
-  #         # RUSTC_WRAPPER: "sccache"
-  #       run: |
-  #         echo $IPHONEOS_DEPLOYMENT_TARGET
-  #         cargo build \
-  #           --target ${{ matrix.build-target.target-triple }} \
-  #           --release
-  #     - name: Clean Build Artifacts
-  #       run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
-  #     - name: Upload Artifacts
-  #       uses: RDXWorks-actions/upload-artifact@main
-  #       with:
-  #         name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
-  #         path: "target/${{ matrix.build-target.target-triple }}/release"
-  # generate-uniffi-bindings:
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - name: Clone uniffi-bindgen-cs
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         repository: radixdlt/uniffi-bindgen-cs
-  #         path: uniffi-bindgen-cs
-  #         submodules: 'recursive'
-  #         ref: c2c9ab306cc8b8402b2a8ba76c632ad090435023
-  #     - name: Clone uniffi-bindgen-go
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         repository: NordSecurity/uniffi-bindgen-go
-  #         path: uniffi-bindgen-go
-  #         submodules: 'recursive'
-  #         ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
-  #     - uses: RDXWorks-actions/download-artifact@main
-  #       with:
-  #         path: artifacts
-  #     - name: Generate the Bindings
-  #       run: |
-  #         # Generating the path of the dynamic library
-  #         DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
-  #         OUTPUT_DIRECTORY="./uniffi-bindings"
+          cargo run \
+            --manifest-path="./uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
+            ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH
 
-  #         for LANGUAGE in "swift" "kotlin" "python"
-  #         do
-  #           cargo run \
-  #             --manifest-path="./crates/uniffi-bindgen/Cargo.toml" -- \
-  #             generate ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-  #             --language $LANGUAGE \
-  #             --out-dir $OUTPUT_DIRECTORY \
-  #             --lib-file $DYNAMIC_LIBRARY_PATH
-  #         done
-
-  #         cargo run \
-  #           --manifest-path="./uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
-  #           ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-  #           --out-dir $OUTPUT_DIRECTORY \
-  #           --lib-file $DYNAMIC_LIBRARY_PATH
-
-  #         cargo run \
-  #           --manifest-path="./uniffi-bindgen-go/bindgen/Cargo.toml" -- \
-  #           ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-  #           --out-dir $OUTPUT_DIRECTORY \
-  #           --lib-file $DYNAMIC_LIBRARY_PATH \
-  #           --no-format
-  #     - name: Upload Artifacts
-  #       uses: RDXWorks-actions/upload-artifact@main
-  #       with:
-  #         name: uniffi-bindings
-  #         path: uniffi-bindings
+          cargo run \
+            --manifest-path="./uniffi-bindgen-go/bindgen/Cargo.toml" -- \
+            ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH \
+            --no-format
+      - name: Upload Artifacts
+        uses: RDXWorks-actions/upload-artifact@main
+        with:
+          name: uniffi-bindings
+          path: uniffi-bindings
   # publish-swift-spm:
   #   needs: [build, generate-uniffi-bindings]
   #   runs-on: macos-latest
@@ -392,36 +372,36 @@ jobs:
   #       with:
   #         name: "RadixEngineToolkit.xcframework"
   #         path: "./artifacts/RadixEngineToolkit.xcframework"
-  # publish-kotlin-maven-github:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: macos-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: RDXWorks-actions/download-artifact@main
-  #       with:
-  #         path: artifacts
-  #     - name: Create Kotlin Library
-  #       working-directory: interop/kotlin
-  #       run:
-  #         ./bootstrap.sh ${{ inputs.kotlin-version }}
-  #     - name: Setup Gradle
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         gradle-version: 8.4
-  #         arguments: wrapper -p interop/kotlin/ret-kotlin
-  #     - name: Build and publish Kotlin
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
-  #         build-root-directory: interop/kotlin/ret-kotlin
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-kotlin-maven-github:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: macos-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: RDXWorks-actions/download-artifact@main
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run:
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
+      - name: Setup Gradle
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          gradle-version: 8.4
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      # - name: Build and publish Kotlin
+      #   uses: RDXWorks-actions/gradle-build-action@main
+      #   with:
+      #     arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
+      #     build-root-directory: interop/kotlin/ret-kotlin
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # publish-kotlin-maven-central:
   #   needs: [build, generate-uniffi-bindings]
   #   runs-on: ubuntu-latest
