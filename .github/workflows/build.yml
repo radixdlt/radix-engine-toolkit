@@ -2,32 +2,33 @@
 
 name: Build
 on:
-  workflow_dispatch:
-    inputs:
-      swift-version:
-        type: string
-        required: true
-        description: The version to use for the Swift package (format v1.2.3)
-      kotlin-version:
-        type: string
-        required: true
-        description: The version to use for the Kotlin & Android packages (format v1.2.3)
-      python-version:
-        type: string
-        required: true
-        description: The version to use for the Python package (format v1.2.3)
-      cs-version:
-        type: string
-        required: true
-        description: The version to use for the C# package (format 1.2.3)
-      go-version:
-        type: string
-        required: true
-        description: The version to use for the Go package (format v1.2.3)
-      ref:
-        type: string
-        default: "main"
-        description: The branch, tag, or sha to checkout - default to "main".
+  push:
+  # workflow_dispatch:
+  #   inputs:
+  #     swift-version:
+  #       type: string
+  #       required: true
+  #       description: The version to use for the Swift package (format v1.2.3)
+  #     kotlin-version:
+  #       type: string
+  #       required: true
+  #       description: The version to use for the Kotlin & Android packages (format v1.2.3)
+  #     python-version:
+  #       type: string
+  #       required: true
+  #       description: The version to use for the Python package (format v1.2.3)
+  #     cs-version:
+  #       type: string
+  #       required: true
+  #       description: The version to use for the C# package (format 1.2.3)
+  #     go-version:
+  #       type: string
+  #       required: true
+  #       description: The version to use for the Go package (format v1.2.3)
+  #     ref:
+  #       type: string
+  #       default: "main"
+  #       description: The branch, tag, or sha to checkout - default to "main".
 env:
   CARGO_TERM_COLOR: always
 jobs:
