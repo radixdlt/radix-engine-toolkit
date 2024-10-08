@@ -33,7 +33,7 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   test-gradle:
-    runs-on: macos-12
+    runs-on: macos-latest
     permissions:
       contents: read
       packages: write
@@ -48,7 +48,7 @@ jobs:
       - name: Setup Gradle
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          gradle-version: 8.4
+          gradle-version: 8.0.2
           arguments: wrapper -p interop/kotlin/ret-kotlin
 
   # build-schemas-and-test-kit:
