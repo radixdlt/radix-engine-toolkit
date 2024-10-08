@@ -42,10 +42,6 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - name: Create Kotlin Library
-        working-directory: interop/kotlin
-        run:
-          ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
         uses: RDXWorks-actions/gradle-build-action@main
         with:
