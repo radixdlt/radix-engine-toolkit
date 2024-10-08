@@ -33,7 +33,7 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   test-gradle:
-    runs-on: macos-12
+    runs-on: macos-11
     permissions:
       contents: read
       packages: write
