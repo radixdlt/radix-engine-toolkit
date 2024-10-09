@@ -372,7 +372,7 @@ jobs:
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-13
     permissions:
       contents: read
       packages: write
@@ -418,10 +418,6 @@ jobs:
           ref: main
           token: ${{ github.token }}
           path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: 'https://github.com/github'
       - name: Configure AWS credentials to fetch secrets
         uses: RDXWorks-actions/configure-aws-credentials@main
         with:
@@ -462,7 +458,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-13
     permissions:
       contents: read
       packages: write
