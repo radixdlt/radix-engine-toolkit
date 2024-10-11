@@ -92,6 +92,26 @@ impl NonFungibleGlobalId {
         )
     }
 
+    #[uniffi::constructor]
+    pub fn global_caller_badge(
+        component_address: Arc<Address>,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_virtual_global_caller_non_fungible_global_id_from_component_address(
+            component_address, network_id,
+        )
+    }
+
+    #[uniffi::constructor]
+    pub fn package_of_direct_caller_badge(
+        package_address: Arc<Address>,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_virtual_package_of_direct_caller_non_fungible_global_id_from_component_address(
+            package_address, network_id,
+        )
+    }
+
     pub fn resource_address(&self) -> Arc<Address> {
         let address = self.0.resource_address();
         Arc::new(Address::from_typed_node_id(address, self.1))
@@ -179,10 +199,10 @@ pub fn non_fungible_local_id_sbor_decode(
     bytes: Vec<u8>,
 ) -> Result<NonFungibleLocalId> {
     let native = match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => native_scrypto_decode::<
-            NativeNonFungibleLocalId,
-        >(&bytes)
-        .map_err(Into::into),
+        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_scrypto_decode::<NativeNonFungibleLocalId>(&bytes)
+                .map_err(Into::into)
+        }
         Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
             native_manifest_decode::<NativeNonFungibleLocalId>(&bytes)
                 .map_err(Into::into)

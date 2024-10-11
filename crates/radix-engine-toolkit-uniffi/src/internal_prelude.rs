@@ -40,6 +40,8 @@ mod core {
         virtual_account_address_from_public_key as core_virtual_account_address_from_public_key,
         virtual_identity_address_from_public_key as core_virtual_identity_address_from_public_key,
         virtual_signature_non_fungible_global_id_from_public_key as core_virtual_signature_non_fungible_global_id_from_public_key,
+        virtual_global_caller_non_fungible_global_id_from_component_address as core_virtual_global_caller_non_fungible_global_id_from_component_address,
+        virtual_package_of_direct_caller_non_fungible_global_id_from_component_address as core_virtual_package_of_direct_caller_non_fungible_global_id_from_component_address,
         virtual_account_address_from_olympia_account_address as core_virtual_account_address_from_olympia_account_address,
         resource_address_from_olympia_resource_address as core_resource_address_from_olympia_resource_address,
         public_key_from_olympia_account_address as core_public_key_from_olympia_account_address,

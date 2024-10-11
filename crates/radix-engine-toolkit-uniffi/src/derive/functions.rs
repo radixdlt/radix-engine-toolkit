@@ -49,7 +49,37 @@ pub fn derive_virtual_signature_non_fungible_global_id_from_public_key(
         core_virtual_signature_non_fungible_global_id_from_public_key(
             &public_key,
         );
-    Ok(Arc::new(NonFungibleGlobalId(non_fungible_global_id, network_id)))
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
+pub fn derive_virtual_global_caller_non_fungible_global_id_from_component_address(
+    component_address: Arc<Address>,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let component_address =
+        NativeComponentAddress::try_from(*component_address)?;
+    let non_fungible_global_id = core_virtual_global_caller_non_fungible_global_id_from_component_address(component_address);
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
+pub fn derive_virtual_package_of_direct_caller_non_fungible_global_id_from_component_address(
+    package_address: Arc<Address>,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let package_address = NativePackageAddress::try_from(*package_address)?;
+    let non_fungible_global_id = core_virtual_package_of_direct_caller_non_fungible_global_id_from_component_address(package_address);
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
@@ -61,7 +91,10 @@ pub fn derive_virtual_account_address_from_olympia_account_address(
         core_virtual_account_address_from_olympia_account_address(
             &olympia_account_address.0,
         )?;
-    Ok(Arc::new(Address::from_typed_node_id(component_address, network_id)))
+    Ok(Arc::new(Address::from_typed_node_id(
+        component_address,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
@@ -72,7 +105,10 @@ pub fn derive_resource_address_from_olympia_resource_address(
     let resource_address = core_resource_address_from_olympia_resource_address(
         &olympia_resource_address.0,
     )?;
-    Ok(Arc::new(Address::from_typed_node_id(resource_address, network_id)))
+    Ok(Arc::new(Address::from_typed_node_id(
+        resource_address,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
