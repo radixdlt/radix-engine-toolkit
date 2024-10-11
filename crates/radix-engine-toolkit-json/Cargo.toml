@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit-json"
-version = "2.2.0-dev1"
+version = "2.2.0-dev2"
 edition = "2021"
 
 [dependencies]
