@@ -3,6 +3,46 @@ use std::sync::*;
 use radix_engine_toolkit_uniffi::prelude::*;
 
 #[test]
+fn subintent_transaction_hash_is_derived_correctly() -> Result<()> {
+    // Arrange
+    let [signer_private_key] = private_keys();
+
+    let partial_transaction = SignedPartialTransactionV2Builder::new()
+        .intent_header(IntentHeaderV2 {
+            network_id: 0x01,
+            start_epoch_inclusive: 1,
+            end_epoch_exclusive: 10,
+            min_proposer_timestamp_inclusive: None,
+            max_proposer_timestamp_exclusive: None,
+            intent_discriminator: 100,
+        })
+        .manifest(
+            ManifestV2Builder::new()
+                .drop_all_proofs()?
+                .drop_auth_zone_proofs()?
+                .drop_auth_zone_signature_proofs()?
+                .yield_to_parent(vec![])?
+                .build(1),
+        )
+        .prepare_for_signing()?
+        .sign_with_private_key(signer_private_key.clone())
+        .build();
+
+    // Act
+    let subintent_hash = partial_transaction
+        .partial_transaction()
+        .root_subintent
+        .subintent_hash()
+        .unwrap()
+        .as_str();
+
+    // Assert
+    assert!(subintent_hash.starts_with("subtxid_"));
+
+    Ok(())
+}
+
+#[test]
 fn partial_transaction_builder_produces_valid_partial_transactions()
 -> Result<()> {
     // Arrange

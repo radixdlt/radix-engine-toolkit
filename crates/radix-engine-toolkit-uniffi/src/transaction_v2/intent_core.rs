@@ -96,7 +96,7 @@ impl IntentCoreV2 {
             .prepare(&NativePreparationSettings::latest())?
             .subintent_hash();
         Ok(Arc::new(TransactionHash::new(
-            &NativeIntentHash(hash.0),
+            &NativeSubintentHash(hash.0),
             self.header.network_id,
         )))
     }
