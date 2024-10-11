@@ -20,19 +20,41 @@
 use crate::prelude::*;
 use radix_common::prelude::{to_manifest_value, FromPublicKey};
 
-#[derive(Debug, Clone, Object, Default)]
+#[derive(Debug, Clone, Object)]
 pub struct ManifestV2Builder {
     name_record: NameRecord,
     instructions: Vec<NativeInstructionV2>,
     blobs: Vec<Vec<u8>>,
     children: Vec<NativeHash>,
+    network_id: u8,
 }
 
 #[uniffi::export]
 impl ManifestV2Builder {
     #[uniffi::constructor]
-    pub fn new() -> Arc<Self> {
-        Arc::new(Default::default())
+    pub fn new(network_id: u8) -> Arc<Self> {
+        Arc::new(Self {
+            name_record: Default::default(),
+            instructions: Default::default(),
+            blobs: Default::default(),
+            children: Default::default(),
+            network_id,
+        })
+    }
+
+    // ====================
+    // Adding Instructions
+    // ====================
+
+    pub fn add_instruction(
+        self: Arc<Self>,
+        instruction: InstructionV2,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let instruction = instruction.to_native()?;
+            builder.instructions.push(instruction);
+            Ok(())
+        })
     }
 
     //===================
@@ -1131,14 +1153,11 @@ impl ManifestV2Builder {
     // Builder Methods
     //=================
 
-    pub fn build(
-        self: Arc<Self>,
-        network_id: u8,
-    ) -> Arc<TransactionManifestV2> {
+    pub fn build(self: Arc<Self>) -> Arc<TransactionManifestV2> {
         Arc::new(TransactionManifestV2 {
             instructions: Arc::new(InstructionsV2(
                 self.instructions.clone(),
-                network_id,
+                self.network_id,
             )),
             blobs: self.blobs.clone(),
             children: self
