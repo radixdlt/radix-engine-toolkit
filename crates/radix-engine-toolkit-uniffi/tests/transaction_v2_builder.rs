@@ -17,12 +17,12 @@ fn subintent_transaction_hash_is_derived_correctly() -> Result<()> {
             intent_discriminator: 100,
         })
         .manifest(
-            ManifestV2Builder::new()
+            ManifestV2Builder::new(1)
                 .drop_all_proofs()?
                 .drop_auth_zone_proofs()?
                 .drop_auth_zone_signature_proofs()?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -32,8 +32,7 @@ fn subintent_transaction_hash_is_derived_correctly() -> Result<()> {
     let subintent_hash = partial_transaction
         .partial_transaction()
         .root_subintent
-        .subintent_hash()
-        .unwrap()
+        .subintent_hash()?
         .as_str();
 
     // Assert
@@ -59,12 +58,12 @@ fn partial_transaction_builder_produces_valid_partial_transactions()
             intent_discriminator: 100,
         })
         .manifest(
-            ManifestV2Builder::new()
+            ManifestV2Builder::new(1)
                 .drop_all_proofs()?
                 .drop_auth_zone_proofs()?
                 .drop_auth_zone_signature_proofs()?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -101,12 +100,12 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_child_su
             intent_discriminator: 100,
         })
         .manifest(
-            ManifestV2Builder::new()
+            ManifestV2Builder::new(1)
                 .drop_all_proofs()?
                 .drop_auth_zone_proofs()?
                 .drop_auth_zone_signature_proofs()?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -124,16 +123,17 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_child_su
         })
         .add_child(child_partial_transaction.clone())
         .manifest(
-            ManifestV2Builder::new()
-                .register_subintent(
+            ManifestV2Builder::new(1)
+                .use_child(
                     child_partial_transaction
                         .partial_transaction()
-                        .root_subintent(),
+                        .root_subintent()
+                        .subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -171,12 +171,12 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple
                 intent_discriminator: 100,
             })
             .manifest(
-                ManifestV2Builder::new()
+                ManifestV2Builder::new(1)
                     .drop_all_proofs()?
                     .drop_auth_zone_proofs()?
                     .drop_auth_zone_signature_proofs()?
                     .yield_to_parent(vec![])?
-                    .build(1),
+                    .build(),
             )
             .prepare_for_signing()?
             .sign_with_private_key(signer_private_key.clone())
@@ -190,19 +190,20 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple
             max_proposer_timestamp_exclusive: None,
             intent_discriminator: 100,
         })
-        .add_child(child_child_partial_transaction.clone())
         .manifest(
-            ManifestV2Builder::new()
-                .register_subintent(
+            ManifestV2Builder::new(1)
+                .use_child(
                     child_child_partial_transaction
                         .partial_transaction()
-                        .root_subintent(),
+                        .root_subintent()
+                        .subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
+        .add_child(child_child_partial_transaction)
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
         .build();
@@ -219,16 +220,17 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple
         })
         .add_child(child_partial_transaction.clone())
         .manifest(
-            ManifestV2Builder::new()
-                .register_subintent(
+            ManifestV2Builder::new(1)
+                .use_child(
                     child_partial_transaction
                         .partial_transaction()
-                        .root_subintent(),
+                        .root_subintent()
+                        .subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -272,11 +274,11 @@ fn transaction_builder_v2_produces_statically_valid_transactions() -> Result<()>
             intent_discriminator: 100,
         })
         .manifest(
-            ManifestV2Builder::new()
+            ManifestV2Builder::new(1)
                 .drop_all_proofs()?
                 .drop_auth_zone_proofs()?
                 .drop_auth_zone_signature_proofs()?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -314,12 +316,12 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
                 intent_discriminator: 100,
             })
             .manifest(
-                ManifestV2Builder::new()
+                ManifestV2Builder::new(1)
                     .drop_all_proofs()?
                     .drop_auth_zone_proofs()?
                     .drop_auth_zone_signature_proofs()?
                     .yield_to_parent(vec![])?
-                    .build(1),
+                    .build(),
             )
             .prepare_for_signing()?
             .sign_with_private_key(signer_private_key.clone())
@@ -335,16 +337,17 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
         })
         .add_child(child_child_partial_transaction.clone())
         .manifest(
-            ManifestV2Builder::new()
-                .register_subintent(
+            ManifestV2Builder::new(1)
+                .use_child(
                     child_child_partial_transaction
                         .partial_transaction()
-                        .root_subintent(),
+                        .root_subintent()
+                        .subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
                 .yield_to_parent(vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())
@@ -367,15 +370,16 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
         })
         .add_child(child_partial_transaction.clone())
         .manifest(
-            ManifestV2Builder::new()
-                .register_subintent(
+            ManifestV2Builder::new(1)
+                .use_child(
                     child_partial_transaction
                         .partial_transaction()
-                        .root_subintent(),
+                        .root_subintent()
+                        .subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
-                .build(1),
+                .build(),
         )
         .prepare_for_signing()?
         .sign_with_private_key(signer_private_key.clone())

@@ -1098,15 +1098,14 @@ impl ManifestV2Builder {
         })
     }
 
-    pub fn register_subintent(
+    pub fn use_child(
         self: Arc<Self>,
-        subintent: Arc<IntentCoreV2>,
+        subintent_hash: Arc<TransactionHash>,
         name: ManifestBuilderIntent,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             builder.name_record.new_intent(&name.name)?;
-            let intent_hash = subintent.subintent_hash()?.0;
-            builder.children.push(intent_hash);
+            builder.children.push(subintent_hash.0);
             Ok(())
         })
     }
