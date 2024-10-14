@@ -374,7 +374,7 @@ jobs:
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -460,7 +460,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
