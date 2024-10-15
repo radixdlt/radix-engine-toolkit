@@ -84,7 +84,7 @@ impl TryFrom<NativeIntentCoreV2> for IntentCoreV2 {
     ) -> Result<Self> {
         Ok(Self {
             instructions: Arc::new(InstructionsV2(
-                instructions.0.as_ref().clone(),
+                instructions.0,
                 header.network_id,
             )),
             header: IntentHeaderV2::from(header),
@@ -124,9 +124,7 @@ impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
                     .map(|hash| NativeChildSubintent { hash })
                     .collect(),
             },
-            instructions: NativeInstructionsV2(std::rc::Rc::new(
-                instructions.as_ref().0.to_vec(),
-            )),
+            instructions: NativeInstructionsV2(instructions.as_ref().0.to_vec()),
         })
     }
 }

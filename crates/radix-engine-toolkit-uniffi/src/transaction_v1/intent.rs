@@ -104,7 +104,7 @@ impl From<NativeIntentV1> for IntentV1 {
         let blobs = blobs.blobs;
         let instructions = instructions.0;
         let manifest = NativeTransactionManifestV1 {
-            instructions: instructions.as_ref().clone(),
+            instructions,
             blobs: blobs
                 .iter()
                 .map(|blob| (native_hash(&blob.0), blob.0.clone()))
@@ -136,9 +136,7 @@ impl TryFrom<IntentV1> for NativeIntentV1 {
                 .map(NativeBlobV1)
                 .collect(),
         };
-        let instructions = NativeInstructionsV1(std::rc::Rc::new(
-            value.manifest.instructions.0.clone(),
-        ));
+        let instructions = NativeInstructionsV1(value.manifest.instructions.0.clone());
         let header = value.header.try_into()?;
         let message = value.message.try_into()?;
 
