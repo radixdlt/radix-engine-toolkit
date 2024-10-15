@@ -124,7 +124,9 @@ impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
                     .map(|hash| NativeChildSubintent { hash })
                     .collect(),
             },
-            instructions: NativeInstructionsV2(instructions.as_ref().0.to_vec()),
+            instructions: NativeInstructionsV2(
+                instructions.as_ref().0.to_vec(),
+            ),
         })
     }
 }

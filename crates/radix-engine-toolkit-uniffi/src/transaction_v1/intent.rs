@@ -136,7 +136,8 @@ impl TryFrom<IntentV1> for NativeIntentV1 {
                 .map(NativeBlobV1)
                 .collect(),
         };
-        let instructions = NativeInstructionsV1(value.manifest.instructions.0.clone());
+        let instructions =
+            NativeInstructionsV1(value.manifest.instructions.0.clone());
         let header = value.header.try_into()?;
         let message = value.message.try_into()?;
 
