@@ -176,6 +176,7 @@ pub struct TransactionV2BuilderSignatureStep {
     signed_transaction_intent: SignedTransactionIntentV2,
 }
 
+#[uniffi::export]
 impl TransactionV2BuilderSignatureStep {
     pub fn sign_with_private_key(
         self: Arc<Self>,
@@ -223,7 +224,7 @@ impl TransactionV2BuilderSignatureStep {
 
     pub fn notarize_with_signer(
         self: Arc<Self>,
-        private_key: Arc<dyn Signer>,
+        private_key: Box<dyn Signer>,
     ) -> Result<Arc<NotarizedTransactionV2>> {
         let signed_transaction_intent_hash =
             self.signed_transaction_intent.signed_intent_hash()?.0;
