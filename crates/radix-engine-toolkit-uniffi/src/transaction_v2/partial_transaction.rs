@@ -19,16 +19,16 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
 pub struct PartialTransactionV2 {
-    pub root_subintent: Arc<IntentCoreV2>,
-    pub non_root_subintents: Vec<Arc<IntentCoreV2>>,
+    pub root_subintent: Arc<SubintentV2>,
+    pub non_root_subintents: Vec<Arc<SubintentV2>>,
 }
 
 #[uniffi::export]
 impl PartialTransactionV2 {
     #[uniffi::constructor]
     pub fn new(
-        root_subintent: Arc<IntentCoreV2>,
-        non_root_subintents: Vec<Arc<IntentCoreV2>>,
+        root_subintent: Arc<SubintentV2>,
+        non_root_subintents: Vec<Arc<SubintentV2>>,
     ) -> Arc<Self> {
         Arc::new(Self {
             root_subintent,
@@ -47,30 +47,16 @@ impl PartialTransactionV2 {
         })
     }
 
-    pub fn root_subintent(&self) -> Arc<IntentCoreV2> {
+    pub fn root_subintent(&self) -> Arc<SubintentV2> {
         self.root_subintent.clone()
     }
 
-    pub fn non_root_subintents(&self) -> Vec<Arc<IntentCoreV2>> {
+    pub fn non_root_subintents(&self) -> Vec<Arc<SubintentV2>> {
         self.non_root_subintents.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativePartialTransactionV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_partial_transaction_hash(&intent)
-                .map_err(Into::into)
-                .map(|hash| {
-                    let intent_hash = NativeIntentHash(hash.hash);
-                    Arc::new(TransactionHash::new(
-                        &intent_hash,
-                        self.root_subintent.header.network_id,
-                    ))
-                })
-        })
-    }
-
-    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.hash()
+    pub fn root_subintent_hash(&self) -> Result<Arc<TransactionHash>> {
+        self.root_subintent.subintent_hash()
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
@@ -91,15 +77,11 @@ impl TryFrom<NativePartialTransactionV2> for PartialTransactionV2 {
         }: NativePartialTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
-            root_subintent: Arc::new(IntentCoreV2::try_from(
-                root_subintent.intent_core,
-            )?),
+            root_subintent: Arc::new(SubintentV2::try_from(root_subintent)?),
             non_root_subintents: non_root_subintents
                 .0
                 .into_iter()
-                .map(|value| {
-                    IntentCoreV2::try_from(value.intent_core).map(Arc::new)
-                })
+                .map(|value| SubintentV2::try_from(value).map(Arc::new))
                 .collect::<Result<_>>()?,
         })
     }
@@ -115,19 +97,12 @@ impl TryFrom<PartialTransactionV2> for NativePartialTransactionV2 {
         }: PartialTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
-            root_subintent: root_subintent
-                .as_ref()
-                .clone()
-                .try_into()
-                .map(|value| NativeSubintentV2 { intent_core: value })?,
+            root_subintent: root_subintent.as_ref().clone().try_into()?,
             non_root_subintents: NativeNonRootSubintentsV2(
                 non_root_subintents
                     .into_iter()
                     .map(|item| item.as_ref().clone())
-                    .map(|item| {
-                        item.try_into()
-                            .map(|item| NativeSubintentV2 { intent_core: item })
-                    })
+                    .map(|item| item.try_into())
                     .collect::<Result<_>>()?,
             ),
         })

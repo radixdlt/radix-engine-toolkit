@@ -16,7 +16,6 @@
 // under the License.
 
 pub mod instructions;
-pub mod intent_core;
 pub mod manifest;
 pub mod notarized_transaction;
 pub mod partial_transaction;

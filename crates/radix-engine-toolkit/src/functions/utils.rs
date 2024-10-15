@@ -33,6 +33,7 @@ pub fn decode_transaction_id(
         hrp_set.transaction_intent,
         hrp_set.signed_transaction_intent,
         hrp_set.notarized_transaction,
+        hrp_set.subintent,
         hrp_set.round_update_transaction,
         hrp_set.system_transaction,
         hrp_set.ledger_transaction,

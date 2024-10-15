@@ -108,13 +108,13 @@ impl TransactionV2Builder {
         // Constructing the transaction intent
         let transaction_intent = TransactionIntentV2 {
             transaction_header,
-            root_intent_core: Arc::new(IntentCoreV2 {
+            root_intent_core: IntentCoreV2::new(
                 header,
                 blobs,
                 message,
                 children,
                 instructions,
-            }),
+            ),
             non_root_subintents: signed_children
                 .iter()
                 .flat_map(|child| {

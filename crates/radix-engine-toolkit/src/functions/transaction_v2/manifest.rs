@@ -23,10 +23,6 @@ use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
-pub fn hash(manifest: &TransactionManifestV2) -> Result<Hash, EncodeError> {
-    to_payload_bytes(manifest).map(scrypto::prelude::hash)
-}
-
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV2,
 ) -> Result<Vec<u8>, EncodeError> {

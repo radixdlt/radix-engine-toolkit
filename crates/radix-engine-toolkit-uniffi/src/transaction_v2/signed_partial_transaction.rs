@@ -74,27 +74,8 @@ impl SignedPartialTransactionV2 {
         self.non_root_subintent_signatures.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeSignedPartialTransactionV2::try_from(self.clone()).and_then(
-            |intent| {
-                core_transaction_v2_signed_partial_transaction_hash(&intent)
-                    .map_err(Into::into)
-                    .map(|hash| {
-                        let intent_hash = NativeIntentHash(hash.hash);
-                        Arc::new(TransactionHash::new(
-                            &intent_hash,
-                            self.partial_transaction
-                                .root_subintent
-                                .header
-                                .network_id,
-                        ))
-                    })
-            },
-        )
-    }
-
-    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.hash()
+    pub fn root_subintent_hash(&self) -> Result<Arc<TransactionHash>> {
+        self.partial_transaction.root_subintent_hash()
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {

@@ -23,10 +23,6 @@ use radix_transactions::validation::*;
 
 use crate::transaction_types::*;
 
-pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
-    to_payload_bytes(manifest).map(scrypto::prelude::hash)
-}
-
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV1,
 ) -> Result<Vec<u8>, EncodeError> {

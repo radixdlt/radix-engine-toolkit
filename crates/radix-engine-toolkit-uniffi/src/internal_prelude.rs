@@ -49,9 +49,6 @@ mod core {
         OlympiaNetwork as CoreOlympiaNetwork,
     };
     pub use radix_engine_toolkit::functions::transaction_v1::instructions::{
-        hash as core_transaction_v1_instructions_hash,
-        to_payload_bytes as core_transaction_v1_instructions_to_payload_bytes,
-        from_payload_bytes as core_transaction_v1_instructions_from_payload_bytes,
         statically_validate as core_transaction_v1_instructions_statically_validate,
         extract_addresses as core_transaction_v1_instructions_extract_addresses,
         InstructionValidationError as CoreInstructionValidationError,
@@ -60,7 +57,6 @@ mod core {
         decode_transaction_id as core_decode_transaction_id
     };
     pub use radix_engine_toolkit::functions::transaction_v1::manifest::{
-        hash as core_transaction_v1_manifest_hash,
         to_payload_bytes as core_transaction_v1_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v1_manifest_from_payload_bytes,
         statically_validate as core_transaction_v1_manifest_statically_validate,
@@ -86,22 +82,13 @@ mod core {
         statically_validate as core_transaction_v1_notarized_transaction_statically_validate,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::instructions::{
-        hash as core_transaction_v2_instructions_hash,
-        to_payload_bytes as core_transaction_v2_instructions_to_payload_bytes,
-        from_payload_bytes as core_transaction_v2_instructions_from_payload_bytes,
         extract_addresses as core_transaction_v2_instructions_extract_addresses,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::manifest::{
-        hash as core_transaction_v2_manifest_hash,
         to_payload_bytes as core_transaction_v2_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_manifest_from_payload_bytes,
         statically_analyze as core_transaction_v2_manifest_statically_analyze,
         dynamically_analyze as core_transaction_v2_manifest_dynamically_analyze,
-    };
-    pub use radix_engine_toolkit::functions::transaction_v2::intent_core::{
-        hash as core_transaction_v2_intent_core_hash,
-        to_payload_bytes as core_transaction_v2_intent_core_to_payload_bytes,
-        from_payload_bytes as core_transaction_v2_intent_core_from_payload_bytes,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::subintent::{
         hash as core_transaction_v2_subintent_hash,
@@ -261,6 +248,9 @@ mod native {
 
         Ed25519Signature as NativeEd25519Signature,
         Secp256k1Signature as NativeSecp256k1Signature,
+    };
+    pub use radix_transactions::prelude::{
+        TransactionHashBech32DecodeError as NativeTransactionHashBech32DecodeError,
     };
     pub use radix_transactions::manifest::{
         compile as native_compile,

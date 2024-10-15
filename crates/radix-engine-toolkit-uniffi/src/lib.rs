@@ -115,6 +115,7 @@ pub mod prelude {
     pub use crate::transaction_v2::partial_transaction::*;
     pub use crate::transaction_v2::signed_intent::*;
     pub use crate::transaction_v2::signed_partial_transaction::*;
+    pub use crate::transaction_v2::subintent::*;
     pub use crate::transaction_v2::transaction_header::*;
     pub use crate::transaction_v2::transaction_intent::*;
 
