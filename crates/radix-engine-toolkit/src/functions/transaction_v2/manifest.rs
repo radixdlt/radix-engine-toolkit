@@ -38,29 +38,6 @@ where
     TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {
-    let [
-        InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
-            constraints,
-        }),
-        other_instructions @ ..,
-        InstructionV2::YieldToParent(..),
-    ] = manifest.instructions.as_slice()
-    else {
-        return false;
-    };
-    if constraints.specified_resources().len().is_zero() {
-        return false;
-    }
-
-    !other_instructions.iter().any(|instruction| {
-        matches!(
-            instruction,
-            InstructionV2::YieldToChild(..) | InstructionV2::YieldToParent(..)
-        )
-    })
-}
-
 pub fn statically_analyze(
     manifest: &TransactionManifestV2,
 ) -> Option<StaticAnalysis> {
