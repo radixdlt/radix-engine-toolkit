@@ -25,5 +25,6 @@ pub mod notarized_transaction;
 pub mod partial_transaction;
 pub mod signed_intent;
 pub mod signed_partial_transaction;
+pub mod subintent;
 pub mod transaction_header;
 pub mod transaction_intent;

@@ -125,10 +125,7 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_child_su
         .manifest(
             ManifestV2Builder::new(1)
                 .use_child(
-                    child_partial_transaction
-                        .partial_transaction()
-                        .root_subintent()
-                        .subintent_hash()?,
+                    child_partial_transaction.root_subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
@@ -222,10 +219,7 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple
         .manifest(
             ManifestV2Builder::new(1)
                 .use_child(
-                    child_partial_transaction
-                        .partial_transaction()
-                        .root_subintent()
-                        .subintent_hash()?,
+                    child_partial_transaction.root_subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
@@ -339,10 +333,7 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
         .manifest(
             ManifestV2Builder::new(1)
                 .use_child(
-                    child_child_partial_transaction
-                        .partial_transaction()
-                        .root_subintent()
-                        .subintent_hash()?,
+                    child_child_partial_transaction.root_subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?
@@ -372,10 +363,7 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
         .manifest(
             ManifestV2Builder::new(1)
                 .use_child(
-                    child_partial_transaction
-                        .partial_transaction()
-                        .root_subintent()
-                        .subintent_hash()?,
+                    child_partial_transaction.root_subintent_hash()?,
                     "subintent".into(),
                 )?
                 .yield_to_child("subintent".into(), vec![])?

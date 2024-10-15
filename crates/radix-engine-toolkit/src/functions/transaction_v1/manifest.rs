@@ -18,28 +18,25 @@
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_transactions::errors::*;
+use radix_transactions::manifest::BuildableManifest;
 use radix_transactions::prelude::*;
 use radix_transactions::validation::*;
 
 use crate::transaction_types::*;
 
-pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
-    to_payload_bytes(manifest).map(scrypto::prelude::hash)
-}
-
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV1,
 ) -> Result<Vec<u8>, EncodeError> {
-    manifest_encode(manifest)
+    manifest.clone().to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
     payload_bytes: T,
-) -> Result<TransactionManifestV1, DecodeError>
+) -> Result<TransactionManifestV1, String>
 where
     T: AsRef<[u8]>,
 {
-    manifest_decode(payload_bytes.as_ref())
+    TransactionManifestV1::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
 pub fn statically_validate(

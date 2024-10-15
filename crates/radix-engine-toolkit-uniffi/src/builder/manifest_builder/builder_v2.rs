@@ -1103,6 +1103,14 @@ impl ManifestV2Builder {
         subintent_hash: Arc<TransactionHash>,
         name: ManifestBuilderIntent,
     ) -> Result<Arc<Self>> {
+        if !subintent_hash.as_str().contains("subtxid") {
+            return Err(RadixEngineToolkitError::InstructionAddError {
+                error: format!(
+                    "Subintent hashes have a HRP with 'subtxid', but the following was provided: {}",
+                    subintent_hash.as_str(),
+                ),
+            });
+        }
         builder_arc_map(self, |builder| {
             builder.name_record.new_intent(&name.name)?;
             builder.children.push(subintent_hash.0);

@@ -92,13 +92,13 @@ impl SignedPartialTransactionV2Builder {
 
         // Constructing the partial transaction
         let partial_transaction = PartialTransactionV2 {
-            root_subintent: Arc::new(IntentCoreV2 {
+            root_subintent: SubintentV2::new(IntentCoreV2::new(
                 header,
                 blobs,
                 message,
                 children,
                 instructions,
-            }),
+            )),
             non_root_subintents: signed_children
                 .iter()
                 .flat_map(|child| {

@@ -348,7 +348,7 @@ impl<'r> TransactionTypesReceipt<'r> {
             })
     }
 
-    fn new_entities(&self) -> IndexSet<GlobalAddress> {
+    pub fn new_entities(&self) -> IndexSet<GlobalAddress> {
         self.new_components()
             .iter()
             .map(|item| GlobalAddress::from(*item))

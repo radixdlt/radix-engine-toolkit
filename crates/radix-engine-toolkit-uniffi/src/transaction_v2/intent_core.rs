@@ -45,13 +45,6 @@ impl IntentCoreV2 {
         })
     }
 
-    #[uniffi::constructor]
-    pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_transaction_v2_intent_core_from_payload_bytes(compiled_intent)
-            .map_err(RadixEngineToolkitError::from)
-            .and_then(|intent| intent.try_into().map(Arc::new))
-    }
-
     pub fn header(&self) -> IntentHeaderV2 {
         self.header.clone()
     }
@@ -72,40 +65,8 @@ impl IntentCoreV2 {
         self.instructions.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeIntentCoreV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_intent_core_hash(&intent)
-                .map_err(Into::into)
-                .map(|hash| {
-                    let intent_hash = NativeIntentHash(hash);
-                    Arc::new(TransactionHash::new(
-                        &intent_hash,
-                        self.header.network_id,
-                    ))
-                })
-        })
-    }
-
-    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.hash()
-    }
-
-    pub fn subintent_hash(&self) -> Result<Arc<TransactionHash>> {
-        let hash = NativeIntentCoreV2::try_from(self.clone())
-            .map(|intent_core| NativeSubintentV2 { intent_core })?
-            .prepare(&NativePreparationSettings::latest())?
-            .subintent_hash();
-        Ok(Arc::new(TransactionHash::new(
-            &NativeSubintentHash(hash.0),
-            self.header.network_id,
-        )))
-    }
-
-    pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeIntentCoreV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_intent_core_to_payload_bytes(&intent)
-                .map_err(Into::into)
-        })
+    pub fn into_subintent(self: Arc<Self>) -> Arc<SubintentV2> {
+        SubintentV2::new(self)
     }
 }
 
@@ -123,7 +84,7 @@ impl TryFrom<NativeIntentCoreV2> for IntentCoreV2 {
     ) -> Result<Self> {
         Ok(Self {
             instructions: Arc::new(InstructionsV2(
-                instructions.0.as_ref().clone(),
+                instructions.0,
                 header.network_id,
             )),
             header: IntentHeaderV2::from(header),
@@ -163,9 +124,9 @@ impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
                     .map(|hash| NativeChildSubintent { hash })
                     .collect(),
             },
-            instructions: NativeInstructionsV2(std::rc::Rc::new(
+            instructions: NativeInstructionsV2(
                 instructions.as_ref().0.to_vec(),
-            )),
+            ),
         })
     }
 }

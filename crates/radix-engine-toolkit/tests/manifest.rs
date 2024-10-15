@@ -20,21 +20,6 @@ use scrypto::prelude::*;
 mod test_data;
 
 #[test]
-fn manifest_hash_can_be_obtained() {
-    // Arrange
-    let manifest = test_data::manifest();
-
-    // Act
-    let manifest_hash =
-        radix_engine_toolkit::functions::transaction_v1::manifest::hash(
-            &manifest,
-        );
-
-    // Assert
-    assert!(manifest_hash.is_ok())
-}
-
-#[test]
 fn manifest_can_be_compiled() {
     // Arrange
     let manifest = test_data::manifest();

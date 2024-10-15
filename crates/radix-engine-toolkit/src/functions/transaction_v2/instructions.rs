@@ -16,30 +16,10 @@
 // under the License.
 
 use radix_transactions::prelude::*;
-use sbor::*;
 use scrypto::prelude::*;
 
 use crate::models::node_id::TypedNodeId;
 use crate::sbor::indexed_manifest_value::*;
-
-pub fn hash(instructions: &[InstructionV2]) -> Result<Hash, EncodeError> {
-    to_payload_bytes(instructions).map(scrypto::prelude::hash)
-}
-
-pub fn to_payload_bytes(
-    instructions: &[InstructionV2],
-) -> Result<Vec<u8>, EncodeError> {
-    manifest_encode(instructions)
-}
-
-pub fn from_payload_bytes<T>(
-    payload_bytes: T,
-) -> Result<Vec<InstructionV2>, DecodeError>
-where
-    T: AsRef<[u8]>,
-{
-    manifest_decode(payload_bytes.as_ref())
-}
 
 pub fn extract_addresses(
     instructions: &[InstructionV2],

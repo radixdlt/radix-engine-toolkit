@@ -60,7 +60,9 @@ impl TransactionManifestV1 {
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let decompiled =
-            core_transaction_v1_manifest_from_payload_bytes(compiled)?;
+            core_transaction_v1_manifest_from_payload_bytes(compiled).map_err(
+                |error| RadixEngineToolkitError::ManifestSborError { error },
+            )?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 

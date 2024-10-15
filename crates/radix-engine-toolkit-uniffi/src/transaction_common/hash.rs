@@ -30,10 +30,7 @@ impl TransactionHash {
     pub fn from_str(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition =
             core_network_definition_from_network_id(network_id);
-        let hash = core_decode_transaction_id(&string, &network_definition)
-            .map_err(|_| {
-                RadixEngineToolkitError::FailedToDecodeTransactionHash
-            })?;
+        let hash = core_decode_transaction_id(&string, &network_definition)?;
         Ok(Arc::new(Self(hash, string, network_id)))
     }
 

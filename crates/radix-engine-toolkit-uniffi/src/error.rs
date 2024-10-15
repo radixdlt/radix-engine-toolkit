@@ -21,80 +21,91 @@ pub type Result<T> = std::result::Result<T, RadixEngineToolkitError>;
 
 #[derive(Clone, Debug, Error, ThisError)]
 pub enum RadixEngineToolkitError {
-    #[error("Length check failed.")]
+    #[error("Length check failed. Expected {expected}, actual {actual}.")]
     InvalidLength {
         expected: u64,
         actual: u64,
         data: Vec<u8>,
     },
 
-    #[error("Failed to derive network id from address string")]
+    #[error("Failed to derive network id from address string {address}")]
     FailedToExtractNetwork { address: String },
 
-    #[error("Failed to Bech32m decode the address")]
+    #[error("Failed to Bech32m decode the address: {error}")]
     Bech32DecodeError { error: String },
 
-    #[error("Failed to parse a string into a typed object")]
+    #[error(
+        "Failed to parse a string into a typed object {type_name}: {error}"
+    )]
     ParseError { type_name: String, error: String },
 
     #[error(
-        "Failed to validate content during non-fungible local id conversion"
+        "Failed to validate content during non-fungible local id conversion: {error}"
     )]
     NonFungibleContentValidationError { error: String },
 
-    #[error("Entity type did not match expected")]
+    #[error("Entity type {actual:?} did not match expected {expected:?}")]
     EntityTypeMismatchError {
         expected: Vec<EntityType>,
         actual: EntityType,
     },
 
-    #[error("Failed to perform a derivation")]
+    #[error("Failed to perform a derivation: {error}")]
     DerivationError { error: String },
 
     #[error("Public key is not valid for a given operation")]
     InvalidPublicKey,
 
-    #[error("Manifest compilation errored out")]
+    #[error("Failed to add instruction: {error}")]
+    InstructionAddError { error: String },
+
+    #[error("Manifest compilation errored out: {error}")]
     CompileError { error: String },
 
-    #[error("Manifest decompilation errored out")]
+    #[error("Manifest decompilation errored out: {error}")]
     DecompileError { error: String },
 
-    #[error("Failed while trying to prepare transaction part")]
+    #[error("Failed while trying to prepare transaction part: {error}")]
     PrepareError { error: String },
 
-    #[error("Failed to SBOR encode some data")]
+    #[error("Failed to SBOR encode some data: {error}")]
     EncodeError { error: String },
 
-    #[error("Failed to SBOR decode some payload")]
+    #[error("Failed to SBOR decode some payload: {error}")]
     DecodeError { error: String },
 
-    #[error("Static validation of transaction part has failed")]
+    #[error("Static validation of transaction part has failed: {error}")]
     TransactionValidationFailed { error: String },
 
-    #[error("Execution analysis failed")]
+    #[error("Execution analysis failed: {error}")]
     ExecutionModuleError { error: String },
 
-    #[error("An error occurred during doing a Manifest SBOR encode/decode")]
+    #[error(
+        "An error occurred during doing a Manifest SBOR encode/decode: {error}"
+    )]
     ManifestSborError { error: String },
 
-    #[error("An error occurred during doing a Scrypto SBOR encode/decode")]
+    #[error(
+        "An error occurred during doing a Scrypto SBOR encode/decode: {error}"
+    )]
     ScryptoSborError { error: String },
 
     #[error(
-        "An error occurred when trying to convert native event data to typed"
+        "An error occurred when trying to convert native event data to typed: {error}"
     )]
     TypedNativeEventError { error: String },
 
-    #[error("An error occurred when trying to decode the transaction hash")]
-    FailedToDecodeTransactionHash,
+    #[error(
+        "An error occurred when trying to decode the transaction hash: {error:?}"
+    )]
+    FailedToDecodeTransactionHash { error: String },
 
     #[error(
-        "An error ocurred when building the manifest due to the naming of objects"
+        "An error ocurred when building the manifest due to the naming of objects: {error:?}"
     )]
     ManifestBuilderNameRecordError { error: NameRecordError },
 
-    #[error("The node id has no valid entity type")]
+    #[error("The node id has no valid entity type: {error}")]
     InvalidEntityTypeIdError { error: String },
 
     #[error(
@@ -102,7 +113,7 @@ pub enum RadixEngineToolkitError {
     )]
     DecimalError,
 
-    #[error("An error that occurred in the signer logic")]
+    #[error("An error that occurred in the signer logic: {error}")]
     SignerError { error: String },
 
     #[error("The receipt is not a valid preview receipt")]
@@ -168,6 +179,7 @@ impl_dbg_str_from! { NativeDecompileError, DecompileError }
 impl_dbg_str_from! { NativePrepareError, PrepareError }
 impl_dbg_str_from! { NativeEncodeError, EncodeError }
 impl_dbg_str_from! { NativeDecodeError, DecodeError }
+impl_dbg_str_from! { NativeTransactionHashBech32DecodeError, FailedToDecodeTransactionHash }
 impl_dbg_str_from! { NativeTransactionValidationError, TransactionValidationFailed }
 impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }

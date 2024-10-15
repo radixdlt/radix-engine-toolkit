@@ -21,7 +21,7 @@ use crate::prelude::*;
 pub struct TransactionIntentV2 {
     pub transaction_header: TransactionHeaderV2,
     pub root_intent_core: Arc<IntentCoreV2>,
-    pub non_root_subintents: Vec<Arc<IntentCoreV2>>,
+    pub non_root_subintents: Vec<Arc<SubintentV2>>,
 }
 
 #[uniffi::export]
@@ -30,7 +30,7 @@ impl TransactionIntentV2 {
     pub fn new(
         transaction_header: TransactionHeaderV2,
         root_intent_core: Arc<IntentCoreV2>,
-        non_root_subintents: Vec<Arc<IntentCoreV2>>,
+        non_root_subintents: Vec<Arc<SubintentV2>>,
     ) -> Arc<Self> {
         Arc::new(Self {
             transaction_header,
@@ -56,25 +56,22 @@ impl TransactionIntentV2 {
         self.root_intent_core.clone()
     }
 
-    pub fn non_root_subintents(&self) -> Vec<Arc<IntentCoreV2>> {
+    pub fn non_root_subintents(&self) -> Vec<Arc<SubintentV2>> {
         self.non_root_subintents.clone()
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeTransactionIntentV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_transaction_intent_hash(&intent)
-                .map_err(Into::into)
-                .map(|hash| {
-                    let intent_hash = NativeIntentHash(hash.hash);
-                    Arc::new(TransactionHash::new(
-                        &intent_hash,
-                        self.root_intent_core.header.network_id,
-                    ))
-                })
-        })
+        let transaction_intent_hash =
+            NativeTransactionIntentV2::try_from(self.clone())?
+                .prepare(&NativePreparationSettings::latest())?
+                .transaction_intent_hash();
+        Ok(Arc::new(TransactionHash::new(
+            &transaction_intent_hash,
+            self.root_intent_core.header.network_id,
+        )))
     }
 
-    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
+    pub fn transaction_intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.hash()
     }
 
@@ -104,9 +101,7 @@ impl TryFrom<NativeTransactionIntentV2> for TransactionIntentV2 {
             non_root_subintents: non_root_subintents
                 .0
                 .into_iter()
-                .map(|value| {
-                    IntentCoreV2::try_from(value.intent_core).map(Arc::new)
-                })
+                .map(|value| SubintentV2::try_from(value).map(Arc::new))
                 .collect::<Result<_>>()?,
         })
     }
@@ -129,10 +124,7 @@ impl TryFrom<TransactionIntentV2> for NativeTransactionIntentV2 {
                 non_root_subintents
                     .into_iter()
                     .map(|item| item.as_ref().clone())
-                    .map(|item| {
-                        item.try_into()
-                            .map(|item| NativeSubintentV2 { intent_core: item })
-                    })
+                    .map(|item| item.try_into())
                     .collect::<Result<_>>()?,
             ),
         })

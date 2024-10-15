@@ -23,46 +23,19 @@ use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
-pub fn hash(manifest: &TransactionManifestV2) -> Result<Hash, EncodeError> {
-    to_payload_bytes(manifest).map(scrypto::prelude::hash)
-}
-
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    manifest_encode(manifest)
+    manifest.clone().to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
     payload_bytes: T,
-) -> Result<TransactionManifestV2, DecodeError>
+) -> Result<TransactionManifestV2, String>
 where
     T: AsRef<[u8]>,
 {
-    manifest_decode(payload_bytes.as_ref())
-}
-
-pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {
-    let [
-        InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
-            constraints,
-        }),
-        other_instructions @ ..,
-        InstructionV2::YieldToParent(..),
-    ] = manifest.instructions.as_slice()
-    else {
-        return false;
-    };
-    if constraints.specified_resources().len().is_zero() {
-        return false;
-    }
-
-    !other_instructions.iter().any(|instruction| {
-        matches!(
-            instruction,
-            InstructionV2::YieldToChild(..) | InstructionV2::YieldToParent(..)
-        )
-    })
+    TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
 pub fn statically_analyze(
