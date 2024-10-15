@@ -26,16 +26,16 @@ use crate::transaction_types::*;
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    manifest_encode(manifest)
+    manifest.clone().to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
     payload_bytes: T,
-) -> Result<TransactionManifestV2, DecodeError>
+) -> Result<TransactionManifestV2, String>
 where
     T: AsRef<[u8]>,
 {
-    manifest_decode(payload_bytes.as_ref())
+    TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
 pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {

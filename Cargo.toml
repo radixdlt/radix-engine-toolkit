@@ -32,18 +32,18 @@ members = [
 # Then use tag="release_name-BLAH" in the below dependencies.
 # =================================================================
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8", features = ["serde"] }
-scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8", features = ["serde"] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
-radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-abed2eb8" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582", features = ["serde"] }
+scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582", features = ["serde"] }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
+radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-2ea8b582" }
 
 [profile.release]
 incremental = false
