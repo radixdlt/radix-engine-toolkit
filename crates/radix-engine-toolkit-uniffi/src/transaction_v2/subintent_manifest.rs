@@ -23,14 +23,14 @@ use sbor::Versioned;
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionManifestV2 {
+pub struct SubintentManifestV2 {
     pub instructions: Arc<InstructionsV2>,
     pub blobs: Vec<Vec<u8>>,
     pub children: Vec<Arc<Hash>>,
 }
 
 #[uniffi::export]
-impl TransactionManifestV2 {
+impl SubintentManifestV2 {
     #[uniffi::constructor]
     pub fn new(
         instructions: Arc<InstructionsV2>,
@@ -54,7 +54,9 @@ impl TransactionManifestV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(core_transaction_v2_manifest_to_payload_bytes(&native)?)
+        Ok(core_transaction_v2_subintent_manifest_to_payload_bytes(
+            &native,
+        )?)
     }
 
     #[uniffi::constructor]
@@ -63,9 +65,10 @@ impl TransactionManifestV2 {
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let decompiled =
-            core_transaction_v2_manifest_from_payload_bytes(compiled).map_err(
-                |error| RadixEngineToolkitError::ManifestSborError { error },
-            )?;
+            core_transaction_v2_subintent_manifest_from_payload_bytes(compiled)
+                .map_err(|error| {
+                    RadixEngineToolkitError::ManifestSborError { error }
+                })?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 
@@ -87,47 +90,34 @@ impl TransactionManifestV2 {
 
     pub fn static_analysis(&self, network_id: u8) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
-        core_transaction_v2_manifest_statically_analyze(&native)
+        core_transaction_v2_subintent_manifest_statically_analyze(&native)
             .ok_or(RadixEngineToolkitError::StaticAnalysisFailed)
             .map(|static_analysis| {
                 StaticAnalysis::from_native(static_analysis, network_id)
             })
     }
 
-    pub fn dynamic_analysis(
+    pub fn as_enclosed(
         &self,
         network_id: u8,
-        toolkit_receipt: String,
-    ) -> Result<DynamicAnalysis> {
+    ) -> Option<Arc<TransactionManifestV2>> {
         let native = self.clone().to_native();
-        let network_definition =
-            core_network_definition_from_network_id(network_id);
-        let receipt = serde_json::from_str::<
-            SerializableToolkitTransactionReceipt,
-        >(&toolkit_receipt)
-        .ok()
-        .and_then(|receipt| {
-            receipt
-                .into_runtime_receipt(&NativeAddressBech32Decoder::new(
-                    &network_definition,
-                ))
-                .ok()
+        let enclosed_manifest =
+            core_transaction_v2_subintent_manifest_as_enclosed(&native);
+        enclosed_manifest.map(|manifest| {
+            Arc::new(TransactionManifestV2::from_native(&manifest, network_id))
         })
-        .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
-        core_transaction_v2_manifest_dynamically_analyze(&native, &receipt)
-            .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
-            .map(|summary| DynamicAnalysis::from_native(summary, network_id))?
     }
 }
 
-impl TransactionManifestV2 {
+impl SubintentManifestV2 {
     pub fn from_native(
-        NativeTransactionManifestV2 {
+        NativeSubintentManifestV2 {
             instructions,
             blobs,
             children,
             ..
-        }: &NativeTransactionManifestV2,
+        }: &NativeSubintentManifestV2,
         network_id: u8,
     ) -> Self {
         let blobs = blobs.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>();
@@ -142,7 +132,7 @@ impl TransactionManifestV2 {
         }
     }
 
-    pub fn to_native(&self) -> NativeTransactionManifestV2 {
+    pub fn to_native(&self) -> NativeSubintentManifestV2 {
         let blobs = self
             .blobs
             .iter()
@@ -150,7 +140,7 @@ impl TransactionManifestV2 {
             .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
-        NativeTransactionManifestV2 {
+        NativeSubintentManifestV2 {
             instructions,
             blobs,
             children: self

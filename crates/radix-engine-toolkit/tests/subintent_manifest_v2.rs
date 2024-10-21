@@ -15,12 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod instructions;
-pub mod notarized_transaction;
-pub mod partial_transaction;
-pub mod signed_partial_transaction;
-pub mod signed_transaction_intent;
-pub mod subintent;
-pub mod subintent_manifest;
-pub mod transaction_intent;
-pub mod transaction_manifest;
+use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::as_enclosed;
+use scrypto_test::prelude::*;
+
+#[test]
+fn subintent_manifest_with_no_initial_resources_and_a_final_yield_is_considered_enclosed()
+ {
+    // Arrange
+    let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
+        .drop_all_proofs()
+        .yield_to_parent(())
+        .build();
+
+    // Act
+    let enclosed_manifest = as_enclosed(&manifest);
+
+    // Assert
+    assert!(enclosed_manifest.is_some());
+}

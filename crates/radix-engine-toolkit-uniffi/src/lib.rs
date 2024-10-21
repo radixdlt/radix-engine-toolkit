@@ -109,15 +109,16 @@ pub mod prelude {
     pub use crate::transaction_v2::instructions::*;
     pub use crate::transaction_v2::intent_core::*;
     pub use crate::transaction_v2::intent_header::*;
-    pub use crate::transaction_v2::manifest::*;
     pub use crate::transaction_v2::message::*;
     pub use crate::transaction_v2::notarized_transaction::*;
     pub use crate::transaction_v2::partial_transaction::*;
     pub use crate::transaction_v2::signed_intent::*;
     pub use crate::transaction_v2::signed_partial_transaction::*;
     pub use crate::transaction_v2::subintent::*;
+    pub use crate::transaction_v2::subintent_manifest::*;
     pub use crate::transaction_v2::transaction_header::*;
     pub use crate::transaction_v2::transaction_intent::*;
+    pub use crate::transaction_v2::transaction_manifest::*;
 
     /* SBOR */
     pub use crate::sbor::functions::*;

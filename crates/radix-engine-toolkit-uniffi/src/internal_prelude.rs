@@ -84,11 +84,17 @@ mod core {
     pub use radix_engine_toolkit::functions::transaction_v2::instructions::{
         extract_addresses as core_transaction_v2_instructions_extract_addresses,
     };
-    pub use radix_engine_toolkit::functions::transaction_v2::manifest::{
-        to_payload_bytes as core_transaction_v2_manifest_to_payload_bytes,
-        from_payload_bytes as core_transaction_v2_manifest_from_payload_bytes,
-        statically_analyze as core_transaction_v2_manifest_statically_analyze,
-        dynamically_analyze as core_transaction_v2_manifest_dynamically_analyze,
+    pub use radix_engine_toolkit::functions::transaction_v2::transaction_manifest::{
+        to_payload_bytes as core_transaction_v2_transaction_manifest_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_transaction_manifest_from_payload_bytes,
+        statically_analyze as core_transaction_v2_transaction_manifest_statically_analyze,
+        dynamically_analyze as core_transaction_v2_transaction_manifest_dynamically_analyze,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
+        to_payload_bytes as core_transaction_v2_subintent_manifest_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_subintent_manifest_from_payload_bytes,
+        statically_analyze as core_transaction_v2_subintent_manifest_statically_analyze,
+        as_enclosed as core_transaction_v2_subintent_manifest_as_enclosed,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::subintent::{
         hash as core_transaction_v2_subintent_hash,
@@ -457,6 +463,7 @@ mod native {
         InstructionV2 as NativeInstructionV2,
         InstructionsV2 as NativeInstructionsV2,
         MessageV2 as NativeMessageV2,
+        SubintentManifestV2 as NativeSubintentManifestV2,
         TransactionManifestV2 as NativeTransactionManifestV2,
         IntentCoreV2 as NativeIntentCoreV2,
         TransactionIntentV2 as NativeTransactionIntentV2,
