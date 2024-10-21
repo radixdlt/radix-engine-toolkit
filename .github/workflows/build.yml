@@ -121,6 +121,8 @@ jobs:
       #   uses: mozilla-actions/sccache-action@v0.0.3
 
       # Installing Build Dependencies
+      - name: Adding Target
+        run: rustup target add ${{ matrix.build-target.target-triple }}
       - name: Build Dependencies (aarch64 linux)
         if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
         run: |
@@ -195,7 +197,7 @@ jobs:
           repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
-          ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
+          ref: c2c9ab306cc8b8402b2a8ba76c632ad090435023
       - name: Clone uniffi-bindgen-go
         uses: RDXWorks-actions/checkout@main
         with:
@@ -372,7 +374,7 @@ jobs:
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -458,7 +460,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
