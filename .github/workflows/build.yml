@@ -197,7 +197,7 @@ jobs:
           repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
-          ref: c2c9ab306cc8b8402b2a8ba76c632ad090435023
+          ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
       - name: Clone uniffi-bindgen-go
         uses: RDXWorks-actions/checkout@main
         with:
