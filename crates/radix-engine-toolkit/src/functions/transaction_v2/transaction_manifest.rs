@@ -20,6 +20,7 @@ use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
+use static_resource_movements::*;
 
 use crate::transaction_types::*;
 
@@ -40,16 +41,13 @@ where
 
 pub fn statically_analyze(
     manifest: &TransactionManifestV2,
-) -> Option<StaticAnalysis> {
-    crate::transaction_types::statically_analyze(&manifest.instructions)
+) -> Result<StaticAnalysis, StaticResourceMovementsError> {
+    crate::transaction_types::statically_analyze(manifest)
 }
 
 pub fn dynamically_analyze(
     manifest: &TransactionManifestV2,
     receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, TransactionTypesError> {
-    crate::transaction_types::dynamically_analyze(
-        &manifest.instructions,
-        receipt,
-    )
+    crate::transaction_types::dynamically_analyze(manifest, receipt)
 }

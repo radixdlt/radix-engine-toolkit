@@ -19,6 +19,7 @@ use radix_common::prelude::*;
 use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
+use static_resource_movements::*;
 
 use crate::transaction_types::*;
 
@@ -39,8 +40,8 @@ where
 
 pub fn statically_analyze(
     manifest: &SubintentManifestV2,
-) -> Option<StaticAnalysis> {
-    crate::transaction_types::statically_analyze(&manifest.instructions)
+) -> Result<StaticAnalysis, StaticResourceMovementsError> {
+    crate::transaction_types::statically_analyze(manifest)
 }
 
 pub fn as_enclosed(

@@ -93,7 +93,7 @@ impl TransactionManifestV2 {
     pub fn static_analysis(&self, network_id: u8) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
         core_transaction_v2_transaction_manifest_statically_analyze(&native)
-            .ok_or(RadixEngineToolkitError::StaticAnalysisFailed)
+            .map_err(RadixEngineToolkitError::from)
             .map(|static_analysis| {
                 StaticAnalysis::from_native(static_analysis, network_id)
             })

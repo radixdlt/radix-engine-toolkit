@@ -1021,6 +1021,9 @@ mod native {
         FungibleResourceManagerCreateWithInitialSupplyManifestInput as NativeFungibleResourceManagerCreateWithInitialSupplyManifestInput,
         FungibleResourceManagerMintInput as NativeFungibleResourceManagerMintInput,
     };
+    pub use radix_transactions::manifest::static_resource_movements::{
+        StaticResourceMovementsError as NativeStaticResourceMovementsError
+    };
     pub use radix_engine_interface::blueprints::pool::{
         ONE_RESOURCE_POOL_INSTANTIATE_IDENT as NATIVE_ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
         ONE_RESOURCE_POOL_CONTRIBUTE_IDENT as NATIVE_ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,

@@ -57,24 +57,12 @@ where
 
         let static_analysis =
             radix_engine_toolkit::transaction_types::statically_analyze(
-                manifest
-                    .instructions
-                    .iter()
-                    .cloned()
-                    .map(|value| value.into())
-                    .collect::<Vec<_>>()
-                    .as_slice(),
+                &manifest,
             )
             .unwrap();
         let dynamic_analysis =
             radix_engine_toolkit::transaction_types::dynamically_analyze(
-                manifest
-                    .instructions
-                    .iter()
-                    .cloned()
-                    .map(|value| value.into())
-                    .collect::<Vec<_>>()
-                    .as_slice(),
+                &manifest,
                 &RuntimeToolkitTransactionReceipt::try_from(receipt).unwrap(),
             )
             .unwrap();

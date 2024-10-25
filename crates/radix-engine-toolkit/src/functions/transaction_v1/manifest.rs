@@ -18,6 +18,7 @@
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_transactions::errors::*;
+use radix_transactions::manifest::static_resource_movements::StaticResourceMovementsError;
 use radix_transactions::manifest::BuildableManifest;
 use radix_transactions::prelude::*;
 use radix_transactions::validation::*;
@@ -49,30 +50,13 @@ pub fn statically_validate(
 
 pub fn statically_analyze(
     manifest: &TransactionManifestV1,
-) -> Option<StaticAnalysis> {
-    crate::transaction_types::statically_analyze(
-        manifest
-            .instructions
-            .iter()
-            .cloned()
-            .map(|value| value.into())
-            .collect::<Vec<_>>()
-            .as_slice(),
-    )
+) -> Result<StaticAnalysis, StaticResourceMovementsError> {
+    crate::transaction_types::statically_analyze(manifest)
 }
 
 pub fn dynamically_analyze(
     manifest: &TransactionManifestV1,
     receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, TransactionTypesError> {
-    crate::transaction_types::dynamically_analyze(
-        manifest
-            .instructions
-            .iter()
-            .cloned()
-            .map(|value| value.into())
-            .collect::<Vec<_>>()
-            .as_slice(),
-        receipt,
-    )
+    crate::transaction_types::dynamically_analyze(manifest, receipt)
 }

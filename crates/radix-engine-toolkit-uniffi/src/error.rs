@@ -119,8 +119,8 @@ pub enum RadixEngineToolkitError {
     #[error("The receipt is not a valid preview receipt")]
     InvalidReceipt,
 
-    #[error("The static analysis of the manifest failed")]
-    StaticAnalysisFailed,
+    #[error("The static analysis of the manifest failed: {error}")]
+    StaticAnalysisFailed { error: String },
 
     #[error("Not all of the builder items were specified, progressing failed.")]
     NotAllBuilderItemsWereSpecified,
@@ -186,6 +186,7 @@ impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
 impl_dbg_str_from! { CoreInvalidEntityTypeIdError, InvalidEntityTypeIdError }
+impl_dbg_str_from! { NativeStaticResourceMovementsError, StaticAnalysisFailed }
 
 impl From<NameRecordError> for RadixEngineToolkitError {
     fn from(value: NameRecordError) -> Self {

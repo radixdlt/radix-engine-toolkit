@@ -27,13 +27,14 @@ pub mod static_analysis {
 
     pub fn traverse(
         callbacks: &mut [&mut dyn StaticAnalysisCallback],
-        instructions: &[InstructionV2],
+        instructions: impl Iterator<Item = InstructionV2>,
     ) {
-        for (instruction_index, instruction) in instructions.iter().enumerate()
-        {
-            on_instruction(callbacks, instruction, instruction_index);
+        let mut count = 0;
+        for (instruction_index, instruction) in instructions.enumerate() {
+            on_instruction(callbacks, &instruction, instruction_index);
+            count += 1;
         }
-        on_finish(callbacks, instructions.len());
+        on_finish(callbacks, count);
     }
 
     pub(super) fn on_instruction(
@@ -144,23 +145,24 @@ pub mod dynamic_analysis {
 
     pub fn traverse(
         callbacks: &mut [&mut dyn DynamicAnalysisCallback],
-        instructions: &[InstructionV2],
+        instructions: impl Iterator<Item = AnyInstruction>,
         receipt: &TransactionTypesReceipt<'_>,
     ) {
         let mut id_allocator = ManifestIdAllocator::new();
         let mut bucket_tracker = Default::default();
-        for (instruction_index, instruction) in instructions.iter().enumerate()
-        {
+        let mut count = 0;
+        for (instruction_index, instruction) in instructions.enumerate() {
             on_instruction(
                 callbacks,
-                instruction,
+                &instruction,
                 instruction_index,
                 receipt,
                 &mut id_allocator,
                 &mut bucket_tracker,
             );
+            count += 1;
         }
-        on_finish(callbacks, instructions.len());
+        on_finish(callbacks, count);
     }
 
     pub(super) fn on_instruction(

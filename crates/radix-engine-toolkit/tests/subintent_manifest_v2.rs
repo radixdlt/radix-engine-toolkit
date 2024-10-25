@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::as_enclosed;
+use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
+    as_enclosed, statically_analyze,
+};
 use scrypto_test::prelude::*;
 
 #[test]
@@ -33,4 +35,20 @@ fn subintent_manifest_with_no_initial_resources_and_a_final_yield_is_considered_
 
     // Assert
     assert!(enclosed_manifest.is_some());
+}
+
+#[test]
+fn static_analysis_succeeds_for_subintent() {
+    // Arrange
+    let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
+        .drop_all_proofs()
+        .yield_to_parent(())
+        .build();
+
+    // Act
+    let enclosed_manifest = statically_analyze(&manifest);
+
+    // Assert
+    assert!(enclosed_manifest.is_ok());
 }

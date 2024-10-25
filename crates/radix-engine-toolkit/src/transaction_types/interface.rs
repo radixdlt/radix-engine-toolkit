@@ -24,16 +24,15 @@ use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_substate_store_queries::typed_substate_layout::*;
 use radix_transactions::manifest::static_resource_movements::*;
 use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
 
 use super::error::*;
 use super::types::*;
 
-pub fn statically_analyze(
-    instructions: &[InstructionV2],
-) -> Option<StaticAnalysis> {
+pub fn statically_analyze<M: ReadableManifest + ?Sized>(
+    manifest: &M,
+) -> Result<StaticAnalysis, StaticResourceMovementsError> {
     // Settings up the various detectors
     let mut presented_proofs_detector = PresentedProofsDetector::default();
     let mut encountered_entities_detector =
@@ -71,7 +70,7 @@ pub fn statically_analyze(
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
         ],
-        instructions,
+        manifest.iter_cloned_instructions(),
     );
 
     // Extracting the data out of the detectors and into the ManifestSummary
@@ -122,21 +121,15 @@ pub fn statically_analyze(
     .collect::<IndexSet<ManifestClass>>();
 
     let (deposits, withdraws) = {
-        let manifest = TransactionManifestV2 {
-            instructions: instructions.to_vec(),
-            blobs: Default::default(),
-            children: vec![],
-            object_names: Default::default(),
-        };
         let interpreter =
-            StaticManifestInterpreter::new(ValidationRuleset::all(), &manifest);
+            StaticManifestInterpreter::new(ValidationRuleset::all(), manifest);
         let mut visitor = StaticResourceMovementsVisitor::new(true);
-        interpreter.validate_and_apply_visitor(&mut visitor).ok()?;
+        interpreter.validate_and_apply_visitor(&mut visitor)?;
         let output = visitor.output();
         (output.account_deposits(), output.account_withdraws())
     };
 
-    Some(StaticAnalysis {
+    Ok(StaticAnalysis {
         account_deposits: deposits,
         account_withdraws: withdraws,
         presented_proofs,
@@ -150,8 +143,8 @@ pub fn statically_analyze(
     })
 }
 
-pub fn dynamically_analyze(
-    instructions: &[InstructionV2],
+pub fn dynamically_analyze<M: ReadableManifest>(
+    manifest: &M,
     receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, TransactionTypesError> {
     // Attempt to create a tx types receipt from the passed receipt
@@ -196,7 +189,7 @@ pub fn dynamically_analyze(
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
         ],
-        instructions,
+        manifest.iter_cloned_instructions(),
         &receipt,
     );
 
