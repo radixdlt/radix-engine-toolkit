@@ -2223,7 +2223,7 @@ fn account_deposit_settings_changes_are_recognized() {
     assert_eq_three!(
         static_analysis.reserved_instructions,
         dynamic_analysis.reserved_instructions,
-        indexset![ReservedInstruction::AccountUpdateSettings]
+        indexset![]
     );
     assert_eq_three!(
         static_analysis.classification.len(),
