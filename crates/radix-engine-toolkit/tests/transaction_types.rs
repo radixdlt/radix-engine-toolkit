@@ -2261,7 +2261,7 @@ fn account_deposit_settings_changes_are_recognized() {
     assert_eq_three!(
         manifest_summary.reserved_instructions,
         execution_summary.reserved_instructions,
-        indexset![ReservedInstruction::AccountUpdateSettings]
+        indexset![]
     );
     assert_eq_three!(
         manifest_summary.classification.len(),

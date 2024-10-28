@@ -450,7 +450,6 @@ pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
     IdentitySecurify,
-    AccountUpdateSettings,
     AccessControllerMethod,
 }
 

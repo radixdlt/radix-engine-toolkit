@@ -65,19 +65,6 @@ impl ManifestSummaryCallback for ReservedInstructionsDetector {
         {
             self.reserved_instructions
                 .insert(ReservedInstruction::AccountLockFee);
-        } else if is_account(address)
-            && contains!(
-                method_name => [
-                    ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                    ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                    ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                    ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
-                    ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                ]
-            )
-        {
-            self.reserved_instructions
-                .insert(ReservedInstruction::AccountUpdateSettings);
         } else if is_access_controller(address) {
             self.reserved_instructions
                 .insert(ReservedInstruction::AccessControllerMethod);
