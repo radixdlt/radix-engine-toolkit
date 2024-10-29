@@ -82,7 +82,12 @@ impl StaticAnalysisCallback for PoolRedemptionDetector {
             | InstructionV2::TakeAllFromWorktop { .. }
             | InstructionV2::AssertWorktopContainsAny { .. }
             | InstructionV2::AssertWorktopContains { .. }
-            | InstructionV2::AssertWorktopContainsNonFungibles { .. } => true,
+            | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV2::AssertWorktopResourcesOnly { .. }
+            | InstructionV2::AssertWorktopResourcesInclude { .. }
+            | InstructionV2::AssertNextCallReturnsOnly { .. }
+            | InstructionV2::AssertNextCallReturnsInclude { .. }
+            | InstructionV2::AssertBucketContents { .. } => true,
             /* Not Permitted */
             InstructionV2::BurnResource { .. }
             | InstructionV2::CallRoyaltyMethod { .. }
@@ -109,12 +114,7 @@ impl StaticAnalysisCallback for PoolRedemptionDetector {
             | InstructionV2::CallFunction { .. }
             | InstructionV2::YieldToParent(_)
             | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_)
-            | InstructionV2::AssertWorktopResourcesOnly(..)
-            | InstructionV2::AssertWorktopResourcesInclude(..)
-            | InstructionV2::AssertNextCallReturnsOnly(..)
-            | InstructionV2::AssertNextCallReturnsInclude(..)
-            | InstructionV2::AssertBucketContents(..) => false,
+            | InstructionV2::VerifyParent(_) => false,
         };
 
         // Handle required method call
