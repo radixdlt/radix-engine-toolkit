@@ -58,6 +58,36 @@ pub fn derive_signature_badge_non_fungible_global_id_from_public_key(
 }
 
 #[uniffi::export]
+pub fn derive_global_caller_non_fungible_global_id_from_component_address(
+    component_address: Arc<Address>,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let component_address =
+        NativeComponentAddress::try_from(*component_address)?;
+    let non_fungible_global_id =
+        core_global_caller_non_fungible_global_id_from_component_address(
+            component_address,
+        );
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
+pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+    package_address: Arc<Address>,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let package_address = NativePackageAddress::try_from(*package_address)?;
+    let non_fungible_global_id = core_package_of_direct_caller_non_fungible_global_id_from_component_address(package_address);
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
 pub fn derive_preallocated_account_address_from_olympia_account_address(
     olympia_account_address: Arc<OlympiaAddress>,
     network_id: u8,

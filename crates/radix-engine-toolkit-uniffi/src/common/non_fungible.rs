@@ -83,12 +83,33 @@ impl NonFungibleGlobalId {
     }
 
     #[uniffi::constructor]
-    pub fn virtual_signature_badge(
+    pub fn signature_badge(
         public_key: PublicKey,
         network_id: u8,
     ) -> Result<Arc<Self>> {
         derive_signature_badge_non_fungible_global_id_from_public_key(
             public_key, network_id,
+        )
+    }
+
+    #[uniffi::constructor]
+    pub fn global_caller_badge(
+        component_address: Arc<Address>,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_global_caller_non_fungible_global_id_from_component_address(
+            component_address,
+            network_id,
+        )
+    }
+
+    #[uniffi::constructor]
+    pub fn package_of_direct_caller_badge(
+        package_address: Arc<Address>,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+            package_address, network_id,
         )
     }
 

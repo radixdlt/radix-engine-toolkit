@@ -47,6 +47,18 @@ where
     NonFungibleGlobalId::from_public_key(public_key)
 }
 
+pub fn global_caller_non_fungible_global_id_from_component_address(
+    component_address: ComponentAddress,
+) -> NonFungibleGlobalId {
+    NonFungibleGlobalId::global_caller_badge(component_address)
+}
+
+pub fn package_of_direct_caller_non_fungible_global_id_from_component_address(
+    package_address: PackageAddress,
+) -> NonFungibleGlobalId {
+    NonFungibleGlobalId::package_of_direct_caller_badge(package_address)
+}
+
 pub fn preallocated_account_address_from_olympia_account_address<S>(
     olympia_account_address: S,
 ) -> Result<ComponentAddress, DerivationError>

@@ -90,9 +90,7 @@ impl AccessRule {
     }
 
     #[uniffi::constructor]
-    pub fn require_virtual_signature(
-        public_key: PublicKey,
-    ) -> Result<Arc<Self>> {
+    pub fn require_signature(public_key: PublicKey) -> Result<Arc<Self>> {
         let public_key = NativePublicKey::try_from(public_key)?;
         let non_fungible_global_id =
             NativeNonFungibleGlobalId::from_public_key(&public_key);
