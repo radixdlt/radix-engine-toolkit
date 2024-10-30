@@ -46,6 +46,12 @@ pub fn statically_validate(
 ) -> Result<(), TransactionValidationError> {
     TransactionValidator::new_with_latest_config(network_definition)
         .validate_instructions_v1(&manifest.instructions, &manifest.blobs)
+        .map_err(|error| {
+            TransactionValidationError::IntentValidationError(
+                TransactionValidationErrorLocation::Unlocatable,
+                error,
+            )
+        })
 }
 
 pub fn statically_analyze(

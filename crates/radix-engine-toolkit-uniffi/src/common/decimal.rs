@@ -20,12 +20,12 @@
 use crate::prelude::*;
 
 macro_rules! define_uniffi_decimal {
-    ($type: ty) => {
+    ($type: ty, $to_inner: ident, $from_inner: ident) => {
         paste::paste!{
-            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>],$crate::prelude::[<NativeInner $type>]}
+            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>],$crate::prelude::[<NativeInner $type>], $to_inner, $from_inner}
         }
     };
-    ($ident: ident, $native_type: ty, $native_inner_type: ty) => {
+    ($ident: ident, $native_type: ty, $native_inner_type: ty, $to_inner: ident, $from_inner: ident) => {
         paste::paste! {
             #[derive(Clone, Debug, $crate::prelude::Object, Default)]
             pub struct $ident(pub(crate) $native_type);
@@ -174,16 +174,16 @@ macro_rules! define_uniffi_decimal {
                 }
 
                 pub fn mantissa(&self) -> String {
-                    self.0.0.to_string()
+                    self.0.$to_inner().to_string()
                 }
 
                 pub fn to_le_bytes(&self) -> Vec<u8> {
-                    self.0.0.to_le_bytes().to_vec()
+                    self.0.$to_inner().to_le_bytes().to_vec()
                 }
 
                 #[uniffi::constructor]
                 pub fn from_le_bytes(value: &Vec<u8>) -> $crate::prelude::Arc<Self> {
-                    $crate::prelude::Arc::new(Self($native_type($native_inner_type::from_le_bytes(
+                    $crate::prelude::Arc::new(Self($native_type::$from_inner($native_inner_type::from_le_bytes(
                         &value
                     ))))
                 }
@@ -192,8 +192,8 @@ macro_rules! define_uniffi_decimal {
         }
     }
 }
-define_uniffi_decimal!(Decimal);
-define_uniffi_decimal!(PreciseDecimal);
+define_uniffi_decimal!(Decimal, attos, from_attos);
+define_uniffi_decimal!(PreciseDecimal, precise_subunits, from_precise_subunits);
 
 #[derive(Clone, Debug, Enum)]
 pub enum WithdrawStrategy {

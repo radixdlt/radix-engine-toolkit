@@ -844,6 +844,6 @@ pub mod dynamic_analysis {
     }
 
     fn usize_to_decimal(num: usize) -> Decimal {
-        Decimal(I192::from(num) * Decimal::ONE.0)
+        Decimal::from_attos(I192::from(num) * Decimal::ONE.attos())
     }
 }

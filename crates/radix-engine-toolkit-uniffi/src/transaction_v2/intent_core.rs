@@ -117,11 +117,11 @@ impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
                 blobs: blobs.into_iter().map(NativeBlobV1).collect(),
             },
             message: NativeMessageV2::try_from(message)?,
-            children: NativeChildIntentsV2 {
+            children: NativeChildSubintentSpecifiersV2 {
                 children: children
                     .into_iter()
                     .map(|value| NativeSubintentHash(value.0))
-                    .map(|hash| NativeChildSubintent { hash })
+                    .map(|hash| NativeChildSubintentSpecifier { hash })
                     .collect(),
             },
             instructions: NativeInstructionsV2(

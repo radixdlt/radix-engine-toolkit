@@ -58,5 +58,15 @@ pub fn statically_validate(
     signed_intent
         .prepare(&PreparationSettings::latest())
         .map_err(TransactionValidationError::PrepareError)
-        .and_then(|prepared| validator.validate_intent_v1(&prepared.intent))
+        .and_then(|prepared| {
+            validator
+                .validate_intent_v1(&prepared.intent)
+                .map_err(|error| {
+                    TransactionValidationError::IntentValidationError(
+                        TransactionValidationErrorLocation::Unlocatable,
+                        error,
+                    )
+                })
+        })
+        .map(|_| ())
 }

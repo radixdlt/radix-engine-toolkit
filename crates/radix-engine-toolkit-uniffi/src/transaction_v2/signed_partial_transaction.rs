@@ -88,6 +88,14 @@ impl SignedPartialTransactionV2 {
             },
         )
     }
+
+    pub fn statically_validate(&self, network_id: u8) -> Result<()> {
+        core_transaction_v2_signed_partial_transaction_statically_validate(
+            &self.clone().try_into()?,
+            &core_network_definition_from_network_id(network_id),
+        )
+        .map_err(Into::into)
+    }
 }
 
 impl TryFrom<NativeSignedPartialTransactionV2> for SignedPartialTransactionV2 {

@@ -41,7 +41,7 @@ pub fn statically_validate(
     )?;
     TransactionValidator::new_with_latest_config(network_definition)
         .validate_instructions_v1(instructions, blobs)
-        .map_err(InstructionValidationError::TransactionValidationError)?;
+        .map_err(InstructionValidationError::IntentValidationError)?;
     Ok(())
 }
 
@@ -64,6 +64,7 @@ pub fn extract_addresses(
 
 #[derive(Clone, Debug)]
 pub enum InstructionValidationError {
+    IntentValidationError(IntentValidationError),
     TransactionValidationError(TransactionValidationError),
     LocatedInstructionSchemaValidationError(
         LocatedInstructionSchemaValidationError,

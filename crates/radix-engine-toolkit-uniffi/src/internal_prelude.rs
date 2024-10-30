@@ -91,11 +91,13 @@ mod core {
         from_payload_bytes as core_transaction_v2_transaction_manifest_from_payload_bytes,
         statically_analyze as core_transaction_v2_transaction_manifest_statically_analyze,
         dynamically_analyze as core_transaction_v2_transaction_manifest_dynamically_analyze,
+        statically_validate as core_transaction_v2_transaction_manifest_statically_validate,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
         to_payload_bytes as core_transaction_v2_subintent_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_subintent_manifest_from_payload_bytes,
         statically_analyze as core_transaction_v2_subintent_manifest_statically_analyze,
+        statically_validate as core_transaction_v2_subintent_manifest_statically_validate,
         as_enclosed as core_transaction_v2_subintent_manifest_as_enclosed,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::subintent::{
@@ -128,6 +130,7 @@ mod core {
         hash as core_transaction_v2_signed_partial_transaction_hash,
         to_payload_bytes as core_transaction_v2_signed_partial_transaction_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_signed_partial_transaction_from_payload_bytes,
+        statically_validate as core_transaction_v2_signed_partial_transaction_statically_validate,
     };
     pub use radix_engine_toolkit::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
@@ -224,6 +227,9 @@ mod native {
         SimpleResourceBounds as NativeSimpleResourceBounds,
         SimpleFungibleResourceBounds as NativeSimpleFungibleResourceBounds,
         SimpleNonFungibleResourceBounds as NativeSimpleNonFungibleResourceBounds,
+    };
+    pub use radix_transactions::manifest::{
+        ManifestValidationError as NativeManifestValidationError
     };
     pub use radix_common::prelude::{
         NetworkDefinition as NativeNetworkDefinition,
@@ -514,8 +520,8 @@ mod native {
         NamedManifestAddress as NativeNamedManifestAddress,
 
         SubintentHash as NativeSubintentHash,
-        ChildSubintent as NativeChildSubintent,
-        ChildIntentsV2 as NativeChildIntentsV2
+        ChildSubintentSpecifier as NativeChildSubintentSpecifier,
+        ChildSubintentSpecifiersV2 as NativeChildSubintentSpecifiersV2
     };
     pub use radix_transactions::validation::{
         MessageValidationConfig as NativeMessageValidationConfig,

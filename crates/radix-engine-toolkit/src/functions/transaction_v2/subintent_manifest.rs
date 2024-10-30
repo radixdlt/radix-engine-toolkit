@@ -87,3 +87,30 @@ pub fn as_enclosed(
         None
     }
 }
+
+pub fn statically_validate(
+    manifest: &SubintentManifestV2,
+) -> Result<(), ManifestValidationError> {
+    pub struct Error(ManifestValidationError);
+    impl From<ManifestValidationError> for Error {
+        fn from(value: ManifestValidationError) -> Self {
+            Self(value)
+        }
+    }
+    impl From<Error> for ManifestValidationError {
+        fn from(value: Error) -> Self {
+            value.0
+        }
+    }
+
+    pub struct Visitor;
+    impl ManifestInterpretationVisitor for Visitor {
+        type Output = Error;
+    }
+
+    let interpreter =
+        StaticManifestInterpreter::new(ValidationRuleset::all(), manifest);
+    interpreter.validate_and_apply_visitor(&mut Visitor)?;
+
+    Ok(())
+}

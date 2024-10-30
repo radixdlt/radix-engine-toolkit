@@ -124,6 +124,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("Not all of the builder items were specified, progressing failed.")]
     NotAllBuilderItemsWereSpecified,
+
+    #[error("Validation of manifest failed: {error}")]
+    ManifestValidationError { error: String },
 }
 
 macro_rules! dbg_str {
@@ -186,6 +189,7 @@ impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
 impl_dbg_str_from! { CoreInvalidEntityTypeIdError, InvalidEntityTypeIdError }
+impl_dbg_str_from! { NativeManifestValidationError, ManifestValidationError }
 impl_dbg_str_from! { NativeStaticResourceMovementsError, StaticAnalysisFailed }
 
 impl From<NameRecordError> for RadixEngineToolkitError {

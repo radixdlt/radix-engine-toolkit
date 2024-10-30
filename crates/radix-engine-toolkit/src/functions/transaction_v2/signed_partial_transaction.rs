@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::errors::*;
 use radix_transactions::model::*;
+use radix_transactions::validation::*;
 use sbor::*;
 use scrypto::prelude::*;
 
@@ -55,4 +57,19 @@ where
     SignedPartialTransactionV2::from_raw(
         &payload_bytes.as_ref().to_vec().into(),
     )
+}
+
+pub fn statically_validate(
+    signed_partial_transaction: &SignedPartialTransactionV2,
+    network_definition: &NetworkDefinition,
+) -> Result<(), TransactionValidationError> {
+    let validator =
+        TransactionValidator::new_with_latest_config(network_definition);
+    signed_partial_transaction
+        .prepare(&PreparationSettings::latest())
+        .map_err(TransactionValidationError::PrepareError)
+        .and_then(|prepared| {
+            validator.validate_signed_partial_transaction_v2(prepared)
+        })
+        .map(|_| ())
 }

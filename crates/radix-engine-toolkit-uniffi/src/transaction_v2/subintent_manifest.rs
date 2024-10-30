@@ -108,6 +108,13 @@ impl SubintentManifestV2 {
             Arc::new(TransactionManifestV2::from_native(&manifest, network_id))
         })
     }
+
+    pub fn statically_validate(&self) -> Result<()> {
+        core_transaction_v2_subintent_manifest_statically_validate(
+            &self.clone().to_native(),
+        )
+        .map_err(Into::into)
+    }
 }
 
 impl SubintentManifestV2 {
@@ -147,7 +154,7 @@ impl SubintentManifestV2 {
                 .children
                 .iter()
                 .map(|value| NativeSubintentHash(value.as_ref().0))
-                .map(|value| NativeChildSubintent { hash: value })
+                .map(|value| NativeChildSubintentSpecifier { hash: value })
                 .collect(),
             object_names: Default::default(),
         }

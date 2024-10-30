@@ -125,6 +125,13 @@ impl TransactionManifestV2 {
         .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
         .map(|summary| DynamicAnalysis::from_native(summary, network_id))?
     }
+
+    pub fn statically_validate(&self) -> Result<()> {
+        core_transaction_v2_transaction_manifest_statically_validate(
+            &self.clone().to_native(),
+        )
+        .map_err(Into::into)
+    }
 }
 
 impl TransactionManifestV2 {
@@ -164,7 +171,7 @@ impl TransactionManifestV2 {
                 .children
                 .iter()
                 .map(|value| NativeSubintentHash(value.as_ref().0))
-                .map(|value| NativeChildSubintent { hash: value })
+                .map(|value| NativeChildSubintentSpecifier { hash: value })
                 .collect(),
             object_names: Default::default(),
         }
