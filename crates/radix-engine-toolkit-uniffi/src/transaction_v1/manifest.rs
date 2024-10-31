@@ -100,13 +100,23 @@ impl TransactionManifestV1 {
         map
     }
 
-    pub fn static_analysis(&self, network_id: u8) -> Result<StaticAnalysis> {
+    pub fn static_analysis_and_validate(
+        &self,
+        network_id: u8,
+    ) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
         core_transaction_v1_manifest_statically_analyze(&native)
             .map_err(RadixEngineToolkitError::from)
             .map(|static_analysis| {
                 StaticAnalysis::from_native(static_analysis, network_id)
             })
+    }
+
+    pub fn classify(&self) -> Vec<ManifestClass> {
+        core_transaction_v1_manifest_classify(&self.to_native())
+            .into_iter()
+            .map(ManifestClass::from)
+            .collect()
     }
 
     pub fn dynamic_analysis(

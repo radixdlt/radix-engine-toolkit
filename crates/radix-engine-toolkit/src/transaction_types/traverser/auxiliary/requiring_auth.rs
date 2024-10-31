@@ -58,7 +58,8 @@ impl StaticAnalysisCallback for RequiringAuthDetector {
                     match method_name.as_str() {
                         ACCOUNT_LOCKER_CLAIM_IDENT => {
                             let Some(AccountLockerClaimManifestInput {
-                                claimant,
+                                claimant:
+                                    DynamicComponentAddress::Static(claimant),
                                 ..
                             }) = to_manifest_type(args)
                             else {
@@ -69,7 +70,8 @@ impl StaticAnalysisCallback for RequiringAuthDetector {
                         ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT => {
                             let Some(
                                 AccountLockerClaimNonFungiblesManifestInput {
-                                    claimant,
+                                    claimant:
+                                        DynamicComponentAddress::Static(claimant),
                                     ..
                                 },
                             ) = to_manifest_type(args)

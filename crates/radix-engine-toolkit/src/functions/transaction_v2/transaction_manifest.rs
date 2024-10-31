@@ -45,6 +45,10 @@ pub fn statically_analyze(
     crate::transaction_types::statically_analyze(manifest)
 }
 
+pub fn classify(manifest: &TransactionManifestV2) -> IndexSet<ManifestClass> {
+    crate::transaction_types::classify_manifest(manifest)
+}
+
 pub fn dynamically_analyze(
     manifest: &TransactionManifestV2,
     receipt: &RuntimeToolkitTransactionReceipt,

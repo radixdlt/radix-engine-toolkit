@@ -241,3 +241,35 @@ impl TryFrom<Address> for NativeGlobalAddress {
         value.0.try_into().map_err(Into::into)
     }
 }
+
+impl TryFrom<Address> for NativeDynamicResourceAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0.try_into().map_err(Into::into).map(Self::Static)
+    }
+}
+
+impl TryFrom<Address> for NativeDynamicComponentAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0.try_into().map_err(Into::into).map(Self::Static)
+    }
+}
+
+impl TryFrom<Address> for NativeDynamicPackageAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0.try_into().map_err(Into::into).map(Self::Static)
+    }
+}
+
+impl TryFrom<Address> for NativeDynamicGlobalAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0.try_into().map_err(Into::into).map(Self::Static)
+    }
+}

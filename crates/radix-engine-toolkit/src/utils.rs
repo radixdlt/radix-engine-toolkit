@@ -22,10 +22,9 @@ use sbor::{
     generate_full_schema_from_single_type, validate_payload_against_schema,
 };
 
+use radix_common::prelude::*;
 use radix_transactions::model::IntentV1;
-use radix_transactions::prelude::{
-    DynamicGlobalAddress, TransactionManifestV1,
-};
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {

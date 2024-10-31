@@ -1069,7 +1069,9 @@ impl ManifestV2Builder {
                     method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
                         .to_owned(),
                     args: native_to_manifest_value_and_unwrap!(
-                        &NativeFungibleResourceManagerMintInput { amount }
+                        &NativeFungibleResourceManagerMintManifestInput {
+                            amount
+                        }
                     ),
                 });
             builder.instructions.push(instruction);
@@ -1453,19 +1455,19 @@ builder_alias! {
         package_address: NATIVE_ACCOUNT_PACKAGE,
         blueprint_ident: NATIVE_ACCOUNT_BLUEPRINT,
         function_ident: NATIVE_ACCOUNT_CREATE_IDENT,
-        args: NativeAccountCreateInput {}
+        args: NativeAccountCreateManifestInput {}
     },
     {
         builder_method: account_securify,
         method_ident: NATIVE_ACCOUNT_SECURIFY_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSecurifyInput {}
+        args: NativeAccountSecurifyManifestInput {}
     },
     {
         builder_method: account_lock_fee,
         method_ident: NATIVE_ACCOUNT_LOCK_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeInput {
+        args: NativeAccountLockFeeManifestInput {
             amount: (Arc<Decimal> => NativeDecimal)
         }
     },
@@ -1473,7 +1475,7 @@ builder_alias! {
         builder_method: account_lock_contingent_fee,
         method_ident: NATIVE_ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockContingentFeeInput {
+        args: NativeAccountLockContingentFeeManifestInput {
             amount: (Arc<Decimal> => NativeDecimal)
         }
     },
@@ -1491,7 +1493,7 @@ builder_alias! {
         instruction: CallMethod,
         args: NativeAccountTryDepositOrAbortManifestInput {
             bucket: (ManifestBuilderBucket => NativeManifestBucket),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
     {
@@ -1500,7 +1502,7 @@ builder_alias! {
         instruction: CallMethod,
         args: NativeAccountTryDepositOrRefundManifestInput {
             bucket: (ManifestBuilderBucket => NativeManifestBucket),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
     {
@@ -1517,7 +1519,7 @@ builder_alias! {
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrAbortManifestInput {
             buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
     {
@@ -1526,15 +1528,15 @@ builder_alias! {
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrRefundManifestInput {
             buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
     {
         builder_method: account_withdraw,
         method_ident: NATIVE_ACCOUNT_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeAccountWithdrawInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountWithdrawManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -1542,8 +1544,8 @@ builder_alias! {
         builder_method: account_withdraw_non_fungibles,
         method_ident: NATIVE_ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountWithdrawNonFungiblesInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountWithdrawNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -1551,9 +1553,9 @@ builder_alias! {
         builder_method: account_lock_fee_and_withdraw,
         method_ident: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeAndWithdrawInput {
+        args: NativeAccountLockFeeAndWithdrawManifestInput {
             amount_to_lock: (Arc<Decimal> => NativeDecimal),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -1561,9 +1563,9 @@ builder_alias! {
         builder_method: account_lock_fee_and_withdraw_non_fungibles,
         method_ident: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeAndWithdrawNonFungiblesInput {
+        args: NativeAccountLockFeeAndWithdrawNonFungiblesManifestInput {
             amount_to_lock: (Arc<Decimal> => NativeDecimal),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -1571,8 +1573,8 @@ builder_alias! {
         builder_method: account_create_proof_of_amount,
         method_ident: NATIVE_ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountCreateProofOfAmountInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountCreateProofOfAmountManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -1580,8 +1582,8 @@ builder_alias! {
         builder_method: account_create_proof_of_non_fungibles,
         method_ident: NATIVE_ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountCreateProofOfNonFungiblesInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountCreateProofOfNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -1589,7 +1591,7 @@ builder_alias! {
         builder_method: account_set_default_deposit_rule,
         method_ident: NATIVE_ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSetDefaultDepositRuleInput {
+        args: NativeAccountSetDefaultDepositRuleManifestInput {
             default as default_deposit_rule: (AccountDefaultDepositRule => NativeDefaultDepositRule),
         }
     },
@@ -1597,8 +1599,8 @@ builder_alias! {
         builder_method: account_set_resource_preference,
         method_ident: NATIVE_ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSetResourcePreferenceInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountSetResourcePreferenceManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             resource_preference: (ResourcePreference => NativeResourcePreference),
         }
     },
@@ -1606,16 +1608,16 @@ builder_alias! {
         builder_method: account_remove_resource_preference,
         method_ident: NATIVE_ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountRemoveResourcePreferenceInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountRemoveResourcePreferenceManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
         }
     },
     {
         builder_method: account_burn,
         method_ident: NATIVE_ACCOUNT_BURN_IDENT,
         instruction: CallMethod,
-        args: NativeAccountBurnInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountBurnManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -1623,8 +1625,8 @@ builder_alias! {
         builder_method: account_burn_non_fungibles,
         method_ident: NATIVE_ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountBurnNonFungiblesInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+        args: NativeAccountBurnNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -1632,16 +1634,16 @@ builder_alias! {
         builder_method: account_add_authorized_depositor,
         method_ident: NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
-        args: NativeAccountAddAuthorizedDepositorInput {
-            badge: (ResourceOrNonFungible => NativeResourceOrNonFungible),
+        args: NativeAccountAddAuthorizedDepositorManifestInput {
+            badge: (ResourceOrNonFungible => NativeManifestResourceOrNonFungible),
         }
     },
     {
         builder_method: account_remove_authorized_depositor,
         method_ident: NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
-        args: NativeAccountRemoveAuthorizedDepositorInput {
-            badge: (ResourceOrNonFungible => NativeResourceOrNonFungible),
+        args: NativeAccountRemoveAuthorizedDepositorManifestInput {
+            badge: (ResourceOrNonFungible => NativeManifestResourceOrNonFungible),
         }
     },
     // ==========
@@ -1651,13 +1653,13 @@ builder_alias! {
         builder_method: validator_register,
         method_ident: NATIVE_VALIDATOR_REGISTER_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorRegisterInput {}
+        args: NativeValidatorRegisterManifestInput {}
     },
     {
         builder_method: validator_unregister,
         method_ident: NATIVE_VALIDATOR_UNREGISTER_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUnregisterInput {}
+        args: NativeValidatorUnregisterManifestInput {}
     },
     {
         builder_method: validator_stake_as_owner,
@@ -1695,7 +1697,7 @@ builder_alias! {
         builder_method: validator_update_key,
         method_ident: NATIVE_VALIDATOR_UPDATE_KEY_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateKeyInput {
+        args: NativeValidatorUpdateKeyManifestInput {
             key: (PublicKey => NativeSecp256k1PublicKey)
         }
     },
@@ -1703,7 +1705,7 @@ builder_alias! {
         builder_method: validator_update_fee,
         method_ident: NATIVE_VALIDATOR_UPDATE_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateFeeInput {
+        args: NativeValidatorUpdateFeeManifestInput {
             new_fee_factor: (Arc<Decimal> => NativeDecimal)
         }
     },
@@ -1711,7 +1713,7 @@ builder_alias! {
         builder_method: validator_update_accept_delegated_stake,
         method_ident: NATIVE_VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateAcceptDelegatedStakeInput {
+        args: NativeValidatorUpdateAcceptDelegatedStakeManifestInput {
             accept_delegated_stake: (bool => bool)
         }
     },
@@ -1719,25 +1721,25 @@ builder_alias! {
         builder_method: validator_accepts_delegated_stake,
         method_ident: NATIVE_VALIDATOR_ACCEPTS_DELEGATED_STAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorAcceptsDelegatedStakeInput {}
+        args: NativeValidatorAcceptsDelegatedStakeManifestInput {}
     },
     {
         builder_method: validator_total_stake_xrd_amount,
         method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorTotalStakeXrdAmountInput {}
+        args: NativeValidatorTotalStakeXrdAmountManifestInput {}
     },
     {
         builder_method: validator_total_stake_unit_supply,
         method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorTotalStakeUnitSupplyInput {}
+        args: NativeValidatorTotalStakeUnitSupplyManifestInput {}
     },
     {
         builder_method: validator_get_redemption_value,
         method_ident: NATIVE_VALIDATOR_GET_REDEMPTION_VALUE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorGetRedemptionValueInput {
+        args: NativeValidatorGetRedemptionValueManifestInput {
             amount_of_stake_units: (Arc<Decimal> => NativeDecimal)
         }
     },
@@ -1745,7 +1747,7 @@ builder_alias! {
         builder_method: validator_signal_protocol_update_readiness,
         method_ident: NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorSignalProtocolUpdateReadinessInput {
+        args: NativeValidatorSignalProtocolUpdateReadinessManifestInput {
             vote: (String => String)
         }
     },
@@ -1753,7 +1755,7 @@ builder_alias! {
         builder_method: validator_get_protocol_update_readiness,
         method_ident: NATIVE_VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorGetProtocolUpdateReadinessInput {}
+        args: NativeValidatorGetProtocolUpdateReadinessManifestInput {}
     },
     {
         builder_method: validator_lock_owner_stake_units,
@@ -1767,7 +1769,7 @@ builder_alias! {
         builder_method: validator_start_unlock_owner_stake_units,
         method_ident: NATIVE_VALIDATOR_START_UNLOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorStartUnlockOwnerStakeUnitsInput {
+        args: NativeValidatorStartUnlockOwnerStakeUnitsManifestInput {
             requested_stake_unit_amount: (Arc<Decimal> => NativeDecimal)
         }
     },
@@ -1775,7 +1777,7 @@ builder_alias! {
         builder_method: validator_finish_unlock_owner_stake_units,
         method_ident: NATIVE_VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorFinishUnlockOwnerStakeUnitsInput {}
+        args: NativeValidatorFinishUnlockOwnerStakeUnitsManifestInput {}
     },
     // ==================
     // Access Controller
@@ -1796,13 +1798,13 @@ builder_alias! {
         builder_method: access_controller_create_proof,
         method_ident: NATIVE_ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCreateProofInput {}
+        args: NativeAccessControllerCreateProofManifestInput {}
     },
     {
         builder_method: access_controller_initiate_recovery_as_primary,
         method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateRecoveryAsPrimaryInput {
+        args: NativeAccessControllerInitiateRecoveryAsPrimaryManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1811,7 +1813,7 @@ builder_alias! {
         builder_method: access_controller_initiate_recovery_as_recovery,
         method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateRecoveryAsRecoveryInput {
+        args: NativeAccessControllerInitiateRecoveryAsRecoveryManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1820,19 +1822,19 @@ builder_alias! {
         builder_method: access_controller_initiate_badge_withdraw_as_primary,
         method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsPrimaryInput {}
+        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsPrimaryManifestInput {}
     },
     {
         builder_method: access_controller_initiate_badge_withdraw_as_recovery,
         method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsRecoveryInput {}
+        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsRecoveryManifestInput {}
     },
     {
         builder_method: access_controller_quick_confirm_primary_role_recovery_proposal,
         method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput {
+        args: NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1841,7 +1843,7 @@ builder_alias! {
         builder_method: access_controller_quick_confirm_recovery_role_recovery_proposal,
         method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput {
+        args: NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1850,19 +1852,19 @@ builder_alias! {
         builder_method: access_controller_quick_confirm_primary_role_badge_withdraw_attempt,
         method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptInput {}
+        args: NativeAccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_quick_confirm_recovery_role_badge_withdraw_attempt,
         method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptInput {}
+        args: NativeAccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_timed_confirm_recovery,
         method_ident: NATIVE_ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerTimedConfirmRecoveryInput {
+        args: NativeAccessControllerTimedConfirmRecoveryManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1871,43 +1873,43 @@ builder_alias! {
         builder_method: access_controller_cancel_primary_role_recovery_proposal,
         method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelPrimaryRoleRecoveryProposalInput {}
+        args: NativeAccessControllerCancelPrimaryRoleRecoveryProposalManifestInput {}
     },
     {
         builder_method: access_controller_cancel_recovery_role_recovery_proposal,
         method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelRecoveryRoleRecoveryProposalInput {}
+        args: NativeAccessControllerCancelRecoveryRoleRecoveryProposalManifestInput {}
     },
     {
         builder_method: access_controller_cancel_primary_role_badge_withdraw_attempt,
         method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelPrimaryRoleBadgeWithdrawAttemptInput {}
+        args: NativeAccessControllerCancelPrimaryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_cancel_recovery_role_badge_withdraw_attempt,
         method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelRecoveryRoleBadgeWithdrawAttemptInput {}
+        args: NativeAccessControllerCancelRecoveryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_lock_primary_role,
         method_ident: NATIVE_ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerLockPrimaryRoleInput {}
+        args: NativeAccessControllerLockPrimaryRoleManifestInput {}
     },
     {
         builder_method: access_controller_unlock_primary_role,
         method_ident: NATIVE_ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerUnlockPrimaryRoleInput {}
+        args: NativeAccessControllerUnlockPrimaryRoleManifestInput {}
     },
     {
         builder_method: access_controller_stop_timed_recovery,
         method_ident: NATIVE_ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerStopTimedRecoveryInput {
+        args: NativeAccessControllerStopTimedRecoveryManifestInput {
             rule_set: (RuleSet => NativeRuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
@@ -1916,7 +1918,7 @@ builder_alias! {
         builder_method: access_controller_mint_recovery_badges,
         method_ident: NATIVE_ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerMintRecoveryBadgesInput {
+        args: NativeAccessControllerMintRecoveryBadgesManifestInput {
             non_fungible_local_ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -1928,7 +1930,7 @@ builder_alias! {
         package_address: NATIVE_IDENTITY_PACKAGE,
         blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
         function_ident: NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
-        args: NativeIdentityCreateAdvancedInput {
+        args: NativeIdentityCreateAdvancedManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
         }
     },
@@ -1937,13 +1939,13 @@ builder_alias! {
         package_address: NATIVE_IDENTITY_PACKAGE,
         blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
         function_ident: NATIVE_IDENTITY_CREATE_IDENT,
-        args: NativeIdentityCreateInput {}
+        args: NativeIdentityCreateManifestInput {}
     },
     {
         builder_method: identity_securify,
         method_ident: NATIVE_IDENTITY_SECURIFY_IDENT,
         instruction: CallMethod,
-        args: NativeIdentitySecurifyToSingleBadgeInput {}
+        args: NativeIdentitySecurifyToSingleBadgeManifestInput {}
     },
     // ========
     // Package
@@ -1952,7 +1954,7 @@ builder_alias! {
         builder_method: package_claim_royalty,
         method_ident: NATIVE_PACKAGE_CLAIM_ROYALTIES_IDENT,
         instruction: CallMethod,
-        args: NativePackageClaimRoyaltiesInput {}
+        args: NativePackageClaimRoyaltiesManifestInput {}
     },
     // ==================
     // One Resource Pool
@@ -1965,7 +1967,7 @@ builder_alias! {
         args: NativeOneResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
         }
     },
@@ -2027,7 +2029,7 @@ builder_alias! {
         args: NativeTwoResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_addresses: (Vec<Arc<Address>> => (NativeResourceAddress, NativeResourceAddress)),
+            resource_addresses: (Vec<Arc<Address>> => (NativeDynamicResourceAddress, NativeDynamicResourceAddress)),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
         }
     },
@@ -2060,7 +2062,7 @@ builder_alias! {
         method_ident: NATIVE_TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
         args: NativeTwoResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
             withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
         }
@@ -2090,7 +2092,7 @@ builder_alias! {
         args: NativeMultiResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_addresses: (Vec<Arc<Address>> => IndexSet<NativeResourceAddress>),
+            resource_addresses: (Vec<Arc<Address>> => IndexSet<NativeDynamicResourceAddress>),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
         }
     },
@@ -2123,7 +2125,7 @@ builder_alias! {
         method_ident: NATIVE_MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
         args: NativeMultiResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
             withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
         }
@@ -2149,7 +2151,7 @@ builder_alias! {
         builder_method: metadata_set,
         method_ident: NATIVE_METADATA_SET_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataSetInput {
+        args: NativeMetadataSetManifestInput {
             key: (String => String),
             value: (MetadataValue => NativeMetadataValue)
         }
@@ -2158,7 +2160,7 @@ builder_alias! {
         builder_method: metadata_lock,
         method_ident: NATIVE_METADATA_LOCK_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataLockInput {
+        args: NativeMetadataLockManifestInput {
             key: (String => String),
         }
     },
@@ -2166,7 +2168,7 @@ builder_alias! {
         builder_method: metadata_get,
         method_ident: NATIVE_METADATA_GET_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataGetInput {
+        args: NativeMetadataGetManifestInput {
             key: (String => String),
         }
     },
@@ -2174,7 +2176,7 @@ builder_alias! {
         builder_method: metadata_remove,
         method_ident: NATIVE_METADATA_REMOVE_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataRemoveInput {
+        args: NativeMetadataRemoveManifestInput {
             key: (String => String),
         }
     },
@@ -2185,7 +2187,7 @@ builder_alias! {
         builder_method: role_assignment_get,
         method_ident: NATIVE_ROLE_ASSIGNMENT_GET_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentGetInput {
+        args: NativeRoleAssignmentGetManifestInput {
             module: (ModuleId => NativeObjectModuleId),
             role_key: (String => NativeRoleKey),
         }
@@ -2194,7 +2196,7 @@ builder_alias! {
         builder_method: role_assignment_set,
         method_ident: NATIVE_ROLE_ASSIGNMENT_SET_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentSetInput {
+        args: NativeRoleAssignmentSetManifestInput {
             module: (ModuleId => NativeObjectModuleId),
             role_key: (String => NativeRoleKey),
             rule: (Arc<AccessRule> => NativeAccessRule),
@@ -2204,7 +2206,7 @@ builder_alias! {
         builder_method: role_assignment_set_owner,
         method_ident: NATIVE_ROLE_ASSIGNMENT_SET_OWNER_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentSetOwnerInput {
+        args: NativeRoleAssignmentSetOwnerManifestInput {
             rule: (Arc<AccessRule> => NativeAccessRule),
         }
     },
@@ -2212,7 +2214,7 @@ builder_alias! {
         builder_method: role_assignment_lock_owner,
         method_ident: NATIVE_ROLE_ASSIGNMENT_LOCK_OWNER_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentLockOwnerInput {}
+        args: NativeRoleAssignmentLockOwnerManifestInput {}
     },
     // ===============
     // Royalty Module
@@ -2221,7 +2223,7 @@ builder_alias! {
         builder_method: royalty_set,
         method_ident: NATIVE_COMPONENT_ROYALTY_SET_ROYALTY_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentRoyaltySetInput {
+        args: NativeComponentRoyaltySetManifestInput {
             method: (String => String),
             amount: (RoyaltyAmount => NativeRoyaltyAmount),
         }
@@ -2230,7 +2232,7 @@ builder_alias! {
         builder_method: royalty_lock,
         method_ident: NATIVE_COMPONENT_ROYALTY_LOCK_ROYALTY_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentRoyaltyLockInput {
+        args: NativeComponentRoyaltyLockManifestInput {
             method: (String => String),
         }
     },
@@ -2238,7 +2240,7 @@ builder_alias! {
         builder_method: royalty_claim,
         method_ident: NATIVE_COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentClaimRoyaltiesInput {}
+        args: NativeComponentClaimRoyaltiesManifestInput {}
     },
     // ===============
     // Account Locker
@@ -2271,7 +2273,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_STORE_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerStoreManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
             bucket: (ManifestBuilderBucket => NativeManifestBucket),
             try_direct_send: (bool => bool),
         }
@@ -2281,7 +2283,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerAirdropManifestInput {
-            claimants: (HashMap<String, ResourceSpecifier> => IndexMap<NativeComponentAddress, NativeLockerResourceSpecifier>),
+            claimants: (HashMap<String, ResourceSpecifier> => IndexMap<NativeDynamicComponentAddress, NativeLockerResourceSpecifier>),
             bucket: (ManifestBuilderBucket => NativeManifestBucket),
             try_direct_send: (bool => bool),
         }
@@ -2291,8 +2293,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerRecoverManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -2301,8 +2303,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerRecoverNonFungiblesManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -2311,8 +2313,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerClaimManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             amount: (Arc<Decimal> => NativeDecimal),
         }
     },
@@ -2321,8 +2323,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerClaimNonFungiblesManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
@@ -2331,8 +2333,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerGetAmountManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
         }
     },
     {
@@ -2340,8 +2342,8 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerGetNonFungibleLocalIdsManifestInput {
-            claimant: (Arc<Address> => NativeComponentAddress),
-            resource_address: (Arc<Address> => NativeResourceAddress),
+            claimant: (Arc<Address> => NativeDynamicComponentAddress),
+            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
             limit: (u32 => u32)
         }
     },

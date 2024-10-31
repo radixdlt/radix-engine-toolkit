@@ -217,6 +217,10 @@ impl_from_with_name_record_for_address_from_arc_address![
     NativeResourceAddress,
     NativeComponentAddress,
     NativePackageAddress,
+    NativeDynamicGlobalAddress,
+    NativeDynamicResourceAddress,
+    NativeDynamicComponentAddress,
+    NativeDynamicPackageAddress,
 ];
 
 macro_rules! impl_from_with_name_record_for_address_from_string {
@@ -239,6 +243,10 @@ impl_from_with_name_record_for_address_from_string![
     NativeResourceAddress,
     NativeComponentAddress,
     NativePackageAddress,
+    NativeDynamicGlobalAddress,
+    NativeDynamicResourceAddress,
+    NativeDynamicComponentAddress,
+    NativeDynamicPackageAddress,
 ];
 
 impl FromWithNameRecordContext<ManifestBuilderBucket> for NativeManifestBucket {
@@ -320,6 +328,23 @@ impl FromWithNameRecordContext<ResourceOrNonFungible>
 {
     fn from(item: ResourceOrNonFungible, _: &NameRecord) -> Result<Self> {
         item.to_native()
+    }
+}
+
+impl FromWithNameRecordContext<ResourceOrNonFungible>
+    for NativeManifestResourceOrNonFungible
+{
+    fn from(item: ResourceOrNonFungible, _: &NameRecord) -> Result<Self> {
+        match item {
+            ResourceOrNonFungible::Resource { value } => (*value)
+                .try_into()
+                .map(NativeManifestResourceOrNonFungible::Resource),
+            ResourceOrNonFungible::NonFungible { value } => {
+                Ok(NativeManifestResourceOrNonFungible::NonFungible(
+                    value.0.clone(),
+                ))
+            }
+        }
     }
 }
 

@@ -21,6 +21,8 @@ use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
 use radix_engine_toolkit::transaction_types::*;
+use radix_engine_toolkit::utils::network_definition_from_network_id;
+use radix_transactions::manifest::{compile, MockBlobProvider};
 use radix_transactions::prelude::*;
 use scrypto_test::prelude::*;
 
@@ -2443,7 +2445,7 @@ fn create_pools(
                     address_reservation: None,
                     owner_role: OwnerRole::None,
                     pool_manager_rule: rule!(allow_all),
-                    resource_address: resource1,
+                    resource_address: resource1.into(),
                 },
             )
             .call_function(
@@ -2454,7 +2456,7 @@ fn create_pools(
                     address_reservation: None,
                     owner_role: OwnerRole::None,
                     pool_manager_rule: rule!(allow_all),
-                    resource_addresses: (resource1, resource2),
+                    resource_addresses: (resource1.into(), resource2.into()),
                 },
             )
             .call_function(
@@ -2466,7 +2468,10 @@ fn create_pools(
                     owner_role: OwnerRole::None,
                     pool_manager_rule: rule!(allow_all),
                     resource_addresses: indexset![
-                        resource1, resource2, resource3, resource4
+                        resource1.into(),
+                        resource2.into(),
+                        resource3.into(),
+                        resource4.into()
                     ],
                 },
             )
@@ -2557,7 +2562,7 @@ fn account_locker_is_recognized_as_general_transaction() {
                 ACCOUNT_LOCKER_STORE_IDENT,
                 AccountLockerStoreManifestInput {
                     bucket,
-                    claimant: account,
+                    claimant: account.into(),
                     try_direct_send: false,
                 },
             )
@@ -2644,4 +2649,70 @@ fn lock_fee_manifest_has_no_classification_except_general() {
         static_analysis.classification,
         indexset![ManifestClass::General]
     );
+}
+
+#[test]
+fn example() {
+    let manifest = r#"CALL_METHOD
+    Address("component_loc1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxxqq5d2")
+    "lock_fee"
+    Decimal("5000")
+;
+CALL_METHOD
+    Address("account_loc16996e320lnez82q6430eunaz9l3n5fnwk6eh9avrmtmj22e7rd55ln")
+    "set_default_deposit_rule"
+    Enum<1u8>()
+;
+CALL_METHOD
+    Address("account_loc168qgdkgfqxpnswu38wy6fy5v0q0um52zd0umuely5t9xrf8868l7uj")
+    "set_default_deposit_rule"
+    Enum<1u8>()
+;
+ALLOCATE_GLOBAL_ADDRESS
+    Address("package_loc1pkgxxxxxxxxxresrcexxxxxxxxx000538436477xxxxxxxxxvyv0vc")
+    "FungibleResourceManager"
+    AddressReservation("reservation1")
+    NamedAddress("address1")
+;
+CREATE_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY
+    Enum<0u8>()
+    true
+    18u8
+    Decimal("1")
+    Tuple(
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>()
+    )
+    Tuple(
+        Map<String, Tuple>(),
+        Map<String, Enum>()
+    )
+    Enum<1u8>(
+        AddressReservation("reservation1")
+    )
+;
+CALL_METHOD
+    Address("account_loc168qgdkgfqxpnswu38wy6fy5v0q0um52zd0umuely5t9xrf8868l7uj")
+    "add_authorized_depositor"
+    Enum<1u8>(
+        NamedAddress("address1")
+    )
+;
+CALL_METHOD
+    Address("account_loc16996e320lnez82q6430eunaz9l3n5fnwk6eh9avrmtmj22e7rd55ln")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;"#;
+    let manifest = compile(
+        manifest,
+        &network_definition_from_network_id(0xf0),
+        MockBlobProvider::new(),
+    )
+    .unwrap();
+
+    dbg!(statically_analyze(&manifest));
 }

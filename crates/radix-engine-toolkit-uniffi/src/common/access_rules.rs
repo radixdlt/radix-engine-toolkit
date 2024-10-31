@@ -178,8 +178,6 @@ impl ToNative for ResourceOrNonFungible {
 
     fn to_native(self) -> Result<Self::Native> {
         match self {
-            // Self::Resource { value } =>
-            // value.try_into().map(Self::Native::Resource),
             Self::Resource { value } => {
                 (*value).try_into().map(Self::Native::Resource)
             }
