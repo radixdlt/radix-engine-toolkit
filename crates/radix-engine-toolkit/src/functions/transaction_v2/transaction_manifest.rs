@@ -39,14 +39,14 @@ where
     TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(
-    manifest: &TransactionManifestV2,
-) -> Result<StaticAnalysis, StaticResourceMovementsError> {
+pub fn statically_analyze(manifest: &TransactionManifestV2) -> StaticAnalysis {
     crate::transaction_types::statically_analyze(manifest)
 }
 
-pub fn classify(manifest: &TransactionManifestV2) -> IndexSet<ManifestClass> {
-    crate::transaction_types::classify_manifest(manifest)
+pub fn statically_analyze_and_validate(
+    manifest: &TransactionManifestV2,
+) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
+    crate::transaction_types::statically_analyze_and_validate(manifest)
 }
 
 pub fn dynamically_analyze(

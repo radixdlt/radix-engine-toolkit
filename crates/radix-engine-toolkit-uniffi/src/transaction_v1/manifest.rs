@@ -100,26 +100,30 @@ impl TransactionManifestV1 {
         map
     }
 
-    pub fn static_analysis_and_validate(
+    pub fn statically_analyze(&self, network_id: u8) -> StaticAnalysis {
+        let native = self.clone().to_native();
+        StaticAnalysis::from_native(
+            core_transaction_v1_manifest_statically_analyze(&native),
+            network_id,
+        )
+    }
+
+    pub fn statically_analyze_and_validate(
         &self,
         network_id: u8,
-    ) -> Result<StaticAnalysis> {
+    ) -> Result<StaticAnalysisWithResourceMovements> {
         let native = self.clone().to_native();
-        core_transaction_v1_manifest_statically_analyze(&native)
+        core_transaction_v1_manifest_statically_analyze_and_validate(&native)
             .map_err(RadixEngineToolkitError::from)
             .map(|static_analysis| {
-                StaticAnalysis::from_native(static_analysis, network_id)
+                StaticAnalysisWithResourceMovements::from_native(
+                    static_analysis,
+                    network_id,
+                )
             })
     }
 
-    pub fn classify(&self) -> Vec<ManifestClass> {
-        core_transaction_v1_manifest_classify(&self.to_native())
-            .into_iter()
-            .map(ManifestClass::from)
-            .collect()
-    }
-
-    pub fn dynamic_analysis(
+    pub fn dynamically_analyze(
         &self,
         network_id: u8,
         toolkit_receipt: String,
@@ -1048,7 +1052,7 @@ impl From<UpperBound> for NativeUpperBound {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct StaticAnalysis {
+pub struct StaticAnalysisWithResourceMovements {
     pub account_withdraws: HashMap<String, Vec<AccountWithdraw>>,
     pub account_deposits: HashMap<String, Vec<AccountDeposit>>,
     pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
@@ -1061,8 +1065,11 @@ pub struct StaticAnalysis {
     pub classification: Vec<ManifestClass>,
 }
 
-impl StaticAnalysis {
-    pub fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
+impl StaticAnalysisWithResourceMovements {
+    pub fn from_native(
+        native: CoreStaticAnalysisWithResourceMovements,
+        network_id: u8,
+    ) -> Self {
         Self {
             account_withdraws: native
                 .account_withdraws
@@ -1096,6 +1103,104 @@ impl StaticAnalysis {
                     )
                 })
                 .collect(),
+            presented_proofs: native
+                .presented_proofs
+                .into_iter()
+                .map(|item| {
+                    (
+                        Address::unsafe_from_raw(
+                            item.0.into_node_id(),
+                            network_id,
+                        )
+                        .address_string(),
+                        item.1
+                            .iter()
+                            .map(|i| {
+                                ResourceSpecifier::from_native(i, network_id)
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+            accounts_withdrawn_from: native
+                .accounts_withdrawn_from
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_deposited_into: native
+                .accounts_deposited_into
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            encountered_entities: native
+                .encountered_entities
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_requiring_auth: native
+                .accounts_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            identities_requiring_auth: native
+                .identities_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            reserved_instructions: native
+                .reserved_instructions
+                .into_iter()
+                .map(ReservedInstruction::from)
+                .collect(),
+            classification: native
+                .classification
+                .into_iter()
+                .map(ManifestClass::from)
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct StaticAnalysis {
+    pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
+    pub accounts_withdrawn_from: Vec<Arc<Address>>,
+    pub accounts_deposited_into: Vec<Arc<Address>>,
+    pub encountered_entities: Vec<Arc<Address>>,
+    pub accounts_requiring_auth: Vec<Arc<Address>>,
+    pub identities_requiring_auth: Vec<Arc<Address>>,
+    pub reserved_instructions: Vec<ReservedInstruction>,
+    pub classification: Vec<ManifestClass>,
+}
+
+impl StaticAnalysis {
+    pub fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
+        Self {
             presented_proofs: native
                 .presented_proofs
                 .into_iter()

@@ -49,14 +49,14 @@ where
     fn summarize(
         &mut self,
         manifest: TransactionManifestV1,
-    ) -> (StaticAnalysis, DynamicAnalysis) {
+    ) -> (StaticAnalysisWithResourceMovements, DynamicAnalysis) {
         let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
         if !receipt.is_commit_success() {
             panic!("Not commit success: {receipt:?}")
         }
 
         let static_analysis =
-            radix_engine_toolkit::transaction_types::statically_analyze(
+            radix_engine_toolkit::transaction_types::statically_analyze_and_validate(
                 &manifest,
             )
             .unwrap();

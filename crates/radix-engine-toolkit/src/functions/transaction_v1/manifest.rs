@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use indexmap::IndexSet;
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_transactions::errors::*;
@@ -55,14 +54,14 @@ pub fn statically_validate(
         })
 }
 
-pub fn statically_analyze(
-    manifest: &TransactionManifestV1,
-) -> Result<StaticAnalysis, StaticResourceMovementsError> {
+pub fn statically_analyze(manifest: &TransactionManifestV1) -> StaticAnalysis {
     crate::transaction_types::statically_analyze(manifest)
 }
 
-pub fn classify(manifest: &TransactionManifestV1) -> IndexSet<ManifestClass> {
-    crate::transaction_types::classify_manifest(manifest)
+pub fn statically_analyze_and_validate(
+    manifest: &TransactionManifestV1,
+) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
+    crate::transaction_types::statically_analyze_and_validate(manifest)
 }
 
 pub fn dynamically_analyze(

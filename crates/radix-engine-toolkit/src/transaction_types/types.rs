@@ -35,6 +35,33 @@ use super::*;
 /// A summary of the manifest
 #[derive(Clone, Debug)]
 pub struct StaticAnalysis {
+    /// The list of the resources of proofs that were presented in the manifest.
+    pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
+    /// The set of accounts withdrawn from observed in the manifest.
+    pub accounts_withdrawn_from: IndexSet<ComponentAddress>,
+    /// The set of accounts deposited into observed in the manifest.
+    pub accounts_deposited_into: IndexSet<ComponentAddress>,
+    /// The set of all the global entities encountered in the manifest. This is
+    /// to be primarily used for the "using dApps" section of the wallet's tx
+    /// review screen.
+    pub encountered_entities: IndexSet<GlobalAddress>,
+    /// The set of accounts encountered in the manifest where privileged
+    /// methods were called.
+    pub accounts_requiring_auth: IndexSet<ComponentAddress>,
+    /// The set of identities encountered in the manifest where privileged
+    /// methods were called.
+    pub identities_requiring_auth: IndexSet<ComponentAddress>,
+    /// The set of instructions encountered in the manifest that are reserved
+    /// and can only be included in the manifest by the wallet itself.
+    pub reserved_instructions: IndexSet<ReservedInstruction>,
+    /// The various classifications that this manifest matched against. Note
+    /// that an empty set means that the manifest is non-conforming.
+    pub classification: IndexSet<ManifestClass>,
+}
+
+/// A summary of the manifest
+#[derive(Clone, Debug)]
+pub struct StaticAnalysisWithResourceMovements {
     /// The withdraws done in the manifest.
     pub account_withdraws: IndexMap<ComponentAddress, Vec<AccountWithdraw>>,
     /// The deposits done in the manifest.

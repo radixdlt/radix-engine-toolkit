@@ -90,19 +90,29 @@ impl TransactionManifestV2 {
         map
     }
 
-    pub fn static_analysis_and_validate(
+    pub fn statically_analyze(&self, network_id: u8) -> StaticAnalysis {
+        let native = self.clone().to_native();
+        StaticAnalysis::from_native(
+            core_transaction_v2_transaction_manifest_statically_analyze(
+                &native,
+            ),
+            network_id,
+        )
+    }
+
+    pub fn statically_analyze_and_validate(
         &self,
         network_id: u8,
-    ) -> Result<StaticAnalysis> {
+    ) -> Result<StaticAnalysisWithResourceMovements> {
         let native = self.clone().to_native();
-        core_transaction_v2_transaction_manifest_statically_analyze(&native)
+        core_transaction_v2_transaction_manifest_statically_analyze_and_validate(&native)
             .map_err(RadixEngineToolkitError::from)
             .map(|static_analysis| {
-                StaticAnalysis::from_native(static_analysis, network_id)
+                StaticAnalysisWithResourceMovements::from_native(static_analysis, network_id)
             })
     }
 
-    pub fn dynamic_analysis(
+    pub fn dynamically_analyze(
         &self,
         network_id: u8,
         toolkit_receipt: String,
@@ -134,13 +144,6 @@ impl TransactionManifestV2 {
             &self.clone().to_native(),
         )
         .map_err(Into::into)
-    }
-
-    pub fn classify(&self) -> Vec<ManifestClass> {
-        core_transaction_v2_transaction_manifest_classify(&self.to_native())
-            .into_iter()
-            .map(ManifestClass::from)
-            .collect()
     }
 }
 
