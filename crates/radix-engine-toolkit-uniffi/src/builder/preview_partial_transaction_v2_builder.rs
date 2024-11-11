@@ -19,44 +19,36 @@ use crate::prelude::*;
 use std::ops::Deref;
 
 #[derive(Clone, Debug, Object)]
-pub struct PreviewTransactionV2Builder {
+pub struct PreviewPartialTransactionV2Builder {
     children_with_signers: Vec<PreviewPartialTransactionV2>,
-    transaction_header: Option<TransactionHeaderV2>,
-    transaction_intent_header: Option<IntentHeaderV2>,
-    transaction_intent_message: MessageV2,
-    transaction_intent_manifest: Option<TransactionManifestV2>,
-    transaction_intent_signers: Vec<PublicKey>,
+    root_subintent_header: Option<IntentHeaderV2>,
+    root_subintent_message: MessageV2,
+    root_subintent_manifest: Option<TransactionManifestV2>,
 }
 
 #[uniffi::export]
-impl PreviewTransactionV2Builder {
+impl PreviewPartialTransactionV2Builder {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Self {
             children_with_signers: Default::default(),
-            transaction_header: Default::default(),
-            transaction_intent_header: Default::default(),
-            transaction_intent_message: Default::default(),
-            transaction_intent_manifest: Default::default(),
-            transaction_intent_signers: Default::default(),
+            root_subintent_header: Default::default(),
+            root_subintent_message: Default::default(),
+            root_subintent_manifest: Default::default(),
         })
     }
 
     pub fn add_child(
         self: Arc<Self>,
-        partial_preview_transaction: Arc<PreviewPartialTransactionV2>,
+        child: Arc<PreviewPartialTransactionV2>,
     ) -> Arc<Self> {
         self.with_builder(|builder| {
-            builder
-                .children_with_signers
-                .push(partial_preview_transaction.deref().clone());
+            builder.children_with_signers.push(child.as_ref().clone())
         })
     }
 
     pub fn message(self: Arc<Self>, message: MessageV2) -> Arc<Self> {
-        self.with_builder(|builder| {
-            builder.transaction_intent_message = message
-        })
+        self.with_builder(|builder| builder.root_subintent_message = message)
     }
 
     pub fn intent_header(
@@ -64,16 +56,7 @@ impl PreviewTransactionV2Builder {
         intent_header: IntentHeaderV2,
     ) -> Arc<Self> {
         self.with_builder(|builder| {
-            builder.transaction_intent_header = Some(intent_header)
-        })
-    }
-
-    pub fn transaction_header(
-        self: Arc<Self>,
-        transaction_header: TransactionHeaderV2,
-    ) -> Arc<Self> {
-        self.with_builder(|builder| {
-            builder.transaction_header = Some(transaction_header)
+            builder.root_subintent_header = Some(intent_header)
         })
     }
 
@@ -82,29 +65,19 @@ impl PreviewTransactionV2Builder {
         manifest: Arc<TransactionManifestV2>,
     ) -> Arc<Self> {
         self.with_builder(|builder| {
-            builder.transaction_intent_manifest =
-                Some(manifest.as_ref().clone())
+            builder.root_subintent_manifest = Some(manifest.as_ref().clone())
         })
     }
 
-    pub fn add_root_intent_signer(
+    pub fn prepare_for_signing(
         self: Arc<Self>,
-        signer: PublicKey,
-    ) -> Arc<Self> {
-        self.with_builder(|builder| {
-            builder.transaction_intent_signers.push(signer);
-        })
-    }
-
-    pub fn build(self: Arc<Self>) -> Result<Vec<u8>> {
+    ) -> Result<Arc<PreviewPartialTransactionV2>> {
         // Deconstructing the builder.
-        let Self {
+        let PreviewPartialTransactionV2Builder {
             children_with_signers,
-            transaction_header: Some(transaction_header),
-            transaction_intent_header: Some(header),
-            transaction_intent_message: message,
-            transaction_intent_signers,
-            transaction_intent_manifest:
+            root_subintent_header: Some(header),
+            root_subintent_message: message,
+            root_subintent_manifest:
                 Some(TransactionManifestV2 {
                     instructions,
                     blobs,
@@ -117,16 +90,15 @@ impl PreviewTransactionV2Builder {
             );
         };
 
-        // Constructing the transaction intent
-        let transaction_intent = TransactionIntentV2 {
-            transaction_header,
-            root_intent_core: IntentCoreV2::new(
+        // Constructing the partial transaction
+        let partial_transaction = PartialTransactionV2 {
+            root_subintent: SubintentV2::new(IntentCoreV2::new(
                 header,
                 blobs,
                 message,
                 children,
                 instructions,
-            ),
+            )),
             non_root_subintents: children_with_signers
                 .iter()
                 .flat_map(|child| {
@@ -144,16 +116,12 @@ impl PreviewTransactionV2Builder {
                 })
                 .collect(),
         };
-        let transaction_intent =
-            NativeTransactionIntentV2::try_from(transaction_intent)?;
 
-        let preview_transaction = NativePreviewTransactionV2 {
-            transaction_intent,
-            root_signer_public_keys: transaction_intent_signers
-                .into_iter()
-                .map(TryInto::try_into)
-                .collect::<Result<_>>()?,
-            non_root_subintent_signer_public_keys: children_with_signers
+        // Constructing the signed partial transaction
+        let preview_partial_transaction = PreviewPartialTransactionV2 {
+            partial_transaction: Arc::new(partial_transaction),
+            root_subintent_signers: Default::default(),
+            non_root_subintent_signers: children_with_signers
                 .iter()
                 .flat_map(|child| {
                     let mut signers = Vec::new();
@@ -161,26 +129,19 @@ impl PreviewTransactionV2Builder {
                     signers.extend(child.non_root_subintent_signers.clone());
                     signers
                 })
-                .map(|vec| {
-                    vec.into_iter()
-                        .map(TryInto::try_into)
-                        .collect::<Result<_>>()
-                })
-                .collect::<Result<_>>()?,
+                .collect(),
         };
 
-        let raw_preview_transaction = preview_transaction.to_raw()?;
-        Ok(raw_preview_transaction.to_vec())
+        Ok(Arc::new(preview_partial_transaction))
     }
 }
 
-impl PreviewTransactionV2Builder {
+impl PreviewPartialTransactionV2Builder {
     fn with_builder(
         self: Arc<Self>,
         callback: impl FnOnce(&mut Self),
     ) -> Arc<Self> {
-        let mut this =
-            Arc::try_unwrap(self).unwrap_or_else(|arc| (*arc).clone());
+        let mut this = Arc::try_unwrap(self).unwrap_or_else(|x| (*x).clone());
         callback(&mut this);
         Arc::new(this)
     }
