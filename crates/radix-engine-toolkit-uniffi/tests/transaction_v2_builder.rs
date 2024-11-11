@@ -17,7 +17,9 @@
 
 use std::sync::*;
 
+use radix_engine_toolkit_uniffi::builder::preview_transaction_v2_builder::PreviewTransactionV2Builder;
 use radix_engine_toolkit_uniffi::prelude::*;
+use scrypto_test::prelude::RawPreviewTransaction;
 
 #[test]
 fn subintent_transaction_hash_is_derived_correctly() -> Result<()> {
@@ -402,6 +404,52 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
                 .prepare(&NativePreparationSettings::latest())?,
         )
         .expect("Validation failed");
+
+    Ok(())
+}
+
+#[test]
+fn preview_v2_builder_produces_valid_preview_transactions() -> Result<()> {
+    // Arrange
+    let [notary_private_key, signer_private_key] = private_keys();
+
+    // Act
+    let preview_transaction = PreviewTransactionV2Builder::new()
+        .transaction_header(TransactionHeaderV2 {
+            notary_public_key: notary_private_key.public_key(),
+            notary_is_signatory: true,
+            tip_basis_points: 0,
+        })
+        .intent_header(IntentHeaderV2 {
+            network_id: 0x01,
+            start_epoch_inclusive: 1,
+            end_epoch_exclusive: 10,
+            min_proposer_timestamp_inclusive: None,
+            max_proposer_timestamp_exclusive: None,
+            intent_discriminator: 100,
+        })
+        .manifest(
+            ManifestV2Builder::new(1)
+                .drop_all_proofs()?
+                .drop_auth_zone_proofs()?
+                .drop_auth_zone_signature_proofs()?
+                .build(),
+        )
+        .add_root_intent_signer(signer_private_key.public_key())
+        .build()?;
+
+    // Assert
+    let native_preview_transaction = NativePreviewTransactionV2::from_raw(
+        &RawPreviewTransaction::from_vec(preview_transaction),
+    )
+    .expect("Failed");
+    let transaction_validator =
+        NativeTransactionValidator::new_with_latest_config(
+            &NativeNetworkDefinition::mainnet(),
+        );
+    native_preview_transaction
+        .prepare_and_validate(&transaction_validator)
+        .expect("Validation failed!");
 
     Ok(())
 }

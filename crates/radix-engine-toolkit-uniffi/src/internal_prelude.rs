@@ -489,6 +489,7 @@ mod native {
         TransactionHeaderV2 as NativeTransactionHeaderV2,
         DecryptorsByCurveV2 as NativeDecryptorsByCurveV2,
         EncryptedMessageV2 as NativeEncryptedMessageV2,
+        PreviewTransactionV2 as NativePreviewTransactionV2,
 
         MessageV1 as NativeMessageV1,
         AesGcmPayload as NativeAesGcmPayload,
