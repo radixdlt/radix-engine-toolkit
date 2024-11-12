@@ -24,6 +24,7 @@ pub struct PreviewPartialTransactionV2Builder {
     root_subintent_header: Option<IntentHeaderV2>,
     root_subintent_message: MessageV2,
     root_subintent_manifest: Option<TransactionManifestV2>,
+    root_subintent_signers: Vec<PublicKey>,
 }
 
 #[uniffi::export]
@@ -35,6 +36,7 @@ impl PreviewPartialTransactionV2Builder {
             root_subintent_header: Default::default(),
             root_subintent_message: Default::default(),
             root_subintent_manifest: Default::default(),
+            root_subintent_signers: Default::default(),
         })
     }
 
@@ -69,14 +71,20 @@ impl PreviewPartialTransactionV2Builder {
         })
     }
 
-    pub fn prepare_for_signing(
+    pub fn add_root_subintent_signer(
         self: Arc<Self>,
-    ) -> Result<Arc<PreviewPartialTransactionV2>> {
+        signer: PublicKey,
+    ) -> Arc<Self> {
+        self.with_builder(|builder| builder.root_subintent_signers.push(signer))
+    }
+
+    pub fn build(self: Arc<Self>) -> Result<Arc<PreviewPartialTransactionV2>> {
         // Deconstructing the builder.
         let PreviewPartialTransactionV2Builder {
             children_with_signers,
             root_subintent_header: Some(header),
             root_subintent_message: message,
+            root_subintent_signers,
             root_subintent_manifest:
                 Some(TransactionManifestV2 {
                     instructions,
@@ -120,7 +128,7 @@ impl PreviewPartialTransactionV2Builder {
         // Constructing the signed partial transaction
         let preview_partial_transaction = PreviewPartialTransactionV2 {
             partial_transaction: Arc::new(partial_transaction),
-            root_subintent_signers: Default::default(),
+            root_subintent_signers,
             non_root_subintent_signers: children_with_signers
                 .iter()
                 .flat_map(|child| {
