@@ -407,7 +407,7 @@ impl FromWithNameRecordContext<WithdrawStrategy> for NativeWithdrawStrategy {
 }
 
 impl FromWithNameRecordContext<Vec<ManifestBuilderBucket>>
-    for NativeBucketBatch
+    for NativeManifestBucketBatch
 {
     fn from(
         item: Vec<ManifestBuilderBucket>,

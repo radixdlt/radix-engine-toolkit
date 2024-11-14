@@ -1510,7 +1510,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT,
         instruction: CallMethod,
         args: NativeAccountDepositBatchManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch)
+            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch)
         }
     },
     {
@@ -1518,7 +1518,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrAbortManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
+            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch),
             authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
@@ -1527,7 +1527,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrRefundManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
+            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch),
             authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
         }
     },
@@ -2101,7 +2101,7 @@ builder_alias! {
         method_ident: NATIVE_MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
         instruction: CallMethod,
         args: NativeMultiResourcePoolContributeManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch)
+            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch)
         }
     },
     {

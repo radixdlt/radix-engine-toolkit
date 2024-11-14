@@ -245,7 +245,7 @@ mod native {
         ManifestResourceConstraints as NativeManifestResourceConstraints,
         GeneralResourceConstraint as NativeGeneralResourceConstraint,
 
-        BucketBatch as NativeBucketBatch,
+        ManifestBucketBatch as NativeManifestBucketBatch,
 
         Epoch as NativeEpoch,
         IsHash as NativeIsHash,
