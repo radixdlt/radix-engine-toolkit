@@ -15,24 +15,24 @@ members = [
 # Shared dependencies that all of the crates need - for now this is just the 
 # `radixdlt-scrypto` dependencies
 [workspace.dependencies]
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3", features = [
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a", features = [
     "serde",
 ] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3", features = [
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a", features = [
     "serde",
 ] }
-scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3", features = [
+scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a", features = [
     "serde",
 ] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
-radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "423e26abcfbb631d8e7f64ae748cab6f57151bb3" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
+radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "cuttlefish-c284120a" }
 
 [profile.release]
 incremental = false
