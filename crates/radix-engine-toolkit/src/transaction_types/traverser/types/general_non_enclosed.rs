@@ -23,11 +23,11 @@ use radix_engine_interface::blueprints::account::*;
 
 use crate::transaction_types::*;
 
-pub struct GeneralDetector {
+pub struct GeneralNonEnclosedDetector {
     is_valid: bool,
 }
 
-impl GeneralDetector {
+impl GeneralNonEnclosedDetector {
     pub fn is_valid(&self) -> bool {
         self.is_valid
     }
@@ -37,7 +37,7 @@ impl GeneralDetector {
     }
 }
 
-impl StaticAnalysisCallback for GeneralDetector {
+impl StaticAnalysisCallback for GeneralNonEnclosedDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -85,24 +85,24 @@ impl StaticAnalysisCallback for GeneralDetector {
             | InstructionV2::DropProof(..)
             | InstructionV2::DropNamedProofs(..)
             | InstructionV2::DropAllProofs(..)
-            | InstructionV2::CallFunction(..) => true,
+            | InstructionV2::CallFunction(..)
+            | InstructionV2::YieldToParent(_)
+            | InstructionV2::YieldToChild(_)
+            | InstructionV2::VerifyParent(_) => true,
             /* Not Permitted */
             InstructionV2::BurnResource(..)
             | InstructionV2::CallRoyaltyMethod(..)
             | InstructionV2::CallMetadataMethod(..)
             | InstructionV2::CallRoleAssignmentMethod(..)
             | InstructionV2::CallDirectVaultMethod(..)
-            | InstructionV2::AllocateGlobalAddress(..)
-            | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_) => false,
+            | InstructionV2::AllocateGlobalAddress(..) => false,
         }
     }
 }
 
-impl DynamicAnalysisCallback for GeneralDetector {}
+impl DynamicAnalysisCallback for GeneralNonEnclosedDetector {}
 
-impl GeneralDetector {
+impl GeneralNonEnclosedDetector {
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
         match address {
             DynamicGlobalAddress::Named(..) => FnRules::all_disallowed(),
@@ -171,7 +171,7 @@ impl GeneralDetector {
     }
 }
 
-impl Default for GeneralDetector {
+impl Default for GeneralNonEnclosedDetector {
     fn default() -> Self {
         Self { is_valid: true }
     }

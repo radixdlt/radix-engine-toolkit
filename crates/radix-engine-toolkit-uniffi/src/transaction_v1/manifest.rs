@@ -392,6 +392,7 @@ impl From<CoreReservedInstruction> for ReservedInstruction {
 
 #[derive(Clone, Debug, Enum)]
 pub enum ManifestClass {
+    GeneralNonEnclosed,
     General,
     Transfer,
     PoolContribution,
@@ -405,6 +406,7 @@ pub enum ManifestClass {
 impl From<CoreManifestClass> for ManifestClass {
     fn from(value: CoreManifestClass) -> Self {
         match value {
+            CoreManifestClass::GeneralNonEnclosed => Self::GeneralNonEnclosed,
             CoreManifestClass::General => Self::General,
             CoreManifestClass::Transfer => Self::Transfer,
             CoreManifestClass::PoolContribution => Self::PoolContribution,
