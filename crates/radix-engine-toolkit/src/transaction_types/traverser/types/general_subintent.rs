@@ -88,7 +88,6 @@ impl StaticAnalysisCallback for GeneralSubintentDetector {
             | InstructionV2::DropAllProofs(..)
             | InstructionV2::CallFunction(..)
             | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
             | InstructionV2::VerifyParent(_) => true,
             /* Not Permitted */
             InstructionV2::BurnResource(..)
@@ -96,7 +95,8 @@ impl StaticAnalysisCallback for GeneralSubintentDetector {
             | InstructionV2::CallMetadataMethod(..)
             | InstructionV2::CallRoleAssignmentMethod(..)
             | InstructionV2::CallDirectVaultMethod(..)
-            | InstructionV2::AllocateGlobalAddress(..) => false,
+            | InstructionV2::AllocateGlobalAddress(..)
+            | InstructionV2::YieldToChild(_) => false,
         };
 
         if let InstructionV2::YieldToParent(..) = instruction {
