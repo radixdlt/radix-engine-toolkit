@@ -18,7 +18,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use crate::prelude::*;
-use radix_common::prelude::{to_manifest_value, FromPublicKey};
+use radix_common::prelude::{FromPublicKey, to_manifest_value};
 
 #[derive(Debug, Clone, Object, Default)]
 pub struct ManifestV1Builder {
