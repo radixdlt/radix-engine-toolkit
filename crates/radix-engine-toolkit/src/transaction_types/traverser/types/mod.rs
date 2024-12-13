@@ -18,7 +18,6 @@
 mod account_resource_movements;
 mod account_settings;
 mod general;
-mod general_non_enclosed;
 mod pool_contribution;
 mod pool_redemption;
 mod transfer;
@@ -29,7 +28,6 @@ mod validator_unstake;
 pub use account_resource_movements::*;
 pub use account_settings::*;
 pub use general::*;
-pub use general_non_enclosed::*;
 pub use pool_contribution::*;
 pub use pool_redemption::*;
 pub use transfer::*;

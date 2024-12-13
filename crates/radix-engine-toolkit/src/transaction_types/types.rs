@@ -129,9 +129,6 @@ pub struct DynamicAnalysis {
 /// are the classes that the Radix Engine Toolkit supports.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum ManifestClass {
-    /// A general manifest that is not enclosed which means that it belongs to
-    /// a subintent.
-    GeneralNonEnclosed,
     /// A general manifest that involves any amount of arbitrary components
     /// and packages where nothing more concrete can be said about the manifest
     /// and its nature.

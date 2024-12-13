@@ -42,7 +42,6 @@ cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
 scrypto-test = { workspace = true }
-radix-transactions = { workspace = true }
 
 [features]
 default = []

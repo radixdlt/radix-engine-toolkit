@@ -154,9 +154,6 @@ impl GeneralDetector {
                             | EntityType::InternalNonFungibleVault
                             | EntityType::InternalKeyValueStore
                             | EntityType::GlobalTransactionTracker
-                            // TODO: Will be a problem once we do MFA and we 
-                            // need to allow for creation of proofs from the 
-                            // access controller.
                             | EntityType::GlobalAccessController
                             | EntityType::GlobalOneResourcePool
                             | EntityType::GlobalTwoResourcePool

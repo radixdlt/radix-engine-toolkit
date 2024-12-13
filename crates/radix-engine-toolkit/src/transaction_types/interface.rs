@@ -43,8 +43,6 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
 
-    let mut general_non_enclosed_transaction_detector =
-        GeneralNonEnclosedDetector::default();
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -64,7 +62,6 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
-            &mut general_non_enclosed_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -86,14 +83,8 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
         account_resource_movements_detector.output();
     let classification = [
         (
-            ManifestClass::GeneralNonEnclosed,
-            general_non_enclosed_transaction_detector.is_valid()
-                && !general_transaction_detector.is_valid(),
-        ),
-        (
             ManifestClass::General,
-            general_transaction_detector.is_valid()
-                && !general_non_enclosed_transaction_detector.is_valid(),
+            general_transaction_detector.is_valid(),
         ),
         (
             ManifestClass::Transfer,
@@ -154,8 +145,6 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
 
-    let mut general_non_enclosed_transaction_detector =
-        GeneralNonEnclosedDetector::default();
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -175,7 +164,6 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
-            &mut general_non_enclosed_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -197,14 +185,8 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
         account_resource_movements_detector.output();
     let classification = [
         (
-            ManifestClass::GeneralNonEnclosed,
-            general_non_enclosed_transaction_detector.is_valid()
-                && !general_transaction_detector.is_valid(),
-        ),
-        (
             ManifestClass::General,
-            general_transaction_detector.is_valid()
-                && !general_non_enclosed_transaction_detector.is_valid(),
+            general_transaction_detector.is_valid(),
         ),
         (
             ManifestClass::Transfer,
@@ -279,8 +261,6 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
 
-    let mut general_non_enclosed_transaction_detector =
-        GeneralNonEnclosedDetector::default();
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -299,7 +279,6 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
             &mut requiring_auth_detector,
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
-            &mut general_non_enclosed_transaction_detector,
             &mut general_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
@@ -315,14 +294,8 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
     // Extracting the data out of the detectors and into the ManifestSummary
     [
         (
-            ManifestClass::GeneralNonEnclosed,
-            general_non_enclosed_transaction_detector.is_valid()
-                && !general_transaction_detector.is_valid(),
-        ),
-        (
             ManifestClass::General,
-            general_transaction_detector.is_valid()
-                && !general_non_enclosed_transaction_detector.is_valid(),
+            general_transaction_detector.is_valid(),
         ),
         (
             ManifestClass::Transfer,
@@ -513,14 +486,17 @@ pub fn dynamically_analyze<M: ReadableManifest>(
                                     k,
                                     v.into_iter()
                                         .map(|(badge, operation)| {
-                                            (badge, match operation {
-                                                Update::Set(()) => {
-                                                    Operation::Added
-                                                }
-                                                Update::Remove => {
-                                                    Operation::Removed
-                                                }
-                                            })
+                                            (
+                                                badge,
+                                                match operation {
+                                                    Update::Set(()) => {
+                                                        Operation::Added
+                                                    }
+                                                    Update::Remove => {
+                                                        Operation::Removed
+                                                    }
+                                                },
+                                            )
                                         })
                                         .collect(),
                                 )
