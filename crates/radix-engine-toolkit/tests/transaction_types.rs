@@ -2504,6 +2504,21 @@ fn account_locker_is_recognized_as_general_transaction() {
 }
 
 #[test]
+fn manifest_with_yield_to_child_has_no_classifications() {
+    // Arrange
+    let manifest = ManifestBuilder::new_v2()
+        .use_child("example", SubintentHash(Hash([0; 32])))
+        .yield_to_child("example", ())
+        .build();
+
+    // Act
+    let StaticAnalysis { classification, .. } = statically_analyze(&manifest);
+
+    // Assert
+    assert!(classification.is_empty());
+}
+
+#[test]
 fn lock_fee_manifest_has_no_classification_except_general() {
     // Arrange
     let mut ledger =
