@@ -18,6 +18,7 @@
 mod account_resource_movements;
 mod account_settings;
 mod general;
+mod general_subintent;
 mod pool_contribution;
 mod pool_redemption;
 mod transfer;
@@ -28,6 +29,7 @@ mod validator_unstake;
 pub use account_resource_movements::*;
 pub use account_settings::*;
 pub use general::*;
+pub use general_subintent::*;
 pub use pool_contribution::*;
 pub use pool_redemption::*;
 pub use transfer::*;

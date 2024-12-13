@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// TODO: Refactor the functions in here into a single function perhaps through
+// some form of parsing modes, but we need to deduplicate the logic.
+
 //! Functions that expose the transaction types functionality without exposing
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
@@ -44,6 +47,8 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
         StaticAccountResourceMovementsDetector::default();
 
     let mut general_transaction_detector = GeneralDetector::default();
+    let mut general_subintent_transaction_detector =
+        GeneralSubintentDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
     let mut pool_redemption_detector = PoolRedemptionDetector::default();
@@ -62,6 +67,7 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
+            &mut general_subintent_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -82,6 +88,10 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
     let (account_withdraws, account_deposits) =
         account_resource_movements_detector.output();
     let classification = [
+        (
+            ManifestClass::GeneralSubintent,
+            general_subintent_transaction_detector.is_valid(),
+        ),
         (
             ManifestClass::General,
             general_transaction_detector.is_valid(),
@@ -146,6 +156,8 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
         StaticAccountResourceMovementsDetector::default();
 
     let mut general_transaction_detector = GeneralDetector::default();
+    let mut general_subintent_transaction_detector =
+        GeneralSubintentDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
     let mut pool_redemption_detector = PoolRedemptionDetector::default();
@@ -164,6 +176,7 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
+            &mut general_subintent_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -184,6 +197,10 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
     let (account_withdraws, account_deposits) =
         account_resource_movements_detector.output();
     let classification = [
+        (
+            ManifestClass::GeneralSubintent,
+            general_subintent_transaction_detector.is_valid(),
+        ),
         (
             ManifestClass::General,
             general_transaction_detector.is_valid(),
@@ -262,6 +279,8 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
         StaticAccountResourceMovementsDetector::default();
 
     let mut general_transaction_detector = GeneralDetector::default();
+    let mut general_subintent_transaction_detector =
+        GeneralSubintentDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
     let mut pool_redemption_detector = PoolRedemptionDetector::default();
@@ -280,6 +299,7 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
+            &mut general_subintent_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -293,6 +313,10 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
 
     // Extracting the data out of the detectors and into the ManifestSummary
     [
+        (
+            ManifestClass::GeneralSubintent,
+            general_subintent_transaction_detector.is_valid(),
+        ),
         (
             ManifestClass::General,
             general_transaction_detector.is_valid(),
@@ -352,6 +376,8 @@ pub fn dynamically_analyze<M: ReadableManifest>(
     let newly_created_non_fungibles = receipt.new_non_fungibles();
 
     let mut general_transaction_detector = GeneralDetector::default();
+    let mut general_subintent_transaction_detector =
+        GeneralSubintentDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
     let mut pool_redemption_detector = PoolRedemptionDetector::default();
@@ -370,6 +396,7 @@ pub fn dynamically_analyze<M: ReadableManifest>(
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
             &mut general_transaction_detector,
+            &mut general_subintent_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
             &mut pool_redemption_detector,
@@ -486,17 +513,14 @@ pub fn dynamically_analyze<M: ReadableManifest>(
                                     k,
                                     v.into_iter()
                                         .map(|(badge, operation)| {
-                                            (
-                                                badge,
-                                                match operation {
-                                                    Update::Set(()) => {
-                                                        Operation::Added
-                                                    }
-                                                    Update::Remove => {
-                                                        Operation::Removed
-                                                    }
-                                                },
-                                            )
+                                            (badge, match operation {
+                                                Update::Set(()) => {
+                                                    Operation::Added
+                                                }
+                                                Update::Remove => {
+                                                    Operation::Removed
+                                                }
+                                            })
                                         })
                                         .collect(),
                                 )
