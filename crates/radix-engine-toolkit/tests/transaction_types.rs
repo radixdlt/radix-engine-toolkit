@@ -2576,3 +2576,90 @@ fn subintent_manifest_classification_test(
         assert!(!contains_general_subintent_classification);
     }
 }
+
+#[test]
+fn update_to_account_owner_keys_is_reserved_instruction() {
+    let account =
+        ComponentAddress::new_or_panic([EntityType::GlobalAccount as u8; 30]);
+    reserved_instructions_test(
+        ManifestBuilder::new()
+            .set_metadata(account, "owner_keys", "not relevant")
+            .build(),
+        true,
+        false,
+    )
+}
+
+#[test]
+fn update_to_identity_owner_keys_is_reserved_instruction() {
+    let identity =
+        ComponentAddress::new_or_panic([EntityType::GlobalIdentity as u8; 30]);
+    reserved_instructions_test(
+        ManifestBuilder::new()
+            .set_metadata(identity, "owner_keys", "not relevant")
+            .build(),
+        false,
+        true,
+    )
+}
+
+#[test]
+fn update_to_component_owner_keys_is_not_reserved_instruction() {
+    let component = ComponentAddress::new_or_panic(
+        [EntityType::GlobalGenericComponent as u8; 30],
+    );
+    reserved_instructions_test(
+        ManifestBuilder::new()
+            .set_metadata(component, "owner_keys", "not relevant")
+            .build(),
+        false,
+        false,
+    )
+}
+
+#[test]
+fn update_to_account_non_owner_keys_field_is_not_reserved_instruction() {
+    let account =
+        ComponentAddress::new_or_panic([EntityType::GlobalAccount as u8; 30]);
+    reserved_instructions_test(
+        ManifestBuilder::new()
+            .set_metadata(account, "example", "not relevant")
+            .build(),
+        false,
+        false,
+    )
+}
+
+#[test]
+fn update_to_identity_non_owner_keys_field_is_not_reserved_instruction() {
+    let identity =
+        ComponentAddress::new_or_panic([EntityType::GlobalIdentity as u8; 30]);
+    reserved_instructions_test(
+        ManifestBuilder::new()
+            .set_metadata(identity, "example", "not relevant")
+            .build(),
+        false,
+        false,
+    )
+}
+
+fn reserved_instructions_test(
+    manifest: TransactionManifestV1,
+    expect_account_owner_key_update: bool,
+    expect_identity_owner_key_update: bool,
+) {
+    let StaticAnalysis {
+        reserved_instructions,
+        ..
+    } = statically_analyze(&manifest);
+    let [is_account_owner_key_update, is_identity_owner_key_update] = [
+        ReservedInstruction::AccountUpdateOwnerKeysMetadataField,
+        ReservedInstruction::IdentityUpdateOwnerKeysMetadataField,
+    ]
+    .map(|expected| reserved_instructions.contains(&expected));
+    assert_eq!(is_account_owner_key_update, expect_account_owner_key_update);
+    assert_eq!(
+        is_identity_owner_key_update,
+        expect_identity_owner_key_update
+    );
+}

@@ -360,13 +360,21 @@ impl ToNative for AccountDefaultDepositRule {
 pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
+    AccountUpdateOwnerKeysMetadataField,
     IdentitySecurify,
+    IdentityUpdateOwnerKeysMetadataField,
     AccessControllerMethod,
 }
 
 impl From<ReservedInstruction> for CoreReservedInstruction {
     fn from(value: ReservedInstruction) -> Self {
         match value {
+            ReservedInstruction::AccountUpdateOwnerKeysMetadataField => {
+                Self::AccountUpdateOwnerKeysMetadataField
+            }
+            ReservedInstruction::IdentityUpdateOwnerKeysMetadataField => {
+                Self::IdentityUpdateOwnerKeysMetadataField
+            }
             ReservedInstruction::AccessControllerMethod => {
                 Self::AccessControllerMethod
             }
@@ -380,6 +388,12 @@ impl From<ReservedInstruction> for CoreReservedInstruction {
 impl From<CoreReservedInstruction> for ReservedInstruction {
     fn from(value: CoreReservedInstruction) -> Self {
         match value {
+            CoreReservedInstruction::AccountUpdateOwnerKeysMetadataField => {
+                Self::AccountUpdateOwnerKeysMetadataField
+            }
+            CoreReservedInstruction::IdentityUpdateOwnerKeysMetadataField => {
+                Self::IdentityUpdateOwnerKeysMetadataField
+            }
             CoreReservedInstruction::AccessControllerMethod => {
                 Self::AccessControllerMethod
             }

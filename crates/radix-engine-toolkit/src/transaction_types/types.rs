@@ -486,7 +486,9 @@ pub struct NewEntities {
 pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
+    AccountUpdateOwnerKeysMetadataField,
     IdentitySecurify,
+    IdentityUpdateOwnerKeysMetadataField,
     AccessControllerMethod,
 }
 
