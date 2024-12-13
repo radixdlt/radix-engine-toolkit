@@ -2544,6 +2544,35 @@ fn subintent_manifest_of_transfer_is_a_general_subintent() {
 }
 
 #[test]
+fn subintent_manifest_of_transfer_and_verify_parent_is_a_general_subintent() {
+    let account =
+        ComponentAddress::new_or_panic([EntityType::GlobalAccount as u8; 30]);
+    subintent_manifest_classification_test(
+        ManifestBuilder::new_subintent_v2()
+            .lock_fee(account, dec!(10))
+            .withdraw_from_account(account, XRD, 10)
+            .take_all_from_worktop(XRD, "bucket")
+            .try_deposit_or_abort(account, None, "bucket")
+            .verify_parent(rule!(allow_all))
+            .yield_to_parent(())
+            .build(),
+        true,
+    )
+}
+
+#[test]
+fn subintent_manifest_with_yield_to_child_is_not_a_general_subintent() {
+    subintent_manifest_classification_test(
+        ManifestBuilder::new_subintent_v2()
+            .use_child("example", SubintentHash(Hash([0; 32])))
+            .yield_to_child("example", ())
+            .yield_to_parent(())
+            .build(),
+        false,
+    )
+}
+
+#[test]
 fn subintent_manifest_of_transfer_with_metadata_update_is_not_a_general_subintent()
  {
     let account =

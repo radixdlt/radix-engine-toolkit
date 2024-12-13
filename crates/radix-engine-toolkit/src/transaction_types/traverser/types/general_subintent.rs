@@ -24,13 +24,13 @@ use radix_engine_interface::blueprints::account::*;
 use crate::transaction_types::*;
 
 pub struct GeneralSubintentDetector {
-    is_valid: bool,
+    is_all_instructions_allowed: bool,
     is_yield_to_parent_present: bool,
 }
 
 impl GeneralSubintentDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid && self.is_yield_to_parent_present
+        self.is_all_instructions_allowed && self.is_yield_to_parent_present
     }
 
     pub fn output(self) -> Option<()> {
@@ -39,17 +39,11 @@ impl GeneralSubintentDetector {
 }
 
 impl StaticAnalysisCallback for GeneralSubintentDetector {
-    fn on_finish(&mut self, instructions_count: usize) {
-        if instructions_count == 0 {
-            self.is_valid = false
-        }
-    }
-
     fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         // Control whether or not this is allowed or not based on:
         // 1. Whether the instruction is allowed.
         // 2. Whether the instruction contents are allowed.
-        self.is_valid &= match instruction {
+        self.is_all_instructions_allowed &= match instruction {
             /* Maybe Permitted - Need more info */
             InstructionV2::CallMethod(CallMethod {
                 address,
@@ -176,7 +170,7 @@ impl GeneralSubintentDetector {
 impl Default for GeneralSubintentDetector {
     fn default() -> Self {
         Self {
-            is_valid: true,
+            is_all_instructions_allowed: true,
             is_yield_to_parent_present: false,
         }
     }

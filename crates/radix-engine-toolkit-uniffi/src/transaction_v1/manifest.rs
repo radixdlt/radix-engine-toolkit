@@ -360,8 +360,10 @@ impl ToNative for AccountDefaultDepositRule {
 pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
+    AccountLockOwnerKeysMetadataField,
     AccountUpdateOwnerKeysMetadataField,
     IdentitySecurify,
+    IdentityLockOwnerKeysMetadataField,
     IdentityUpdateOwnerKeysMetadataField,
     AccessControllerMethod,
 }
@@ -372,8 +374,14 @@ impl From<ReservedInstruction> for CoreReservedInstruction {
             ReservedInstruction::AccountUpdateOwnerKeysMetadataField => {
                 Self::AccountUpdateOwnerKeysMetadataField
             }
+            ReservedInstruction::AccountLockOwnerKeysMetadataField => {
+                Self::AccountLockOwnerKeysMetadataField
+            }
             ReservedInstruction::IdentityUpdateOwnerKeysMetadataField => {
                 Self::IdentityUpdateOwnerKeysMetadataField
+            }
+            ReservedInstruction::IdentityLockOwnerKeysMetadataField => {
+                Self::IdentityLockOwnerKeysMetadataField
             }
             ReservedInstruction::AccessControllerMethod => {
                 Self::AccessControllerMethod
@@ -391,8 +399,14 @@ impl From<CoreReservedInstruction> for ReservedInstruction {
             CoreReservedInstruction::AccountUpdateOwnerKeysMetadataField => {
                 Self::AccountUpdateOwnerKeysMetadataField
             }
+            CoreReservedInstruction::AccountLockOwnerKeysMetadataField => {
+                Self::AccountLockOwnerKeysMetadataField
+            }
             CoreReservedInstruction::IdentityUpdateOwnerKeysMetadataField => {
                 Self::IdentityUpdateOwnerKeysMetadataField
+            }
+            CoreReservedInstruction::IdentityLockOwnerKeysMetadataField => {
+                Self::IdentityLockOwnerKeysMetadataField
             }
             CoreReservedInstruction::AccessControllerMethod => {
                 Self::AccessControllerMethod

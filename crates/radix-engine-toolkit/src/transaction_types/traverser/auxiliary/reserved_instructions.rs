@@ -96,6 +96,24 @@ impl StaticAnalysisCallback for ReservedInstructionsDetector {
                     {
                         self.reserved_instructions.insert(ReservedInstruction::IdentityUpdateOwnerKeysMetadataField);
                     }
+                } else if method_name == METADATA_LOCK_IDENT {
+                    // Attempt to decode the args as a metadata set call. If we
+                    // fail then we have not technically detected a violation of
+                    // the reserved instructions and we can just ignore this.
+                    let Some(MetadataLockInput { key, .. }) =
+                        manifest_encode(args)
+                            .ok()
+                            .and_then(|encoded| manifest_decode(&encoded).ok())
+                    else {
+                        return;
+                    };
+                    let is_owner_keys_metadata_key = key == "owner_keys";
+                    if is_account(address) && is_owner_keys_metadata_key {
+                        self.reserved_instructions.insert(ReservedInstruction::AccountLockOwnerKeysMetadataField);
+                    } else if is_identity(address) && is_owner_keys_metadata_key
+                    {
+                        self.reserved_instructions.insert(ReservedInstruction::IdentityLockOwnerKeysMetadataField);
+                    }
                 }
             }
             _ => {}
