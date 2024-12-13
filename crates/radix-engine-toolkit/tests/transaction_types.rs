@@ -2503,6 +2503,11 @@ fn account_locker_is_recognized_as_general_transaction() {
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 }
 
+// This test ensures that a transaction intent manifest is classified as uncategorized in the Gateway
+// The wallet currently uses the classification of the transaction intent manifest as the classification of the transaction
+// For an MVP, we want the wallet to show transactions with subintents as Complex/Uncategorized, so this
+// test checks that. In future, we may wish to revisit this and change this restriction, but we should make
+// sure that the transactions still display reasonably in the wallet.
 #[test]
 fn manifest_with_yield_to_child_has_no_classifications() {
     // Arrange
