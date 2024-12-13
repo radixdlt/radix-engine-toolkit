@@ -234,12 +234,18 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
             NonFungibleResourceRoles::single_locked_rule(AccessRule::AllowAll),
             ModuleConfig::default(),
             Some(vec![
-                (nf_id_1.clone(), NfData {
-                    name: "data_1".to_string(),
-                }),
-                (nf_id_2.clone(), NfData {
-                    name: "data_2".to_string(),
-                }),
+                (
+                    nf_id_1.clone(),
+                    NfData {
+                        name: "data_1".to_string(),
+                    },
+                ),
+                (
+                    nf_id_2.clone(),
+                    NfData {
+                        name: "data_2".to_string(),
+                    },
+                ),
             ]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
