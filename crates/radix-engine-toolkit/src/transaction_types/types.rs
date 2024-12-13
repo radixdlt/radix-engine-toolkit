@@ -129,6 +129,11 @@ pub struct DynamicAnalysis {
 /// are the classes that the Radix Engine Toolkit supports.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum ManifestClass {
+    /// A subintent manifest which satisfies the general rules allowed for in
+    /// general transactions and that includes a [`YieldToParent`] instruction.
+    ///
+    /// [`YieldToParent`]: radix_transactions::manifest::YieldToParent
+    GeneralSubintent,
     /// A general manifest that involves any amount of arbitrary components
     /// and packages where nothing more concrete can be said about the manifest
     /// and its nature.
@@ -481,7 +486,11 @@ pub struct NewEntities {
 pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
+    AccountLockOwnerKeysMetadataField,
+    AccountUpdateOwnerKeysMetadataField,
     IdentitySecurify,
+    IdentityLockOwnerKeysMetadataField,
+    IdentityUpdateOwnerKeysMetadataField,
     AccessControllerMethod,
 }
 

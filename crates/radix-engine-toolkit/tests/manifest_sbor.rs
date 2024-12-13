@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_common::prelude::{
-    manifest_encode, AddressBech32Encoder, ManifestValue, ScryptoCustomSchema,
+    AddressBech32Encoder, ManifestValue, ScryptoCustomSchema, manifest_encode,
 };
 use radix_common::{ManifestSbor, ScryptoSbor};
 use radix_engine_toolkit::functions::manifest_sbor::ManifestSborStringRepresentation;

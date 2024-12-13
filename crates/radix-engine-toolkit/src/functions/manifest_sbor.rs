@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_transactions::data::{
-    format_manifest_value, ManifestDecompilationDisplayContext,
+    ManifestDecompilationDisplayContext, format_manifest_value,
 };
 use sbor::prelude::ContextualSerialize;
 use sbor::representations::{SerializationMode, SerializationParameters};
