@@ -40,7 +40,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-2024-02-01
+        toolchain: nightly-2024-12-14
         default: true
         profile: minimal
     # - name: Run sccache-cache
@@ -113,7 +113,7 @@ jobs:
       - name: Install Rust Toolchain
         uses: RDXWorks-actions/toolchain@master
         with:
-          toolchain: nightly-2024-02-01
+          toolchain: nightly-2024-12-14
           default: true
           profile: minimal
           target: ${{ matrix.build-target.target-triple }}
