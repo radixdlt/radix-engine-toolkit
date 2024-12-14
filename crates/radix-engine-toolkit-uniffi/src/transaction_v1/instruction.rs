@@ -218,20 +218,24 @@ impl InstructionV1 {
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV1::PopFromAuthZone(..) => Self::PopFromAuthZone,
+            NativeInstructionV1::PopFromAuthZone { .. } => {
+                Self::PopFromAuthZone
+            }
             NativeInstructionV1::PushToAuthZone(NativePushToAuthZone {
                 proof_id,
             }) => Self::PushToAuthZone {
                 proof_id: (*proof_id).into(),
             },
-            NativeInstructionV1::DropNamedProofs(..) => Self::DropNamedProofs,
-            NativeInstructionV1::DropAuthZoneProofs(..) => {
+            NativeInstructionV1::DropNamedProofs { .. } => {
+                Self::DropNamedProofs
+            }
+            NativeInstructionV1::DropAuthZoneProofs { .. } => {
                 Self::DropAuthZoneProofs
             }
-            NativeInstructionV1::DropAuthZoneRegularProofs(..) => {
+            NativeInstructionV1::DropAuthZoneRegularProofs { .. } => {
                 Self::DropAuthZoneRegularProofs
             }
-            NativeInstructionV1::DropAuthZoneSignatureProofs(..) => {
+            NativeInstructionV1::DropAuthZoneSignatureProofs { .. } => {
                 Self::DropAuthZoneSignatureProofs
             }
             NativeInstructionV1::CreateProofFromAuthZoneOfAll(
@@ -298,7 +302,7 @@ impl InstructionV1 {
                     proof_id: (*proof_id).into(),
                 }
             }
-            NativeInstructionV1::DropAllProofs(..) => Self::DropAllProofs,
+            NativeInstructionV1::DropAllProofs { .. } => Self::DropAllProofs,
             NativeInstructionV1::AllocateGlobalAddress(
                 NativeAllocateGlobalAddress {
                     package_address,

@@ -138,11 +138,11 @@ impl StaticAnalysisCallback for TransferDetector {
             | InstructionV2::AssertWorktopContainsAny { .. }
             | InstructionV2::AssertWorktopContains { .. }
             | InstructionV2::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV2::AssertWorktopResourcesOnly(..)
-            | InstructionV2::AssertWorktopResourcesInclude(..)
-            | InstructionV2::AssertNextCallReturnsOnly(..)
-            | InstructionV2::AssertNextCallReturnsInclude(..)
-            | InstructionV2::AssertBucketContents(..)
+            | InstructionV2::AssertWorktopResourcesOnly { .. }
+            | InstructionV2::AssertWorktopResourcesInclude { .. }
+            | InstructionV2::AssertNextCallReturnsOnly { .. }
+            | InstructionV2::AssertNextCallReturnsInclude { .. }
+            | InstructionV2::AssertBucketContents { .. }
             | InstructionV2::PopFromAuthZone { .. }
             | InstructionV2::PushToAuthZone { .. }
             | InstructionV2::CreateProofFromAuthZoneOfAmount { .. }
@@ -165,9 +165,9 @@ impl StaticAnalysisCallback for TransferDetector {
             | InstructionV2::DropNamedProofs { .. }
             | InstructionV2::DropAllProofs { .. }
             | InstructionV2::AllocateGlobalAddress { .. }
-            | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_) => false,
+            | InstructionV2::YieldToParent { .. }
+            | InstructionV2::YieldToChild { .. }
+            | InstructionV2::VerifyParent { .. } => false,
         };
 
         // Determine if the instruction is a transfer instruction.

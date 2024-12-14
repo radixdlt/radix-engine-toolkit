@@ -56,13 +56,10 @@ pub fn as_enclosed(
         object_names,
     }: &SubintentManifestV2,
 ) -> Option<TransactionManifestV2> {
-    let [
-        assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
+    let [assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
             constraints,
-        }),
-        other_instructions @ ..,
-        InstructionV2::YieldToParent(..),
-    ] = instructions.as_slice()
+        }), other_instructions @ .., InstructionV2::YieldToParent { .. }] =
+        instructions.as_slice()
     else {
         return None;
     };
@@ -73,7 +70,8 @@ pub fn as_enclosed(
     let is_enclosed = !other_instructions.iter().any(|instruction| {
         matches!(
             instruction,
-            InstructionV2::YieldToChild(..) | InstructionV2::YieldToParent(..)
+            InstructionV2::YieldToChild { .. }
+                | InstructionV2::YieldToParent { .. }
         )
     });
 

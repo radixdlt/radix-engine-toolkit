@@ -112,9 +112,9 @@ impl StaticAnalysisCallback for PoolRedemptionDetector {
             | InstructionV2::DropNamedProofs { .. }
             | InstructionV2::DropAllProofs { .. }
             | InstructionV2::CallFunction { .. }
-            | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_) => false,
+            | InstructionV2::YieldToParent { .. }
+            | InstructionV2::YieldToChild { .. }
+            | InstructionV2::VerifyParent { .. } => false,
         };
 
         // Handle required method call

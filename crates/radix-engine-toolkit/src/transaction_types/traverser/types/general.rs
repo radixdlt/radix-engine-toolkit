@@ -33,7 +33,11 @@ impl GeneralDetector {
     }
 
     pub fn output(self) -> Option<()> {
-        if self.is_valid() { Some(()) } else { None }
+        if self.is_valid() {
+            Some(())
+        } else {
+            None
+        }
     }
 }
 
@@ -58,44 +62,44 @@ impl StaticAnalysisCallback for GeneralDetector {
                 Self::construct_fn_rules(address).is_fn_permitted(method_name)
             }
             /* Permitted */
-            InstructionV2::TakeFromWorktop(..)
-            | InstructionV2::TakeNonFungiblesFromWorktop(..)
-            | InstructionV2::TakeAllFromWorktop(..)
-            | InstructionV2::ReturnToWorktop(..)
-            | InstructionV2::AssertWorktopContainsAny(..)
-            | InstructionV2::AssertWorktopContains(..)
-            | InstructionV2::AssertWorktopContainsNonFungibles(..)
-            | InstructionV2::AssertWorktopResourcesOnly(..)
-            | InstructionV2::AssertWorktopResourcesInclude(..)
-            | InstructionV2::AssertNextCallReturnsOnly(..)
-            | InstructionV2::AssertNextCallReturnsInclude(..)
-            | InstructionV2::AssertBucketContents(..)
-            | InstructionV2::PopFromAuthZone(..)
-            | InstructionV2::PushToAuthZone(..)
-            | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
-            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
-            | InstructionV2::CreateProofFromAuthZoneOfAll(..)
-            | InstructionV2::DropAuthZoneProofs(..)
-            | InstructionV2::DropAuthZoneRegularProofs(..)
-            | InstructionV2::DropAuthZoneSignatureProofs(..)
-            | InstructionV2::CreateProofFromBucketOfAmount(..)
-            | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
-            | InstructionV2::CreateProofFromBucketOfAll(..)
-            | InstructionV2::CloneProof(..)
-            | InstructionV2::DropProof(..)
-            | InstructionV2::DropNamedProofs(..)
-            | InstructionV2::DropAllProofs(..)
-            | InstructionV2::CallFunction(..) => true,
+            InstructionV2::TakeFromWorktop { .. }
+            | InstructionV2::TakeNonFungiblesFromWorktop { .. }
+            | InstructionV2::TakeAllFromWorktop { .. }
+            | InstructionV2::ReturnToWorktop { .. }
+            | InstructionV2::AssertWorktopContainsAny { .. }
+            | InstructionV2::AssertWorktopContains { .. }
+            | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV2::AssertWorktopResourcesOnly { .. }
+            | InstructionV2::AssertWorktopResourcesInclude { .. }
+            | InstructionV2::AssertNextCallReturnsOnly { .. }
+            | InstructionV2::AssertNextCallReturnsInclude { .. }
+            | InstructionV2::AssertBucketContents { .. }
+            | InstructionV2::PopFromAuthZone { .. }
+            | InstructionV2::PushToAuthZone { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAmount { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAll { .. }
+            | InstructionV2::DropAuthZoneProofs { .. }
+            | InstructionV2::DropAuthZoneRegularProofs { .. }
+            | InstructionV2::DropAuthZoneSignatureProofs { .. }
+            | InstructionV2::CreateProofFromBucketOfAmount { .. }
+            | InstructionV2::CreateProofFromBucketOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromBucketOfAll { .. }
+            | InstructionV2::CloneProof { .. }
+            | InstructionV2::DropProof { .. }
+            | InstructionV2::DropNamedProofs { .. }
+            | InstructionV2::DropAllProofs { .. }
+            | InstructionV2::CallFunction { .. } => true,
             /* Not Permitted */
-            InstructionV2::BurnResource(..)
-            | InstructionV2::CallRoyaltyMethod(..)
-            | InstructionV2::CallMetadataMethod(..)
-            | InstructionV2::CallRoleAssignmentMethod(..)
-            | InstructionV2::CallDirectVaultMethod(..)
-            | InstructionV2::AllocateGlobalAddress(..)
-            | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_) => false,
+            InstructionV2::BurnResource { .. }
+            | InstructionV2::CallRoyaltyMethod { .. }
+            | InstructionV2::CallMetadataMethod { .. }
+            | InstructionV2::CallRoleAssignmentMethod { .. }
+            | InstructionV2::CallDirectVaultMethod { .. }
+            | InstructionV2::AllocateGlobalAddress { .. }
+            | InstructionV2::YieldToParent { .. }
+            | InstructionV2::YieldToChild { .. }
+            | InstructionV2::VerifyParent { .. } => false,
         }
     }
 }

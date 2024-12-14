@@ -85,11 +85,11 @@ impl StaticAnalysisCallback for PoolContributionDetector {
             | InstructionV2::AssertWorktopContainsAny { .. }
             | InstructionV2::AssertWorktopContains { .. }
             | InstructionV2::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV2::AssertWorktopResourcesOnly(..)
-            | InstructionV2::AssertWorktopResourcesInclude(..)
-            | InstructionV2::AssertNextCallReturnsOnly(..)
-            | InstructionV2::AssertNextCallReturnsInclude(..)
-            | InstructionV2::AssertBucketContents(..) => true,
+            | InstructionV2::AssertWorktopResourcesOnly { .. }
+            | InstructionV2::AssertWorktopResourcesInclude { .. }
+            | InstructionV2::AssertNextCallReturnsOnly { .. }
+            | InstructionV2::AssertNextCallReturnsInclude { .. }
+            | InstructionV2::AssertBucketContents { .. } => true,
             /* Not Permitted */
             InstructionV2::BurnResource { .. }
             | InstructionV2::CallRoyaltyMethod { .. }
@@ -114,9 +114,9 @@ impl StaticAnalysisCallback for PoolContributionDetector {
             | InstructionV2::DropNamedProofs { .. }
             | InstructionV2::DropAllProofs { .. }
             | InstructionV2::CallFunction { .. }
-            | InstructionV2::YieldToParent(_)
-            | InstructionV2::YieldToChild(_)
-            | InstructionV2::VerifyParent(_) => false,
+            | InstructionV2::YieldToParent { .. }
+            | InstructionV2::YieldToChild { .. }
+            | InstructionV2::VerifyParent { .. } => false,
         };
 
         // Handle required method call

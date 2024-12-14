@@ -311,34 +311,38 @@ pub mod dynamic_analysis {
                     }
                 }
                 /* Non-sink methods */
-                InstructionV2::TakeAllFromWorktop(..)
-                | InstructionV2::TakeFromWorktop(..)
-                | InstructionV2::TakeNonFungiblesFromWorktop(..)
-                | InstructionV2::AssertWorktopContainsAny(..)
-                | InstructionV2::AssertWorktopContains(..)
-                | InstructionV2::AssertWorktopContainsNonFungibles(..)
-                | InstructionV2::PopFromAuthZone(..)
-                | InstructionV2::PushToAuthZone(..)
-                | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
-                | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
-                | InstructionV2::CreateProofFromAuthZoneOfAll(..)
-                | InstructionV2::DropAuthZoneProofs(..)
-                | InstructionV2::DropAuthZoneRegularProofs(..)
-                | InstructionV2::DropAuthZoneSignatureProofs(..)
-                | InstructionV2::CreateProofFromBucketOfAmount(..)
-                | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
-                | InstructionV2::CreateProofFromBucketOfAll(..)
-                | InstructionV2::CloneProof(..)
-                | InstructionV2::DropProof(..)
-                | InstructionV2::DropNamedProofs(..)
-                | InstructionV2::DropAllProofs(..)
-                | InstructionV2::AllocateGlobalAddress(..)
-                | InstructionV2::VerifyParent(..)
-                | InstructionV2::AssertWorktopResourcesOnly(..)
-                | InstructionV2::AssertWorktopResourcesInclude(..)
-                | InstructionV2::AssertNextCallReturnsOnly(..)
-                | InstructionV2::AssertNextCallReturnsInclude(..)
-                | InstructionV2::AssertBucketContents(..) => { /* No-Op */ }
+                InstructionV2::TakeAllFromWorktop { .. }
+                | InstructionV2::TakeFromWorktop { .. }
+                | InstructionV2::TakeNonFungiblesFromWorktop { .. }
+                | InstructionV2::AssertWorktopContainsAny { .. }
+                | InstructionV2::AssertWorktopContains { .. }
+                | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+                | InstructionV2::PopFromAuthZone { .. }
+                | InstructionV2::PushToAuthZone { .. }
+                | InstructionV2::CreateProofFromAuthZoneOfAmount { .. }
+                | InstructionV2::CreateProofFromAuthZoneOfNonFungibles {
+                    ..
+                }
+                | InstructionV2::CreateProofFromAuthZoneOfAll { .. }
+                | InstructionV2::DropAuthZoneProofs { .. }
+                | InstructionV2::DropAuthZoneRegularProofs { .. }
+                | InstructionV2::DropAuthZoneSignatureProofs { .. }
+                | InstructionV2::CreateProofFromBucketOfAmount { .. }
+                | InstructionV2::CreateProofFromBucketOfNonFungibles {
+                    ..
+                }
+                | InstructionV2::CreateProofFromBucketOfAll { .. }
+                | InstructionV2::CloneProof { .. }
+                | InstructionV2::DropProof { .. }
+                | InstructionV2::DropNamedProofs { .. }
+                | InstructionV2::DropAllProofs { .. }
+                | InstructionV2::AllocateGlobalAddress { .. }
+                | InstructionV2::VerifyParent { .. }
+                | InstructionV2::AssertWorktopResourcesOnly { .. }
+                | InstructionV2::AssertWorktopResourcesInclude { .. }
+                | InstructionV2::AssertNextCallReturnsOnly { .. }
+                | InstructionV2::AssertNextCallReturnsInclude { .. }
+                | InstructionV2::AssertBucketContents { .. } => { /* No-Op */ }
             };
 
             inputs
@@ -741,31 +745,31 @@ pub mod dynamic_analysis {
                 }
             }
             /* Neither */
-            InstructionV2::AssertWorktopContainsAny(..)
-            | InstructionV2::AssertWorktopContains(..)
-            | InstructionV2::AssertWorktopContainsNonFungibles(..)
-            | InstructionV2::PopFromAuthZone(..)
-            | InstructionV2::PushToAuthZone(..)
-            | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
-            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
-            | InstructionV2::CreateProofFromAuthZoneOfAll(..)
-            | InstructionV2::DropAuthZoneProofs(..)
-            | InstructionV2::DropAuthZoneRegularProofs(..)
-            | InstructionV2::DropAuthZoneSignatureProofs(..)
-            | InstructionV2::CreateProofFromBucketOfAmount(..)
-            | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
-            | InstructionV2::CreateProofFromBucketOfAll(..)
-            | InstructionV2::CloneProof(..)
-            | InstructionV2::DropProof(..)
-            | InstructionV2::DropNamedProofs(..)
-            | InstructionV2::DropAllProofs(..)
-            | InstructionV2::AllocateGlobalAddress(..)
-            | InstructionV2::VerifyParent(..)
-            | InstructionV2::AssertWorktopResourcesOnly(..)
-            | InstructionV2::AssertWorktopResourcesInclude(..)
-            | InstructionV2::AssertNextCallReturnsOnly(..)
-            | InstructionV2::AssertNextCallReturnsInclude(..)
-            | InstructionV2::AssertBucketContents(..) => { /* No-op */ }
+            InstructionV2::AssertWorktopContainsAny { .. }
+            | InstructionV2::AssertWorktopContains { .. }
+            | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV2::PopFromAuthZone { .. }
+            | InstructionV2::PushToAuthZone { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAmount { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAll { .. }
+            | InstructionV2::DropAuthZoneProofs { .. }
+            | InstructionV2::DropAuthZoneRegularProofs { .. }
+            | InstructionV2::DropAuthZoneSignatureProofs { .. }
+            | InstructionV2::CreateProofFromBucketOfAmount { .. }
+            | InstructionV2::CreateProofFromBucketOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromBucketOfAll { .. }
+            | InstructionV2::CloneProof { .. }
+            | InstructionV2::DropProof { .. }
+            | InstructionV2::DropNamedProofs { .. }
+            | InstructionV2::DropAllProofs { .. }
+            | InstructionV2::AllocateGlobalAddress { .. }
+            | InstructionV2::VerifyParent { .. }
+            | InstructionV2::AssertWorktopResourcesOnly { .. }
+            | InstructionV2::AssertWorktopResourcesInclude { .. }
+            | InstructionV2::AssertNextCallReturnsOnly { .. }
+            | InstructionV2::AssertNextCallReturnsInclude { .. }
+            | InstructionV2::AssertBucketContents { .. } => { /* No-op */ }
         }
     }
 
