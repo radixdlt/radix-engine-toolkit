@@ -44,10 +44,13 @@ impl ToNative for MetadataInit {
                     None => None,
                 };
 
-                Ok((key, NativeKeyValueStoreInitEntry::<NativeMetadataValue> {
-                    lock: value.lock,
-                    value: metadata,
-                }))
+                Ok((
+                    key,
+                    NativeKeyValueStoreInitEntry::<NativeMetadataValue> {
+                        lock: value.lock,
+                        value: metadata,
+                    },
+                ))
             })
             .collect::<Result<
                 IndexMap<

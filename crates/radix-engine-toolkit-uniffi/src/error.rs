@@ -122,7 +122,9 @@ pub enum RadixEngineToolkitError {
     #[error("The static analysis of the manifest failed: {error}")]
     StaticAnalysisFailed { error: String },
 
-    #[error("Not all of the builder items were specified, progressing failed.")]
+    #[error(
+        "Not all of the builder items were specified, progressing failed."
+    )]
     NotAllBuilderItemsWereSpecified,
 
     #[error("Validation of manifest failed: {error}")]

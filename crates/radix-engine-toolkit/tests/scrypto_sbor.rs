@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::ScryptoSbor;
 use radix_common::prelude::{
-    AddressBech32Encoder, ScryptoCustomSchema, ScryptoValue, scrypto_encode,
+    scrypto_encode, AddressBech32Encoder, ScryptoCustomSchema, ScryptoValue,
 };
+use radix_common::ScryptoSbor;
 use sbor::generate_full_schema_from_single_type;
 use sbor::representations::SerializationMode;
 

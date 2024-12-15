@@ -32,6 +32,6 @@ impl From<NativeManifestBlobRef> for ManifestBlobRef {
 
 impl From<ManifestBlobRef> for NativeManifestBlobRef {
     fn from(value: ManifestBlobRef) -> Self {
-        Self(value.value.0.0)
+        Self(value.value.0 .0)
     }
 }

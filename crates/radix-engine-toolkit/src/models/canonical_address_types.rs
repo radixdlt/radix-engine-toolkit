@@ -295,11 +295,14 @@ mod tests {
         let input = "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q";
 
         let x = CanonicalAccountAddress::from_str(input).unwrap();
-        assert_eq!(x.node_id.as_bytes(), [
-            193, 24, 131, 70, 47, 57, 121, 109, 168, 63, 47, 130, 202, 239,
-            166, 121, 170, 241, 241, 137, 37, 126, 189, 60, 140, 39, 125, 90,
-            225, 153
-        ]);
+        assert_eq!(
+            x.node_id.as_bytes(),
+            [
+                193, 24, 131, 70, 47, 57, 121, 109, 168, 63, 47, 130, 202, 239,
+                166, 121, 170, 241, 241, 137, 37, 126, 189, 60, 140, 39, 125,
+                90, 225, 153
+            ]
+        );
         assert_eq!(x.network_id, 0xf2);
         assert_eq!(x.to_string(), input);
 

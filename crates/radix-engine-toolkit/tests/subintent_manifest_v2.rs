@@ -21,8 +21,8 @@ use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
 use scrypto_test::prelude::*;
 
 #[test]
-fn subintent_manifest_with_no_initial_resources_and_a_final_yield_is_considered_enclosed()
- {
+fn subintent_manifest_with_no_initial_resources_and_a_final_yield_is_considered_enclosed(
+) {
     // Arrange
     let manifest = ManifestBuilder::new_subintent_v2()
         .assert_worktop_is_empty()

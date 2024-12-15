@@ -76,8 +76,8 @@ serialization_tests! {
 }
 
 #[test]
-pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model()
- {
+pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model(
+) {
     // Arrange
     let value = MyEnum::VariantWithFieldNames { field: 1 };
     let payload = scrypto_encode(&value).unwrap();
@@ -107,10 +107,13 @@ pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programma
             .unwrap();
 
     // Assert
-    assert_eq!(deserialized, ProgrammaticScryptoValue::Enum {
-        discriminator: 2,
-        fields: vec![ProgrammaticScryptoValue::U8 { value: 1 }]
-    })
+    assert_eq!(
+        deserialized,
+        ProgrammaticScryptoValue::Enum {
+            discriminator: 2,
+            fields: vec![ProgrammaticScryptoValue::U8 { value: 1 }]
+        }
+    )
 }
 
 #[test]

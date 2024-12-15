@@ -34,7 +34,11 @@ impl GeneralSubintentDetector {
     }
 
     pub fn output(self) -> Option<()> {
-        if self.is_valid() { Some(()) } else { None }
+        if self.is_valid() {
+            Some(())
+        } else {
+            None
+        }
     }
 }
 

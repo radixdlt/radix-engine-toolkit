@@ -61,8 +61,8 @@ fn subintent_transaction_hash_is_derived_correctly() -> Result<()> {
 }
 
 #[test]
-fn partial_transaction_builder_produces_valid_partial_transactions()
--> Result<()> {
+fn partial_transaction_builder_produces_valid_partial_transactions(
+) -> Result<()> {
     // Arrange
     let [signer_private_key] = private_keys();
 
@@ -105,8 +105,8 @@ fn partial_transaction_builder_produces_valid_partial_transactions()
 }
 
 #[test]
-fn partial_transaction_builder_produces_valid_partial_transactions_with_child_subintents()
--> Result<()> {
+fn partial_transaction_builder_produces_valid_partial_transactions_with_child_subintents(
+) -> Result<()> {
     // Arrange
     let [signer_private_key] = private_keys();
     let child_partial_transaction = SignedPartialTransactionV2Builder::new()
@@ -172,8 +172,8 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_child_su
 }
 
 #[test]
-fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple_layers_of_child_subintents()
--> Result<()> {
+fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple_layers_of_child_subintents(
+) -> Result<()> {
     // Arrange
     let [signer_private_key] = private_keys();
     let child_child_partial_transaction =
@@ -314,8 +314,8 @@ fn transaction_builder_v2_produces_statically_valid_transactions() -> Result<()>
 }
 
 #[test]
-fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_layers_of_child_subintents()
--> Result<()> {
+fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_layers_of_child_subintents(
+) -> Result<()> {
     // Arrange
     let [notary_private_key, signer_private_key] = private_keys();
     let child_child_partial_transaction =
