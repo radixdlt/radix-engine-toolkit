@@ -30,10 +30,9 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
     {
         fn on_transaction_executed(
             &mut self,
-            OnScenarioTransactionExecuted {
-                receipt,
-                ..
-            }: OnScenarioTransactionExecuted<D>,
+            OnScenarioTransactionExecuted { receipt, .. }: OnScenarioTransactionExecuted<
+                D,
+            >,
         ) {
             for (event_identifier, event_data) in receipt
                 .expect_commit_ignore_outcome()
@@ -58,36 +57,36 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
                 }
 
                 let event_type_identifier =
-                radix_engine_toolkit_uniffi::functions::EventTypeIdentifier {
-                    emitter: match event_identifier.0 {
-                        radix_engine_interface::prelude::Emitter::Function(
-                            ref blueprint_id,
-                        ) => radix_engine_toolkit_uniffi::functions::Emitter::Function {
-                            address: Address::from_raw(
-                                blueprint_id.package_address.to_vec(),
-                                0xf2,
-                            )
-                            .unwrap(),
-                            blueprint_name: blueprint_id.blueprint_name.clone(),
+                    radix_engine_toolkit_uniffi::functions::EventTypeIdentifier {
+                        emitter: match event_identifier.0 {
+                            radix_engine_interface::prelude::Emitter::Function(
+                                ref blueprint_id,
+                            ) => radix_engine_toolkit_uniffi::functions::Emitter::Function {
+                                address: Address::from_raw(
+                                    blueprint_id.package_address.to_vec(),
+                                    0xf2,
+                                )
+                                .unwrap(),
+                                blueprint_name: blueprint_id.blueprint_name.clone(),
+                            },
+                            radix_engine_interface::prelude::Emitter::Method(
+                                node_id,
+                                module_id,
+                            ) => radix_engine_toolkit_uniffi::functions::Emitter::Method {
+                                address: Address::from_raw(node_id.to_vec(), 0xf2).unwrap(),
+                                object_module_id: module_id.into(),
+                            },
                         },
-                        radix_engine_interface::prelude::Emitter::Method(
-                            node_id,
-                            module_id,
-                        ) => radix_engine_toolkit_uniffi::functions::Emitter::Method {
-                            address: Address::from_raw(node_id.to_vec(), 0xf2).unwrap(),
-                            object_module_id: module_id.into(),
-                        },
-                    },
-                    event_name: event_identifier.1.clone(),
-                };
+                        event_name: event_identifier.1.clone(),
+                    };
 
                 // Act
                 let typed_event =
-                radix_engine_toolkit_uniffi::functions::scrypto_sbor_decode_to_native_event(
-                    event_type_identifier.clone(),
-                    event_data.clone(),
-                    0xf2,
-                );
+                    radix_engine_toolkit_uniffi::functions::scrypto_sbor_decode_to_native_event(
+                        event_type_identifier.clone(),
+                        event_data.clone(),
+                        0xf2,
+                    );
 
                 // Assert
                 match typed_event {

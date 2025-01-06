@@ -88,14 +88,20 @@ impl SubintentManifestV2 {
         map
     }
 
-    pub fn static_analysis(&self, network_id: u8) -> Result<StaticAnalysisWithResourceMovements> {
+    pub fn static_analysis(
+        &self,
+        network_id: u8,
+    ) -> Result<StaticAnalysisWithResourceMovements> {
         let native = self.clone().to_native();
         core_transaction_v2_subintent_manifest_statically_analyze_and_validate(
             &native,
         )
         .map_err(RadixEngineToolkitError::from)
         .map(|static_analysis| {
-            StaticAnalysisWithResourceMovements::from_native(static_analysis, network_id)
+            StaticAnalysisWithResourceMovements::from_native(
+                static_analysis,
+                network_id,
+            )
         })
     }
 

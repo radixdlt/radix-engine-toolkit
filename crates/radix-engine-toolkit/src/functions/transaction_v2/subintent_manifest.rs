@@ -57,9 +57,9 @@ pub fn as_enclosed(
     }: &SubintentManifestV2,
 ) -> Option<TransactionManifestV2> {
     let [
-        assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
-            constraints,
-        }),
+        assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
+            AssertWorktopResourcesOnly { constraints },
+        ),
         other_instructions @ ..,
         InstructionV2::YieldToParent(..),
     ] = instructions.as_slice()

@@ -108,7 +108,10 @@ impl TransactionManifestV2 {
         core_transaction_v2_transaction_manifest_statically_analyze_and_validate(&native)
             .map_err(RadixEngineToolkitError::from)
             .map(|static_analysis| {
-                StaticAnalysisWithResourceMovements::from_native(static_analysis, network_id)
+                StaticAnalysisWithResourceMovements::from_native(
+                    static_analysis,
+                    network_id,
+                )
             })
     }
 

@@ -80,7 +80,10 @@ pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_add
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
     let package_address = NativePackageAddress::try_from(*package_address)?;
-    let non_fungible_global_id = core_package_of_direct_caller_non_fungible_global_id_from_component_address(package_address);
+    let non_fungible_global_id =
+        core_package_of_direct_caller_non_fungible_global_id_from_component_address(
+            package_address,
+        );
     Ok(Arc::new(NonFungibleGlobalId(
         non_fungible_global_id,
         network_id,

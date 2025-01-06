@@ -542,9 +542,9 @@ impl DetailedManifestClass {
                 claims_non_fungible_data: claims_non_fungible_data
                     .into_iter()
                     .map(|(id, value)| UnstakeDataEntry {
-                        non_fungible_global_id: Arc::new(
-                            NonFungibleGlobalId(id, network_id)
-                        ),
+                        non_fungible_global_id: Arc::new(NonFungibleGlobalId(
+                            id, network_id,
+                        )),
                         data: value.into(),
                     })
                     .collect(),
