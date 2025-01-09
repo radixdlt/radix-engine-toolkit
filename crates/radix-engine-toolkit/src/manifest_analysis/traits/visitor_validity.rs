@@ -33,6 +33,7 @@ pub trait VisitorValidityState {
 
 /// A type that allows for the use of a constant [`bool`] for the validity
 /// status of a visitor.
+#[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ConstVisitorValidityState<const ACCEPTING_INSTRUCTIONS: bool>;
 impl<const ACCEPTING_INSTRUCTIONS: bool> VisitorValidityState
     for ConstVisitorValidityState<ACCEPTING_INSTRUCTIONS>

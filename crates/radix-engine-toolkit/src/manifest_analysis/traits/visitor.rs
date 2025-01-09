@@ -53,5 +53,6 @@ pub trait ManifestAnalysisVisitor {
         &mut self,
         grouped_instruction: &GroupedInstruction,
         instruction_index: &InstructionIndex,
+        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     );
 }
