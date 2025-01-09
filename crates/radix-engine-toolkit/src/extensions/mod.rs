@@ -15,22 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::internal_prelude::*;
+mod network_definition;
 
-pub struct TransactionHash {
-    pub hash: Hash,
-    pub id: String,
-}
-
-impl TransactionHash {
-    pub fn new<H>(transaction_hash: H, network_id: u8) -> Self
-    where
-        H: IsTransactionHash + IsHash,
-    {
-        let network_definition = NetworkDefinition::from_network_id(network_id);
-        let encoder = TransactionHashBech32Encoder::new(&network_definition);
-        let hash = *transaction_hash.as_hash();
-        let id = encoder.encode(&transaction_hash).unwrap();
-        Self { hash, id }
-    }
-}
+pub use network_definition::*;

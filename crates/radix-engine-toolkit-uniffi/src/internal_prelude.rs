@@ -26,6 +26,7 @@
 #[allow(unused_braces)]
 mod core {
     /* Models */
+    pub use radix_engine_toolkit::extensions::*;
     pub use radix_engine_toolkit::types::{
         TypedNodeId as CoreTypedNodeId,
         InvalidEntityTypeIdError as CoreInvalidEntityTypeIdError
@@ -192,18 +193,6 @@ mod core {
         TrackedValidatorClaim as CoreTrackedValidatorClaim,
         static_analysis as core_static_analysis,
         dynamic_analysis as core_dynamic_analysis,
-    };
-
-    /* Utils */
-    pub use radix_engine_toolkit::utils::{
-        manifest_from_intent as core_manifest_from_intent,
-        network_definition_from_network_id as core_network_definition_from_network_id,
-        network_id_from_hrp as core_network_id_from_hrp,
-        network_id_from_address_string as core_network_id_from_address_string,
-        to_manifest_type as core_to_manifest_type,
-        validate_manifest_value_against_schema as core_validate_manifest_value_against_schema,
-        is_account as core_is_account,
-        is_identity as core_is_identity,
     };
 }
 

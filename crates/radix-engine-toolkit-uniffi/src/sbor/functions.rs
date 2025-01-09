@@ -59,7 +59,7 @@ pub fn scrypto_sbor_decode_to_string_representation(
     schema: Option<Schema>,
 ) -> Result<String> {
     let network_definition =
-        core_network_definition_from_network_id(network_id);
+        NativeNetworkDefinition::from_network_id(network_id);
     let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
     let string = core_scrypto_decode_to_string_representation(
         bytes,
@@ -90,7 +90,7 @@ pub fn manifest_sbor_decode_to_string_representation(
     schema: Option<Schema>,
 ) -> Result<String> {
     let network_definition =
-        core_network_definition_from_network_id(network_id);
+        NativeNetworkDefinition::from_network_id(network_id);
     let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
     let string = core_manifest_decode_to_string_representation(
         bytes,

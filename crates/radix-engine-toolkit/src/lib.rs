@@ -18,6 +18,7 @@
 #![allow(clippy::type_complexity)]
 #![feature(trait_upcasting)]
 
+pub mod extensions;
 pub mod functions;
 pub mod schema_visitor;
 pub mod statics;
@@ -85,6 +86,7 @@ pub(crate) mod internal_prelude {
 pub mod prelude {
     pub use crate::*;
 
+    pub use crate::extensions::*;
     pub use crate::functions;
     pub use crate::statics::*;
     pub use crate::transaction_types::*;

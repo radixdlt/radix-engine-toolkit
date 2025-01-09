@@ -122,7 +122,7 @@ impl TransactionManifestV2 {
     ) -> Result<DynamicAnalysis> {
         let native = self.clone().to_native();
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            NativeNetworkDefinition::from_network_id(network_id);
         let receipt = serde_json::from_str::<
             SerializableToolkitTransactionReceipt,
         >(&toolkit_receipt)

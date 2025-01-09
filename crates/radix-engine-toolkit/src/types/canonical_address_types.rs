@@ -143,8 +143,7 @@ macro_rules! define_canonical_addresses {
                     ) -> Result<Self, CanonicalAddressError> {
                         // Find the network definition based on the network of
                         // the passed address.
-                        let network_definition = network_id_from_address_string(address_string)
-                            .map(network_definition_from_network_id)
+                        let network_definition = NetworkDefinition::from_address_string(address_string)
                             .ok_or(
                                 CanonicalAddressError::FailedToFindNetworkIdFromBech32mString {
                                     bech32m_encoded_address: address_string.to_owned(),
@@ -201,8 +200,9 @@ macro_rules! define_canonical_addresses {
 
                 impl Display for [<Canonical $name Address>] {
                     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                        let network_definition = NetworkDefinition::from_network_id(self.network_id);
                         let encoder = AddressBech32Encoder::new(
-                            &network_definition_from_network_id(self.network_id),
+                            &network_definition
                         );
                         encoder
                             .encode_to_fmt(formatter, &self.node_id.0)

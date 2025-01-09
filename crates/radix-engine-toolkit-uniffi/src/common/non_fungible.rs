@@ -29,18 +29,16 @@ pub struct NonFungibleGlobalId(
 impl NonFungibleGlobalId {
     #[uniffi::constructor]
     pub fn new(non_fungible_global_id: String) -> Result<Arc<Self>> {
-        let network_id = non_fungible_global_id
+        let network_definition = non_fungible_global_id
             .split(':')
             .next()
-            .and_then(core_network_id_from_address_string)
+            .and_then(NativeNetworkDefinition::from_address_string)
             .ok_or(RadixEngineToolkitError::ParseError {
                 type_name: "scrypto::prelude::NonFungibleGlobalId".to_owned(),
                 error:
                     "Failed to obtain network id from non-fungible global id"
                         .to_owned(),
             })?;
-        let network_definition =
-            core_network_definition_from_network_id(network_id);
         let bech32_decoder =
             NativeAddressBech32Decoder::new(&network_definition);
 
@@ -49,7 +47,10 @@ impl NonFungibleGlobalId {
                 &bech32_decoder,
                 &non_fungible_global_id,
             )?;
-        Ok(Arc::new(Self(non_fungible_global_id, network_id)))
+        Ok(Arc::new(Self(
+            non_fungible_global_id,
+            network_definition.id,
+        )))
     }
 
     #[uniffi::constructor]
@@ -124,9 +125,8 @@ impl NonFungibleGlobalId {
     }
 
     pub fn as_str(&self) -> String {
-        let network_id = self.1;
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            NativeNetworkDefinition::from_network_id(self.1);
         let bech32_encoder =
             NativeAddressBech32Encoder::new(&network_definition);
         self.0.to_canonical_string(&bech32_encoder)

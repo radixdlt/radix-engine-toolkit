@@ -24,13 +24,12 @@ pub struct Address(CoreTypedNodeId, u8);
 impl Address {
     #[uniffi::constructor]
     pub fn new(address: String) -> Result<Arc<Self>> {
-        let network_id = core_network_id_from_address_string(&address).ok_or(
-            RadixEngineToolkitError::FailedToExtractNetwork {
-                address: address.clone(),
-            },
-        )?;
-        let network_definition =
-            core_network_definition_from_network_id(network_id);
+        let network_definition = NativeNetworkDefinition::from_address_string(
+            &address,
+        )
+        .ok_or(RadixEngineToolkitError::FailedToExtractNetwork {
+            address: address.clone(),
+        })?;
         let bech32_decoder =
             NativeAddressBech32Decoder::new(&network_definition);
 
@@ -43,7 +42,7 @@ impl Address {
                     }
                 })?;
 
-        Self::from_raw(bytes, network_id)
+        Self::from_raw(bytes, network_definition.id)
     }
 
     #[uniffi::constructor]
@@ -117,7 +116,7 @@ impl Address {
 
     pub fn address_string(&self) -> String {
         let network_definition =
-            core_network_definition_from_network_id(self.1);
+            NativeNetworkDefinition::from_network_id(self.1);
         let bech32_encoder =
             NativeAddressBech32Encoder::new(&network_definition);
         bech32_encoder.encode(self.0.as_bytes()).expect(

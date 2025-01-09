@@ -25,7 +25,7 @@ impl InstructionsV2 {
     #[uniffi::constructor]
     pub fn from_string(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            NativeNetworkDefinition::from_network_id(network_id);
         let blob_provider = NativeMockBlobProvider::new();
         native_compile_manifest::<NativeTransactionManifestV2>(
             &string,
@@ -50,7 +50,7 @@ impl InstructionsV2 {
 
     pub fn as_str(&self) -> Result<String> {
         let network_definition =
-            core_network_definition_from_network_id(self.1);
+            NativeNetworkDefinition::from_network_id(self.1);
         native_decompile(
             &NativeTransactionManifestV2 {
                 instructions: self.0.clone(),

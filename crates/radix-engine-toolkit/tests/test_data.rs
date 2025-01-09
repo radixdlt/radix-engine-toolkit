@@ -64,7 +64,17 @@ pub fn intent() -> IntentV1 {
 }
 
 pub fn manifest() -> TransactionManifestV1 {
-    radix_engine_toolkit::utils::manifest_from_intent(&intent())
+    let intent = intent();
+    TransactionManifestV1 {
+        instructions: Vec::clone(&intent.instructions.0),
+        blobs: intent
+            .blobs
+            .blobs
+            .iter()
+            .map(|blob| (hash(&blob.0), blob.0.clone()))
+            .collect(),
+        object_names: Default::default(),
+    }
 }
 
 pub fn private_key1() -> Secp256k1PrivateKey {

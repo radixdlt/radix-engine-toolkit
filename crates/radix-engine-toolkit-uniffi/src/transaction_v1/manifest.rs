@@ -75,11 +75,11 @@ impl TransactionManifestV1 {
                 .cloned()
                 .map(|blob| (native_hash(&blob), blob))
                 .collect(),
-            &core_network_definition_from_network_id(network_id),
+            &NativeNetworkDefinition::from_network_id(network_id),
         )?;
         core_transaction_v1_manifest_statically_validate(
             &self.to_native(),
-            &core_network_definition_from_network_id(network_id),
+            &NativeNetworkDefinition::from_network_id(network_id),
         )?;
         Ok(())
     }
@@ -130,7 +130,7 @@ impl TransactionManifestV1 {
     ) -> Result<DynamicAnalysis> {
         let native = self.clone().to_native();
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            NativeNetworkDefinition::from_network_id(network_id);
         let receipt = serde_json::from_str::<
             SerializableToolkitTransactionReceipt,
         >(&toolkit_receipt)

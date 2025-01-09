@@ -199,11 +199,9 @@ pub fn node_address_from_public_key(
     public_key: &Secp256k1PublicKey,
     network_id: u8,
 ) -> String {
-    let hrp = {
-        let network_identifier =
-            network_definition_from_network_id(network_id).hrp_suffix;
-        format!("node_{network_identifier}")
-    };
+    let network_definition = NetworkDefinition::from_network_id(network_id);
+    let network_identifier = network_definition.hrp_suffix;
+    let hrp = format!("node_{network_identifier}");
 
     bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m)
         .expect("Should not panic since all data is trusted.")
