@@ -22,7 +22,7 @@ use radix_common::prelude::*;
 use sbor::rust::cell::Ref;
 use sbor::traversal::*;
 
-use crate::models::node_id::TypedNodeId;
+use crate::types::*;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {

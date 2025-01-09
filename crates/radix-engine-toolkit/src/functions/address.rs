@@ -17,7 +17,7 @@
 
 use radix_common::prelude::*;
 
-use crate::models::node_id::*;
+use crate::types::*;
 use crate::utils::*;
 
 pub fn entity_type(node_id: TypedNodeId) -> EntityType {

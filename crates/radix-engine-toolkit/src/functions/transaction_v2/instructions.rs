@@ -18,8 +18,7 @@
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
-use crate::models::node_id::TypedNodeId;
-use crate::sbor::indexed_manifest_value::*;
+use crate::types::*;
 
 pub fn extract_addresses(
     instructions: &[InstructionV2],

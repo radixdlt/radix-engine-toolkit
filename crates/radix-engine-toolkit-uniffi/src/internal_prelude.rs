@@ -26,7 +26,7 @@
 #[allow(unused_braces)]
 mod core {
     /* Models */
-    pub use radix_engine_toolkit::models::node_id::{
+    pub use radix_engine_toolkit::types::{
         TypedNodeId as CoreTypedNodeId,
         InvalidEntityTypeIdError as CoreInvalidEntityTypeIdError
     };

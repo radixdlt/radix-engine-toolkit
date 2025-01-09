@@ -19,9 +19,8 @@
 #![feature(trait_upcasting)]
 
 pub mod functions;
-pub mod models;
-pub mod sbor;
 pub mod schema_visitor;
 pub mod statics;
 pub mod transaction_types;
+pub mod types;
 pub mod utils;

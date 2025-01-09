@@ -16,8 +16,8 @@
 // under the License.
 
 pub mod static_analysis {
-    use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
+    use crate::types::*;
     use crate::utils::*;
     use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
     use radix_engine_interface::blueprints::account::*;
@@ -131,8 +131,8 @@ pub mod static_analysis {
 }
 
 pub mod dynamic_analysis {
-    use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
+    use crate::types::*;
     use crate::utils::*;
     use radix_common::prelude::*;
     use radix_engine::system::system_modules::execution_trace::{

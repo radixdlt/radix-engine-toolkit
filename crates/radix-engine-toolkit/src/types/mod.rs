@@ -15,6 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod canonical_address_types;
-pub mod node_id;
-pub mod transaction_hash;
+mod canonical_address_types;
+mod indexed_manifest_value;
+mod node_id;
+mod transaction_hash;
+
+pub use canonical_address_types::*;
+pub use indexed_manifest_value::*;
+pub use node_id::*;
+pub use transaction_hash::*;

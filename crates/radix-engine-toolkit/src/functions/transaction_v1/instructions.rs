@@ -21,8 +21,7 @@ use radix_transactions::prelude::*;
 use radix_transactions::validation::*;
 use scrypto::prelude::*;
 
-use crate::models::node_id::TypedNodeId;
-use crate::sbor::indexed_manifest_value::*;
+use crate::types::*;
 
 pub fn statically_validate(
     instructions: &[InstructionV1],

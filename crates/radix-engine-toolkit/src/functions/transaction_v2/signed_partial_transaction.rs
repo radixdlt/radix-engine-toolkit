@@ -21,7 +21,7 @@ use radix_transactions::validation::*;
 use sbor::*;
 use scrypto::prelude::*;
 
-use crate::models::transaction_hash::TransactionHash;
+use crate::types::*;
 
 pub fn hash(
     signed_partial_transaction: &SignedPartialTransactionV2,

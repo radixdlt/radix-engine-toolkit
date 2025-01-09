@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit"
-version = "2.2.0-dev2"
+version = "2.2.2-dev1"
 edition = "2021"
 build = "build.rs"
 

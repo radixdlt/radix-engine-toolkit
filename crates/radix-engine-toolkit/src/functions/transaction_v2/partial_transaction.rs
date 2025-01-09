@@ -19,7 +19,7 @@ use radix_transactions::model::*;
 use sbor::*;
 use scrypto::prelude::*;
 
-use crate::models::transaction_hash::TransactionHash;
+use crate::types::*;
 
 pub fn hash(
     partial_transaction: &PartialTransactionV2,
