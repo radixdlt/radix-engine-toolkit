@@ -15,18 +15,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod canonical_address_types;
-mod grouped_entity_type;
-mod grouped_instruction;
-mod indexed_manifest_value;
-mod instruction_index;
-mod node_id;
-mod transaction_hash;
+use crate::internal_prelude::*;
 
-pub use canonical_address_types::*;
-pub use grouped_entity_type::*;
-pub use grouped_instruction::*;
-pub use indexed_manifest_value::*;
-pub use instruction_index::*;
-pub use node_id::*;
-pub use transaction_hash::*;
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Sbor)]
+#[sbor(transparent)]
+pub struct InstructionIndex(usize);
+
+impl InstructionIndex {
+    pub const fn of(index: usize) -> Self {
+        Self(index)
+    }
+
+    pub const fn value(&self) -> &usize {
+        &self.0
+    }
+
+    pub const fn add(&self, instructions: usize) -> Option<Self> {
+        match self.0.checked_add(instructions) {
+            Some(value) => Some(Self(value)),
+            None => None,
+        }
+    }
+}
+
+impl From<usize> for InstructionIndex {
+    fn from(value: usize) -> Self {
+        Self(value)
+    }
+}
+
+impl From<InstructionIndex> for usize {
+    fn from(value: InstructionIndex) -> Self {
+        value.0
+    }
+}

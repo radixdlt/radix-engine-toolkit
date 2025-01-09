@@ -22,6 +22,7 @@
 
 pub mod extensions;
 pub mod functions;
+pub mod manifest_analysis;
 pub mod schema_visitor;
 pub mod statics;
 pub mod transaction_types;
@@ -90,6 +91,7 @@ pub mod prelude {
 
     pub use crate::extensions::*;
     pub use crate::functions;
+    pub use crate::manifest_analysis::*;
     pub use crate::statics::*;
     pub use crate::transaction_types::*;
     pub use crate::types::*;
