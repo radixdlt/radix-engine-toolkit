@@ -149,23 +149,21 @@ impl ManifestAnalysisVisitor for ReservedInstructionsVisitor {
             }
             _ => {}
         }
-
-        todo!()
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct ReservedInstructionsOutput {
-    account_lock_fee_invocations: IndexSet<ManifestGlobalAddress>,
-    account_securify_invocations: IndexSet<ManifestGlobalAddress>,
-    account_lock_owner_keys_metadata_field_invocations:
+    pub account_lock_fee_invocations: IndexSet<ManifestGlobalAddress>,
+    pub account_securify_invocations: IndexSet<ManifestGlobalAddress>,
+    pub account_lock_owner_keys_metadata_field_invocations:
         IndexSet<ManifestGlobalAddress>,
-    account_update_owner_keys_metadata_field_invocations:
+    pub account_update_owner_keys_metadata_field_invocations:
         IndexSet<ManifestGlobalAddress>,
-    identity_securify_invocations: IndexSet<ManifestGlobalAddress>,
-    identity_lock_owner_keys_metadata_field_invocations:
+    pub identity_securify_invocations: IndexSet<ManifestGlobalAddress>,
+    pub identity_lock_owner_keys_metadata_field_invocations:
         IndexSet<ManifestGlobalAddress>,
-    identity_update_owner_keys_metadata_field_invocations:
+    pub identity_update_owner_keys_metadata_field_invocations:
         IndexSet<ManifestGlobalAddress>,
-    access_controller_invocations: IndexSet<ManifestGlobalAddress>,
+    pub access_controller_invocations: IndexSet<ManifestGlobalAddress>,
 }
