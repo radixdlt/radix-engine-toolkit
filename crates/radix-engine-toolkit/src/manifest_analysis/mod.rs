@@ -16,9 +16,11 @@
 // under the License.
 
 mod classification;
+mod composite;
 mod data_retrieval;
 mod traits;
 
 pub use classification::*;
+pub use composite::*;
 pub use data_retrieval::*;
 pub use traits::*;
