@@ -48,10 +48,10 @@ pub fn notarized_transaction() -> NotarizedTransactionV1 {
             notary_is_signatory: true,
             tip_percentage: 0,
         })
-        .sign(&private_key2())
-        .sign(&private_key3())
-        .sign(&private_key4())
-        .notarize(&private_key1())
+        .sign(private_key2())
+        .sign(private_key3())
+        .sign(private_key4())
+        .notarize(private_key1())
         .build()
 }
 
