@@ -15,12 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::utils::*;
-use paste::*;
-use radix_common::prelude::*;
-use scrypto::prelude::*;
-use serde_with::*;
-use std::fmt::Display;
+use crate::internal_prelude::*;
 
 #[derive(Debug)]
 pub enum CanonicalAddressError {

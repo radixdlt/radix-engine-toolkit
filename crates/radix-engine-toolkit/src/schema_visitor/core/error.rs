@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::LocalTypeId;
-use std::convert::Infallible;
+use crate::internal_prelude::*;
 
 #[derive(Debug, Clone)]
 pub enum SchemaVisitorError {

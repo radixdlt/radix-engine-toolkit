@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::utils::*;
-use radix_transactions::errors::*;
-use radix_transactions::prelude::*;
-use radix_transactions::validation::*;
-use scrypto::prelude::*;
-
-use crate::types::*;
+use crate::internal_prelude::*;
 
 pub fn statically_validate(
     instructions: &[InstructionV1],

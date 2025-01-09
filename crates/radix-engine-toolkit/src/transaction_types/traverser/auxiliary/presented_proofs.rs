@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use scrypto::prelude::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct PresentedProofsDetector {

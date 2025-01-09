@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-
-use radix_engine_interface::blueprints::account::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 pub struct GeneralDetector {
     is_valid: bool,

@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::schema_visitor::core::error::SchemaVisitorError;
-use crate::schema_visitor::core::traits::SchemaVisitor;
-use radix_common::prelude::{
-    OwnValidation, ScryptoCustomSchema, ScryptoCustomTypeKind,
-    ScryptoCustomTypeValidation,
-};
-use sbor::{LocalTypeId, Schema, TypeValidation};
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct BucketInPathVisitor(bool);

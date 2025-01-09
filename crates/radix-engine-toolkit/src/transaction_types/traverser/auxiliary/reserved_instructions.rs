@@ -15,16 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_interface::blueprints::account::*;
-use radix_engine_interface::blueprints::identity::*;
-
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-
-use crate::transaction_types::*;
-use crate::utils::*;
-use crate::*;
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct ReservedInstructionsDetector {

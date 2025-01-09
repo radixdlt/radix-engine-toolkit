@@ -15,12 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::statics::*;
-use crate::transaction_types::*;
-use crate::utils::*;
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct StaticAccountResourceMovementsDetector {

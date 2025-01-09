@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use bech32::{FromBase32, ToBase32};
-use scrypto::prelude::*;
-
-use crate::utils;
+use crate::internal_prelude::*;
 
 pub fn preallocated_account_address_from_public_key<P>(
     public_key: &P,
@@ -204,7 +201,7 @@ pub fn node_address_from_public_key(
 ) -> String {
     let hrp = {
         let network_identifier =
-            utils::network_definition_from_network_id(network_id).hrp_suffix;
+            network_definition_from_network_id(network_id).hrp_suffix;
         format!("node_{network_identifier}")
     };
 

@@ -15,9 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct EncounteredGlobalEntities {

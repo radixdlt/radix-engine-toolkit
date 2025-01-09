@@ -15,14 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use core::cell::RefCell;
-use model::ManifestNamedAddress;
-use radix_common::data::manifest::*;
-use radix_common::prelude::*;
-use sbor::rust::cell::Ref;
-use sbor::traversal::*;
-
-use crate::types::*;
+use crate::internal_prelude::*;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {

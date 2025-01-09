@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::prelude::*;
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-use static_resource_movements::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 pub fn to_payload_bytes(
     manifest: &SubintentManifestV2,
@@ -66,7 +60,7 @@ pub fn as_enclosed(
     else {
         return None;
     };
-    if !constraints.specified_resources().len().is_zero() {
+    if !constraints.specified_resources().len() == 0 {
         return None;
     }
 

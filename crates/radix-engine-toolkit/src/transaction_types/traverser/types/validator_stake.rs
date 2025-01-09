@@ -15,16 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-
-use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine_interface::blueprints::account::*;
-
-use crate::transaction_types::types::*;
-use crate::transaction_types::*;
-use crate::utils::*;
+use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackedValidatorStake {

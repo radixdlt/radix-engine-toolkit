@@ -15,11 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::model::*;
-use sbor::*;
-use scrypto::prelude::*;
-
-use crate::types::*;
+use crate::internal_prelude::*;
 
 pub fn hash(subintent: &SubintentV2) -> Result<TransactionHash, PrepareError> {
     subintent

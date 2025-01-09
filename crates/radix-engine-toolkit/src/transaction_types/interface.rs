@@ -19,16 +19,7 @@
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
 
-use radix_common::prelude::*;
-use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
-use radix_substate_store_queries::typed_substate_layout::*;
-use radix_transactions::manifest::static_resource_movements::*;
-use radix_transactions::manifest::*;
-
-use crate::transaction_types::*;
-
-use super::error::*;
-use super::types::*;
+use crate::internal_prelude::*;
 
 pub fn statically_analyze<M: ReadableManifest + ?Sized>(
     manifest: &M,
@@ -54,7 +45,7 @@ pub fn statically_analyze<M: ReadableManifest + ?Sized>(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::static_analysis::traverse(
+    static_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -156,7 +147,7 @@ pub fn statically_analyze_and_validate<M: ReadableManifest + ?Sized>(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::static_analysis::traverse(
+    static_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -272,7 +263,7 @@ pub fn classify_manifest<M: ReadableManifest + ?Sized>(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::static_analysis::traverse(
+    static_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -362,7 +353,7 @@ pub fn dynamically_analyze<M: ReadableManifest>(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::dynamic_analysis::traverse(
+    dynamic_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,

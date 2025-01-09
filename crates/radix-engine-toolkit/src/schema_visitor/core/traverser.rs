@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::error::SchemaVisitorError;
-use super::traits::SchemaVisitor;
-use sbor::{CustomSchema, LocalTypeId, LocalTypeKind, Schema};
-use std::fmt::Debug;
+use crate::internal_prelude::*;
 
 pub fn traverse<T>(
     schema: &Schema<T>,

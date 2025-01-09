@@ -15,18 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use lazy_static::lazy_static;
-use radix_common::prelude::*;
-use radix_engine::blueprints::native_schema::*;
-use radix_engine::blueprints::package::*;
-use radix_engine_interface::prelude::*;
-use scrypto::blueprints::account::*;
-use scrypto::blueprints::identity::*;
-use scrypto::radix_blueprint_schema_init::*;
-
-use crate::schema_visitor::core::traverser::traverse;
-use crate::schema_visitor::visitors::bucket_in_path_visitor::BucketInPathVisitor;
-use crate::schema_visitor::visitors::proof_in_path_visitor::ProofInPathVisitor;
+use crate::internal_prelude::*;
 
 lazy_static! {
     // Account package

@@ -15,9 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use bech32::{FromBase32, Variant};
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
+use crate::internal_prelude::*;
 
 pub fn decode_transaction_id(
     transaction_id: &str,

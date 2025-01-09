@@ -15,11 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-
-use crate::transaction_types::types::*;
+use crate::internal_prelude::*;
 
 /// A callback for information that can be obtained statically from the manifest
 /// without the need for the receipt or execution trace.

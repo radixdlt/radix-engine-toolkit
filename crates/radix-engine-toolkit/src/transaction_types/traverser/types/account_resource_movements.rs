@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::transaction_types::*;
-use scrypto::prelude::*;
+use crate::internal_prelude::*;
 
 #[derive(Default)]
 pub struct AccountResourceMovementsDetector {

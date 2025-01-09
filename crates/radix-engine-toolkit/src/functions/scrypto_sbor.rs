@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::prelude::ContextualSerialize;
-use sbor::representations::{SerializationMode, SerializationParameters};
-use sbor::*;
-use sbor_json::scrypto::programmatic::utils::value_contains_network_mismatch;
-use sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue;
-use scrypto::address::*;
-use scrypto::prelude::*;
+use crate::internal_prelude::*;
 
 pub fn encode(value: &ScryptoValue) -> Result<Vec<u8>, EncodeError> {
     scrypto_encode(value)

@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::{CustomSchema, LocalTypeId, Schema};
-use std::fmt::Debug;
+use crate::internal_prelude::*;
 
 #[allow(unused_variables)]
 pub trait SchemaVisitor<T>

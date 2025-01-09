@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::prelude::*;
-
-use crate::types::*;
-use crate::utils::*;
+use crate::internal_prelude::*;
 
 pub fn entity_type(node_id: TypedNodeId) -> EntityType {
     node_id.entity_type()
