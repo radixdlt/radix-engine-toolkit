@@ -17,6 +17,8 @@
 
 mod entities_requiring_auth;
 mod presented_proofs;
+mod reserved_instructions;
 
 pub use entities_requiring_auth::*;
 pub use presented_proofs::*;
+pub use reserved_instructions::*;
