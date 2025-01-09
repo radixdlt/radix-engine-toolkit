@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod entities_requiring_auth;
 mod presented_proofs;
 
+pub use entities_requiring_auth::*;
 pub use presented_proofs::*;

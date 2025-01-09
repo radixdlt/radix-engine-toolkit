@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod blueprint_id;
 mod network_definition;
 mod resource_specifier;
 
+pub use blueprint_id::*;
 pub use network_definition::*;
 pub use resource_specifier::*;

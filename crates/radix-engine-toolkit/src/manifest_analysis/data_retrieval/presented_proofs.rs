@@ -17,12 +17,8 @@
 
 use crate::internal_prelude::*;
 
-type ProofMap = IndexMap<ManifestGlobalAddress, Vec<ManifestResourceSpecifier>>;
-
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct PresentedProofsVisitor {
-    presented_proofs: ProofMap,
-}
+pub struct PresentedProofsVisitor(PresentedProofsOutput);
 
 impl PresentedProofsVisitor {
     pub fn new() -> Self {
@@ -35,9 +31,7 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
     type ValidityState = ConstVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
-        Self::Output {
-            presented_proofs: self.presented_proofs,
-        }
+        self.0
     }
 
     fn validity_state(&self) -> &Self::ValidityState {
@@ -46,6 +40,7 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
 
     fn on_instruction(
         &mut self,
+        _: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
@@ -57,9 +52,8 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
         // the typed invocation interpretation correctly.
 
         // We only want to act on CallMethod instructions.
-        let GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMethod(CallMethod { address, .. }),
-        ) = grouped_instruction
+        let Some(CallMethod { address, .. }) =
+            grouped_instruction.as_call_method()
         else {
             return;
         };
@@ -96,7 +90,8 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
         };
 
         // Adding the created proof to the visitor state.
-        self.presented_proofs
+        self.0
+            .presented_proofs
             .entry(*address)
             .or_default()
             .push(resource_specifier);
@@ -105,5 +100,6 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct PresentedProofsOutput {
-    pub presented_proofs: ProofMap,
+    pub presented_proofs:
+        IndexMap<ManifestGlobalAddress, Vec<ManifestResourceSpecifier>>,
 }

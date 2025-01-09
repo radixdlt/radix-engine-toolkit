@@ -21,6 +21,7 @@ mod grouped_instruction;
 mod indexed_manifest_value;
 mod instruction_index;
 mod manifest_resource_specifier;
+mod named_address_store;
 mod node_id;
 mod transaction_hash;
 
@@ -30,5 +31,6 @@ pub use grouped_instruction::*;
 pub use indexed_manifest_value::*;
 pub use instruction_index::*;
 pub use manifest_resource_specifier::*;
+pub use named_address_store::*;
 pub use node_id::*;
 pub use transaction_hash::*;

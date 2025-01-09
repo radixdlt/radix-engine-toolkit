@@ -51,6 +51,7 @@ pub trait ManifestAnalysisVisitor {
     #[allow(unused_variables)]
     fn on_instruction(
         &mut self,
+        named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         instruction_index: &InstructionIndex,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,

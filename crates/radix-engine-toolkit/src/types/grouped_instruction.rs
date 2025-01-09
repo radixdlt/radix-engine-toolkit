@@ -124,6 +124,30 @@ macro_rules! define_instruction_groups {
                 }
 
                 $(
+                    pub fn [< as_ $group_ident:snake >](&self) -> Option<&$group_ident> {
+                        if let Self::$group_ident(ref i) = self {
+                            Some(i)
+                        } else {
+                            None
+                        }
+                    }
+                )*
+
+                $(
+                    $(
+                        pub fn [< as_ $instruction_ident:snake >](&self)
+                            -> Option<&$instruction_ident>
+                        {
+                            if let Self::$group_ident($group_ident::$instruction_ident(ref i)) = self {
+                                Some(i)
+                            } else {
+                                None
+                            }
+                        }
+                    )*
+                )*
+
+                $(
                     pub fn [< belongs_to_ $group_ident:snake >](&self) -> bool {
                         matches!(self, Self::$group_ident(..))
                     }
@@ -256,3 +280,80 @@ macro_rules! define_instruction_groups {
     };
 }
 use define_instruction_groups;
+
+impl InvocationInstructions {
+    pub fn invoked_module(&self) -> Option<ModuleId> {
+        match self {
+            Self::CallFunction(..) => None,
+            Self::CallMethod(..) => Some(ModuleId::Main),
+            Self::CallRoyaltyMethod(..) => Some(ModuleId::Royalty),
+            Self::CallMetadataMethod(..) => Some(ModuleId::Metadata),
+            Self::CallRoleAssignmentMethod(..) => {
+                Some(ModuleId::RoleAssignment)
+            }
+            Self::CallDirectVaultMethod(..) => Some(ModuleId::Main),
+        }
+    }
+
+    pub fn invoked_global_entity(&self) -> Option<ManifestGlobalAddress> {
+        match self {
+            Self::CallFunction(CallFunction {
+                package_address, ..
+            }) => Some((*package_address).into()),
+            Self::CallMethod(CallMethod { address, .. })
+            | Self::CallRoyaltyMethod(CallRoyaltyMethod { address, .. })
+            | Self::CallMetadataMethod(CallMetadataMethod {
+                address, ..
+            })
+            | Self::CallRoleAssignmentMethod(CallRoleAssignmentMethod {
+                address,
+                ..
+            }) => Some(*address),
+            Self::CallDirectVaultMethod(..) => None,
+        }
+    }
+
+    pub fn invoked_function_or_method(&self) -> &str {
+        match self {
+            Self::CallFunction(CallFunction {
+                function_name: name,
+                ..
+            })
+            | Self::CallMethod(CallMethod {
+                method_name: name, ..
+            })
+            | Self::CallRoyaltyMethod(CallRoyaltyMethod {
+                method_name: name,
+                ..
+            })
+            | Self::CallMetadataMethod(CallMetadataMethod {
+                method_name: name,
+                ..
+            })
+            | Self::CallRoleAssignmentMethod(CallRoleAssignmentMethod {
+                method_name: name,
+                ..
+            })
+            | Self::CallDirectVaultMethod(CallDirectVaultMethod {
+                method_name: name,
+                ..
+            }) => name.as_str(),
+        }
+    }
+
+    pub fn invocation_args(&self) -> &ManifestValue {
+        match self {
+            Self::CallFunction(CallFunction { args, .. })
+            | Self::CallMethod(CallMethod { args, .. })
+            | Self::CallRoyaltyMethod(CallRoyaltyMethod { args, .. })
+            | Self::CallMetadataMethod(CallMetadataMethod { args, .. })
+            | Self::CallRoleAssignmentMethod(CallRoleAssignmentMethod {
+                args,
+                ..
+            })
+            | Self::CallDirectVaultMethod(CallDirectVaultMethod {
+                args, ..
+            }) => args,
+        }
+    }
+}
