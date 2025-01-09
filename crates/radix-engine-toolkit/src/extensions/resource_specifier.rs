@@ -15,8 +15,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod network_definition;
-mod resource_specifier;
+use crate::internal_prelude::*;
 
-pub use network_definition::*;
-pub use resource_specifier::*;
+#[ext_sized]
+pub impl ResourceSpecifier {
+    fn resource_address(&self) -> &ResourceAddress {
+        match self {
+            Self::Amount(address, ..) | Self::Ids(address, ..) => address,
+        }
+    }
+
+    fn amount(&self) -> Decimal {
+        match self {
+            Self::Amount(.., amount) => *amount,
+            Self::Ids(.., ids) => ids.len().into(),
+        }
+    }
+
+    fn ids(&self) -> Option<&IndexSet<NonFungibleLocalId>> {
+        match self {
+            Self::Ids(.., ids) => Some(ids),
+            Self::Amount(..) => None,
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.amount().is_zero()
+    }
+}

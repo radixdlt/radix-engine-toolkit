@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// TODO(nightly): Remove the nightly requirement which should no longer be in
+// need after we refactor the transaction types.
 #![allow(clippy::type_complexity)]
 #![feature(trait_upcasting)]
 

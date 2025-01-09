@@ -159,7 +159,7 @@ impl DynamicAnalysisCallback for ValidatorStakeDetector {
                 let Some(ResourceSpecifier::Amount(XRD, xrd_amount)) =
                     input_resources
                         .iter()
-                        .find(|specifier| specifier.resource_address() == XRD)
+                        .find(|specifier| specifier.resource_address() == &XRD)
                 else {
                     // Can happen if an empty bucket of XRD is provided as
                     // input.
