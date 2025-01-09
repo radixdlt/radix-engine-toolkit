@@ -16,12 +16,14 @@
 // under the License.
 
 mod canonical_address_types;
+mod grouped_entity_type;
 mod grouped_instruction;
 mod indexed_manifest_value;
 mod node_id;
 mod transaction_hash;
 
 pub use canonical_address_types::*;
+pub use grouped_entity_type::*;
 pub use grouped_instruction::*;
 pub use indexed_manifest_value::*;
 pub use node_id::*;
