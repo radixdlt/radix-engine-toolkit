@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//! A module of the set of pure functions exposed by the toolkit to its clients.
+//! The primary functionality of the toolkit is exposed by these modules and
+//! functions.
+
 pub mod information;
 
 pub mod derive;
