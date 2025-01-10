@@ -17,46 +17,23 @@
 
 use crate::internal_prelude::*;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct GeneralTransactionTypeVisitor {
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct TransferTransactionTypeVisitor {
     validity_state: SimpleManifestAnalysisVisitorValidityState,
-    requirement_state: GeneralTransactionTypeRequirementState,
-
-    /// This flag changes some of the rules that this transaction type visitor
-    /// uses and it can be used to change between it being used for the general
-    /// transaction type and the subintent general transaction type. This is
-    /// implemented as a flag to allow for the majority of the code to be
-    /// shared between the two transaction types.
-    for_subintent: bool,
 }
 
-impl GeneralTransactionTypeVisitor {
-    pub fn for_intent() -> Self {
-        Self::new(false)
-    }
-
-    pub fn for_subintent() -> Self {
-        Self::new(true)
-    }
-
-    pub fn new(for_subintent: bool) -> Self {
-        Self {
-            validity_state: Default::default(),
-            requirement_state: GeneralTransactionTypeRequirementState::new(
-                for_subintent,
-            ),
-            for_subintent,
-        }
+impl TransferTransactionTypeVisitor {
+    pub fn new() -> Self {
+        Default::default()
     }
 }
 
-impl ManifestAnalysisVisitor for GeneralTransactionTypeVisitor {
+impl ManifestAnalysisVisitor for TransferTransactionTypeVisitor {
     type Output = bool;
     type ValidityState = SimpleManifestAnalysisVisitorValidityState;
 
     fn output(self) -> Self::Output {
-        self.requirement_state.is_requirement_fulfilled()
-            && self.validity_state.is_visitor_accepting_instructions()
+        self.validity_state.is_visitor_accepting_instructions()
     }
 
     fn validity_state(&self) -> &Self::ValidityState {
@@ -112,23 +89,6 @@ impl ManifestAnalysisVisitor for GeneralTransactionTypeVisitor {
                     | (
                         Some(GroupedEntityType::AccessControllerEntities(..)),
                         ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
-                    )
-                    | (
-                        Some(GroupedEntityType::ValidatorEntities(..)),
-                        VALIDATOR_STAKE_IDENT
-                        | VALIDATOR_UNSTAKE_IDENT
-                        | VALIDATOR_CLAIM_XRD_IDENT,
-                    )
-                    | (
-                        // All of the pool blueprints have the same name for the
-                        // contribute and redeem methods and I wanted to use a
-                        // constant here so I chose to use the constants for the
-                        // one resource pool blueprint. Again, they're all the
-                        // same string for all of the pool blueprints and we do
-                        // not need to have redundant strings here.
-                        Some(GroupedEntityType::PoolEntities(..)),
-                        ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
-                        | ONE_RESOURCE_POOL_REDEEM_IDENT,
                     ) => true,
                     // Permitted Invocations
                     (
@@ -156,62 +116,24 @@ impl ManifestAnalysisVisitor for GeneralTransactionTypeVisitor {
                     ) => false,
                 }
             }
-            GroupedInstruction::SubintentInstructions(
-                SubintentInstructions::YieldToParent(..)
-                | SubintentInstructions::VerifyParent(..),
-            ) => self.for_subintent,
             // Permitted Instructions
             GroupedInstruction::TakeFromWorktopInstructions(..)
             | GroupedInstruction::ReturnToWorktopInstructions(..)
             | GroupedInstruction::AssertionInstructions(..)
             | GroupedInstruction::ProofInstructions(..)
-            | GroupedInstruction::InvocationInstructions(
-                InvocationInstructions::CallFunction(..),
-            )
-            | GroupedInstruction::BurnResourceInstructions(..)
             | GroupedInstruction::AddressAllocationInstructions(..) => true,
             // Disallowed Instructions
-            GroupedInstruction::SubintentInstructions(
-                SubintentInstructions::YieldToChild(..),
-            )
+            GroupedInstruction::SubintentInstructions(..)
+            | GroupedInstruction::BurnResourceInstructions(..)
             | GroupedInstruction::InvocationInstructions(
-                InvocationInstructions::CallRoleAssignmentMethod(..)
-                | InvocationInstructions::CallMetadataMethod(..)
+                InvocationInstructions::CallFunction(..)
                 | InvocationInstructions::CallRoyaltyMethod(..)
-                | InvocationInstructions::CallDirectVaultMethod(..),
+                | InvocationInstructions::CallMetadataMethod(..)
+                | InvocationInstructions::CallDirectVaultMethod(..)
+                | InvocationInstructions::CallRoleAssignmentMethod(..),
             ) => false,
         };
         self.validity_state
             .next_instruction_status(is_next_instruction_permitted);
-        self.requirement_state
-            .handle_instruction(grouped_instruction);
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct GeneralTransactionTypeRequirementState {
-    for_subintent: bool,
-    is_yield_to_parent_seen: bool,
-}
-
-impl GeneralTransactionTypeRequirementState {
-    pub fn new(for_subintent: bool) -> Self {
-        Self {
-            for_subintent,
-            is_yield_to_parent_seen: false,
-        }
-    }
-
-    pub fn handle_instruction(&mut self, instruction: &GroupedInstruction) {
-        self.is_yield_to_parent_seen |=
-            instruction.as_yield_to_parent().is_some()
-    }
-
-    pub fn is_requirement_fulfilled(&self) -> bool {
-        if self.for_subintent {
-            self.is_yield_to_parent_seen
-        } else {
-            true
-        }
     }
 }

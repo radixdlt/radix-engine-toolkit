@@ -17,6 +17,8 @@
 
 mod general;
 mod simple_transfer;
+mod transfer;
 
 pub use general::*;
 pub use simple_transfer::*;
+pub use transfer::*;
