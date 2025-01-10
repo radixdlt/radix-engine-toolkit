@@ -27,18 +27,55 @@
 /// and no longer wish to accept instructions.
 ///
 /// [`ManifestAnalysisVisitor`]: super::ManifestAnalysisVisitor
-pub trait VisitorValidityState {
+pub trait ManifestAnalysisVisitorValidityState {
     fn is_visitor_accepting_instructions(&self) -> bool;
 }
 
 /// A type that allows for the use of a constant [`bool`] for the validity
 /// status of a visitor.
 #[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ConstVisitorValidityState<const ACCEPTING_INSTRUCTIONS: bool>;
-impl<const ACCEPTING_INSTRUCTIONS: bool> VisitorValidityState
-    for ConstVisitorValidityState<ACCEPTING_INSTRUCTIONS>
+pub struct ConstManifestAnalysisVisitorValidityState<
+    const ACCEPTING_INSTRUCTIONS: bool,
+>;
+impl<const ACCEPTING_INSTRUCTIONS: bool> ManifestAnalysisVisitorValidityState
+    for ConstManifestAnalysisVisitorValidityState<ACCEPTING_INSTRUCTIONS>
 {
     fn is_visitor_accepting_instructions(&self) -> bool {
         ACCEPTING_INSTRUCTIONS
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SimpleManifestAnalysisVisitorValidityState(bool);
+
+impl Default for SimpleManifestAnalysisVisitorValidityState {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+
+impl ManifestAnalysisVisitorValidityState
+    for SimpleManifestAnalysisVisitorValidityState
+{
+    fn is_visitor_accepting_instructions(&self) -> bool {
+        self.0
+    }
+}
+
+impl SimpleManifestAnalysisVisitorValidityState {
+    pub fn new(value: bool) -> Self {
+        Self(value)
+    }
+
+    pub fn next_instruction_is_not_permitted(&mut self) {
+        self.next_instruction_status(false)
+    }
+
+    pub fn next_instruction_is_permitted(&mut self) {
+        self.next_instruction_status(true)
+    }
+
+    pub fn next_instruction_status(&mut self, is_permitted: bool) {
+        self.0 &= is_permitted
     }
 }

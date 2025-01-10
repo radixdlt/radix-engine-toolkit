@@ -28,14 +28,14 @@ impl PresentedProofsVisitor {
 
 impl ManifestAnalysisVisitor for PresentedProofsVisitor {
     type Output = PresentedProofsOutput;
-    type ValidityState = ConstVisitorValidityState<true>;
+    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
     fn validity_state(&self) -> &Self::ValidityState {
-        &ConstVisitorValidityState::<true>
+        &ConstManifestAnalysisVisitorValidityState::<true>
     }
 
     fn on_instruction(

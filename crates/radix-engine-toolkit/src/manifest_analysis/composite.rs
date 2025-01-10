@@ -35,7 +35,7 @@ macro_rules! define_composite_visitor {
             #[derive(Default)]
             pub struct [< $composite_visitor_ident Visitor >] {
                 visitors: [< $composite_visitor_ident Visitors >],
-                validity_state: [< $composite_visitor_ident VisitorValidityState >]
+                validity_state: [< $composite_visitor_ident ManifestAnalysisVisitorValidityState >]
             }
 
             impl [< $composite_visitor_ident Visitor >] {
@@ -48,7 +48,7 @@ macro_rules! define_composite_visitor {
                 for [< $composite_visitor_ident Visitor >]
             {
                 type Output = [< $composite_visitor_ident VisitorOutput >];
-                type ValidityState = [< $composite_visitor_ident VisitorValidityState >];
+                type ValidityState = [< $composite_visitor_ident ManifestAnalysisVisitorValidityState >];
 
                 fn output(self) -> Self::Output {
                     [< $composite_visitor_ident VisitorOutput >] {
@@ -106,13 +106,13 @@ macro_rules! define_composite_visitor {
                 }
             }
 
-            pub struct [< $composite_visitor_ident VisitorValidityState >] {
+            pub struct [< $composite_visitor_ident ManifestAnalysisVisitorValidityState >] {
                 $(
                     $visitor_ident: bool,
                 )*
             }
 
-            impl Default for [< $composite_visitor_ident VisitorValidityState >] {
+            impl Default for [< $composite_visitor_ident ManifestAnalysisVisitorValidityState >] {
                 fn default() -> Self {
                     Self {
                         $(
@@ -122,8 +122,8 @@ macro_rules! define_composite_visitor {
                 }
             }
 
-            impl $crate::internal_prelude::VisitorValidityState for
-                [< $composite_visitor_ident VisitorValidityState >]
+            impl $crate::internal_prelude::ManifestAnalysisVisitorValidityState for
+                [< $composite_visitor_ident ManifestAnalysisVisitorValidityState >]
             {
                 fn is_visitor_accepting_instructions(&self) -> bool {
                     $(

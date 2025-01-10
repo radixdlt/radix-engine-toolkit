@@ -34,7 +34,7 @@ pub trait ManifestAnalysisVisitor {
     /// decide if it should be called or not. In the event that the visitor is
     /// determined to be in an invalid state where it's no longer accepting any
     /// more instructions then traversing halts.
-    type ValidityState: VisitorValidityState;
+    type ValidityState: ManifestAnalysisVisitorValidityState;
 
     /// A method that consumes [`Self`] and returns the output of the visitor.
     /// Since this method is consuming it means that it will only be called when
