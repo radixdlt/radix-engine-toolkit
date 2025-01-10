@@ -16,5 +16,7 @@
 // under the License.
 
 mod general;
+mod simple_transfer;
 
 pub use general::*;
+pub use simple_transfer::*;
