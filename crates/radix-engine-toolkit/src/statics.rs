@@ -16,6 +16,7 @@
 // under the License.
 
 use crate::internal_prelude::*;
+use crate::schema_visitor::core::traverser::traverse;
 
 lazy_static! {
     // Account package

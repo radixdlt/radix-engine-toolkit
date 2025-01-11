@@ -44,6 +44,7 @@ impl ManifestAnalysisVisitor for EntitiesRequiringAuthVisitor {
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
     ) {
         // We're interested in invocations and in the invoked address so we
         // compute that. In the event that the instruction isn't an invocation

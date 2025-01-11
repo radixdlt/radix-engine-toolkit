@@ -44,6 +44,7 @@ impl ManifestAnalysisVisitor for EncounteredEntitiesVisitor {
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
         _: Option<&TypedManifestNativeInvocation>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
     ) {
         let indexed_value =
             IndexedManifestValue::from_typed(&grouped_instruction);

@@ -68,6 +68,7 @@ macro_rules! define_composite_visitor {
                     grouped_instruction: &GroupedInstruction,
                     instruction_index: &InstructionIndex,
                     maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+                    maybe_invocation_io: Option<&InvocationIo<InvocationIoItems>>,
                 ) {
                     $(
                         if self.validity_state.$visitor_ident {
@@ -79,6 +80,7 @@ macro_rules! define_composite_visitor {
                                     grouped_instruction,
                                     instruction_index,
                                     maybe_typed_invocation,
+                                    maybe_invocation_io
                                 );
                             self.validity_state.$visitor_ident &= self
                                 .visitors

@@ -66,7 +66,7 @@ impl IndexedInvocationIo {
 
     pub fn compute(
         manifest: &impl ReadableManifest,
-        worktop_changes: WorktopChanges<'_>,
+        worktop_changes: &WorktopChanges<'_>,
     ) -> Result<Self, Error> {
         let mut static_analysis =
             StaticAnalysisInvocationIo::compute(manifest)?;
@@ -303,7 +303,7 @@ impl InvocationIoItems {
         resource_address: ResourceAddress,
         static_information: Option<SimpleResourceBounds>,
         dynamic_information: Option<Vec<Tracked<ResourceSpecifier>>>,
-    ) -> Result<Option<Self>, InvocationIoItemError> {
+    ) -> Result<Option<Self>, InvocationIoError> {
         match (static_information, dynamic_information) {
             (
                 Some(SimpleResourceBounds::Fungible(
@@ -1000,13 +1000,13 @@ impl<'a> DynamicAnalysisInvocationIo<'a> {
 }
 
 #[derive(Debug)]
-pub enum InvocationIoItemError {
+pub enum InvocationIoError {
     StaticResourceMovementsError(StaticResourceMovementsError),
     NoDynamicAnalysisWhenStaticAnalysisIsPresent,
 }
-use InvocationIoItemError as Error;
+use InvocationIoError as Error;
 
-impl From<StaticResourceMovementsError> for InvocationIoItemError {
+impl From<StaticResourceMovementsError> for InvocationIoError {
     fn from(v: StaticResourceMovementsError) -> Self {
         Self::StaticResourceMovementsError(v)
     }

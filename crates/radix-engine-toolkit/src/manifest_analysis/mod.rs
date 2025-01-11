@@ -19,8 +19,10 @@ mod classification;
 mod composite;
 mod data_retrieval;
 mod traits;
+mod traverser;
 
 pub use classification::*;
 pub use composite::*;
 pub use data_retrieval::*;
 pub use traits::*;
+pub use traverser::*;

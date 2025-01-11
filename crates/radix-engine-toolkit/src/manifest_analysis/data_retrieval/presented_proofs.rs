@@ -44,6 +44,7 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
     ) {
         // INVARIANT(traversal-address-checking): There's an invariant that this
         // method makes use of which is that the address in the invocation will

@@ -39,6 +39,12 @@ pub trait ManifestAnalysisVisitor {
     /// A method that consumes [`Self`] and returns the output of the visitor.
     /// Since this method is consuming it means that it will only be called when
     /// the traversal is done and completed.
+    ///
+    /// All visitors are expected to produce some form of output regardless of
+    /// whether they're in an acceptable state or not. Therefore, visitors may
+    /// choose to return an [`Option`] to signal whether their output is valid
+    /// or not or perhaps even use custom defined enum types to signal this info
+    /// to the client.
     fn output(self) -> Self::Output;
 
     /// A method that returns an immutable reference to the visitor's validity
@@ -55,5 +61,6 @@ pub trait ManifestAnalysisVisitor {
         grouped_instruction: &GroupedInstruction,
         instruction_index: &InstructionIndex,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        maybe_invocation_io: Option<&InvocationIo<InvocationIoItems>>,
     );
 }
