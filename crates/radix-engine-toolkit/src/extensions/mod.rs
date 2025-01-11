@@ -18,7 +18,9 @@
 mod blueprint_id;
 mod network_definition;
 mod resource_specifier;
+mod worktop_change;
 
 pub use blueprint_id::*;
 pub use network_definition::*;
 pub use resource_specifier::*;
+pub use worktop_change::*;

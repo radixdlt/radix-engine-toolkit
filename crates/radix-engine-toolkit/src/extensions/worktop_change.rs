@@ -17,37 +17,21 @@
 
 use crate::internal_prelude::*;
 
-#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Sbor, Default,
-)]
-#[sbor(transparent)]
-pub struct InstructionIndex(usize);
-
-impl InstructionIndex {
-    pub const fn of(index: usize) -> Self {
-        Self(index)
-    }
-
-    pub const fn value(&self) -> &usize {
-        &self.0
-    }
-
-    pub const fn add(&self, instructions: usize) -> Option<Self> {
-        match self.0.checked_add(instructions) {
-            Some(value) => Some(Self(value)),
-            None => None,
+#[ext_sized]
+pub impl WorktopChange {
+    fn as_take(&self) -> Option<&ResourceSpecifier> {
+        if let Self::Take(take) = self {
+            Some(take)
+        } else {
+            None
         }
     }
-}
 
-impl From<usize> for InstructionIndex {
-    fn from(value: usize) -> Self {
-        Self(value)
-    }
-}
-
-impl From<InstructionIndex> for usize {
-    fn from(value: InstructionIndex) -> Self {
-        value.0
+    fn as_put(&self) -> Option<&ResourceSpecifier> {
+        if let Self::Put(put) = self {
+            Some(put)
+        } else {
+            None
+        }
     }
 }

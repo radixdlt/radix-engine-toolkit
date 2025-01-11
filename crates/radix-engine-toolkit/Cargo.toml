@@ -35,7 +35,11 @@ regex = "1.8.4"
 
 # A crate that implements the various sbor-json formats.
 sbor-json = { path = "../sbor-json" }
+
 extend = "1.2.0"
+
+# Enhanced macro rules
+macro_rules_attribute = "0.2.0"
 
 [build-dependencies]
 cargo_toml = { version = "0.15.3" }

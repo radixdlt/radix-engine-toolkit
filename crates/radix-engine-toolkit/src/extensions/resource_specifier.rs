@@ -19,6 +19,13 @@ use crate::internal_prelude::*;
 
 #[ext_sized]
 pub impl ResourceSpecifier {
+    fn new_empty(resource_address: ResourceAddress) -> Self {
+        match resource_address.is_fungible() {
+            true => Self::Amount(resource_address, Default::default()),
+            false => Self::Ids(resource_address, Default::default()),
+        }
+    }
+
     fn resource_address(&self) -> &ResourceAddress {
         match self {
             Self::Amount(address, ..) | Self::Ids(address, ..) => address,

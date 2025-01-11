@@ -81,6 +81,7 @@ pub(crate) mod internal_prelude {
     pub use bech32::{FromBase32, ToBase32, Variant};
     pub use extend::*;
     pub use lazy_static::*;
+    pub use macro_rules_attribute::apply;
     pub use paste::*;
     pub use regex::*;
     pub use serde_with::*;
