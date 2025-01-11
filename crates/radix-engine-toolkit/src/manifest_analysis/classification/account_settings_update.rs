@@ -1,0 +1,267 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+use crate::internal_prelude::*;
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct AccountSettingsUpdateTransactionTypeVisitor {
+    requirement_state: AccountSettingsUpdateTransactionTypeRequirementState,
+    validity_state: SimpleManifestAnalysisVisitorValidityState,
+
+    output: AccountSettingsUpdateTransactionTypeOutput,
+}
+
+impl AccountSettingsUpdateTransactionTypeVisitor {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
+impl ManifestAnalysisVisitor for AccountSettingsUpdateTransactionTypeVisitor {
+    type Output = Option<AccountSettingsUpdateTransactionTypeOutput>;
+    type ValidityState = SimpleManifestAnalysisVisitorValidityState;
+
+    fn output(self) -> Self::Output {
+        (self.requirement_state.is_requirement_fulfilled()
+            && self.validity_state.is_visitor_accepting_instructions())
+        .then_some(self.output)
+    }
+
+    fn validity_state(&self) -> &Self::ValidityState {
+        &self.validity_state
+    }
+
+    fn on_instruction(
+        &mut self,
+        named_address_store: &NamedAddressStore,
+        grouped_instruction: &GroupedInstruction,
+        _: &InstructionIndex,
+        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
+    ) {
+        // Compute if the next instruction is permitted or not.
+        let is_next_instruction_permitted = match grouped_instruction {
+            GroupedInstruction::InvocationInstructions(
+                InvocationInstructions::CallMethod(CallMethod {
+                    address,
+                    method_name,
+                    ..
+                }),
+            ) => {
+                let grouped_entity_type = match address {
+                    ManifestGlobalAddress::Static(static_address) => {
+                        static_address.as_node_id().entity_type()
+                    }
+                    ManifestGlobalAddress::Named(named_address) => {
+                        named_address_store
+                            .get(named_address)
+                            .and_then(BlueprintId::entity_type)
+                    }
+                }
+                .map(GroupedEntityType::from);
+
+                match (grouped_entity_type, method_name.as_str()) {
+                    // Selective Permissions
+                    (
+                        Some(GroupedEntityType::AccountEntities(..)),
+                        ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
+                        | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
+                        | ACCOUNT_LOCK_FEE_IDENT
+                        | ACCOUNT_LOCK_CONTINGENT_FEE_IDENT
+                        | ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT
+                        | ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT
+                        | ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT
+                        | ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT
+                        | ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
+                    )
+                    | (
+                        Some(GroupedEntityType::AccessControllerEntities(..)),
+                        ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                    ) => true,
+                    // Disallowed Invocations
+                    (
+                        Some(
+                            GroupedEntityType::IdentityEntities(..)
+                            | GroupedEntityType::PoolEntities(..)
+                            | GroupedEntityType::InternalEntities(..)
+                            | GroupedEntityType::SystemEntities(..)
+                            | GroupedEntityType::ResourceManagerEntities(..)
+                            | GroupedEntityType::PackageEntities(..)
+                            | GroupedEntityType::ValidatorEntities(..)
+                            | GroupedEntityType::AccountEntities(..)
+                            | GroupedEntityType::AccessControllerEntities(..)
+                            | GroupedEntityType::AccountLockerEntities(..)
+                            | GroupedEntityType::GenericComponentEntities(..),
+                        )
+                        | None,
+                        _,
+                    ) => false,
+                }
+            }
+            // Allowed Instructions
+            GroupedInstruction::ProofInstructions(..) => true,
+            // Disallowed Instructions
+            GroupedInstruction::TakeFromWorktopInstructions(..)
+            | GroupedInstruction::ReturnToWorktopInstructions(..)
+            | GroupedInstruction::AssertionInstructions(..)
+            | GroupedInstruction::SubintentInstructions(..)
+            | GroupedInstruction::AddressAllocationInstructions(..)
+            | GroupedInstruction::BurnResourceInstructions(..)
+            | GroupedInstruction::InvocationInstructions(
+                InvocationInstructions::CallFunction(..)
+                | InvocationInstructions::CallDirectVaultMethod(..)
+                | InvocationInstructions::CallMetadataMethod(..)
+                | InvocationInstructions::CallRoleAssignmentMethod(..)
+                | InvocationInstructions::CallRoyaltyMethod(..),
+            ) => false,
+        };
+        self.validity_state
+            .next_instruction_status(is_next_instruction_permitted);
+        self.requirement_state
+            .handle_instruction(maybe_typed_invocation);
+
+        // Extract information out of the typed invocation and into the output.
+        if let Some(
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(method),
+            ),
+        ) = maybe_typed_invocation
+        {
+            let account_address = grouped_instruction
+                .as_call_method()
+                .expect("Must be a call method since it's a typed invocation")
+                .address;
+
+            match method {
+                AccountBlueprintMethod::SetDefaultDepositRule(
+                    AccountSetDefaultDepositRuleInput {
+                        default: deposit_rule,
+                    },
+                ) => {
+                    self.output
+                        .default_deposit_rule_updates
+                        .insert(account_address, *deposit_rule);
+                }
+                AccountBlueprintMethod::SetResourcePreference(
+                    AccountSetResourcePreferenceManifestInput {
+                        resource_address,
+                        resource_preference,
+                    },
+                ) => {
+                    self.output.resource_preference_updates.insert(
+                        (account_address, *resource_address),
+                        Update::Set(*resource_preference),
+                    );
+                }
+                AccountBlueprintMethod::RemoveResourcePreference(
+                    AccountRemoveResourcePreferenceManifestInput {
+                        resource_address,
+                    },
+                ) => {
+                    self.output.resource_preference_updates.insert(
+                        (account_address, *resource_address),
+                        Update::Remove,
+                    );
+                }
+                AccountBlueprintMethod::AddAuthorizedDepositor(
+                    AccountAddAuthorizedDepositorManifestInput { badge },
+                ) => {
+                    self.output.authorized_depositor_updates.insert(
+                        (account_address, badge.clone()),
+                        Operation::Added,
+                    );
+                }
+                AccountBlueprintMethod::RemoveAuthorizedDepositor(
+                    AccountRemoveAuthorizedDepositorManifestInput { badge },
+                ) => {
+                    self.output.authorized_depositor_updates.insert(
+                        (account_address, badge.clone()),
+                        Operation::Removed,
+                    );
+                }
+                AccountBlueprintMethod::Securify(..)
+                | AccountBlueprintMethod::LockFee(..)
+                | AccountBlueprintMethod::LockContingentFee(..)
+                | AccountBlueprintMethod::Deposit(..)
+                | AccountBlueprintMethod::DepositBatch(..)
+                | AccountBlueprintMethod::Withdraw(..)
+                | AccountBlueprintMethod::WithdrawNonFungibles(..)
+                | AccountBlueprintMethod::Burn(..)
+                | AccountBlueprintMethod::BurnNonFungibles(..)
+                | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..)
+                | AccountBlueprintMethod::CreateProofOfAmount(..)
+                | AccountBlueprintMethod::CreateProofOfNonFungibles(..)
+                | AccountBlueprintMethod::TryDepositOrRefund(..)
+                | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
+                | AccountBlueprintMethod::TryDepositOrAbort(..)
+                | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
+struct AccountSettingsUpdateTransactionTypeRequirementState {
+    is_one_of_the_account_update_methods_seen: bool,
+}
+
+impl AccountSettingsUpdateTransactionTypeRequirementState {
+    fn is_requirement_fulfilled(&self) -> bool {
+        self.is_one_of_the_account_update_methods_seen
+    }
+
+    fn handle_instruction(
+        &mut self,
+        typed_invocation: Option<&TypedManifestNativeInvocation>,
+    ) {
+        if let Some(
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(
+                    AccountBlueprintMethod::SetDefaultDepositRule(..)
+                    | AccountBlueprintMethod::SetResourcePreference(..)
+                    | AccountBlueprintMethod::RemoveResourcePreference(..)
+                    | AccountBlueprintMethod::AddAuthorizedDepositor(..)
+                    | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
+                ),
+            ),
+        ) = typed_invocation
+        {
+            self.is_one_of_the_account_update_methods_seen = true
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct AccountSettingsUpdateTransactionTypeOutput {
+    /// Updates to the account resource preference that took place in the
+    /// transaction.
+    pub resource_preference_updates: IndexMap<
+        (ManifestGlobalAddress, ManifestResourceAddress),
+        Update<ResourcePreference>,
+    >,
+    /// Updates to the default deposit rule of some account that took place in
+    /// the transaction.
+    pub default_deposit_rule_updates:
+        IndexMap<ManifestGlobalAddress, DefaultDepositRule>,
+    /// Updates to the set of authorized depositors of some account that took
+    /// place in the transaction.
+    pub authorized_depositor_updates: IndexMap<
+        (ManifestGlobalAddress, ManifestResourceOrNonFungible),
+        Operation,
+    >,
+}

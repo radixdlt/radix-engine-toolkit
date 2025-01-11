@@ -71,7 +71,7 @@ impl IndexedInvocationIo {
         let mut static_analysis =
             StaticAnalysisInvocationIo::compute(manifest)?;
         let mut dynamic_analysis =
-            DynamicAnalysisInvocationIo::compute(manifest, &worktop_changes);
+            DynamicAnalysisInvocationIo::compute(manifest, worktop_changes);
 
         let instruction_indices = static_analysis
             .instruction_index_iter()

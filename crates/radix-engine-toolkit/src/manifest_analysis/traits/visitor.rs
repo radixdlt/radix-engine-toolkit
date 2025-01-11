@@ -53,7 +53,16 @@ pub trait ManifestAnalysisVisitor {
 
     /// A method called by the traverser when an instruction is encountered
     /// supplying the visitor with information on the instruction and other
-    /// information too needed by most visitors
+    /// information too needed by most visitors.
+    ///
+    /// While this is not enforced by the visitor trait to allow visitors to
+    /// have freedom over what they do, a visitor will roughly almost always
+    /// do the following in order:
+    ///
+    /// 1. Determine if they permit this instruction.
+    /// 2. Determine if their requirements are satisfied or not by this
+    ///    instruction.
+    /// 3. Extract information from the instruction.
     #[allow(unused_variables)]
     fn on_instruction(
         &mut self,

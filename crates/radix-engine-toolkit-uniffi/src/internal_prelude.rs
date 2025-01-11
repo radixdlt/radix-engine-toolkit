@@ -26,6 +26,10 @@
 #[allow(unused_braces)]
 mod core {
     /* Models */
+    pub use radix_engine_toolkit::prelude::{
+        Update as CoreUpdate,
+        Operation as CoreOperation,
+    };
     pub use radix_engine_toolkit::extensions::*;
     pub use radix_engine_toolkit::types::{
         TypedNodeId as CoreTypedNodeId,
@@ -170,8 +174,6 @@ mod core {
         ResourceIndicator as CoreResourceIndicator,
         FungibleResourceIndicator as CoreFungibleResourceIndicator,
         NonFungibleResourceIndicator as CoreNonFungibleResourceIndicator,
-        Update as CoreUpdate,
-        Operation as CoreOperation,
         EncounteredGlobalEntities as CoreEncounteredGlobalEntities,
         PresentedProofsDetector as CorePresentedProofsDetector,
         RequiringAuthDetector as CoreRequiringAuthDetector,

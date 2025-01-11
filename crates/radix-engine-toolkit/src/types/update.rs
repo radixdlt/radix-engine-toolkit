@@ -15,30 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod canonical_address_types;
-mod grouped_entity_type;
-mod grouped_instruction;
-mod indexed_manifest_value;
-mod instruction_index;
-mod invocation_io;
-mod manifest_resource_specifier;
-mod named_address_store;
-mod node_id;
-mod operation;
-mod transaction_hash;
-mod update;
-mod worktop_changes;
+use crate::internal_prelude::*;
 
-pub use canonical_address_types::*;
-pub use grouped_entity_type::*;
-pub use grouped_instruction::*;
-pub use indexed_manifest_value::*;
-pub use instruction_index::*;
-pub use invocation_io::*;
-pub use manifest_resource_specifier::*;
-pub use named_address_store::*;
-pub use node_id::*;
-pub use operation::*;
-pub use transaction_hash::*;
-pub use update::*;
-pub use worktop_changes::*;
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Update<T> {
+    Set(T),
+    Remove,
+}
+
+impl<T> Update<T> {
+    pub fn set(value: T) -> Self {
+        Self::Set(value)
+    }
+
+    pub fn remove() -> Self {
+        Self::Remove
+    }
+}
+
+impl<T> From<Update<T>> for Option<T> {
+    fn from(value: Update<T>) -> Self {
+        match value {
+            Update::Set(value) => Some(value),
+            Update::Remove => None,
+        }
+    }
+}

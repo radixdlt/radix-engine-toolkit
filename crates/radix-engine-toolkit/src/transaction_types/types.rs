@@ -618,18 +618,6 @@ impl From<ResourceIndicator> for ResourceSpecifier {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Update<T> {
-    Set(T),
-    Remove,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Operation {
-    Added,
-    Removed,
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct FeeSummary {
     pub execution_cost: Decimal,

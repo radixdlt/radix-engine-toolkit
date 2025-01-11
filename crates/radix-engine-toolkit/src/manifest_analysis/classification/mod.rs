@@ -15,10 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod account_settings_update;
 mod general;
 mod simple_transfer;
 mod transfer;
 
+pub use account_settings_update::*;
 pub use general::*;
 pub use simple_transfer::*;
 pub use transfer::*;

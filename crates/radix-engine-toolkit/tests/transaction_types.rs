@@ -21,6 +21,7 @@ use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
 use radix_engine_toolkit::transaction_types::*;
+use radix_engine_toolkit::types::*;
 use radix_transactions::prelude::*;
 use scrypto_test::prelude::*;
 
