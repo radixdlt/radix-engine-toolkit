@@ -227,6 +227,19 @@ impl<'a> ResourceIndexedInvocationIo<'a> {
         };
         Self(inner_map)
     }
+
+    pub fn for_resource(
+        &self,
+        resource_address: &ResourceAddress,
+    ) -> Option<&InvocationIoItem<'a>> {
+        self.0.get(resource_address)
+    }
+
+    pub fn iter(
+        &self,
+    ) -> impl Iterator<Item = (&ResourceAddress, &InvocationIoItem<'_>)> {
+        self.0.iter().map(|(k, v)| (*k, v))
+    }
 }
 
 /// This enum defines the IO of some invocation for some resource.
