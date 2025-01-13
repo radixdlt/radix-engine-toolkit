@@ -15,23 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
+mod functions;
 
-#[derive(Clone, Debug, Record)]
-pub struct ManifestBlobRef {
-    pub value: Arc<Hash>,
-}
+pub mod utils;
 
-impl From<NativeManifestBlobRef> for ManifestBlobRef {
-    fn from(value: NativeManifestBlobRef) -> Self {
-        Self {
-            value: Arc::new(NativeHash(value.0).into()),
-        }
-    }
-}
-
-impl From<ManifestBlobRef> for NativeManifestBlobRef {
-    fn from(value: ManifestBlobRef) -> Self {
-        Self(value.value.0 .0)
-    }
+#[allow(ambiguous_glob_reexports)]
+pub mod prelude {
+    pub use crate::utils::*;
+    pub use radix_common::prelude::*;
+    pub use radix_engine_interface::prelude::*;
+    pub use radix_engine_toolkit::prelude::*;
+    pub use scrypto::prelude::*;
 }

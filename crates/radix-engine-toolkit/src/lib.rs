@@ -15,19 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO(nightly): Remove the nightly requirement which should no longer be in
-// need after we refactor the transaction types.
-#![allow(clippy::type_complexity)]
-#![feature(trait_upcasting)]
-
 pub mod extensions;
 pub mod functions;
 pub mod manifest_analysis;
-pub mod schema_visitor;
-pub mod statics;
-pub mod transaction_types;
 pub mod types;
-pub mod utils;
 
 #[allow(unused_imports)]
 pub(crate) mod internal_prelude {
@@ -95,14 +86,5 @@ pub mod prelude {
     pub use crate::extensions::*;
     pub use crate::functions;
     pub use crate::manifest_analysis::*;
-    pub use crate::statics::*;
-    pub use crate::transaction_types::*;
     pub use crate::types::*;
-    pub use crate::utils::*;
-
-    pub use crate::schema_visitor::core::error::*;
-    pub use crate::schema_visitor::core::traits::*;
-    pub use crate::schema_visitor::core::traverser::*;
-    pub use crate::schema_visitor::visitors::bucket_in_path_visitor::*;
-    pub use crate::schema_visitor::visitors::proof_in_path_visitor::*;
 }

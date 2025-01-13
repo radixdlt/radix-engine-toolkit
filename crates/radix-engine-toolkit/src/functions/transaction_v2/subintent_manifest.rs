@@ -32,14 +32,14 @@ where
     SubintentManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(manifest: &SubintentManifestV2) -> StaticAnalysis {
-    crate::transaction_types::statically_analyze(manifest)
+pub fn statically_analyze(_manifest: &SubintentManifestV2) -> StaticAnalysis {
+    todo!()
 }
 
 pub fn statically_analyze_and_validate(
-    manifest: &SubintentManifestV2,
+    _manifest: &SubintentManifestV2,
 ) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    crate::transaction_types::statically_analyze_and_validate(manifest)
+    todo!()
 }
 
 pub fn as_enclosed(
@@ -50,13 +50,10 @@ pub fn as_enclosed(
         object_names,
     }: &SubintentManifestV2,
 ) -> Option<TransactionManifestV2> {
-    let [
-        assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
-            AssertWorktopResourcesOnly { constraints },
-        ),
-        other_instructions @ ..,
-        InstructionV2::YieldToParent(..),
-    ] = instructions.as_slice()
+    let [assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
+        AssertWorktopResourcesOnly { constraints },
+    ), other_instructions @ .., InstructionV2::YieldToParent(..)] =
+        instructions.as_slice()
     else {
         return None;
     };

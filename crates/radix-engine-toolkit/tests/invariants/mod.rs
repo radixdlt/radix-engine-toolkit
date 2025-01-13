@@ -15,23 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
-
-#[derive(Clone, Debug, Record)]
-pub struct ManifestBlobRef {
-    pub value: Arc<Hash>,
-}
-
-impl From<NativeManifestBlobRef> for ManifestBlobRef {
-    fn from(value: NativeManifestBlobRef) -> Self {
-        Self {
-            value: Arc::new(NativeHash(value.0).into()),
-        }
-    }
-}
-
-impl From<ManifestBlobRef> for NativeManifestBlobRef {
-    fn from(value: ManifestBlobRef) -> Self {
-        Self(value.value.0 .0)
-    }
-}
+mod worktop_changes;

@@ -1,1 +1,0 @@
-RECALL_NON_FUNGIBLES_FROM_VAULT Address("internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff") Array<NonFungibleLocalId>(NonFungibleLocalId("#123#"), NonFungibleLocalId("#456#"));

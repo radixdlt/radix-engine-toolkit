@@ -43,7 +43,7 @@
         "walkdir"
     ],
     "editor.rulers": [80],
-    "rust-analyzer.rustfmt.overrideCommand": ["rustfmt", "+nightly"],
+    "rust-analyzer.rustfmt.overrideCommand": ["rustfmt"],
     "[markdown]": {
         "editor.wordWrap": "bounded",
         "editor.wordWrapColumn": 80

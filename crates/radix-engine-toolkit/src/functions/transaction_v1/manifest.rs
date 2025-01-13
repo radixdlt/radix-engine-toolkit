@@ -46,19 +46,19 @@ pub fn statically_validate(
         })
 }
 
-pub fn statically_analyze(manifest: &TransactionManifestV1) -> StaticAnalysis {
-    crate::transaction_types::statically_analyze(manifest)
+pub fn statically_analyze(_manifest: &TransactionManifestV1) -> StaticAnalysis {
+    todo!()
 }
 
 pub fn statically_analyze_and_validate(
-    manifest: &TransactionManifestV1,
+    _manifest: &TransactionManifestV1,
 ) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    crate::transaction_types::statically_analyze_and_validate(manifest)
+    todo!()
 }
 
 pub fn dynamically_analyze(
-    manifest: &TransactionManifestV1,
-    receipt: &RuntimeToolkitTransactionReceipt,
+    _manifest: &TransactionManifestV1,
+    _receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, TransactionTypesError> {
-    crate::transaction_types::dynamically_analyze(manifest, receipt)
+    todo!()
 }

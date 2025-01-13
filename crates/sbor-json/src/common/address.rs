@@ -34,7 +34,7 @@ impl Display for SerializableNodeId {
             crate::utils::network_definition_from_network_id(self.1);
         let bech32_encoder = AddressBech32Encoder::new(&network_definition);
         bech32_encoder
-            .encode_to_fmt(f, &self.0.0)
+            .encode_to_fmt(f, &self.0 .0)
             .map_err(|_| std::fmt::Error)
     }
 }

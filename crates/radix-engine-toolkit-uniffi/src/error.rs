@@ -95,14 +95,10 @@ pub enum RadixEngineToolkitError {
     )]
     TypedNativeEventError { error: String },
 
-    #[error(
-        "An error occurred when trying to decode the transaction hash: {error:?}"
-    )]
+    #[error("An error occurred when trying to decode the transaction hash: {error:?}")]
     FailedToDecodeTransactionHash { error: String },
 
-    #[error(
-        "An error ocurred when building the manifest due to the naming of objects: {error:?}"
-    )]
+    #[error("An error ocurred when building the manifest due to the naming of objects: {error:?}")]
     ManifestBuilderNameRecordError { error: NameRecordError },
 
     #[error("The node id has no valid entity type: {error}")]

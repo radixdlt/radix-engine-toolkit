@@ -29,6 +29,27 @@ mod core {
     pub use radix_engine_toolkit::prelude::{
         Update as CoreUpdate,
         Operation as CoreOperation,
+        TransactionTypesError as CoreTransactionTypesError,
+        StaticAnalysis as CoreStaticAnalysis,
+        StaticAnalysisWithResourceMovements as CoreStaticAnalysisWithResourceMovements,
+        DynamicAnalysis as CoreDynamicAnalysis,
+        TransactionTypesReceipt as CoreTransactionTypesReceipt,
+        NewEntities as CoreNewEntities,
+        FnRules as CoreFnRules,
+        Predicted as CorePredicted,
+        FeeSummary as CoreFeeSummary,
+        ManifestClass as CoreManifestClass,
+        DetailedManifestClass as CoreDetailedManifestClass,
+        ReservedInstruction as CoreReservedInstruction,
+        FnRule as CoreFnRule,
+        ResourceIndicator as CoreResourceIndicator,
+        FungibleResourceIndicator as CoreFungibleResourceIndicator,
+        NonFungibleResourceIndicator as CoreNonFungibleResourceIndicator,
+        TrackedPoolContribution as CoreTrackedPoolContribution,
+        TrackedPoolRedemption as CoreTrackedPoolRedemption,
+        TrackedValidatorStake as CoreTrackedValidatorStake,
+        TrackedValidatorUnstake as CoreTrackedValidatorUnstake,
+        TrackedValidatorClaim as CoreTrackedValidatorClaim,
     };
     pub use radix_engine_toolkit::extensions::*;
     pub use radix_engine_toolkit::types::{
@@ -153,48 +174,6 @@ mod core {
     };
     pub use radix_engine_toolkit::functions::events::{
         scrypto_sbor_decode_to_native_event as core_scrypto_sbor_decode_to_native_event
-    };
-    /* TransactionTypes */
-    pub use radix_engine_toolkit::transaction_types::{
-        StaticAnalysisCallback as CoreStaticAnalysisCallback,
-        DynamicAnalysisCallback as CoreDynamicAnalysisCallback,
-        TransactionTypesError as CoreTransactionTypesError,
-        StaticAnalysis as CoreStaticAnalysis,
-        StaticAnalysisWithResourceMovements as CoreStaticAnalysisWithResourceMovements,
-        DynamicAnalysis as CoreDynamicAnalysis,
-        TransactionTypesReceipt as CoreTransactionTypesReceipt,
-        NewEntities as CoreNewEntities,
-        FnRules as CoreFnRules,
-        Predicted as CorePredicted,
-        FeeSummary as CoreFeeSummary,
-        ManifestClass as CoreManifestClass,
-        DetailedManifestClass as CoreDetailedManifestClass,
-        ReservedInstruction as CoreReservedInstruction,
-        FnRule as CoreFnRule,
-        ResourceIndicator as CoreResourceIndicator,
-        FungibleResourceIndicator as CoreFungibleResourceIndicator,
-        NonFungibleResourceIndicator as CoreNonFungibleResourceIndicator,
-        EncounteredGlobalEntities as CoreEncounteredGlobalEntities,
-        PresentedProofsDetector as CorePresentedProofsDetector,
-        RequiringAuthDetector as CoreRequiringAuthDetector,
-        ReservedInstructionsDetector as CoreReservedInstructionsDetector,
-        StaticAccountResourceMovementsDetector as CoreStaticAccountResourceMovementsDetector,
-        AccountResourceMovementsDetector as CoreAccountResourceMovementsDetector,
-        AccountSettingsUpdateDetector as CoreAccountSettingsUpdateDetector,
-        GeneralDetector as CoreGeneralDetector,
-        PoolContributionDetector as CorePoolContributionDetector,
-        TrackedPoolContribution as CoreTrackedPoolContribution,
-        PoolRedemptionDetector as CorePoolRedemptionDetector,
-        TrackedPoolRedemption as CoreTrackedPoolRedemption,
-        TransferDetector as CoreTransferDetector,
-        ValidatorStakeDetector as CoreValidatorStakeDetector,
-        TrackedValidatorStake as CoreTrackedValidatorStake,
-        ValidatorUnstakeDetector as CoreValidatorUnstakeDetector,
-        TrackedValidatorUnstake as CoreTrackedValidatorUnstake,
-        ValidatorClaimDetector as CoreValidatorClaimDetector,
-        TrackedValidatorClaim as CoreTrackedValidatorClaim,
-        static_analysis as core_static_analysis,
-        dynamic_analysis as core_dynamic_analysis,
     };
 }
 

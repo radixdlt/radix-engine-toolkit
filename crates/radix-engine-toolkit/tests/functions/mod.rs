@@ -15,23 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
+//! This module tests the toolkit's pure function that it exposes to its clients
 
-#[derive(Clone, Debug, Record)]
-pub struct ManifestBlobRef {
-    pub value: Arc<Hash>,
-}
-
-impl From<NativeManifestBlobRef> for ManifestBlobRef {
-    fn from(value: NativeManifestBlobRef) -> Self {
-        Self {
-            value: Arc::new(NativeHash(value.0).into()),
-        }
-    }
-}
-
-impl From<ManifestBlobRef> for NativeManifestBlobRef {
-    fn from(value: ManifestBlobRef) -> Self {
-        Self(value.value.0 .0)
-    }
-}
+mod derive;
+mod information;
+mod intent;
+mod manifest;
+mod manifest_sbor;
+mod notarized_transaction;
+mod scrypto_sbor;
+mod subintent_manifest_v2;
