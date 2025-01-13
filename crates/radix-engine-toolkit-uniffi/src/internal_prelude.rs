@@ -29,27 +29,10 @@ mod core {
     pub use radix_engine_toolkit::prelude::{
         Update as CoreUpdate,
         Operation as CoreOperation,
-        TransactionTypesError as CoreTransactionTypesError,
         StaticAnalysis as CoreStaticAnalysis,
-        StaticAnalysisWithResourceMovements as CoreStaticAnalysisWithResourceMovements,
         DynamicAnalysis as CoreDynamicAnalysis,
-        TransactionTypesReceipt as CoreTransactionTypesReceipt,
-        NewEntities as CoreNewEntities,
-        FnRules as CoreFnRules,
-        Predicted as CorePredicted,
         FeeSummary as CoreFeeSummary,
-        ManifestClass as CoreManifestClass,
-        DetailedManifestClass as CoreDetailedManifestClass,
-        ReservedInstruction as CoreReservedInstruction,
-        FnRule as CoreFnRule,
-        ResourceIndicator as CoreResourceIndicator,
-        FungibleResourceIndicator as CoreFungibleResourceIndicator,
-        NonFungibleResourceIndicator as CoreNonFungibleResourceIndicator,
-        TrackedPoolContribution as CoreTrackedPoolContribution,
-        TrackedPoolRedemption as CoreTrackedPoolRedemption,
-        TrackedValidatorStake as CoreTrackedValidatorStake,
-        TrackedValidatorUnstake as CoreTrackedValidatorUnstake,
-        TrackedValidatorClaim as CoreTrackedValidatorClaim,
+        ManifestClassification as CoreManifestClass,
     };
     pub use radix_engine_toolkit::extensions::*;
     pub use radix_engine_toolkit::types::{
@@ -89,7 +72,6 @@ mod core {
         from_payload_bytes as core_transaction_v1_manifest_from_payload_bytes,
         statically_validate as core_transaction_v1_manifest_statically_validate,
         statically_analyze as core_transaction_v1_manifest_statically_analyze,
-        statically_analyze_and_validate as core_transaction_v1_manifest_statically_analyze_and_validate,
         dynamically_analyze as core_transaction_v1_manifest_dynamically_analyze,
     };
     pub use radix_engine_toolkit::functions::transaction_v1::intent::{
@@ -117,7 +99,6 @@ mod core {
         to_payload_bytes as core_transaction_v2_transaction_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_transaction_manifest_from_payload_bytes,
         statically_analyze as core_transaction_v2_transaction_manifest_statically_analyze,
-        statically_analyze_and_validate as core_transaction_v2_transaction_manifest_statically_analyze_and_validate,
         dynamically_analyze as core_transaction_v2_transaction_manifest_dynamically_analyze,
         statically_validate as core_transaction_v2_transaction_manifest_statically_validate,
     };
@@ -125,7 +106,6 @@ mod core {
         to_payload_bytes as core_transaction_v2_subintent_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_subintent_manifest_from_payload_bytes,
         statically_analyze as core_transaction_v2_subintent_manifest_statically_analyze,
-        statically_analyze_and_validate as core_transaction_v2_subintent_manifest_statically_analyze_and_validate,
         statically_validate as core_transaction_v2_subintent_manifest_statically_validate,
         as_enclosed as core_transaction_v2_subintent_manifest_as_enclosed,
     };

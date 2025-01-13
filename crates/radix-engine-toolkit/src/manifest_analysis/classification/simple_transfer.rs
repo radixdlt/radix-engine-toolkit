@@ -48,7 +48,7 @@ impl ManifestAnalysisVisitor for SimpleTransferStateMachine {
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         _: Option<&TypedManifestNativeInvocation>,
     ) {
         self.transition(instruction);

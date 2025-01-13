@@ -43,7 +43,7 @@ impl ManifestAnalysisVisitor for ReservedInstructionsVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     ) {
         // We're interested in invocations and in the invoked address so we
@@ -153,18 +153,43 @@ impl ManifestAnalysisVisitor for ReservedInstructionsVisitor {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct ReservedInstructionsOutput {
-    pub account_lock_fee_invocations: IndexSet<ManifestGlobalAddress>,
-    pub account_securify_invocations: IndexSet<ManifestGlobalAddress>,
-    pub account_lock_owner_keys_metadata_field_invocations:
-        IndexSet<ManifestGlobalAddress>,
-    pub account_update_owner_keys_metadata_field_invocations:
-        IndexSet<ManifestGlobalAddress>,
-    pub identity_securify_invocations: IndexSet<ManifestGlobalAddress>,
-    pub identity_lock_owner_keys_metadata_field_invocations:
-        IndexSet<ManifestGlobalAddress>,
-    pub identity_update_owner_keys_metadata_field_invocations:
-        IndexSet<ManifestGlobalAddress>,
-    pub access_controller_invocations: IndexSet<ManifestGlobalAddress>,
+macro_rules! define_output_struct {
+    (
+        $vis: vis $ident: ident => [$($field_ident: ident),* $(,)?]
+    ) => {
+        paste! {
+            #[derive(Clone, Debug, PartialEq, Eq, Default)]
+            $vis struct $ident {
+                $(
+                    pub $field_ident: IndexSet<ManifestGlobalAddress>,
+                )*
+            }
+
+            impl $ident {
+                pub fn is_any_reserved_instruction_present(&self) -> bool {
+                    $(
+                        self.[< has_ $field_ident >]()
+                    ) || *
+                }
+
+                $(
+                    pub fn [< has_ $field_ident >](&self) -> bool {
+                        !self.$field_ident.is_empty()
+                    }
+                )*
+            }
+        }
+    };
+}
+define_output_struct! {
+    pub ReservedInstructionsOutput => [
+        account_lock_fee_invocations,
+        account_securify_invocations,
+        account_lock_owner_keys_metadata_field_invocations,
+        account_update_owner_keys_metadata_field_invocations,
+        identity_securify_invocations,
+        identity_lock_owner_keys_metadata_field_invocations,
+        identity_update_owner_keys_metadata_field_invocations,
+        access_controller_invocations,
+    ]
 }

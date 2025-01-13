@@ -69,7 +69,7 @@ pub trait ManifestAnalysisVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         instruction_index: &InstructionIndex,
-        invocation_io: &DefaultInvocationIo<'_>,
+        invocation_io: Option<&InvocationIo<InvocationIoItems>>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     );
 }

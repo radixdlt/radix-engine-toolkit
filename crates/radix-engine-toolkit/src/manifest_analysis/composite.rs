@@ -67,7 +67,7 @@ macro_rules! define_composite_visitor {
                     named_address_store: &NamedAddressStore,
                     grouped_instruction: &GroupedInstruction,
                     instruction_index: &InstructionIndex,
-                    invocation_io: &DefaultInvocationIo<'_>,
+                    invocation_io: Option<&InvocationIo<InvocationIoItems>>,
                     maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
                 ) {
                     $(

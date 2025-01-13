@@ -15,32 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod canonical_address_types;
-mod detailed_transaction_type_output;
-mod grouped_entity_type;
-mod grouped_instruction;
-mod indexed_manifest_value;
-mod instruction_index;
-mod invocation_io;
-mod manifest_resource_specifier;
-mod named_address_store;
-mod node_id;
-mod operation;
-mod transaction_hash;
-mod update;
-mod worktop_changes;
+mod account_dynamic_resource_movements;
+mod account_static_resource_movements;
+mod analysis_receipt;
+mod detailed_manifest_classification;
+mod dynamic_analysis;
+mod fee_summary;
+mod manifest_classification;
+mod new_entities_summary;
+mod static_analysis;
 
-pub use canonical_address_types::*;
-pub use detailed_transaction_type_output::*;
-pub use grouped_entity_type::*;
-pub use grouped_instruction::*;
-pub use indexed_manifest_value::*;
-pub use instruction_index::*;
-pub use invocation_io::*;
-pub use manifest_resource_specifier::*;
-pub use named_address_store::*;
-pub use node_id::*;
-pub use operation::*;
-pub use transaction_hash::*;
-pub use update::*;
-pub use worktop_changes::*;
+pub use account_dynamic_resource_movements::*;
+pub use account_static_resource_movements::*;
+pub use analysis_receipt::*;
+pub use detailed_manifest_classification::*;
+pub use dynamic_analysis::*;
+pub use fee_summary::*;
+pub use manifest_classification::*;
+pub use new_entities_summary::*;
+pub use static_analysis::*;

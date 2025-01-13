@@ -50,7 +50,7 @@ impl ManifestAnalysisVisitor for AccountSettingsUpdateTransactionTypeVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     ) {
         // Compute if the next instruction is permitted or not.

@@ -31,14 +31,12 @@ pub fn traverse(
     // If the worktop changes, which is information we get from dynamic analysis
     // is available for this manifest then we compute the invocation IO which is
     // the composition of static and dynamic analysis into a single object type.
-    let static_invocation_io = static_analysis_invocation_io(manifest)?;
-    let dynamic_invocation_io = worktop_changes.map(|worktop_changes| {
-        dynamic_analysis_invocation_io(manifest, worktop_changes)
-    });
-    let invocation_io = InstructionIndexedInvocationIo::combine(
-        &static_invocation_io,
-        dynamic_invocation_io.as_ref(),
-    );
+    let indexed_invocation_io = match worktop_changes {
+        Some(worktop_changes) => {
+            Some(IndexedInvocationIo::compute(manifest, worktop_changes)?)
+        }
+        None => None,
+    };
 
     // Iterating over all of the instructions in the manifest and processing
     // them in preparation for calling the visitor.
@@ -71,7 +69,12 @@ pub fn traverse(
             resolve_typed_invocation(&instruction, &named_address_store)?;
 
         // Attempting to get the instruction's invocation IO.
-        let invocation_io = invocation_io.for_instruction(&instruction_index);
+        let maybe_invocation_io =
+            indexed_invocation_io
+                .as_ref()
+                .and_then(|indexed_invocation_io| {
+                    indexed_invocation_io.for_instruction(&instruction_index)
+                });
 
         /* Visitor Processing */
         // If the visitor is no longer accepting anymore instructions then we
@@ -83,194 +86,12 @@ pub fn traverse(
             &named_address_store,
             &instruction,
             &instruction_index,
-            invocation_io,
+            maybe_invocation_io,
             maybe_typed_invocation.as_ref(),
         );
     }
 
     Ok(())
-}
-
-fn static_analysis_invocation_io(
-    manifest: &impl ReadableManifest,
-) -> Result<
-    IndexMap<InstructionIndex, InvocationIo<TrackedResources>>,
-    TraverserError,
-> {
-    // The initial worktop state is only unknown if the manifest is a
-    // subintent manifest. Otherwise, in the case of a v1 or v2 manifest the
-    // initial worktop state is known to be zero since they can't be used as
-    // subintents and can't be yielded into.
-    let initial_worktop_state_is_unknown = manifest.is_subintent();
-    let interpreter = StaticManifestInterpreter::new(
-        ValidationRuleset::babylon_equivalent(),
-        manifest,
-    );
-    let mut visitor =
-        StaticResourceMovementsVisitor::new(initial_worktop_state_is_unknown);
-    interpreter.validate_and_apply_visitor(&mut visitor)?;
-
-    let invocation_io = visitor
-        .output()
-        .invocation_static_information
-        .into_iter()
-        .map(
-            |(
-                instruction_index,
-                InvocationStaticInformation { input, output, .. },
-            )| {
-                let instruction_index = InstructionIndex::of(instruction_index);
-                (instruction_index, InvocationIo { input, output })
-            },
-        )
-        .collect::<IndexMap<_, _>>();
-    Ok(invocation_io)
-}
-
-fn dynamic_analysis_invocation_io<'a>(
-    manifest: &'a impl ReadableManifest,
-    worktop_changes: &'a WorktopChanges,
-) -> IndexMap<
-    InstructionIndex,
-    InvocationIo<
-        IndexMap<&'a ResourceAddress, Vec<Tracked<ResourceQuantifier<'a>>>>,
-    >,
-> {
-    let mut map = IndexMap::<
-        _,
-        InvocationIo<
-            IndexMap<&'a ResourceAddress, Vec<Tracked<ResourceQuantifier<'a>>>>,
-        >,
-    >::new();
-    let mut id_allocator = ManifestIdAllocator::new();
-    let mut tracked_buckets = IndexMap::new();
-
-    for (instruction_index, effect) in
-        manifest.iter_instruction_effects().enumerate()
-    {
-        let instruction_index = InstructionIndex::of(instruction_index);
-
-        match effect {
-            // Bucket Creation
-            ManifestInstructionEffect::CreateBucket { source_amount } => {
-                let bucket_resource_address = source_amount.resource_address();
-                let bucket = id_allocator.new_bucket_id();
-                let bucket_quantifier = worktop_changes
-                    .first_take(&instruction_index)
-                    .map(ResourceQuantifier::from)
-                    .unwrap_or(ResourceQuantifier::empty_static(
-                        bucket_resource_address.is_fungible(),
-                    ));
-                let tracked_bucket_content = Tracked {
-                    value: (bucket_resource_address, bucket_quantifier),
-                    created_at: instruction_index,
-                };
-                tracked_buckets.insert(bucket, tracked_bucket_content);
-            }
-            // Bucket Consumption
-            ManifestInstructionEffect::ConsumeBucket {
-                consumed_bucket,
-                destination,
-            } => match destination {
-                BucketDestination::Worktop | BucketDestination::Burned => {
-                    let _ = tracked_buckets.swap_remove(&consumed_bucket);
-                }
-                BucketDestination::Invocation(..) => {
-                    let tracked_bucket_contents = tracked_buckets
-                        .swap_remove(&consumed_bucket)
-                        .expect("Can't fail, the transaction committed successfully.");
-                    map.entry(instruction_index)
-                        .or_default()
-                        .input
-                        .entry(tracked_bucket_contents.0)
-                        .or_default()
-                        .push(tracked_bucket_contents.map(|(_, v)| v));
-                }
-            },
-            ManifestInstructionEffect::Invocation { args, .. } => {
-                // Handling the output.
-                worktop_changes
-                    .put_iterator(&instruction_index)
-                    .map(|resource_specifier| {
-                        (
-                            resource_specifier.resource_address(),
-                            ResourceQuantifier::from(resource_specifier),
-                        )
-                    })
-                    .map(|resources| Tracked {
-                        value: resources,
-                        created_at: instruction_index,
-                    })
-                    .for_each(|output| {
-                        map.entry(instruction_index)
-                            .or_default()
-                            .output
-                            .entry(output.0)
-                            .or_default()
-                            .push(output.map(|(_, v)| v))
-                    });
-
-                // Handling the input.
-                let indexed_value =
-                    IndexedManifestValue::from_manifest_value(args);
-
-                let buckets = indexed_value.buckets();
-                let expressions = indexed_value.expressions();
-                let has_entire_worktop_expression =
-                    expressions.contains(&ManifestExpression::EntireWorktop);
-
-                let buckets_tracked_resources = buckets.iter().map(|bucket| {
-                    tracked_buckets.swap_remove(bucket).expect(
-                        "Can't fail, the transaction committed successfully.",
-                    )
-                });
-                let expression_tracked_resources = worktop_changes
-                    .take_iterator(&instruction_index)
-                    .map(|resource_specifier| {
-                        (
-                            resource_specifier.resource_address(),
-                            ResourceQuantifier::from(resource_specifier),
-                        )
-                    })
-                    .map(|resources| Tracked {
-                        value: resources,
-                        created_at: instruction_index,
-                    });
-
-                for tracked_invocation_input in buckets_tracked_resources {
-                    map.entry(instruction_index)
-                        .or_default()
-                        .input
-                        .entry(tracked_invocation_input.0)
-                        .or_default()
-                        .push(tracked_invocation_input.map(|(_, v)| v));
-                }
-                if has_entire_worktop_expression {
-                    for tracked_invocation_input in expression_tracked_resources
-                    {
-                        map.entry(instruction_index)
-                            .or_default()
-                            .input
-                            .entry(tracked_invocation_input.0)
-                            .or_default()
-                            .push(tracked_invocation_input.map(|(_, v)| v));
-                    }
-                }
-            }
-            // No effect on the resource movements
-            ManifestInstructionEffect::CreateProof { .. }
-            | ManifestInstructionEffect::ConsumeProof { .. }
-            | ManifestInstructionEffect::CloneProof { .. }
-            | ManifestInstructionEffect::DropManyProofs { .. }
-            | ManifestInstructionEffect::CreateAddressAndReservation {
-                ..
-            }
-            | ManifestInstructionEffect::ResourceAssertion { .. }
-            | ManifestInstructionEffect::Verification { .. } => {}
-        }
-    }
-
-    map
 }
 
 fn resolve_typed_invocation(
@@ -442,18 +263,18 @@ fn resolve_typed_invocation(
 #[derive(Debug)]
 pub enum TraverserError {
     InvalidNamedAddress(ManifestNamedAddress),
-    StaticResourceMovementsError(StaticResourceMovementsError),
+    InvocationIoError(InvocationIoError),
     TypedManifestNativeInvocationError(TypedManifestNativeInvocationError),
-}
-
-impl From<StaticResourceMovementsError> for TraverserError {
-    fn from(v: StaticResourceMovementsError) -> Self {
-        Self::StaticResourceMovementsError(v)
-    }
 }
 
 impl From<TypedManifestNativeInvocationError> for TraverserError {
     fn from(v: TypedManifestNativeInvocationError) -> Self {
         Self::TypedManifestNativeInvocationError(v)
+    }
+}
+
+impl From<InvocationIoError> for TraverserError {
+    fn from(v: InvocationIoError) -> Self {
+        Self::InvocationIoError(v)
     }
 }

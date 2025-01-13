@@ -43,7 +43,7 @@ impl ManifestAnalysisVisitor for EncounteredEntitiesVisitor {
         _: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         _: Option<&TypedManifestNativeInvocation>,
     ) {
         let indexed_value =

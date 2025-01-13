@@ -44,18 +44,26 @@ fn dynamic_analysis_new_non_fungible_list_initial_supply() {
         .build();
     let (_, dynamic_analysis) = ledger.summarize(manifest);
     let address = dynamic_analysis
-        .new_entities
-        .resource_addresses
+        .entities_newly_created_summary
+        .new_resource_entities
         .first()
         .unwrap();
 
     // Assert
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
+    assert_eq!(
+        dynamic_analysis
+            .entities_newly_created_summary
+            .new_non_fungibles
+            .len(),
+        2
+    );
     assert!(dynamic_analysis
-        .newly_created_non_fungibles
+        .entities_newly_created_summary
+        .new_non_fungibles
         .contains(&NonFungibleGlobalId::new(*address, nf_id_1)));
     assert!(dynamic_analysis
-        .newly_created_non_fungibles
+        .entities_newly_created_summary
+        .new_non_fungibles
         .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
 }
 
@@ -98,9 +106,16 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
     let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
+    assert_eq!(
+        dynamic_analysis
+            .entities_newly_created_summary
+            .new_non_fungibles
+            .len(),
+        1
+    );
     assert!(dynamic_analysis
-        .newly_created_non_fungibles
+        .entities_newly_created_summary
+        .new_non_fungibles
         .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
 }
 
@@ -143,7 +158,13 @@ fn dynamic_analysis_new_non_fungible_list_after_burn() {
     let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
+    assert_eq!(
+        dynamic_analysis
+            .entities_newly_created_summary
+            .new_non_fungibles
+            .len(),
+        0
+    );
 }
 
 #[test]
@@ -191,9 +212,16 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
     let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
+    assert_eq!(
+        dynamic_analysis
+            .entities_newly_created_summary
+            .new_non_fungibles
+            .len(),
+        1
+    );
     assert!(dynamic_analysis
-        .newly_created_non_fungibles
+        .entities_newly_created_summary
+        .new_non_fungibles
         .contains(&NonFungibleGlobalId::new(*address, nf_id_3)));
 }
 
@@ -255,5 +283,11 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
     let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
+    assert_eq!(
+        dynamic_analysis
+            .entities_newly_created_summary
+            .new_non_fungibles
+            .len(),
+        0
+    );
 }

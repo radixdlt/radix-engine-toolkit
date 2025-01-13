@@ -43,7 +43,7 @@ impl ManifestAnalysisVisitor for EntitiesRequiringAuthVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     ) {
         // We're interested in invocations and in the invoked address so we

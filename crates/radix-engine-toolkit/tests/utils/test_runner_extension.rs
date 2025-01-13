@@ -48,7 +48,7 @@ where
     fn summarize(
         &mut self,
         _manifest: TransactionManifestV1,
-    ) -> (StaticAnalysisWithResourceMovements, DynamicAnalysis) {
+    ) -> (StaticAnalysis, DynamicAnalysis) {
         todo!()
     }
 

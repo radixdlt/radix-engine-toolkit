@@ -49,8 +49,8 @@ pub(crate) mod internal_prelude {
     pub use radix_engine_interface::blueprints::resource::*;
     pub use radix_engine_interface::prelude::*;
     pub use radix_engine_toolkit_common::receipt::{
-        MetadataUpdate, RuntimeToolkitTransactionReceipt,
-        ToolkitTransactionReceipt,
+        MetadataUpdate, RuntimeToolkitTransactionReceipt, RuntimeTypeSelector,
+        ToolkitTransactionReceipt, TypeSelector,
     };
     pub use radix_substate_store_queries::typed_native_events::*;
     pub use radix_transactions::data::*;

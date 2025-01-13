@@ -18,11 +18,15 @@
 mod classification;
 mod composite;
 mod data_retrieval;
+mod error;
 mod traits;
 mod traverser;
+mod types;
 
 pub use classification::*;
 pub use composite::*;
 pub use data_retrieval::*;
+pub use error::*;
 pub use traits::*;
 pub use traverser::*;
+pub use types::*;

@@ -43,7 +43,7 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
         _: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
-        _: &DefaultInvocationIo<'_>,
+        _: Option<&InvocationIo<InvocationIoItems>>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
     ) {
         // INVARIANT(traversal-address-checking): There's an invariant that this
@@ -92,7 +92,7 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
 
         // Adding the created proof to the visitor state.
         self.0
-            .presented_proofs
+            .created_proofs
             .entry(*address)
             .or_default()
             .push(resource_specifier);
@@ -101,6 +101,6 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct PresentedProofsOutput {
-    pub presented_proofs:
+    pub created_proofs:
         IndexMap<ManifestGlobalAddress, Vec<ManifestResourceSpecifier>>,
 }

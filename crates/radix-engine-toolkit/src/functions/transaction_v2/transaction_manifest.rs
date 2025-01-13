@@ -36,16 +36,10 @@ pub fn statically_analyze(_manifest: &TransactionManifestV2) -> StaticAnalysis {
     todo!()
 }
 
-pub fn statically_analyze_and_validate(
-    _manifest: &TransactionManifestV2,
-) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    todo!()
-}
-
 pub fn dynamically_analyze(
     _manifest: &TransactionManifestV2,
     _receipt: &RuntimeToolkitTransactionReceipt,
-) -> Result<DynamicAnalysis, TransactionTypesError> {
+) -> Result<DynamicAnalysis, ManifestAnalysisError> {
     todo!()
 }
 

@@ -36,12 +36,6 @@ pub fn statically_analyze(_manifest: &SubintentManifestV2) -> StaticAnalysis {
     todo!()
 }
 
-pub fn statically_analyze_and_validate(
-    _manifest: &SubintentManifestV2,
-) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    todo!()
-}
-
 pub fn as_enclosed(
     SubintentManifestV2 {
         instructions,

@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
-    as_enclosed, statically_analyze_and_validate,
+    as_enclosed, statically_analyze,
 };
 use scrypto_test::prelude::*;
 
@@ -46,9 +46,6 @@ fn static_analysis_succeeds_for_subintent() {
         .yield_to_parent(())
         .build();
 
-    // Act
-    let enclosed_manifest = statically_analyze_and_validate(&manifest);
-
-    // Assert
-    assert!(enclosed_manifest.is_ok());
+    // Act & Assert
+    let _ = statically_analyze(&manifest);
 }
