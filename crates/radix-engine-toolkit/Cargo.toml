@@ -41,6 +41,10 @@ extend = "1.2.0"
 # Enhanced macro rules
 macro_rules_attribute = "0.2.0"
 
+structured-map = "0.1.5"
+
+itertools = "0.14.0"
+
 [build-dependencies]
 cargo_toml = { version = "0.15.3" }
 

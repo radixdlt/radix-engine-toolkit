@@ -43,8 +43,8 @@ impl ManifestAnalysisVisitor for ReservedInstructionsVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
+        _: &DefaultInvocationIo<'_>,
         maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
-        _: Option<&InvocationIo<InvocationIoItems>>,
     ) {
         // We're interested in invocations and in the invoked address so we
         // compute that. In the event that the instruction isn't an invocation

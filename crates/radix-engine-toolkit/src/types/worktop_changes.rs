@@ -18,23 +18,11 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct WorktopChanges<'a>(
-    Cow<'a, IndexMap<InstructionIndex, Vec<WorktopChange>>>,
-);
+pub struct WorktopChanges(IndexMap<InstructionIndex, Vec<WorktopChange>>);
 
-impl<'a> WorktopChanges<'a> {
+impl WorktopChanges {
     pub fn new() -> Self {
         Default::default()
-    }
-
-    pub fn new_owned<I, K, V, W>(value: I) -> WorktopChanges<'static>
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: Into<InstructionIndex>,
-        V: IntoIterator<Item = W>,
-        W: Into<WorktopChange>,
-    {
-        WorktopChanges::<'static>::from(value)
     }
 
     pub fn first_take_of_resource(
@@ -110,7 +98,7 @@ impl<'a> WorktopChanges<'a> {
     }
 }
 
-impl<'a, I, K, V, W> From<I> for WorktopChanges<'a>
+impl<I, K, V, W> From<I> for WorktopChanges
 where
     I: IntoIterator<Item = (K, V)>,
     K: Into<InstructionIndex>,
@@ -118,13 +106,13 @@ where
     W: Into<WorktopChange>,
 {
     fn from(value: I) -> Self {
-        Self(Cow::Owned(
+        Self(
             value
                 .into_iter()
                 .map(|(k, v)| {
                     (k.into(), v.into_iter().map(Into::into).collect())
                 })
                 .collect(),
-        ))
+        )
     }
 }

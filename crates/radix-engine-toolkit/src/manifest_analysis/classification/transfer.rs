@@ -45,8 +45,8 @@ impl ManifestAnalysisVisitor for TransferTransactionTypeVisitor {
         named_address_store: &NamedAddressStore,
         grouped_instruction: &GroupedInstruction,
         _: &InstructionIndex,
+        _: &DefaultInvocationIo<'_>,
         _: Option<&TypedManifestNativeInvocation>,
-        _: Option<&InvocationIo<InvocationIoItems>>,
     ) {
         // Compute if the next instruction is permitted or not.
         let is_next_instruction_permitted = match grouped_instruction {

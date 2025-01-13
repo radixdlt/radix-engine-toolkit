@@ -80,11 +80,13 @@ pub(crate) mod internal_prelude {
     // Modules from other external crates.
     pub use bech32::{FromBase32, ToBase32, Variant};
     pub use extend::*;
+    pub use itertools::Itertools;
     pub use lazy_static::*;
     pub use macro_rules_attribute::apply;
     pub use paste::*;
     pub use regex::*;
     pub use serde_with::*;
+    pub use structured_map::*;
 }
 
 pub mod prelude {

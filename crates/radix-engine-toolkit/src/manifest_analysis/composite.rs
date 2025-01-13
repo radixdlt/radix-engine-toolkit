@@ -67,8 +67,8 @@ macro_rules! define_composite_visitor {
                     named_address_store: &NamedAddressStore,
                     grouped_instruction: &GroupedInstruction,
                     instruction_index: &InstructionIndex,
+                    invocation_io: &DefaultInvocationIo<'_>,
                     maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
-                    maybe_invocation_io: Option<&InvocationIo<InvocationIoItems>>,
                 ) {
                     $(
                         if self.validity_state.$visitor_ident {
@@ -79,8 +79,8 @@ macro_rules! define_composite_visitor {
                                     named_address_store,
                                     grouped_instruction,
                                     instruction_index,
+                                    invocation_io
                                     maybe_typed_invocation,
-                                    maybe_invocation_io
                                 );
                             self.validity_state.$visitor_ident &= self
                                 .visitors
