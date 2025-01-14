@@ -49,7 +49,7 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
     /// and dynamic analyzers.
     fn output(
         self,
-    ) -> DynamicAnalysisOutput<
+    ) -> CombinedAnalysisOutput<
         <Self as ManifestStaticAnalyzer>::Output,
         <Self as ManifestDynamicAnalyzer>::Output,
     >;
@@ -61,19 +61,27 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
     fn process_requirement(
         &mut self,
         requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
+        named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     );
 
     /// A method used to process instructions and extract information from them.
     fn process_instruction(
         &mut self,
+        named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     );
 }
 
-pub struct DynamicAnalysisOutput<A, B> {
+pub struct CombinedAnalysisOutput<A, B> {
     pub static_analyzer_output: A,
     pub dynamic_analyzer_output: B,
 }

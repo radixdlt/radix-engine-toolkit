@@ -1001,13 +1001,13 @@ impl<'a> DynamicAnalysisInvocationIo<'a> {
 
 #[derive(Debug)]
 pub enum InvocationIoError {
-    StaticResourceMovementsError(StaticResourceMovementsError),
+    StaticResourceMovementsError(Box<StaticResourceMovementsError>),
     NoDynamicAnalysisWhenStaticAnalysisIsPresent,
 }
 use InvocationIoError as Error;
 
 impl From<StaticResourceMovementsError> for InvocationIoError {
     fn from(v: StaticResourceMovementsError) -> Self {
-        Self::StaticResourceMovementsError(v)
+        Self::StaticResourceMovementsError(Box::new(v))
     }
 }

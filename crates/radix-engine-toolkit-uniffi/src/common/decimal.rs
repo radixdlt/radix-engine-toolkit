@@ -21,7 +21,7 @@ use crate::prelude::*;
 
 macro_rules! define_uniffi_decimal {
     ($type: ty, $to_inner: ident, $from_inner: ident) => {
-        paste::paste!{
+        paste::paste! {
             define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>],$crate::prelude::[<NativeInner $type>], $to_inner, $from_inner}
         }
     };
@@ -190,7 +190,7 @@ macro_rules! define_uniffi_decimal {
 
             }
         }
-    }
+    };
 }
 define_uniffi_decimal!(Decimal, attos, from_attos);
 define_uniffi_decimal!(PreciseDecimal, precise_subunits, from_precise_subunits);
