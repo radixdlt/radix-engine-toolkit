@@ -31,10 +31,14 @@ impl NamedAddressStore {
 
     pub fn insert(
         &mut self,
-        named_address: ManifestNamedAddress,
         blueprint_id: BlueprintId,
-    ) {
+    ) -> ManifestNamedAddress {
+        // Note: the following is safe to use for allocating ids as long as we
+        // don't expose a method for removing or reducing the length of the
+        // internal map.
+        let named_address = ManifestNamedAddress(self.0.len() as _);
         self.0.insert(named_address, blueprint_id);
+        named_address
     }
 
     pub fn get(
@@ -42,26 +46,5 @@ impl NamedAddressStore {
         named_address: &ManifestNamedAddress,
     ) -> Option<&BlueprintId> {
         self.0.get(named_address)
-    }
-
-    pub fn grouped_entity_type(
-        &self,
-        address: impl Into<ManifestAddress>,
-    ) -> Option<GroupedEntityType> {
-        self.entity_type(address).map(Into::into)
-    }
-
-    pub fn entity_type(
-        &self,
-        address: impl Into<ManifestAddress>,
-    ) -> Option<EntityType> {
-        match address.into() {
-            ManifestAddress::Static(static_address) => {
-                static_address.entity_type()
-            }
-            ManifestAddress::Named(named_address) => {
-                self.get(&named_address).and_then(BlueprintId::entity_type)
-            }
-        }
     }
 }

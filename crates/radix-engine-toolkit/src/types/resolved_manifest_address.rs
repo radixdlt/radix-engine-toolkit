@@ -36,6 +36,25 @@ pub enum ResolvedManifestAddress<T> {
     },
 }
 
+impl ResolvedManifestAddress<GlobalAddress> {
+    pub fn from_manifest_global_address(
+        address: &ManifestGlobalAddress,
+        named_address_store: &NamedAddressStore,
+    ) -> Option<Self> {
+        match address {
+            ManifestGlobalAddress::Static(address) => Some(Self::Static {
+                static_address: *address,
+            }),
+            ManifestGlobalAddress::Named(address) => named_address_store
+                .get(address)
+                .map(|blueprint_id| Self::Named {
+                    blueprint_id: blueprint_id.clone(),
+                    named_address: *address,
+                }),
+        }
+    }
+}
+
 impl<T> ResolvedManifestAddress<T>
 where
     T: Copy + Into<NodeId>,
@@ -87,6 +106,15 @@ macro_rules! impl_conversions {
                         Ok(value)
                     } else {
                         Err(())
+                    }
+                }
+            }
+
+            impl From<ResolvedManifestAddress<$scrypto_type>> for ResolvedDynamicAddress<$scrypto_type> {
+                fn from(value: ResolvedManifestAddress<$scrypto_type>) -> Self {
+                    match value {
+                        ResolvedManifestAddress::Static { static_address } => ResolvedDynamicAddress::StaticAddress(static_address),
+                        ResolvedManifestAddress::Named { blueprint_id, .. } => ResolvedDynamicAddress::BlueprintResolvedFromNamedAddress(blueprint_id),
                     }
                 }
             }
