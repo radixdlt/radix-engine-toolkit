@@ -25,13 +25,7 @@ use crate::internal_prelude::*;
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct AccountDynamicResourceMovements {
     /// The account withdraws that were observed by the static analyzer.
-    pub account_withdraws: IndexMap<
-        ManifestGlobalAddress,
-        IndexMap<ManifestResourceAddress, Vec<InvocationIoItem>>,
-    >,
+    pub account_withdraws: IndexMap<GlobalAddress, Vec<InvocationIoItem>>,
     /// The account deposits that were observed by the static analyzer.
-    pub account_deposits: IndexMap<
-        ManifestGlobalAddress,
-        IndexMap<ManifestResourceAddress, Vec<InvocationIoItem>>,
-    >,
+    pub account_deposits: IndexMap<GlobalAddress, Vec<InvocationIoItem>>,
 }

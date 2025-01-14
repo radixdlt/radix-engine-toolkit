@@ -17,14 +17,85 @@
 
 use crate::internal_prelude::*;
 
-pub fn traverse<A: ManifestDynamicAnalyzer>(
+pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
     manifest: &impl ReadableManifest,
-    worktop_changes: Option<&WorktopChanges>,
     analyzer_initializer: A::Initializer,
-) -> Result<AnalyzerState<A>, TraverserError> {
+) -> Result<StaticAnalyzerState<A>, TraverserError> {
     // Instantiating the analyzer based on the initializer passed to this
     // function.
-    let mut analyzer_state = AnalyzerState::<A>::new(analyzer_initializer);
+    let mut analyzer_state =
+        StaticAnalyzerState::<A>::new(analyzer_initializer);
+
+    // This named address store will be used to the named address to blueprint
+    // id mapping of the named addresses.
+    let mut named_address_store = NamedAddressStore::new();
+
+    // Iterating over all of the instructions in the manifest and processing
+    // them in preparation for calling the visitor.
+    for instruction in manifest
+        .iter_cloned_instructions()
+        .map(GroupedInstruction::from)
+    {
+        /* Pre-Visitor Processing */
+        // If we encounter an address allocation we store it in the named
+        // address store.
+        if let Some(AllocateGlobalAddress {
+            package_address,
+            blueprint_name,
+        }) = instruction.as_allocate_global_address()
+        {
+            let blueprint_id =
+                BlueprintId::new(package_address, blueprint_name);
+            named_address_store.insert(blueprint_id);
+        }
+
+        // Attempting to create a typed invocation from the instruction.
+        let maybe_typed_invocation =
+            resolve_typed_invocation(&instruction, &named_address_store)?;
+        let maybe_typed_invocation =
+            maybe_typed_invocation.as_ref().map(|(a, b)| (a, b));
+
+        /* Visitor processing */
+        ManifestStaticAnalyzer::process_permission(
+            &mut analyzer_state.analyzer,
+            &mut analyzer_state.static_permission_state,
+            &named_address_store,
+            &instruction,
+            maybe_typed_invocation,
+        );
+        if !analyzer_state
+            .static_permission_state
+            .all_instructions_permitted()
+        {
+            break;
+        }
+        ManifestStaticAnalyzer::process_requirement(
+            &mut analyzer_state.analyzer,
+            &mut analyzer_state.static_requirement_state,
+            &named_address_store,
+            &instruction,
+            maybe_typed_invocation,
+        );
+        ManifestStaticAnalyzer::process_instruction(
+            &mut analyzer_state.analyzer,
+            &named_address_store,
+            &instruction,
+            maybe_typed_invocation,
+        );
+    }
+
+    Ok(analyzer_state)
+}
+
+pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
+    manifest: &impl ReadableManifest,
+    worktop_changes: &WorktopChanges,
+    analyzer_initializer: A::Initializer,
+) -> Result<DynamicAnalyzerState<A>, TraverserError> {
+    // Instantiating the analyzer based on the initializer passed to this
+    // function.
+    let mut analyzer_state =
+        DynamicAnalyzerState::<A>::new(analyzer_initializer);
 
     // This named address store will be used to the named address to blueprint
     // id mapping of the named addresses.
@@ -33,12 +104,8 @@ pub fn traverse<A: ManifestDynamicAnalyzer>(
     // If the worktop changes, which is information we get from dynamic analysis
     // is available for this manifest then we compute the invocation IO which is
     // the composition of static and dynamic analysis into a single object type.
-    let indexed_invocation_io = match worktop_changes {
-        Some(worktop_changes) => {
-            Some(IndexedInvocationIo::compute(manifest, worktop_changes)?)
-        }
-        None => None,
-    };
+    let indexed_invocation_io =
+        IndexedInvocationIo::compute(manifest, worktop_changes)?;
 
     // Iterating over all of the instructions in the manifest and processing
     // them in preparation for calling the visitor.
@@ -72,12 +139,8 @@ pub fn traverse<A: ManifestDynamicAnalyzer>(
             maybe_typed_invocation.as_ref().map(|(a, b)| (a, b));
 
         // Attempting to get the dynamic invocation io of this invocation.
-        let _maybe_invocation_io =
-            indexed_invocation_io
-                .as_ref()
-                .and_then(|indexed_invocation_io| {
-                    indexed_invocation_io.for_instruction(&instruction_index)
-                });
+        let invocation_io =
+            indexed_invocation_io.for_instruction(&instruction_index);
 
         /* Visitor processing */
         ManifestStaticAnalyzer::process_permission(
@@ -117,6 +180,7 @@ pub fn traverse<A: ManifestDynamicAnalyzer>(
             &mut analyzer_state.analyzer,
             &named_address_store,
             &instruction,
+            invocation_io,
             maybe_typed_invocation,
         );
     }
@@ -124,7 +188,26 @@ pub fn traverse<A: ManifestDynamicAnalyzer>(
     Ok(analyzer_state)
 }
 
-pub struct AnalyzerState<A: ManifestDynamicAnalyzer> {
+pub struct StaticAnalyzerState<A: ManifestStaticAnalyzer> {
+    pub analyzer: A,
+    pub static_permission_state: <A as ManifestStaticAnalyzer>::PermissionState,
+    pub static_requirement_state:
+        <A as ManifestStaticAnalyzer>::RequirementState,
+}
+
+impl<A: ManifestStaticAnalyzer> StaticAnalyzerState<A> {
+    fn new(initializer: A::Initializer) -> Self {
+        let (analyzer, static_permission_state, static_requirement_state) =
+            <A as ManifestStaticAnalyzer>::new(initializer);
+        Self {
+            analyzer,
+            static_permission_state,
+            static_requirement_state,
+        }
+    }
+}
+
+pub struct DynamicAnalyzerState<A: ManifestDynamicAnalyzer> {
     pub analyzer: A,
     pub static_permission_state: <A as ManifestStaticAnalyzer>::PermissionState,
     pub static_requirement_state:
@@ -133,7 +216,7 @@ pub struct AnalyzerState<A: ManifestDynamicAnalyzer> {
         <A as ManifestDynamicAnalyzer>::RequirementState,
 }
 
-impl<A: ManifestDynamicAnalyzer> AnalyzerState<A> {
+impl<A: ManifestDynamicAnalyzer> DynamicAnalyzerState<A> {
     fn new(initializer: A::Initializer) -> Self {
         let (
             analyzer,
@@ -334,83 +417,6 @@ fn resolve_typed_invocation(
         ) => Ok(None),
     }
 }
-
-// pub fn traverse(
-//     manifest: &impl ReadableManifest,
-//     worktop_changes: Option<&WorktopChanges>,
-//     visitor: &mut impl ManifestAnalysisVisitor,
-// ) -> Result<(), TraverserError> {
-//     // This is a store of all of the named addresses that we encounter in the
-//     // manifest. It records the ManifestNamedAddress and maps it to the id of
-//     // blueprint seen in the manifest.
-//     let mut id_allocator = ManifestIdAllocator::new();
-//     let mut named_address_store = NamedAddressStore::new();
-
-//     // If the worktop changes, which is information we get from dynamic analysis
-//     // is available for this manifest then we compute the invocation IO which is
-//     // the composition of static and dynamic analysis into a single object type.
-//     let indexed_invocation_io = match worktop_changes {
-//         Some(worktop_changes) => {
-//             Some(IndexedInvocationIo::compute(manifest, worktop_changes)?)
-//         }
-//         None => None,
-//     };
-
-//     // Iterating over all of the instructions in the manifest and processing
-//     // them in preparation for calling the visitor.
-//     let instructions_iterator = manifest
-//         .iter_cloned_instructions()
-//         .enumerate()
-//         .map(|(i, instruction)| {
-//             (
-//                 InstructionIndex::of(i),
-//                 GroupedInstruction::from(instruction),
-//             )
-//         });
-//     for (instruction_index, instruction) in instructions_iterator {
-//         /* Pre-Visitor Processing */
-//         // If we encounter an address allocation we store it in the named
-//         // address store.
-//         if let Some(AllocateGlobalAddress {
-//             package_address,
-//             blueprint_name,
-//         }) = instruction.as_allocate_global_address()
-//         {
-//             let named_address = id_allocator.new_address_id();
-//             let blueprint_id =
-//                 BlueprintId::new(package_address, blueprint_name);
-//             named_address_store.insert(named_address, blueprint_id);
-//         }
-
-//         // Attempting to create a typed invocation from the instruction.
-//         let maybe_typed_invocation =
-//             resolve_typed_invocation(&instruction, &named_address_store)?;
-
-//         // Attempting to get the instruction's invocation IO.
-//         let maybe_invocation_io =
-//             indexed_invocation_io
-//                 .as_ref()
-//                 .and_then(|indexed_invocation_io| {
-//                     indexed_invocation_io.for_instruction(&instruction_index)
-//                 });
-
-//         /* Visitor Processing */
-//         // If the visitor is no longer accepting anymore instructions then we
-//         // do not need to call it and can break out of the instructions iterator
-//         if !visitor.validity_state().is_visitor_accepting_instructions() {
-//             break;
-//         }
-//         visitor.on_instruction(
-//             &named_address_store,
-//             &instruction,
-//             &instruction_index,
-//             maybe_invocation_io,
-//             maybe_typed_invocation.as_ref(),
-//         );
-//     }
-
-//     Ok(())
-// }
 
 #[derive(Debug)]
 pub enum TraverserError {

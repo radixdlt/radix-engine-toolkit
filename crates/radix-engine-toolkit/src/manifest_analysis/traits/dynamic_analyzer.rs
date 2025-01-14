@@ -74,6 +74,7 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
         &mut self,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
+        invocation_io: &InvocationIo<InvocationIoItems>,
         maybe_typed_invocation: Option<(
             &ManifestInvocationReceiver,
             &TypedManifestNativeInvocation,

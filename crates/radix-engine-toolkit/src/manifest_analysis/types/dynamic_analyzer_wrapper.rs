@@ -140,6 +140,7 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
+        _: &InvocationIo<InvocationIoItems>,
         _: Option<(
             &ManifestInvocationReceiver,
             &TypedManifestNativeInvocation,

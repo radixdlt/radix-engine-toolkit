@@ -38,25 +38,6 @@ macro_rules! define_composite_analyzer {
                 )*
             }
 
-            impl [< $type_ident Analyzer >] {
-                pub fn instantiate_static_analyzer() -> (
-                    Self,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::PermissionState,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::RequirementState,
-                ) {
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::new(Default::default())
-                }
-
-                pub fn instantiate_dynamic_analyzer() -> (
-                    Self,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::PermissionState,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::RequirementState,
-                    <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
-                ) {
-                    <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::new(Default::default())
-                }
-            }
-
             impl $crate::internal_prelude::ManifestStaticAnalyzer
                 for [< $type_ident Analyzer >]
             {
@@ -281,6 +262,7 @@ macro_rules! define_composite_analyzer {
                     &mut self,
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
+                    invocation_io: &InvocationIo<InvocationIoItems>,
                     maybe_typed_invocation: Option<(
                         &ManifestInvocationReceiver,
                         &TypedManifestNativeInvocation,
@@ -292,6 +274,7 @@ macro_rules! define_composite_analyzer {
                                 &mut self.$analyzer_ident.0,
                                 named_address_store,
                                 instruction,
+                                invocation_io,
                                 maybe_typed_invocation,
                             );
                         }
@@ -438,51 +421,3 @@ macro_rules! define_composite_analyzer {
     };
 }
 pub use define_composite_analyzer;
-
-define_composite_analyzer! {
-    type_ident: Composite,
-    analyzers: {
-        /* Data Retrieval */
-        account_interactions: (
-            DynamicAnalyzerWrapper<AccountInteractionsAnalyzer>,
-            ()
-        ),
-        encountered_entities: (
-            DynamicAnalyzerWrapper<EncounteredEntitiesAnalyzer>,
-            ()
-        ),
-        entities_requiring_auth: (
-            DynamicAnalyzerWrapper<EntitiesRequiringAuthAnalyzer>,
-            ()
-        ),
-        presented_proofs: (
-            DynamicAnalyzerWrapper<PresentedProofsAnalyzer>,
-            ()
-        ),
-        reserved_instructions: (
-            DynamicAnalyzerWrapper<ReservedInstructionsAnalyzer>,
-            ()
-        ),
-        /* Manifest Classification */
-        general_classification: (
-            DynamicAnalyzerWrapper<GeneralAnalyzer>,
-            GeneralInitializer { for_subintent: false }
-        ),
-        general_subintent_classification: (
-            DynamicAnalyzerWrapper<GeneralAnalyzer>,
-            GeneralInitializer { for_subintent: true }
-        ),
-        transfer_classification: (
-            DynamicAnalyzerWrapper<TransferAnalyzer>,
-            ()
-        ),
-        simple_transfer_classification: (
-            DynamicAnalyzerWrapper<SimpleTransferAnalyzer>,
-            ()
-        ),
-        account_settings_update_classification: (
-            DynamicAnalyzerWrapper<AccountSettingsUpdateAnalyzer>,
-            ()
-        ),
-    }
-}

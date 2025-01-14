@@ -40,11 +40,9 @@ pub struct DynamicAnalysis {
     pub account_interactions_summary: AccountInteractionsOutput,
 
     /// A summary of all of the account resource movements that occurred in the
-    /// manifest as seen by the static resource movements analyzer. This field
-    /// is optional since it is only provided based on a flag in the analysis
-    /// method.
+    /// manifest as seen by the static resource movements analyzer.
     pub account_static_resource_movements_summary:
-        Option<AccountStaticResourceMovements>,
+        AccountStaticResourceMovements,
 
     /// A summary of all of the account resource movements that occurred in the
     /// manifest as seen by the dynamic analyzer.

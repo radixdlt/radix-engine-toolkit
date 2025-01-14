@@ -15,7 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::internal_prelude::*;
+
 #[derive(Debug)]
 pub enum ManifestAnalysisError {
+    TraverserError(Box<TraverserError>),
+    StaticResourceMovementsError(Box<StaticResourceMovementsError>),
     NotACommitSuccessReceipt,
+}
+
+impl From<StaticResourceMovementsError> for ManifestAnalysisError {
+    fn from(v: StaticResourceMovementsError) -> Self {
+        Self::StaticResourceMovementsError(Box::new(v))
+    }
+}
+
+impl From<TraverserError> for ManifestAnalysisError {
+    fn from(v: TraverserError) -> Self {
+        Self::TraverserError(Box::new(v))
+    }
 }

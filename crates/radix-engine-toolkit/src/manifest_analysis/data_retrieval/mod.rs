@@ -15,12 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod account_dynamic_resource_movements;
 mod account_interactions;
 mod encountered_entities;
 mod entities_requiring_auth;
 mod presented_proofs;
 mod reserved_instructions;
 
+pub use account_dynamic_resource_movements::*;
 pub use account_interactions::*;
 pub use encountered_entities::*;
 pub use entities_requiring_auth::*;

@@ -81,6 +81,17 @@ macro_rules! define_entity_type_groups {
                         matches!(self, Self::$group_ident(..))
                     }
                 )*
+
+                $(
+                    $(
+                        pub fn [< is_ $entity_type_ident:snake >](&self) -> bool {
+                            matches!(
+                                self,
+                                Self::$group_ident($group_ident::$entity_type_ident)
+                            )
+                        }
+                    )*
+                )*
             }
         }
 

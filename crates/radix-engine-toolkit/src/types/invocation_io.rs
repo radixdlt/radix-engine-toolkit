@@ -46,8 +46,13 @@ impl IndexedInvocationIo {
     pub fn for_instruction(
         &self,
         instruction_index: &InstructionIndex,
-    ) -> Option<&InvocationIo<InvocationIoItems>> {
-        self.0.get(instruction_index)
+    ) -> &InvocationIo<InvocationIoItems> {
+        static EMPTY: OnceLock<InvocationIo<InvocationIoItems>> =
+            OnceLock::new();
+
+        self.0
+            .get(instruction_index)
+            .unwrap_or(EMPTY.get_or_init(|| InvocationIo::default()))
     }
 
     pub fn add(
@@ -443,18 +448,22 @@ impl InvocationIoItems {
         self.0.extend(ios)
     }
 
-    pub fn io_of_resource(
-        &self,
-        resource_address: ResourceAddress,
-    ) -> impl Iterator<Item = &InvocationIoItem> {
+    pub fn items_iter(&self) -> impl Iterator<Item = &InvocationIoItem> {
+        self.0.iter()
+    }
+
+    pub fn io_of_resource<'a>(
+        &'a self,
+        resource_address: &'a ResourceAddress,
+    ) -> impl Iterator<Item = &'a InvocationIoItem> + use<'a> {
         self.0
             .iter()
-            .filter(move |io| *io.resource_address() == resource_address)
+            .filter(move |io| io.resource_address() == resource_address)
     }
 
     pub fn resource_amount(
         &self,
-        resource_address: ResourceAddress,
+        resource_address: &ResourceAddress,
     ) -> Decimal {
         self.io_of_resource(resource_address)
             .fold(Decimal::ZERO, |acc, io| acc + *io.amount())

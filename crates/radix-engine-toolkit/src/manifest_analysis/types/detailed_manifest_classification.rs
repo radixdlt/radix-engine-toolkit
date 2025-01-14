@@ -43,22 +43,5 @@ pub enum DetailedManifestClassification {
     /* TODO: Add the remaining transaction types here */
     /// A manifest where account deposit settings get updated. In this manifest
     /// class one of the account deposit settings methods are called.
-    AccountDepositSettingsUpdate {
-        /// Updates to the account resource preference that took place in the
-        /// transaction.
-        resource_preference_updates: IndexMap<
-            (ManifestGlobalAddress, ManifestResourceAddress),
-            Update<ResourcePreference>,
-        >,
-        /// Updates to the default deposit rule of some account that took place
-        /// in the transaction.
-        default_deposit_rule_updates:
-            IndexMap<ManifestGlobalAddress, DefaultDepositRule>,
-        /// Updates to the set of authorized depositors of some account that
-        /// took place in the transaction.
-        authorized_depositor_updates: IndexMap<
-            (ManifestGlobalAddress, ManifestResourceOrNonFungible),
-            Operation,
-        >,
-    },
+    AccountDepositSettingsUpdate(AccountSettingsUpdateOutput),
 }

@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod analysis;
 mod classification;
 mod composite;
 mod data_retrieval;
@@ -23,6 +24,7 @@ mod traits;
 mod traverser;
 mod types;
 
+pub use analysis::*;
 pub use classification::*;
 pub use composite::*;
 pub use data_retrieval::*;
