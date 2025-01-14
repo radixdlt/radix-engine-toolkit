@@ -18,19 +18,23 @@
 mod account_dynamic_resource_movements;
 mod account_static_resource_movements;
 mod analysis_receipt;
+mod const_state;
 mod detailed_manifest_classification;
 mod dynamic_analysis;
 mod fee_summary;
 mod manifest_classification;
 mod new_entities_summary;
+mod simple_permission_state;
 mod static_analysis;
 
 pub use account_dynamic_resource_movements::*;
 pub use account_static_resource_movements::*;
 pub use analysis_receipt::*;
+pub use const_state::*;
 pub use detailed_manifest_classification::*;
 pub use dynamic_analysis::*;
 pub use fee_summary::*;
 pub use manifest_classification::*;
 pub use new_entities_summary::*;
+pub use simple_permission_state::*;
 pub use static_analysis::*;

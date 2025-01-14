@@ -18,51 +18,67 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct EntitiesRequiringAuthVisitor(EntitiesRequiringAuthOutput);
+pub struct EntitiesRequiringAuthAnalyzer(EntitiesRequiringAuthOutput);
 
-impl EntitiesRequiringAuthVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
+    type Initializer = ();
+    type Output = EntitiesRequiringAuthOutput;
+    type PermissionState = ConstState<true>;
+    type RequirementState = ConstState<true>;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for EntitiesRequiringAuthVisitor {
-    type Output = EntitiesRequiringAuthOutput;
-    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &ConstManifestAnalysisVisitorValidityState::<true>
+    fn process_permission(
+        &mut self,
+        _: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 
-    fn on_instruction(
+    fn process_requirement(
         &mut self,
-        named_address_store: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        // We're interested in invocations and in the invoked address so we
-        // compute that. In the event that the instruction isn't an invocation
-        // or that it's not one to a global entity then we return from this
-        // method having done no work.
-        let Some(address) = grouped_instruction
-            .as_invocation_instructions()
-            .and_then(|invocation| invocation.invoked_global_entity())
-        else {
-            return;
-        };
+    }
 
-        // Checking the typed invocation and deciding what requires auth and
-        // what doesn't based on that.
-        let address_requiring_auth = match maybe_typed_invocation {
-            // Accounts
-            Some(TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(method),
+    fn process_instruction(
+        &mut self,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        // The primary set of invocations that require auth from either accounts
+        // or identities are method calls. No function calls so far require it.
+        // So, we match for this.
+        match maybe_typed_invocation {
+            // Account
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(method),
+                ),
             )) => match method {
                 AccountBlueprintMethod::Securify(..)
                 | AccountBlueprintMethod::LockFee(..)
@@ -81,128 +97,101 @@ impl ManifestAnalysisVisitor for EntitiesRequiringAuthVisitor {
                 | AccountBlueprintMethod::SetResourcePreference(..)
                 | AccountBlueprintMethod::RemoveResourcePreference(..)
                 | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..) => Some(address),
+                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..) => {
+                    self.0.accounts.insert(receiver.into());
+                }
                 AccountBlueprintMethod::TryDepositOrRefund(..)
                 | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
                 | AccountBlueprintMethod::TryDepositOrAbort(..)
-                | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => None,
+                | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
             },
-            Some(TypedManifestNativeInvocation::AccountLockerBlueprintInvocation(
-                AccountLockerBlueprintInvocation::Method(method),
+            Some((
+                _,
+                TypedManifestNativeInvocation::AccountLockerBlueprintInvocation(
+                    AccountLockerBlueprintInvocation::Method(method),
+                ),
             )) => match method {
-                AccountLockerBlueprintMethod::Claim(AccountLockerClaimManifestInput {
-                    claimant,
-                    ..
-                })
+                AccountLockerBlueprintMethod::Claim(
+                    AccountLockerClaimManifestInput { claimant, .. },
+                )
                 | AccountLockerBlueprintMethod::ClaimNonFungibles(
                     AccountLockerClaimNonFungiblesManifestInput { claimant, .. },
-                ) => Some((*claimant).into()),
+                ) => {
+                    self.0.accounts.insert((*claimant).into());
+                }
                 AccountLockerBlueprintMethod::Store(..)
                 | AccountLockerBlueprintMethod::Airdrop(..)
                 | AccountLockerBlueprintMethod::Recover(..)
                 | AccountLockerBlueprintMethod::RecoverNonFungibles(..)
                 | AccountLockerBlueprintMethod::GetAmount(..)
-                | AccountLockerBlueprintMethod::GetNonFungibleLocalIds(..) => None,
+                | AccountLockerBlueprintMethod::GetNonFungibleLocalIds(..) => {}
             },
             // Identities
-            Some(TypedManifestNativeInvocation::IdentityBlueprintInvocation(
-                IdentityBlueprintInvocation::Method(IdentityBlueprintMethod::Securify(..)),
-            )) => Some(address),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                    IdentityBlueprintInvocation::Method(
+                        IdentityBlueprintMethod::Securify(..),
+                    ),
+                ),
+            )) => {
+                self.0.identities.insert(receiver.into());
+            }
             // Role Assignment Module
-            Some(TypedManifestNativeInvocation::RoleAssignmentBlueprintInvocation(
-                RoleAssignmentBlueprintInvocation::Method(method),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::RoleAssignmentBlueprintInvocation(
+                    RoleAssignmentBlueprintInvocation::Method(method),
+                ),
             )) => match method {
                 RoleAssignmentBlueprintMethod::SetOwner(..)
                 | RoleAssignmentBlueprintMethod::LockOwner(..)
-                | RoleAssignmentBlueprintMethod::Set(..) => Some(address),
-                RoleAssignmentBlueprintMethod::Get(..) => None,
+                | RoleAssignmentBlueprintMethod::Set(..) => {
+                    if receiver.is_account() {
+                        self.0.accounts.insert(receiver.into());
+                    } else if receiver.is_identity() {
+                        self.0.identities.insert(receiver.into());
+                    }
+                }
+                RoleAssignmentBlueprintMethod::Get(..) => {}
             },
             // Metadata Module
-            Some(TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                MetadataBlueprintInvocation::Method(method),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                    MetadataBlueprintInvocation::Method(method),
+                ),
             )) => match method {
                 MetadataBlueprintMethod::Set(..)
                 | MetadataBlueprintMethod::Lock(..)
-                | MetadataBlueprintMethod::Remove(..) => Some(address),
-                MetadataBlueprintMethod::Get(..) => None,
+                | MetadataBlueprintMethod::Remove(..) => {
+                    if receiver.is_account() {
+                        self.0.accounts.insert(receiver.into());
+                    } else if receiver.is_identity() {
+                        self.0.identities.insert(receiver.into());
+                    }
+                }
+                MetadataBlueprintMethod::Get(..) => {}
             },
             // Royalty Module
-            Some(TypedManifestNativeInvocation::ComponentRoyaltyBlueprintInvocation(
-                ComponentRoyaltyBlueprintInvocation::Method(method),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::ComponentRoyaltyBlueprintInvocation(
+                    ComponentRoyaltyBlueprintInvocation::Method(method),
+                ),
             )) => match method {
                 ComponentRoyaltyBlueprintMethod::SetRoyalty(_)
                 | ComponentRoyaltyBlueprintMethod::LockRoyalty(_)
-                | ComponentRoyaltyBlueprintMethod::ClaimRoyalties(_) => Some(address),
+                | ComponentRoyaltyBlueprintMethod::ClaimRoyalties(_) => {
+                    if receiver.is_account() {
+                        self.0.accounts.insert(receiver.into());
+                    } else if receiver.is_identity() {
+                        self.0.identities.insert(receiver.into());
+                    }
+                }
             },
-            // None of the following require auth from accounts or identities
-            // controlled by the wallet.
-            Some(
-                TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::ConsensusManagerBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::ValidatorBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::PackageBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::FungibleResourceManagerBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::NonFungibleResourceManagerBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::FungibleVaultBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::NonFungibleVaultBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::TransactionTrackerBlueprintInvocation(..)
-                | TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::DirectMethod(..)
-                    | AccountBlueprintInvocation::Function(..),
-                )
-                | TypedManifestNativeInvocation::AccountLockerBlueprintInvocation(
-                    AccountLockerBlueprintInvocation::DirectMethod(..)
-                    | AccountLockerBlueprintInvocation::Function(..),
-                )
-                | TypedManifestNativeInvocation::IdentityBlueprintInvocation(
-                    IdentityBlueprintInvocation::DirectMethod(..)
-                    | IdentityBlueprintInvocation::Function(..),
-                )
-                | TypedManifestNativeInvocation::RoleAssignmentBlueprintInvocation(
-                    RoleAssignmentBlueprintInvocation::DirectMethod(..)
-                    | RoleAssignmentBlueprintInvocation::Function(..),
-                )
-                | TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::DirectMethod(..)
-                    | MetadataBlueprintInvocation::Function(..),
-                )
-                | TypedManifestNativeInvocation::ComponentRoyaltyBlueprintInvocation(
-                    ComponentRoyaltyBlueprintInvocation::DirectMethod(..)
-                    | ComponentRoyaltyBlueprintInvocation::Function(..),
-                ),
-            )
-            | None => None,
+            _ => {}
         };
-
-        // Do not continue if we do not need auth for the methods that we have.
-        let Some(address_requiring_auth) = address_requiring_auth else {
-            return;
-        };
-
-        // Getting the grouped entity type for the address.
-        let grouped_entity_type = match address_requiring_auth {
-            ManifestGlobalAddress::Named(named_address) => named_address_store
-                .get(&named_address)
-                .and_then(BlueprintId::entity_type),
-            ManifestGlobalAddress::Static(static_address) => {
-                static_address.as_node_id().entity_type()
-            }
-        }
-        .map(GroupedEntityType::from);
-
-        // Adding the address to the output depending on the address's type.
-        if grouped_entity_type.is_some_and(|entity_type| {
-            entity_type.belongs_to_account_entities()
-        }) {
-            self.0.accounts.insert(address_requiring_auth);
-        } else if grouped_entity_type.is_some_and(|entity_type| {
-            entity_type.belongs_to_identity_entities()
-        }) {
-            self.0.identities.insert(address_requiring_auth);
-        }
     }
 }
 

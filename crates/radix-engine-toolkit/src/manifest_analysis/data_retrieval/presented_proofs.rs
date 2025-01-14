@@ -18,52 +18,62 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct PresentedProofsVisitor(PresentedProofsOutput);
+pub struct PresentedProofsAnalyzer(PresentedProofsOutput);
 
-impl PresentedProofsVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
+    type Initializer = ();
+    type Output = PresentedProofsOutput;
+    type PermissionState = ConstState<true>;
+    type RequirementState = ConstState<true>;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for PresentedProofsVisitor {
-    type Output = PresentedProofsOutput;
-    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &ConstManifestAnalysisVisitorValidityState::<true>
+    fn process_permission(
+        &mut self,
+        _: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 
-    fn on_instruction(
+    fn process_requirement(
+        &mut self,
+        _: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+    }
+
+    fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        // INVARIANT(traversal-address-checking): There's an invariant that this
-        // method makes use of which is that the address in the invocation will
-        // not require checking for the entity type. The traverser has done the
-        // steps required to keep track of the allocated addresses and has done
-        // the typed invocation interpretation correctly.
-
-        // We only want to act on CallMethod instructions.
-        let Some(CallMethod { address, .. }) =
-            grouped_instruction.as_call_method()
-        else {
-            return;
-        };
-
-        // Interpret the typed invocation. If the invocation is not a create
-        // proof invocation then we skip it since there's nothing that this
-        // visitor needs to do.
-        let resource_specifier = match maybe_typed_invocation {
-            Some(
+        // Interpreting the typed invocation and converting it into a resource
+        // specifier of the created proof.
+        let (account, proof_specifier) = match maybe_typed_invocation {
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
                 TypedManifestNativeInvocation::AccountBlueprintInvocation(
                     AccountBlueprintInvocation::Method(
                         AccountBlueprintMethod::CreateProofOfAmount(
@@ -74,8 +84,12 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
                         ),
                     ),
                 ),
-            ) => ManifestResourceSpecifier::Amount(*resource_address, *amount),
-            Some(
+            )) => (
+                receiver,
+                ManifestResourceSpecifier::Amount(*resource_address, *amount),
+            ),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
                 TypedManifestNativeInvocation::AccountBlueprintInvocation(
                     AccountBlueprintInvocation::Method(
                         AccountBlueprintMethod::CreateProofOfNonFungibles(
@@ -86,16 +100,19 @@ impl ManifestAnalysisVisitor for PresentedProofsVisitor {
                         ),
                     ),
                 ),
-            ) => ManifestResourceSpecifier::Ids(*resource_address, ids.clone()),
+            )) => (
+                receiver,
+                ManifestResourceSpecifier::Ids(*resource_address, ids.clone()),
+            ),
             _ => return,
         };
 
-        // Adding the created proof to the visitor state.
+        // Adding the created proof to the output.
         self.0
             .created_proofs
-            .entry(*address)
+            .entry(account.into())
             .or_default()
-            .push(resource_specifier);
+            .push(proof_specifier);
     }
 }
 

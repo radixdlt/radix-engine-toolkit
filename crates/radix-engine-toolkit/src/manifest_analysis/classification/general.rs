@@ -18,11 +18,8 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct GeneralTransactionTypeVisitor {
-    validity_state: SimpleManifestAnalysisVisitorValidityState,
-    requirement_state: GeneralTransactionTypeRequirementState,
-
-    /// This flag changes some of the rules that this transaction type visitor
+pub struct GeneralAnalyzer {
+    /// This flag changes some of the rules that this transaction type analyzer
     /// uses and it can be used to change between it being used for the general
     /// transaction type and the subintent general transaction type. This is
     /// implemented as a flag to allow for the majority of the code to be
@@ -30,49 +27,36 @@ pub struct GeneralTransactionTypeVisitor {
     for_subintent: bool,
 }
 
-impl GeneralTransactionTypeVisitor {
-    pub fn for_intent() -> Self {
-        Self::new(false)
+impl ManifestStaticAnalyzer for GeneralAnalyzer {
+    type Initializer = GeneralInitializer;
+    type Output = ();
+    type PermissionState = SimplePermissionState;
+    type RequirementState = GeneralRequirementState;
+
+    fn new(
+        GeneralInitializer { for_subintent }: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
+        (
+            Self { for_subintent },
+            SimplePermissionState::default(),
+            GeneralRequirementState::new(for_subintent),
+        )
     }
 
-    pub fn for_subintent() -> Self {
-        Self::new(true)
-    }
+    fn output(self) -> Self::Output {}
 
-    pub fn new(for_subintent: bool) -> Self {
-        Self {
-            validity_state: Default::default(),
-            requirement_state: GeneralTransactionTypeRequirementState::new(
-                for_subintent,
-            ),
-            for_subintent,
-        }
-    }
-}
-
-impl ManifestAnalysisVisitor for GeneralTransactionTypeVisitor {
-    type Output = bool;
-    type ValidityState = SimpleManifestAnalysisVisitorValidityState;
-
-    fn output(self) -> Self::Output {
-        self.requirement_state.is_requirement_fulfilled()
-            && self.validity_state.is_visitor_accepting_instructions()
-    }
-
-    fn validity_state(&self) -> &Self::ValidityState {
-        &self.validity_state
-    }
-
-    fn on_instruction(
+    fn process_permission(
         &mut self,
+        permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        _: Option<&TypedManifestNativeInvocation>,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match grouped_instruction {
+        let is_next_instruction_permitted = match instruction {
             // Selective Permissions
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
@@ -182,20 +166,62 @@ impl ManifestAnalysisVisitor for GeneralTransactionTypeVisitor {
                 | InvocationInstructions::CallDirectVaultMethod(..),
             ) => false,
         };
-        self.validity_state
-            .next_instruction_status(is_next_instruction_permitted);
-        self.requirement_state
-            .handle_instruction(grouped_instruction);
+        permission_state.next_instruction_status(is_next_instruction_permitted);
+    }
+
+    fn process_requirement(
+        &mut self,
+        requirement_state: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        requirement_state.handle_instruction(instruction);
+    }
+
+    fn process_instruction(
+        &mut self,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 }
 
+pub struct GeneralInitializer {
+    /// This flag changes some of the rules that this transaction type Analyzer
+    /// uses and it can be used to change between it being used for the general
+    /// transaction type and the subintent general transaction type. This is
+    /// implemented as a flag to allow for the majority of the code to be
+    /// shared between the two transaction types.
+    pub for_subintent: bool,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct GeneralTransactionTypeRequirementState {
+pub struct GeneralRequirementState {
     for_subintent: bool,
     is_yield_to_parent_seen: bool,
 }
 
-impl GeneralTransactionTypeRequirementState {
+impl ManifestAnalyzerRequirementState for GeneralRequirementState {
+    fn all_requirements_met(&self) -> bool {
+        // The yield to parent requirement is only required in subintents.
+        // Otherwise, there are no requirements for this transaction type.
+        if self.for_subintent {
+            self.is_yield_to_parent_seen
+        } else {
+            true
+        }
+    }
+}
+
+impl GeneralRequirementState {
     pub fn new(for_subintent: bool) -> Self {
         Self {
             for_subintent,
@@ -206,13 +232,5 @@ impl GeneralTransactionTypeRequirementState {
     pub fn handle_instruction(&mut self, instruction: &GroupedInstruction) {
         self.is_yield_to_parent_seen |=
             instruction.as_yield_to_parent().is_some()
-    }
-
-    pub fn is_requirement_fulfilled(&self) -> bool {
-        if self.for_subintent {
-            self.is_yield_to_parent_seen
-        } else {
-            true
-        }
     }
 }

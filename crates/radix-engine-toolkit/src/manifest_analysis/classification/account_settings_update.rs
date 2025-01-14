@@ -18,43 +18,36 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountSettingsUpdateTransactionTypeVisitor {
-    requirement_state: AccountSettingsUpdateTransactionTypeRequirementState,
-    validity_state: SimpleManifestAnalysisVisitorValidityState,
+pub struct AccountSettingsUpdateAnalyzer(AccountSettingsUpdateOutput);
 
-    output: AccountSettingsUpdateTransactionTypeOutput,
-}
+impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
+    type Initializer = ();
+    type Output = AccountSettingsUpdateOutput;
+    type PermissionState = SimplePermissionState;
+    type RequirementState = AccountSettingsUpdateRequirementState;
 
-impl AccountSettingsUpdateTransactionTypeVisitor {
-    pub fn new() -> Self {
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for AccountSettingsUpdateTransactionTypeVisitor {
-    type Output = Option<AccountSettingsUpdateTransactionTypeOutput>;
-    type ValidityState = SimpleManifestAnalysisVisitorValidityState;
 
     fn output(self) -> Self::Output {
-        (self.requirement_state.is_requirement_fulfilled()
-            && self.validity_state.is_visitor_accepting_instructions())
-        .then_some(self.output)
+        self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &self.validity_state
-    }
-
-    fn on_instruction(
+    fn process_permission(
         &mut self,
+        permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match grouped_instruction {
+        let is_next_instruction_permitted = match instruction {
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
                     address,
@@ -129,107 +122,21 @@ impl ManifestAnalysisVisitor for AccountSettingsUpdateTransactionTypeVisitor {
                 | InvocationInstructions::CallRoyaltyMethod(..),
             ) => false,
         };
-        self.validity_state
-            .next_instruction_status(is_next_instruction_permitted);
-        self.requirement_state
-            .handle_instruction(maybe_typed_invocation);
-
-        // Extract information out of the typed invocation and into the output.
-        if let Some(
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(method),
-            ),
-        ) = maybe_typed_invocation
-        {
-            let account_address = grouped_instruction
-                .as_call_method()
-                .expect("Must be a call method since it's a typed invocation")
-                .address;
-
-            match method {
-                AccountBlueprintMethod::SetDefaultDepositRule(
-                    AccountSetDefaultDepositRuleInput {
-                        default: deposit_rule,
-                    },
-                ) => {
-                    self.output
-                        .default_deposit_rule_updates
-                        .insert(account_address, *deposit_rule);
-                }
-                AccountBlueprintMethod::SetResourcePreference(
-                    AccountSetResourcePreferenceManifestInput {
-                        resource_address,
-                        resource_preference,
-                    },
-                ) => {
-                    self.output.resource_preference_updates.insert(
-                        (account_address, *resource_address),
-                        Update::Set(*resource_preference),
-                    );
-                }
-                AccountBlueprintMethod::RemoveResourcePreference(
-                    AccountRemoveResourcePreferenceManifestInput {
-                        resource_address,
-                    },
-                ) => {
-                    self.output.resource_preference_updates.insert(
-                        (account_address, *resource_address),
-                        Update::Remove,
-                    );
-                }
-                AccountBlueprintMethod::AddAuthorizedDepositor(
-                    AccountAddAuthorizedDepositorManifestInput { badge },
-                ) => {
-                    self.output.authorized_depositor_updates.insert(
-                        (account_address, badge.clone()),
-                        Operation::Added,
-                    );
-                }
-                AccountBlueprintMethod::RemoveAuthorizedDepositor(
-                    AccountRemoveAuthorizedDepositorManifestInput { badge },
-                ) => {
-                    self.output.authorized_depositor_updates.insert(
-                        (account_address, badge.clone()),
-                        Operation::Removed,
-                    );
-                }
-                AccountBlueprintMethod::Securify(..)
-                | AccountBlueprintMethod::LockFee(..)
-                | AccountBlueprintMethod::LockContingentFee(..)
-                | AccountBlueprintMethod::Deposit(..)
-                | AccountBlueprintMethod::DepositBatch(..)
-                | AccountBlueprintMethod::Withdraw(..)
-                | AccountBlueprintMethod::WithdrawNonFungibles(..)
-                | AccountBlueprintMethod::Burn(..)
-                | AccountBlueprintMethod::BurnNonFungibles(..)
-                | AccountBlueprintMethod::LockFeeAndWithdraw(..)
-                | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..)
-                | AccountBlueprintMethod::CreateProofOfAmount(..)
-                | AccountBlueprintMethod::CreateProofOfNonFungibles(..)
-                | AccountBlueprintMethod::TryDepositOrRefund(..)
-                | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
-                | AccountBlueprintMethod::TryDepositOrAbort(..)
-                | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
-            }
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
-struct AccountSettingsUpdateTransactionTypeRequirementState {
-    is_one_of_the_account_update_methods_seen: bool,
-}
-
-impl AccountSettingsUpdateTransactionTypeRequirementState {
-    fn is_requirement_fulfilled(&self) -> bool {
-        self.is_one_of_the_account_update_methods_seen
+        permission_state.next_instruction_status(is_next_instruction_permitted);
     }
 
-    fn handle_instruction(
+    fn process_requirement(
         &mut self,
-        typed_invocation: Option<&TypedManifestNativeInvocation>,
+        requirement_state: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        if let Some(
+        if let Some((
+            ManifestInvocationReceiver::GlobalMethod(_),
             TypedManifestNativeInvocation::AccountBlueprintInvocation(
                 AccountBlueprintInvocation::Method(
                     AccountBlueprintMethod::SetDefaultDepositRule(..)
@@ -239,15 +146,113 @@ impl AccountSettingsUpdateTransactionTypeRequirementState {
                     | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
                 ),
             ),
-        ) = typed_invocation
+        )) = maybe_typed_invocation
         {
-            self.is_one_of_the_account_update_methods_seen = true
+            requirement_state.is_any_account_settings_update_seen = true
+        }
+    }
+
+    fn process_instruction(
+        &mut self,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        let Some((
+            ManifestInvocationReceiver::GlobalMethod(receiver),
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(method),
+            ),
+        )) = maybe_typed_invocation
+        else {
+            return;
+        };
+
+        match method {
+            AccountBlueprintMethod::SetDefaultDepositRule(
+                AccountSetDefaultDepositRuleInput {
+                    default: deposit_rule,
+                },
+            ) => {
+                self.0
+                    .default_deposit_rule_updates
+                    .insert(receiver.into(), *deposit_rule);
+            }
+            AccountBlueprintMethod::SetResourcePreference(
+                AccountSetResourcePreferenceManifestInput {
+                    resource_address,
+                    resource_preference,
+                },
+            ) => {
+                self.0.resource_preference_updates.insert(
+                    (receiver.into(), *resource_address),
+                    Update::Set(*resource_preference),
+                );
+            }
+            AccountBlueprintMethod::RemoveResourcePreference(
+                AccountRemoveResourcePreferenceManifestInput {
+                    resource_address,
+                },
+            ) => {
+                self.0.resource_preference_updates.insert(
+                    (receiver.into(), *resource_address),
+                    Update::Remove,
+                );
+            }
+            AccountBlueprintMethod::AddAuthorizedDepositor(
+                AccountAddAuthorizedDepositorManifestInput { badge },
+            ) => {
+                self.0
+                    .authorized_depositor_updates
+                    .insert((receiver.into(), badge.clone()), Operation::Added);
+            }
+            AccountBlueprintMethod::RemoveAuthorizedDepositor(
+                AccountRemoveAuthorizedDepositorManifestInput { badge },
+            ) => {
+                self.0.authorized_depositor_updates.insert(
+                    (receiver.into(), badge.clone()),
+                    Operation::Removed,
+                );
+            }
+            AccountBlueprintMethod::Securify(..)
+            | AccountBlueprintMethod::LockFee(..)
+            | AccountBlueprintMethod::LockContingentFee(..)
+            | AccountBlueprintMethod::Deposit(..)
+            | AccountBlueprintMethod::DepositBatch(..)
+            | AccountBlueprintMethod::Withdraw(..)
+            | AccountBlueprintMethod::WithdrawNonFungibles(..)
+            | AccountBlueprintMethod::Burn(..)
+            | AccountBlueprintMethod::BurnNonFungibles(..)
+            | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+            | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..)
+            | AccountBlueprintMethod::CreateProofOfAmount(..)
+            | AccountBlueprintMethod::CreateProofOfNonFungibles(..)
+            | AccountBlueprintMethod::TryDepositOrRefund(..)
+            | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
+            | AccountBlueprintMethod::TryDepositOrAbort(..)
+            | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountSettingsUpdateTransactionTypeOutput {
+pub struct AccountSettingsUpdateRequirementState {
+    is_any_account_settings_update_seen: bool,
+}
+
+impl ManifestAnalyzerRequirementState
+    for AccountSettingsUpdateRequirementState
+{
+    fn all_requirements_met(&self) -> bool {
+        self.is_any_account_settings_update_seen
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct AccountSettingsUpdateOutput {
     /// Updates to the account resource preference that took place in the
     /// transaction.
     pub resource_preference_updates: IndexMap<

@@ -15,12 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod dynamic_analyzer;
-mod permission_state;
-mod requirement_state;
-mod static_analyzer;
-
-pub use dynamic_analyzer::*;
-pub use permission_state::*;
-pub use requirement_state::*;
-pub use static_analyzer::*;
+/// A trait used to describe the state that visitors use to describe if their
+/// requirements are currently met or not.
+pub trait ManifestAnalyzerRequirementState {
+    /// A method that computes if the requirements that the visitor has are met
+    /// or not.
+    fn all_requirements_met(&self) -> bool;
+}

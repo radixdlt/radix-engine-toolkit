@@ -15,12 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod dynamic_analyzer;
-mod permission_state;
-mod requirement_state;
-mod static_analyzer;
+use crate::internal_prelude::*;
 
-pub use dynamic_analyzer::*;
-pub use permission_state::*;
-pub use requirement_state::*;
-pub use static_analyzer::*;
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ConstState<const STATE: bool>;
+
+impl<const STATE: bool> ManifestAnalyzerRequirementState for ConstState<STATE> {
+    fn all_requirements_met(&self) -> bool {
+        STATE
+    }
+}
+
+impl<const STATE: bool> ManifestAnalyzerPermissionState for ConstState<STATE> {
+    fn all_instructions_permitted(&self) -> bool {
+        STATE
+    }
+}

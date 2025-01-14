@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod dynamic_analyzer;
-mod permission_state;
-mod requirement_state;
-mod static_analyzer;
+use crate::internal_prelude::*;
 
-pub use dynamic_analyzer::*;
-pub use permission_state::*;
-pub use requirement_state::*;
-pub use static_analyzer::*;
+#[derive(Debug)]
+pub enum ManifestInvocationReceiver {
+    GlobalMethod(ResolvedManifestAddress<GlobalAddress>),
+    DirectAccess(InternalAddress),
+    BlueprintFunction(BlueprintId),
+}

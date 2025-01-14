@@ -18,52 +18,73 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct EncounteredEntitiesVisitor(EncounteredEntitiesOutput);
+pub struct EncounteredEntitiesAnalyzer(EncounteredEntitiesOutput);
 
-impl EncounteredEntitiesVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
+    type Initializer = ();
+    type Output = EncounteredEntitiesOutput;
+    type PermissionState = ConstState<true>;
+    type RequirementState = ConstState<true>;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for EncounteredEntitiesVisitor {
-    type Output = EncounteredEntitiesOutput;
-    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &ConstManifestAnalysisVisitorValidityState::<true>
+    fn process_permission(
+        &mut self,
+        _: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 
-    fn on_instruction(
+    fn process_requirement(
+        &mut self,
+        _: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+    }
+
+    fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        _: Option<&TypedManifestNativeInvocation>,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        let indexed_value =
-            IndexedManifestValue::from_typed(&grouped_instruction);
+        let indexed_value = IndexedManifestValue::from_typed(&instruction);
 
         let named_addresses = indexed_value.named_addresses();
         let static_addresses = indexed_value.static_addresses();
 
-        self.0.entities.extend(
-            named_addresses
-                .iter()
-                .copied()
-                .map(ManifestAddress::Named)
-                .chain(
-                    static_addresses
-                        .into_iter()
-                        .map(|node_id| *node_id.as_node_id())
-                        .map(ManifestAddress::Static),
-                ),
-        );
+        let addresses = named_addresses
+            .iter()
+            .copied()
+            .map(ManifestAddress::Named)
+            .chain(
+                static_addresses
+                    .iter()
+                    .copied()
+                    .map(ManifestAddress::Static),
+            );
+        self.0.entities.extend(addresses);
     }
 }
 

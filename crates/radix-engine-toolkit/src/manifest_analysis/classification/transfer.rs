@@ -18,38 +18,34 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct TransferTransactionTypeVisitor {
-    validity_state: SimpleManifestAnalysisVisitorValidityState,
-}
+pub struct TransferAnalyzer;
 
-impl TransferTransactionTypeVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for TransferAnalyzer {
+    type Initializer = ();
+    type Output = ();
+    type PermissionState = SimplePermissionState;
+    type RequirementState = TransferRequirementState;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
 
-impl ManifestAnalysisVisitor for TransferTransactionTypeVisitor {
-    type Output = bool;
-    type ValidityState = SimpleManifestAnalysisVisitorValidityState;
+    fn output(self) -> Self::Output {}
 
-    fn output(self) -> Self::Output {
-        self.validity_state.is_visitor_accepting_instructions()
-    }
-
-    fn validity_state(&self) -> &Self::ValidityState {
-        &self.validity_state
-    }
-
-    fn on_instruction(
+    fn process_permission(
         &mut self,
+        permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        _: Option<&TypedManifestNativeInvocation>,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match grouped_instruction {
+        let is_next_instruction_permitted = match instruction {
             // Selective Permissions
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
@@ -134,7 +130,76 @@ impl ManifestAnalysisVisitor for TransferTransactionTypeVisitor {
                 | InvocationInstructions::CallRoleAssignmentMethod(..),
             ) => false,
         };
-        self.validity_state
-            .next_instruction_status(is_next_instruction_permitted);
+        permission_state.next_instruction_status(is_next_instruction_permitted);
+    }
+
+    fn process_requirement(
+        &mut self,
+        requirement_state: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        requirement_state
+            .handle_invocation(maybe_typed_invocation.map(|(_, t)| t));
+    }
+
+    fn process_instruction(
+        &mut self,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct TransferRequirementState {
+    is_withdraw_seen: bool,
+    is_deposit_seen: bool,
+}
+
+impl ManifestAnalyzerRequirementState for TransferRequirementState {
+    fn all_requirements_met(&self) -> bool {
+        self.is_withdraw_seen && self.is_deposit_seen
+    }
+}
+
+impl TransferRequirementState {
+    pub fn handle_invocation(
+        &mut self,
+        typed_invocation: Option<&TypedManifestNativeInvocation>,
+    ) {
+        match typed_invocation {
+            Some(
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(
+                        AccountBlueprintMethod::Withdraw(..)
+                        | AccountBlueprintMethod::WithdrawNonFungibles(..)
+                        | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(
+                            ..,
+                        ),
+                    ),
+                ),
+            ) => self.is_withdraw_seen = true,
+            Some(
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(
+                        AccountBlueprintMethod::Deposit(..)
+                        | AccountBlueprintMethod::DepositBatch(..)
+                        | AccountBlueprintMethod::TryDepositOrAbort(..)
+                        | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
+                    ),
+                ),
+            ) => self.is_deposit_seen = true,
+            _ => {}
+        }
     }
 }

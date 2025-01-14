@@ -17,7 +17,7 @@
 
 use crate::internal_prelude::*;
 
-pub type SimpleTransferTransactionTypeVisitor = SimpleTransferStateMachine;
+pub type SimpleTransferAnalyzer = SimpleTransferStateMachine;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SimpleTransferStateMachine {
@@ -31,32 +31,67 @@ pub enum SimpleTransferStateMachine {
     InvalidState,
 }
 
-impl ManifestAnalysisVisitor for SimpleTransferStateMachine {
-    type Output = bool;
-    type ValidityState = Self;
+impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
+    type Initializer = ();
+    type Output = ();
+    type PermissionState = Self;
+    type RequirementState = Self;
 
-    fn output(self) -> Self::Output {
-        matches!(self, Self::DepositPerformed)
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
+        Default::default()
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        self
+    fn output(self) -> Self::Output {}
+
+    fn process_permission(
+        &mut self,
+        permission_state: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        permission_state.transition(instruction);
     }
 
-    fn on_instruction(
+    fn process_requirement(
+        &mut self,
+        requirement_state: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        instruction: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+        requirement_state.transition(instruction);
+    }
+
+    fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        _: Option<&TypedManifestNativeInvocation>,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
         self.transition(instruction);
     }
 }
 
-impl ManifestAnalysisVisitorValidityState for SimpleTransferStateMachine {
-    fn is_visitor_accepting_instructions(&self) -> bool {
+impl ManifestAnalyzerRequirementState for SimpleTransferStateMachine {
+    fn all_requirements_met(&self) -> bool {
+        matches!(self, Self::DepositPerformed)
+    }
+}
+
+impl ManifestAnalyzerPermissionState for SimpleTransferStateMachine {
+    fn all_instructions_permitted(&self) -> bool {
         !matches!(self, Self::InvalidState)
     }
 }

@@ -19,11 +19,12 @@ use crate::internal_prelude::*;
 
 pub fn extract_addresses(
     instructions: &[InstructionV2],
-) -> (HashSet<TypedNodeId>, HashSet<ManifestNamedAddress>) {
+) -> (HashSet<NodeId>, HashSet<ManifestNamedAddress>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
     let static_addresses = indexed_manifest_value
         .static_addresses()
-        .into_iter()
+        .iter()
+        .copied()
         .collect();
     let named_addresses = indexed_manifest_value
         .named_addresses()

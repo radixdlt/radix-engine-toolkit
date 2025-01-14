@@ -18,49 +18,65 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountInteractionsVisitor(AccountInteractionsOutput);
+pub struct AccountInteractionsAnalyzer(AccountInteractionsOutput);
 
-impl AccountInteractionsVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
+    type Initializer = ();
+    type Output = AccountInteractionsOutput;
+    type PermissionState = ConstState<true>;
+    type RequirementState = ConstState<true>;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for AccountInteractionsVisitor {
-    type Output = AccountInteractionsOutput;
-    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &ConstManifestAnalysisVisitorValidityState::<true>
+    fn process_permission(
+        &mut self,
+        _: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 
-    fn on_instruction(
+    fn process_requirement(
+        &mut self,
+        _: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
+    }
+
+    fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        // We're interested in invocations and in the invoked address so we
-        // compute that. In the event that the instruction isn't an invocation
-        // or that it's not one to a global entity then we return from this
-        // method having done no work.
-        let Some(address) = grouped_instruction
-            .as_invocation_instructions()
-            .and_then(|invocation| invocation.invoked_global_entity())
-        else {
-            return;
-        };
-
-        // We're only interested in account invocations and do not care about
-        // any other kind of invocations.
-        let Some(TypedManifestNativeInvocation::AccountBlueprintInvocation(
-            AccountBlueprintInvocation::Method(account_method),
+        // We just need to rely on the typed native invocation to extract all of
+        // the account interactions that we can see in the manifest. For the
+        // account addresses we will use the manifest invocation receiver.
+        let Some((
+            ManifestInvocationReceiver::GlobalMethod(receiver),
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(account_method),
+            ),
         )) = maybe_typed_invocation
         else {
             return;
@@ -118,7 +134,7 @@ impl ManifestAnalysisVisitor for AccountInteractionsVisitor {
             }
         };
         for set in sets_to_add_to {
-            set.insert(address);
+            set.insert(receiver.into());
         }
     }
 }

@@ -148,15 +148,12 @@ impl IndexedManifestValue {
         self.bytes.as_slice()
     }
 
-    pub fn static_addresses(&self) -> Vec<TypedNodeId> {
-        self.static_addresses
-            .iter()
-            .filter_map(|node_id| TypedNodeId::new(*node_id).ok())
-            .collect()
+    pub fn static_addresses(&self) -> &[NodeId] {
+        self.static_addresses.as_slice()
     }
 
-    pub fn named_addresses(&self) -> &Vec<ManifestNamedAddress> {
-        &self.named_addresses
+    pub fn named_addresses(&self) -> &[ManifestNamedAddress] {
+        self.named_addresses.as_slice()
     }
 
     pub fn expressions(&self) -> &Vec<ManifestExpression> {

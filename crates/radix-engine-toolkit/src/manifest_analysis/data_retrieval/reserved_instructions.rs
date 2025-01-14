@@ -18,135 +18,149 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct ReservedInstructionsVisitor(ReservedInstructionsOutput);
+pub struct ReservedInstructionsAnalyzer(ReservedInstructionsOutput);
 
-impl ReservedInstructionsVisitor {
-    pub fn new() -> Self {
+impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
+    type Initializer = ();
+    type Output = ReservedInstructionsOutput;
+    type PermissionState = ConstState<true>;
+    type RequirementState = ConstState<true>;
+
+    fn new(
+        _: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
         Default::default()
     }
-}
-
-impl ManifestAnalysisVisitor for ReservedInstructionsVisitor {
-    type Output = ReservedInstructionsOutput;
-    type ValidityState = ConstManifestAnalysisVisitorValidityState<true>;
 
     fn output(self) -> Self::Output {
         self.0
     }
 
-    fn validity_state(&self) -> &Self::ValidityState {
-        &ConstManifestAnalysisVisitorValidityState::<true>
+    fn process_permission(
+        &mut self,
+        _: &mut Self::PermissionState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
     }
 
-    fn on_instruction(
+    fn process_requirement(
         &mut self,
-        named_address_store: &NamedAddressStore,
-        grouped_instruction: &GroupedInstruction,
-        _: &InstructionIndex,
-        _: Option<&InvocationIo<InvocationIoItems>>,
-        maybe_typed_invocation: Option<&TypedManifestNativeInvocation>,
+        _: &mut Self::RequirementState,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        _: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
     ) {
-        // We're interested in invocations and in the invoked address so we
-        // compute that. In the event that the instruction isn't an invocation
-        // or that it's not one to a global entity then we return from this
-        // method having done no work.
-        let Some(address) = grouped_instruction
-            .as_invocation_instructions()
-            .and_then(|invocation| invocation.invoked_global_entity())
-        else {
-            return;
-        };
+    }
 
-        // Getting the grouped entity type for the address.
-        let grouped_entity_type = match address {
-            ManifestGlobalAddress::Named(named_address) => named_address_store
-                .get(&named_address)
-                .and_then(BlueprintId::entity_type),
-            ManifestGlobalAddress::Static(static_address) => {
-                static_address.as_node_id().entity_type()
-            }
-        }
-        .map(GroupedEntityType::from);
-        let is_account = grouped_entity_type.is_some_and(|entity_type| {
-            entity_type.belongs_to_account_entities()
-        });
-        let is_identity = grouped_entity_type.is_some_and(|entity_type| {
-            entity_type.belongs_to_identity_entities()
-        });
-
-        // Analyzing the invocation to determine if it's a reserved instruction.
+    fn process_instruction(
+        &mut self,
+        _: &NamedAddressStore,
+        _: &GroupedInstruction,
+        maybe_typed_invocation: Option<(
+            &ManifestInvocationReceiver,
+            &TypedManifestNativeInvocation,
+        )>,
+    ) {
         match maybe_typed_invocation {
-            Some(TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(method),
-            )) => match method {
-                AccountBlueprintMethod::Securify(..) => {
-                    self.0.account_securify_invocations.insert(address);
-                }
-                AccountBlueprintMethod::LockFee(..)
-                | AccountBlueprintMethod::LockContingentFee(..)
-                | AccountBlueprintMethod::LockFeeAndWithdraw(..)
-                | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..) => {
-                    self.0.account_lock_fee_invocations.insert(address);
-                }
-                AccountBlueprintMethod::Deposit(..)
-                | AccountBlueprintMethod::DepositBatch(..)
-                | AccountBlueprintMethod::Withdraw(..)
-                | AccountBlueprintMethod::WithdrawNonFungibles(..)
-                | AccountBlueprintMethod::Burn(..)
-                | AccountBlueprintMethod::BurnNonFungibles(..)
-                | AccountBlueprintMethod::CreateProofOfAmount(..)
-                | AccountBlueprintMethod::CreateProofOfNonFungibles(..)
-                | AccountBlueprintMethod::SetDefaultDepositRule(..)
-                | AccountBlueprintMethod::SetResourcePreference(..)
-                | AccountBlueprintMethod::RemoveResourcePreference(..)
-                | AccountBlueprintMethod::TryDepositOrRefund(..)
-                | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
-                | AccountBlueprintMethod::TryDepositOrAbort(..)
-                | AccountBlueprintMethod::TryDepositBatchOrAbort(..)
-                | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..) => {}
-            },
-            Some(TypedManifestNativeInvocation::IdentityBlueprintInvocation(
-                IdentityBlueprintInvocation::Method(IdentityBlueprintMethod::Securify(
-                    ..,
-                )),
+            // Account
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(AccountBlueprintMethod::Securify(
+                        ..,
+                    )),
+                ),
             )) => {
-                self.0.identity_securify_invocations.insert(address);
+                self.0.account_securify_invocations.insert(receiver.into());
             }
-            Some(TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                AccessControllerBlueprintInvocation::Method(..),
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(
+                        AccountBlueprintMethod::LockFee(..)
+                        | AccountBlueprintMethod::LockContingentFee(..)
+                        | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+                    ),
+                ),
             )) => {
-                self.0.access_controller_invocations.insert(address);
+                self.0.account_lock_fee_invocations.insert(receiver.into());
             }
-            Some(TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Set(
-                    MetadataSetInput { key, .. },
-                )),
-            )) if key == "owner_keys" => {
-                if is_account {
-                    self.0
-                        .account_update_owner_keys_metadata_field_invocations
-                        .insert(address);
-                } else if is_identity {
-                    self.0
-                        .identity_update_owner_keys_metadata_field_invocations
-                        .insert(address);
-                }
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Set(
+                        MetadataSetInput { key, .. },
+                    )),
+                ),
+            )) if key == "owner_keys" && receiver.is_account() => {
+                self.0
+                    .account_update_owner_keys_metadata_field_invocations
+                    .insert(receiver.into());
             }
-            Some(TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Lock(
-                    MetadataLockInput { key, .. },
-                )),
-            )) if key == "owner_keys" => {
-                if is_account {
-                    self.0
-                        .account_lock_owner_keys_metadata_field_invocations
-                        .insert(address);
-                } else if is_identity {
-                    self.0
-                        .identity_lock_owner_keys_metadata_field_invocations
-                        .insert(address);
-                }
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Lock(
+                        MetadataLockInput { key, .. },
+                    )),
+                ),
+            )) if key == "owner_keys" && receiver.is_account() => {
+                self.0
+                    .account_lock_owner_keys_metadata_field_invocations
+                    .insert(receiver.into());
+            }
+            // Identity
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                    IdentityBlueprintInvocation::Method(
+                        IdentityBlueprintMethod::Securify(..),
+                    ),
+                ),
+            )) => {
+                self.0.identity_securify_invocations.insert(receiver.into());
+            }
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Set(
+                        MetadataSetInput { key, .. },
+                    )),
+                ),
+            )) if key == "owner_keys" && receiver.is_identity() => {
+                self.0
+                    .account_update_owner_keys_metadata_field_invocations
+                    .insert(receiver.into());
+            }
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Lock(
+                        MetadataLockInput { key, .. },
+                    )),
+                ),
+            )) if key == "owner_keys" && receiver.is_identity() => {
+                self.0
+                    .account_lock_owner_keys_metadata_field_invocations
+                    .insert(receiver.into());
+            }
+            // Access Controller
+            Some((
+                ManifestInvocationReceiver::GlobalMethod(receiver),
+                TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                    AccessControllerBlueprintInvocation::Method(..),
+                ),
+            )) => {
+                self.0.access_controller_invocations.insert(receiver.into());
             }
             _ => {}
         }

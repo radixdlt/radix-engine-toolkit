@@ -15,12 +15,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod dynamic_analyzer;
-mod permission_state;
-mod requirement_state;
-mod static_analyzer;
+use crate::internal_prelude::*;
 
-pub use dynamic_analyzer::*;
-pub use permission_state::*;
-pub use requirement_state::*;
-pub use static_analyzer::*;
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SimplePermissionState(bool);
+
+impl Default for SimplePermissionState {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+
+impl ManifestAnalyzerPermissionState for SimplePermissionState {
+    fn all_instructions_permitted(&self) -> bool {
+        self.0
+    }
+}
+
+impl SimplePermissionState {
+    pub fn new(value: bool) -> Self {
+        Self(value)
+    }
+
+    pub fn next_instruction_is_not_permitted(&mut self) {
+        self.next_instruction_status(false)
+    }
+
+    pub fn next_instruction_is_permitted(&mut self) {
+        self.next_instruction_status(true)
+    }
+
+    pub fn next_instruction_status(&mut self, is_permitted: bool) {
+        self.0 &= is_permitted
+    }
+}

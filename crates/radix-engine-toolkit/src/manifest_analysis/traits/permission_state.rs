@@ -15,12 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod dynamic_analyzer;
-mod permission_state;
-mod requirement_state;
-mod static_analyzer;
-
-pub use dynamic_analyzer::*;
-pub use permission_state::*;
-pub use requirement_state::*;
-pub use static_analyzer::*;
+/// A trait used to describe the state whether all the instructions that the
+/// visitor encountered were permitted or not.
+pub trait ManifestAnalyzerPermissionState {
+    /// A method that computes if all of the instructions that were encountered
+    /// in a manifest were permitted for some visitor or not.
+    fn all_instructions_permitted(&self) -> bool;
+}
