@@ -32,15 +32,17 @@ where
     TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(_manifest: &TransactionManifestV2) -> StaticAnalysis {
-    todo!()
+pub fn statically_analyze(
+    manifest: &TransactionManifestV2,
+) -> Result<StaticAnalysis, ManifestAnalysisError> {
+    crate::internal_prelude::statically_analyze(manifest)
 }
 
 pub fn dynamically_analyze(
-    _manifest: &TransactionManifestV2,
-    _receipt: &RuntimeToolkitTransactionReceipt,
+    manifest: &TransactionManifestV2,
+    receipt: RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, ManifestAnalysisError> {
-    todo!()
+    crate::internal_prelude::dynamically_analyze(manifest, receipt)
 }
 
 pub fn statically_validate(

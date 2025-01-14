@@ -32,8 +32,10 @@ where
     SubintentManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(_manifest: &SubintentManifestV2) -> StaticAnalysis {
-    todo!()
+pub fn statically_analyze(
+    manifest: &SubintentManifestV2,
+) -> Result<StaticAnalysis, ManifestAnalysisError> {
+    crate::internal_prelude::statically_analyze(manifest)
 }
 
 pub fn as_enclosed(
