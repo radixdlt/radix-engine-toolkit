@@ -26,10 +26,8 @@ fn dynamic_analysis_new_non_fungible_list_initial_supply() {
     let (_, _, account) = ledger.new_allocated_account();
 
     // Act
-    let nf_id_1 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
-    let nf_id_2 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
+    let nf_id1 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
+    let nf_id2 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .create_non_fungible_resource(
@@ -38,11 +36,11 @@ fn dynamic_analysis_new_non_fungible_list_initial_supply() {
             false,
             NonFungibleResourceRoles::default(),
             ModuleConfig::default(),
-            Some(vec![(nf_id_1.clone(), ()), (nf_id_2.clone(), ())]),
+            Some(vec![(nf_id1.clone(), ()), (nf_id2.clone(), ())]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.analyze(manifest);
     let address = dynamic_analysis
         .entities_newly_created_summary
         .new_resource_entities
@@ -60,11 +58,11 @@ fn dynamic_analysis_new_non_fungible_list_initial_supply() {
     assert!(dynamic_analysis
         .entities_newly_created_summary
         .new_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_1)));
+        .contains(&NonFungibleGlobalId::new(*address, nf_id1)));
     assert!(dynamic_analysis
         .entities_newly_created_summary
         .new_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
+        .contains(&NonFungibleGlobalId::new(*address, nf_id2)));
 }
 
 #[test]
@@ -74,10 +72,8 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_allocated_account();
 
-    let nf_id_1 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
-    let nf_id_2 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
+    let nf_id1 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
+    let nf_id2 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .create_non_fungible_resource(
@@ -86,7 +82,7 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
             false,
             NonFungibleResourceRoles::single_locked_rule(AccessRule::AllowAll),
             ModuleConfig::default(),
-            Some(vec![(nf_id_1.clone(), ())]),
+            Some(vec![(nf_id1.clone(), ())]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
@@ -100,10 +96,10 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
     // Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
-        .mint_non_fungible(*address, vec![(nf_id_2.clone(), ())])
+        .mint_non_fungible(*address, vec![(nf_id2.clone(), ())])
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -116,7 +112,7 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
     assert!(dynamic_analysis
         .entities_newly_created_summary
         .new_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
+        .contains(&NonFungibleGlobalId::new(*address, nf_id2)));
 }
 
 #[test]
@@ -126,8 +122,7 @@ fn dynamic_analysis_new_non_fungible_list_after_burn() {
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_allocated_account();
 
-    let nf_id_1 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
+    let nf_id1 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .create_non_fungible_resource(
@@ -136,7 +131,7 @@ fn dynamic_analysis_new_non_fungible_list_after_burn() {
             false,
             NonFungibleResourceRoles::single_locked_rule(AccessRule::AllowAll),
             ModuleConfig::default(),
-            Some(vec![(nf_id_1.clone(), ())]),
+            Some(vec![(nf_id1.clone(), ())]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
@@ -152,10 +147,10 @@ fn dynamic_analysis_new_non_fungible_list_after_burn() {
         .lock_fee_from_faucet()
         .burn_non_fungible_in_account(
             account,
-            NonFungibleGlobalId::new(*address, nf_id_1),
+            NonFungibleGlobalId::new(*address, nf_id1),
         )
         .build();
-    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -174,12 +169,9 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_allocated_account();
 
-    let nf_id_1 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
-    let nf_id_2 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
-    let nf_id_3 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(3));
+    let nf_id1 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
+    let nf_id2 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
+    let nf_id3 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(3));
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .create_non_fungible_resource(
@@ -188,7 +180,7 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
             false,
             NonFungibleResourceRoles::single_locked_rule(AccessRule::AllowAll),
             ModuleConfig::default(),
-            Some(vec![(nf_id_1.clone(), ()), (nf_id_2.clone(), ())]),
+            Some(vec![(nf_id1.clone(), ()), (nf_id2.clone(), ())]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
@@ -202,14 +194,14 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
     // Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
-        .mint_non_fungible(*address, vec![(nf_id_3.clone(), ())])
+        .mint_non_fungible(*address, vec![(nf_id3.clone(), ())])
         .burn_non_fungible_in_account(
             account,
-            NonFungibleGlobalId::new(*address, nf_id_2),
+            NonFungibleGlobalId::new(*address, nf_id2),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -222,7 +214,7 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
     assert!(dynamic_analysis
         .entities_newly_created_summary
         .new_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_3)));
+        .contains(&NonFungibleGlobalId::new(*address, nf_id3)));
 }
 
 #[test]
@@ -239,10 +231,8 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_allocated_account();
 
-    let nf_id_1 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
-    let nf_id_2 =
-        NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
+    let nf_id1 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
+    let nf_id2 = NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(2));
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .create_non_fungible_resource(
@@ -253,13 +243,13 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
             ModuleConfig::default(),
             Some(vec![
                 (
-                    nf_id_1.clone(),
+                    nf_id1.clone(),
                     NfData {
                         name: "data_1".to_string(),
                     },
                 ),
                 (
-                    nf_id_2.clone(),
+                    nf_id2.clone(),
                     NfData {
                         name: "data_2".to_string(),
                     },
@@ -278,9 +268,9 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
     // Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
-        .update_non_fungible_data(*address, nf_id_1, "name", "new_data")
+        .update_non_fungible_data(*address, nf_id1, "name", "new_data")
         .build();
-    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(

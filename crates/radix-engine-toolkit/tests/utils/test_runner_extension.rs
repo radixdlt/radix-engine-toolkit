@@ -20,6 +20,7 @@ use radix_engine::transaction::*;
 use radix_engine::vm::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_common::receipt::*;
 use scrypto_test::prelude::*;
 
 #[extend::ext]
@@ -45,11 +46,26 @@ where
         )
     }
 
-    fn summarize(
+    fn analyze(
         &mut self,
-        _manifest: TransactionManifestV1,
+        manifest: TransactionManifestV1,
     ) -> (StaticAnalysis, DynamicAnalysis) {
-        todo!()
+        let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
+        if !receipt.is_commit_success() {
+            panic!("Not commit success: {receipt:?}")
+        }
+
+        let static_analysis =
+            radix_engine_toolkit::prelude::statically_analyze(&manifest)
+                .unwrap();
+        let dynamic_analysis =
+            radix_engine_toolkit::prelude::dynamically_analyze(
+                &manifest,
+                RuntimeToolkitTransactionReceipt::try_from(receipt).unwrap(),
+            )
+            .unwrap();
+
+        (static_analysis, dynamic_analysis)
     }
 
     fn new_validator(

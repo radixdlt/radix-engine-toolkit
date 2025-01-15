@@ -82,6 +82,7 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
     );
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default, Hash)]
 pub struct CombinedAnalysisOutput<A, B> {
     pub static_analyzer_output: A,
     pub dynamic_analyzer_output: B,

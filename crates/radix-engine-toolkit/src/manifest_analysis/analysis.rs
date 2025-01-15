@@ -72,7 +72,7 @@ pub fn statically_analyze(
         entities_requiring_auth: Some(entities_requiring_auth_summary),
         presented_proofs: Some(proofs_created_summary),
         reserved_instructions: Some(reserved_instructions_summary),
-        account_dynamic_resource_movements: None,
+        account_dynamic_resource_movements: Some(..),
         /* Manifest Classification */
         general_classification,
         general_subintent_classification,
@@ -165,31 +165,31 @@ pub fn dynamically_analyze(
         account_interactions:
             CombinedAnalysisOutput {
                 static_analyzer_output: Some(account_interactions_summary),
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         encountered_entities:
             CombinedAnalysisOutput {
                 static_analyzer_output: Some(entities_encountered_summary),
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         entities_requiring_auth:
             CombinedAnalysisOutput {
                 static_analyzer_output: Some(entities_requiring_auth_summary),
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         presented_proofs:
             CombinedAnalysisOutput {
                 static_analyzer_output: Some(proofs_created_summary),
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         reserved_instructions:
             CombinedAnalysisOutput {
                 static_analyzer_output: Some(reserved_instructions_summary),
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         account_dynamic_resource_movements:
             CombinedAnalysisOutput {
-                static_analyzer_output: None,
+                static_analyzer_output: _,
                 dynamic_analyzer_output:
                     Some(account_dynamic_resource_movements_summary),
             },
@@ -197,27 +197,27 @@ pub fn dynamically_analyze(
         general_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: general_classification,
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         general_subintent_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: general_subintent_classification,
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         transfer_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: transfer_classification,
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         simple_transfer_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: simple_transfer_classification,
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
         account_settings_update_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: account_settings_update_classification,
-                dynamic_analyzer_output: None,
+                dynamic_analyzer_output: _,
             },
     } = resolved_composite_output
     else {

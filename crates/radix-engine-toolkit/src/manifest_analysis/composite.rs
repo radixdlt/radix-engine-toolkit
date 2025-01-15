@@ -288,24 +288,28 @@ macro_rules! define_composite_analyzer {
                 )*
             }
 
+            #[derive(Debug)]
             pub struct [< $type_ident StaticOutput >] {
                 $(
                     pub $analyzer_ident: <$analyzer_type as $crate::internal_prelude::ManifestStaticAnalyzer>::Output,
                 )*
             }
 
+            #[derive(Debug)]
             pub struct [< $type_ident ResolvedStaticOutput >] {
                 $(
                     pub $analyzer_ident: Option<<$analyzer_type as $crate::internal_prelude::ManifestStaticAnalyzer>::Output>,
                 )*
             }
 
+            #[derive(Debug)]
             pub struct [< $type_ident DynamicOutput >] {
                 $(
                     pub $analyzer_ident: <$analyzer_type as $crate::internal_prelude::ManifestDynamicAnalyzer>::Output,
                 )*
             }
 
+            #[derive(Debug)]
             pub struct [< $type_ident ResolvedDynamicOutput >] {
                 $(
                     pub $analyzer_ident: $crate::internal_prelude::CombinedAnalysisOutput<

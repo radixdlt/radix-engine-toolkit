@@ -33,6 +33,15 @@ use scrypto_test::prelude::*;
 /// This is a test to ensure that the take and return to worktop operations will
 /// produce an event in the worktop changes even if the amount is zero and that
 /// this event doesn't get silently swallowed.
+///
+/// This test tells us that:
+/// 1. Some of the take entire worktop or abort interactions would have no
+///    worktop changes in the case that the worktop is empty, even if there
+///    is a single empty bucket on there.
+/// 2. A take from worktop of zero has a worktop changes event.
+/// 3. A return to worktop of zero has a worktop changes event.
+///
+/// We need to build the toolkit's internal logic with the above in mind.
 #[test]
 fn take_and_return_to_worktop_of_zero_have_worktop_change_events() {
     // Arrange
@@ -64,6 +73,7 @@ fn take_and_return_to_worktop_of_zero_have_worktop_change_events() {
         .as_ref()
         .unwrap()
         .worktop_changes();
+    println!("{worktop_changes:#?}");
     assert_eq!(
         worktop_changes.get(&0),
         Some(&vec![WorktopChange::Put(ResourceSpecifier::Amount(
@@ -85,13 +95,7 @@ fn take_and_return_to_worktop_of_zero_have_worktop_change_events() {
             dec!(0)
         ))])
     );
-    assert_eq!(
-        worktop_changes.get(&3),
-        Some(&vec![WorktopChange::Take(ResourceSpecifier::Amount(
-            XRD,
-            dec!(0)
-        ))])
-    );
+    assert_eq!(worktop_changes.get(&3), None);
 }
 
 /// This test ensures that when we perform a take and return to worktop of a
