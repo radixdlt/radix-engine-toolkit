@@ -123,4 +123,50 @@ where
         let current_epoch = self.get_current_epoch();
         self.set_current_epoch(current_epoch.after(by).unwrap());
     }
+
+    fn new_allow_all_access_controller(
+        &mut self,
+    ) -> (ComponentAddress, ComponentAddress) {
+        let (pk, _, account) = self.new_account(true);
+        let manifest = ManifestBuilder::new()
+            .lock_fee_from_faucet()
+            .call_method(
+                account,
+                ACCOUNT_SECURIFY_IDENT,
+                AccountSecurifyManifestInput {},
+            )
+            .take_all_from_worktop(ACCOUNT_OWNER_BADGE, "bucket")
+            .then(|builder| {
+                let bucket = builder.bucket("bucket");
+
+                builder.call_function(
+                    ACCESS_CONTROLLER_PACKAGE,
+                    ACCESS_CONTROLLER_BLUEPRINT,
+                    ACCESS_CONTROLLER_CREATE_IDENT,
+                    AccessControllerCreateManifestInput {
+                        controlled_asset: bucket,
+                        rule_set: RuleSet {
+                            primary_role: rule!(allow_all),
+                            recovery_role: rule!(allow_all),
+                            confirmation_role: rule!(allow_all),
+                        },
+                        timed_recovery_delay_in_minutes: None,
+                        address_reservation: None,
+                    },
+                )
+            })
+            .build();
+        let receipt = self.execute_manifest(
+            manifest,
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        );
+        let access_controller = receipt
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
+        (account, access_controller)
+    }
 }

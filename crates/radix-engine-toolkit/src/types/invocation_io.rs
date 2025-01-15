@@ -52,7 +52,7 @@ impl IndexedInvocationIo {
 
         self.0
             .get(instruction_index)
-            .unwrap_or(EMPTY.get_or_init(|| InvocationIo::default()))
+            .unwrap_or(EMPTY.get_or_init(Default::default))
     }
 
     pub fn add(

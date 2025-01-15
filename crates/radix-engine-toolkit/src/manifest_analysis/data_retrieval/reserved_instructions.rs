@@ -138,7 +138,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
                 ),
             )) if key == "owner_keys" && receiver.is_identity() => {
                 self.0
-                    .account_update_owner_keys_metadata_field_invocations
+                    .identity_update_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
             Some((
@@ -150,7 +150,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
                 ),
             )) if key == "owner_keys" && receiver.is_identity() => {
                 self.0
-                    .account_lock_owner_keys_metadata_field_invocations
+                    .identity_lock_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
             // Access Controller

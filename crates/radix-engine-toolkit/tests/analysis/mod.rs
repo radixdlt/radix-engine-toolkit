@@ -18,3 +18,4 @@
 mod classification;
 mod dynamic_resource_movements;
 mod non_fungible_dynamic_analysis;
+mod reserved_instructions;
