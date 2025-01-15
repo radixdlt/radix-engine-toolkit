@@ -236,7 +236,7 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
                 ),
             )) => {
                 self.0
-                    .account_withdraws
+                    .account_deposits
                     .entry(*account_address)
                     .or_default()
                     .extend(invocation_io.input.items_iter().cloned());

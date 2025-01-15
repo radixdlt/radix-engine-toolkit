@@ -15,16 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod analysis;
+use crate::prelude::*;
 
-pub mod utils;
+#[test]
+fn empty_manifest_has_no_manifest_classification() {
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let manifest = ManifestBuilder::new().build();
 
-#[allow(ambiguous_glob_reexports)]
-pub mod prelude {
-    pub use crate::utils::*;
-    pub use radix_common::prelude::*;
-    pub use radix_engine_interface::prelude::*;
-    pub use radix_engine_toolkit::prelude::*;
-    pub use scrypto::prelude::*;
-    pub use scrypto_test::prelude::*;
+    // Act
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+
+    // Assert
+    assert_eq!(static_analysis.manifest_classification.len(), 0);
+    assert_eq!(dynamic_analysis.detailed_manifest_classification.len(), 0);
 }

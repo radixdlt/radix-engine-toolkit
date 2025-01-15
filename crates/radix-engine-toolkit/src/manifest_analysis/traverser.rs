@@ -421,18 +421,18 @@ fn resolve_typed_invocation(
 #[derive(Debug)]
 pub enum TraverserError {
     InvalidNamedAddress,
-    InvocationIoError(InvocationIoError),
+    StaticResourceMovementsError(Box<StaticResourceMovementsError>),
     TypedManifestNativeInvocationError(Box<TypedManifestNativeInvocationError>),
+}
+
+impl From<Box<StaticResourceMovementsError>> for TraverserError {
+    fn from(v: Box<StaticResourceMovementsError>) -> Self {
+        Self::StaticResourceMovementsError(v)
+    }
 }
 
 impl From<TypedManifestNativeInvocationError> for TraverserError {
     fn from(v: TypedManifestNativeInvocationError) -> Self {
         Self::TypedManifestNativeInvocationError(Box::new(v))
-    }
-}
-
-impl From<InvocationIoError> for TraverserError {
-    fn from(v: InvocationIoError) -> Self {
-        Self::InvocationIoError(v)
     }
 }

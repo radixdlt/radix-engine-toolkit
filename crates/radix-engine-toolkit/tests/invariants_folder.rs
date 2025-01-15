@@ -26,4 +26,5 @@ pub mod prelude {
     pub use radix_engine_interface::prelude::*;
     pub use radix_engine_toolkit::prelude::*;
     pub use scrypto::prelude::*;
+    pub use scrypto_test::prelude::*;
 }

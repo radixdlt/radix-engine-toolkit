@@ -207,16 +207,15 @@ pub struct GeneralInitializer {
 pub struct GeneralRequirementState {
     for_subintent: bool,
     is_yield_to_parent_seen: bool,
+    is_any_instruction_seen: bool,
 }
 
 impl ManifestAnalyzerRequirementState for GeneralRequirementState {
     fn all_requirements_met(&self) -> bool {
-        // The yield to parent requirement is only required in subintents.
-        // Otherwise, there are no requirements for this transaction type.
         if self.for_subintent {
             self.is_yield_to_parent_seen
         } else {
-            true
+            self.is_any_instruction_seen
         }
     }
 }
@@ -226,10 +225,12 @@ impl GeneralRequirementState {
         Self {
             for_subintent,
             is_yield_to_parent_seen: false,
+            is_any_instruction_seen: false,
         }
     }
 
     pub fn handle_instruction(&mut self, instruction: &GroupedInstruction) {
+        self.is_any_instruction_seen = true;
         self.is_yield_to_parent_seen |=
             instruction.as_yield_to_parent().is_some()
     }

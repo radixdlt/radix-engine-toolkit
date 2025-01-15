@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod address_allocator;
 mod test_data;
 mod test_runner_extension;
 
+pub use address_allocator::*;
 pub use test_data::*;
 pub use test_runner_extension::*;

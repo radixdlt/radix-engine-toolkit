@@ -15,884 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO(tests): These tests are disabled because some of the code that they rely
-// on has been removed. They will be added at a later point in this same PR but
-// not in this commit.
+mod general;
+mod general_subintent;
+mod transfer;
+
 /*
-use radix_engine::blueprints::pool::v1::constants::*;
-use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine_interface::blueprints::account::*;
-use radix_engine_interface::blueprints::consensus_manager::*;
-use radix_engine_interface::blueprints::pool::*;
-use radix_engine_toolkit::prelude::*;
-use radix_transactions::prelude::*;
-use scrypto_test::prelude::*;
 
-mod test_runner_extension;
-use test_runner_extension::LedgerSimulatorEDExt;
-
-macro_rules! assert_eq_three {
-    (
-        $item1: expr,
-        $item2: expr,
-        $item3: expr $(,)?
-    ) => {
-        assert_eq!($item1, $item2);
-        assert_eq!($item2, $item3);
-    };
-    (
-        $item1: expr,
-        $item2: expr,
-        $item3: expr,
-        $($tokens: tt)?
-    ) => {
-        assert_eq!($item1, $item2, $($tokens)*);
-        assert_eq!($item2, $item3, $($tokens)*);
-    };
-}
-
-#[test]
-fn empty_manifest_matches_none_of_the_transaction_types() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let manifest = ManifestBuilder::new().build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq!(static_analysis.classification.len(), 0);
-    assert_eq!(dynamic_analysis.detailed_classification.len(), 0);
-}
-
-#[test]
-fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
-) {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .lock_fee(account1, 10)
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_abort(account2, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        2
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::Transfer, ManifestClass::General]
-    );
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        &dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::Transfer {
-            is_one_to_one: true
-        }
-    ));
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[1],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_abort(account2, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        2
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::Transfer, ManifestClass::General]
-    );
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::Transfer {
-            is_one_to_one: true
-        }
-    ));
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[1],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_abort(account2, None, "xrd")
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd1")
-        .try_deposit_or_abort(account2, None, "xrd1")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        2
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::Transfer, ManifestClass::General]
-    );
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::Transfer {
-            is_one_to_one: false
-        }
-    ));
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[1],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn transfers_with_try_deposit_or_refund_are_invalid() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_refund(account2, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        0
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![]);
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn lock_fee_is_recognized_as_a_reserved_instruction1() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_refund(account2, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        0
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![]);
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn lock_fee_is_recognized_as_a_reserved_instruction2() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-    let (_, _, account2) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw(account1, 10, XRD, 10)
-        .take_from_worktop(XRD, 10, "xrd")
-        .try_deposit_or_refund(account2, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        0
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![]);
-
-    assert_eq!(
-        dynamic_analysis.account_withdraws,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account2 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .get_free_xrd_from_faucet()
-        .take_from_worktop(XRD, 10_000, "xrd")
-        .try_deposit_or_abort(account1, None, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(FAUCET),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account1),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        1
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::General]
-    );
-
-    assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .get_free_xrd_from_faucet()
-        .take_from_worktop(XRD, 10_000, "xrd")
-        .deposit(account1, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(FAUCET),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account1),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        1
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::General]
-    );
-
-    assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .get_free_xrd_from_faucet()
-        .deposit_entire_worktop(account1)
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![GlobalAddress::from(FAUCET), GlobalAddress::from(account1),]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        1
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::General]
-    );
-
-    assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
-
-#[test]
-fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-
-    let (_, _, account1) = ledger.new_account(false);
-
-    let manifest = ManifestBuilder::new()
-        .get_free_xrd_from_faucet()
-        .take_all_from_worktop(XRD, "xrd")
-        .deposit(account1, "xrd")
-        .build();
-
-    // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
-
-    // Assert
-    assert_eq_three!(
-        static_analysis.presented_proofs.len(),
-        dynamic_analysis.presented_proofs.len(),
-        0
-    );
-    assert_eq_three!(
-        static_analysis.encountered_entities,
-        dynamic_analysis.encountered_entities,
-        indexset![
-            GlobalAddress::from(FAUCET),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account1),
-        ]
-    );
-    assert_eq_three!(
-        static_analysis.accounts_requiring_auth,
-        dynamic_analysis.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq_three!(
-        static_analysis.identities_requiring_auth,
-        dynamic_analysis.identities_requiring_auth,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.reserved_instructions,
-        dynamic_analysis.reserved_instructions,
-        indexset![]
-    );
-    assert_eq_three!(
-        static_analysis.classification.len(),
-        dynamic_analysis.detailed_classification.len(),
-        1
-    );
-
-    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
-    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(
-        static_analysis.classification,
-        indexset![ManifestClass::General]
-    );
-
-    assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(
-        dynamic_analysis.account_deposits,
-        indexmap! {
-            account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
-            ]
-        }
-    );
-    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
-    assert!(matches!(
-        dynamic_analysis.detailed_classification[0],
-        DetailedManifestClass::General
-    ));
-
-    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
-}
 
 #[test]
 fn pool_contribution_transactions_are_recognized() {
@@ -954,7 +82,7 @@ fn pool_contribution_transactions_are_recognized() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
     assert_eq_three!(
         static_analysis.presented_proofs.len(),
         dynamic_analysis.presented_proofs.len(),
@@ -1165,7 +293,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
     assert_eq_three!(
         static_analysis.presented_proofs.len(),
         dynamic_analysis.presented_proofs.len(),
@@ -1445,7 +573,7 @@ fn pool_redemption_transactions_are_recognized() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
     assert_eq_three!(
         static_analysis.presented_proofs.len(),
         dynamic_analysis.presented_proofs.len(),
@@ -1625,7 +753,7 @@ fn validator_stake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq_three!(
@@ -1764,7 +892,7 @@ fn validator_unstake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq_three!(
@@ -1990,7 +1118,7 @@ fn validator_claim_transactions_are_recognized() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq_three!(
@@ -2186,7 +1314,7 @@ fn account_deposit_settings_changes_are_recognized() {
             },
         )
         .build();
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     assert_eq_three!(
         static_analysis.presented_proofs.len(),
@@ -2251,7 +1379,7 @@ fn account_deposit_settings_changes_are_recognized() {
                 account => indexmap! {
                     ResourceOrNonFungible::Resource(XRD) => Operation::Added,
                     ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE) => Operation::Removed
-                }
+                }ˇ
             },
         }
     );
@@ -2279,7 +1407,7 @@ fn presented_proofs_fungible() {
         .create_proof_from_account_of_amount(account_1, address_1, 80)
         .create_proof_from_account_of_amount(account_2, address_3, 5)
         .build();
-    let (static_analysis, _) = ledger.summarize(manifest);
+    let (static_analysis, _) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(static_analysis.presented_proofs.len(), 2);
@@ -2359,7 +1487,7 @@ fn presented_proofs_non_fungible() {
             [NonFungibleLocalId::integer(2)],
         )
         .build();
-    let (static_analysis, _) = ledger.summarize(manifest);
+    let (static_analysis, _) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(static_analysis.presented_proofs.len(), 2);
@@ -2561,7 +1689,7 @@ fn account_locker_is_recognized_as_general_transaction() {
         })
         .deposit_entire_worktop(account)
         .build();
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     // Assert
     assert_eq_three!(
@@ -2627,7 +1755,7 @@ fn lock_fee_manifest_has_no_classification_except_general() {
 
     // Act
     let manifest = ManifestBuilder::new().lock_fee(account, 10).build();
-    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
 
     println!("{:#?}", static_analysis.classification);
 

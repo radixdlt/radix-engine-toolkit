@@ -72,7 +72,7 @@ impl IndexedInvocationIo {
     pub fn compute(
         manifest: &impl ReadableManifest,
         worktop_changes: &WorktopChanges,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, Box<StaticResourceMovementsError>> {
         let mut static_analysis =
             StaticAnalysisInvocationIo::compute(manifest)?;
         let mut dynamic_analysis =
@@ -90,9 +90,8 @@ impl IndexedInvocationIo {
             let dynamic_analysis = dynamic_analysis.remove(&instruction_index);
 
             let invocation_io = match static_analysis {
-                Some(static_analysis) => static_analysis
-                    .zip(dynamic_analysis)
-                    .map(|(static_analysis, dynamic_analysis)| {
+                Some(static_analysis) => static_analysis.zip(dynamic_analysis).map(
+                    |(static_analysis, dynamic_analysis)| {
                         let dynamic_analysis = dynamic_analysis
                             .into_iter()
                             .map(|value| value.map(Cow::into_owned))
@@ -101,8 +100,8 @@ impl IndexedInvocationIo {
                             static_analysis,
                             dynamic_analysis,
                         )
-                    })
-                    .swap_result()?,
+                    },
+                ),
                 // No static analysis is available for this invocation and only
                 // dynamic analysis is available. Therefore, we take everything
                 // in the dynamic analysis as the invocation io.
@@ -152,16 +151,6 @@ impl<T> InvocationIo<T> {
     }
 }
 
-impl<O, E> InvocationIo<Result<O, E>> {
-    pub fn swap_result(self) -> Result<InvocationIo<O>, E> {
-        let Self { input, output } = self;
-        match (input, output) {
-            (Ok(input), Ok(output)) => Ok(InvocationIo { input, output }),
-            (Err(err), _) | (_, Err(err)) => Err(err),
-        }
-    }
-}
-
 impl<T> InvocationIo<T>
 where
     T: Default,
@@ -204,7 +193,7 @@ impl InvocationIoItems {
     pub fn new_from_invocation_static_and_dynamic_information(
         static_analysis: TrackedResources,
         dynamic_analysis: Vec<Tracked<ResourceSpecifier>>,
-    ) -> Result<Self, Error> {
+    ) -> Self {
         // The dynamic analysis invocation inputs are hard to analyze in this
         // shape. So, we transform the vector into a map keyed by the resource
         // address to make it easier to analyze and to make it have a similar
@@ -251,11 +240,11 @@ impl InvocationIoItems {
                 static_information,
                 dynamic_information,
             )
-            .map(|value| value.expect("This can't fail"))?;
+            .expect("Can't fail - either static or dynamic is defined");
             this.combine(other);
         }
 
-        Ok(this)
+        this
     }
 
     /// Combines the static and dynamic information into [`InvocationIoItems`].
@@ -289,13 +278,6 @@ impl InvocationIoItems {
     ///       return them as [`Guaranteed`]
     ///     * Otherwise, we return them as [`Predicted`].
     ///
-    /// This function returns an [`Err`] if static analysis is defined but the
-    /// dynamic analysis is not. This case is considered to be an error by this
-    /// function as it violates this function's assumption on dynamic and static
-    /// analysis which is that the set of information known dynamically is a
-    /// superset of those known statically. Therefore, since its a superset, we
-    /// cant have something known statically but not dynamically.
-    ///
     /// This function returns [`None`] if both the static and dynamic analysis
     /// are [`None`]. Otherwise, and aside from the case mentioned above, some
     /// thing should be returned from this function.
@@ -308,17 +290,17 @@ impl InvocationIoItems {
         resource_address: ResourceAddress,
         static_information: Option<SimpleResourceBounds>,
         dynamic_information: Option<Vec<Tracked<ResourceSpecifier>>>,
-    ) -> Result<Option<Self>, InvocationIoError> {
+    ) -> Option<Self> {
         match (static_information, dynamic_information) {
             (
                 Some(SimpleResourceBounds::Fungible(
                     SimpleFungibleResourceBounds::Exact(exact_amount),
                 )),
                 _,
-            ) => Ok(Some(
+            ) => Some(
                 Self::empty()
                     .with_guaranteed_fungible(resource_address, exact_amount),
-            )),
+            ),
             (
                 Some(SimpleResourceBounds::NonFungible(
                     SimpleNonFungibleResourceBounds::Exact {
@@ -327,10 +309,10 @@ impl InvocationIoItems {
                 )),
                 _,
             ) => {
-                Ok(Some(Self::empty().with_guaranteed_non_fungible(
+                Some(Self::empty().with_guaranteed_non_fungible(
                     resource_address,
                     certain_ids,
-                )))
+                ))
             }
             (
                 Some(SimpleResourceBounds::Fungible(
@@ -348,17 +330,51 @@ impl InvocationIoItems {
                 Some(dynamic_information),
             )
             | (None, Some(dynamic_information)) => {
-                Ok(Some(dynamic_information.into_iter().fold(
+                Some(dynamic_information.into_iter().fold(
                     Self::empty(),
                     |acc, specifier| {
                         acc.with_predicted_tracked_resource_specifier(specifier)
                     },
-                )))
+                ))
             }
-            (Some(_), None) => {
-                Err(Error::NoDynamicAnalysisWhenStaticAnalysisIsPresent)
+            // We have identified this case of there being static analysis but
+            // no dynamic analysis in the case of the `or_refund` methods on the
+            // account blueprint.
+            //
+            // When an `or_refund` deposit takes place the static analyzer also
+            // accounts for the possibility of the resources being returned back
+            // from the method. However, the dynamic analyzer knows concretely
+            // if they will be returned back or not. Therefore, there's a case
+            // where the dynamic analyzer knows that the resources will NOT be
+            // returned back and doesn't have any kind of resource movements but
+            // the static analyzer is unsure.
+            //
+            // The best way to solve this is to say that if the static analyzer
+            // knows that an exact amount of resources are returned then we will
+            // take what it has to say. Otherwise, if not, then we will take the
+            // dynamic analyzer's account of what's taking place which is no
+            // resources.
+            (Some(static_information), None) => {
+                let this = Self::empty();
+                match static_information {
+                    SimpleResourceBounds::Fungible(
+                        SimpleFungibleResourceBounds::Exact(amount),
+                    ) => Some(
+                        this.with_guaranteed_fungible(resource_address, amount),
+                    ),
+                    SimpleResourceBounds::NonFungible(
+                        SimpleNonFungibleResourceBounds::Exact {
+                            certain_ids,
+                            ..
+                        },
+                    ) => Some(this.with_guaranteed_non_fungible(
+                        resource_address,
+                        certain_ids,
+                    )),
+                    _ => Some(this),
+                }
             }
-            (None, None) => Ok(None),
+            (None, None) => None,
         }
     }
 
@@ -795,7 +811,9 @@ struct StaticAnalysisInvocationIo(
 );
 
 impl StaticAnalysisInvocationIo {
-    pub fn compute(manifest: &impl ReadableManifest) -> Result<Self, Error> {
+    pub fn compute(
+        manifest: &impl ReadableManifest,
+    ) -> Result<Self, Box<StaticResourceMovementsError>> {
         // The initial worktop state is only unknown if the manifest is a
         // subintent manifest. Otherwise, in the case of a v1 or v2 manifest the
         // initial worktop state is known to be zero since they can't be used as
@@ -1005,18 +1023,5 @@ impl<'a> DynamicAnalysisInvocationIo<'a> {
         &self,
     ) -> impl Iterator<Item = &InstructionIndex> {
         self.0.keys()
-    }
-}
-
-#[derive(Debug)]
-pub enum InvocationIoError {
-    StaticResourceMovementsError(Box<StaticResourceMovementsError>),
-    NoDynamicAnalysisWhenStaticAnalysisIsPresent,
-}
-use InvocationIoError as Error;
-
-impl From<StaticResourceMovementsError> for InvocationIoError {
-    fn from(v: StaticResourceMovementsError) -> Self {
-        Self::StaticResourceMovementsError(Box::new(v))
     }
 }
