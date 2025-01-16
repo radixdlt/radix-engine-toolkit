@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod canonical_address_types;
 mod detailed_transaction_type_output;
 mod grouped_entity_type;
 mod grouped_instruction;
@@ -32,7 +31,6 @@ mod transaction_hash;
 mod update;
 mod worktop_changes;
 
-pub use canonical_address_types::*;
 pub use detailed_transaction_type_output::*;
 pub use grouped_entity_type::*;
 pub use grouped_instruction::*;
