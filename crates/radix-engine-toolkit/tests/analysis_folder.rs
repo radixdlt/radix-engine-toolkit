@@ -22,6 +22,7 @@ pub mod utils;
 #[allow(ambiguous_glob_reexports)]
 pub mod prelude {
     pub use crate::utils::*;
+    pub use itertools::Itertools;
     pub use radix_common::prelude::*;
     pub use radix_engine_interface::prelude::*;
     pub use radix_engine_toolkit::prelude::*;
