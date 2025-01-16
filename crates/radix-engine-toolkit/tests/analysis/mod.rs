@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod account_interactions;
 mod classification;
 mod dynamic_resource_movements;
 mod non_fungible_dynamic_analysis;
