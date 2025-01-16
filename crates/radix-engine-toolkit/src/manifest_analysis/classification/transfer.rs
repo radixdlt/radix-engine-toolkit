@@ -87,14 +87,6 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
                         Some(GroupedEntityType::AccessControllerEntities(..)),
                         ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
                     ) => true,
-                    // Permitted Invocations
-                    (
-                        Some(
-                            GroupedEntityType::AccountLockerEntities(..)
-                            | GroupedEntityType::GenericComponentEntities(..),
-                        ),
-                        _,
-                    ) => true,
                     // Disallowed Invocations
                     (
                         Some(
@@ -106,7 +98,9 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
                             | GroupedEntityType::PackageEntities(..)
                             | GroupedEntityType::ValidatorEntities(..)
                             | GroupedEntityType::AccountEntities(..)
-                            | GroupedEntityType::AccessControllerEntities(..),
+                            | GroupedEntityType::AccessControllerEntities(..)
+                            | GroupedEntityType::AccountLockerEntities(..)
+                            | GroupedEntityType::GenericComponentEntities(..),
                         )
                         | None,
                         _,

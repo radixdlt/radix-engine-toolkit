@@ -104,6 +104,7 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         _: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
+        _: &InvocationIo<InvocationIoItems>,
         _: Option<(
             &ManifestInvocationReceiver,
             &TypedManifestNativeInvocation,

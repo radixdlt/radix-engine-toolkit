@@ -78,6 +78,11 @@ pub fn statically_analyze(
         general_subintent_classification,
         transfer_classification,
         simple_transfer_classification: _,
+        validator_stake_classification,
+        validator_unstake_classification,
+        validator_claim_classification,
+        pool_contribution_classification,
+        pool_redemption_classification,
         account_settings_update_classification,
     } = resolved_composite_output
     else {
@@ -96,6 +101,16 @@ pub fn statically_analyze(
             general_subintent_classification
                 .map(|_| ManifestClassification::GeneralSubintent),
             transfer_classification.map(|_| ManifestClassification::Transfer),
+            validator_stake_classification
+                .map(|_| ManifestClassification::ValidatorStake),
+            validator_unstake_classification
+                .map(|_| ManifestClassification::ValidatorUnstake),
+            validator_claim_classification
+                .map(|_| ManifestClassification::ValidatorClaimXrd),
+            pool_contribution_classification
+                .map(|_| ManifestClassification::PoolContribution),
+            pool_redemption_classification
+                .map(|_| ManifestClassification::PoolRedemption),
             account_settings_update_classification
                 .map(|_| ManifestClassification::AccountDepositSettingsUpdate),
         ]
@@ -214,6 +229,31 @@ pub fn dynamically_analyze(
                 static_analyzer_output: simple_transfer_classification,
                 dynamic_analyzer_output: _,
             },
+        validator_stake_classification:
+            CombinedAnalysisOutput {
+                static_analyzer_output: _,
+                dynamic_analyzer_output: validator_stake_classification,
+            },
+        validator_unstake_classification:
+            CombinedAnalysisOutput {
+                static_analyzer_output: _,
+                dynamic_analyzer_output: validator_unstake_classification,
+            },
+        validator_claim_classification:
+            CombinedAnalysisOutput {
+                static_analyzer_output: _,
+                dynamic_analyzer_output: validator_claim_classification,
+            },
+        pool_contribution_classification:
+            CombinedAnalysisOutput {
+                static_analyzer_output: _,
+                dynamic_analyzer_output: pool_contribution_classification,
+            },
+        pool_redemption_classification:
+            CombinedAnalysisOutput {
+                static_analyzer_output: _,
+                dynamic_analyzer_output: pool_redemption_classification,
+            },
         account_settings_update_classification:
             CombinedAnalysisOutput {
                 static_analyzer_output: account_settings_update_classification,
@@ -246,6 +286,16 @@ pub fn dynamically_analyze(
                         .is_some(),
                 }
             }),
+            validator_stake_classification
+                .map(DetailedManifestClassification::ValidatorStake),
+            validator_unstake_classification
+                .map(DetailedManifestClassification::ValidatorUnstake),
+            validator_claim_classification
+                .map(DetailedManifestClassification::ValidatorClaimXrd),
+            pool_contribution_classification
+                .map(DetailedManifestClassification::PoolContribution),
+            pool_redemption_classification
+                .map(DetailedManifestClassification::PoolRedemption),
             account_settings_update_classification.map(
                 DetailedManifestClassification::AccountDepositSettingsUpdate,
             ),
@@ -308,6 +358,11 @@ mod composite_analyzer {
                 DynamicAnalyzerWrapper<SimpleTransferAnalyzer>,
                 ()
             ),
+            validator_stake_classification: (ValidatorStakeAnalyzer, ()),
+            validator_unstake_classification: (ValidatorUnstakeAnalyzer, ()),
+            validator_claim_classification: (ValidatorClaimAnalyzer, ()),
+            pool_contribution_classification: (PoolContributionAnalyzer, ()),
+            pool_redemption_classification: (PoolRedemptionAnalyzer, ()),
             account_settings_update_classification: (
                 DynamicAnalyzerWrapper<AccountSettingsUpdateAnalyzer>,
                 ()

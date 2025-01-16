@@ -40,7 +40,28 @@ pub enum DetailedManifestClassification {
         /// transaction types specification.
         is_one_to_one_transfer: bool,
     },
-    /* TODO: Add the remaining transaction types here */
+    /// A manifest where XRD is withdrawn from one or more account(s), staked
+    /// to one or more validator(s), and the LSUs deposited into one or more
+    /// account(s).
+    ValidatorStake(ValidatorStakingOutput),
+    /// A manifest where LSUs are withdrawn from one or more account(s),
+    /// unstaked from one or more validator(s), and the claim NFT(s) are
+    /// deposited into one or more account(s).
+    ValidatorUnstake(ValidatorUnstakingOutput),
+    /// A manifest where claim NFT(s) are withdrawn from one or more account(s),
+    /// get claimed from one or more validator(s), and then the XRD is deposited
+    /// into one or more account(s).
+    ValidatorClaimXrd(ValidatorClaimingXrdOutput),
+    /// A manifest where fungible resources are contributed to a pool of any
+    /// kind. In this class resources are withdrawn from one or more account(s),
+    /// get contributed to one or more pool(s), and then the pool units get
+    /// deposited into one or more account(s).
+    PoolContribution(PoolContributionOutput),
+    /// A manifest where pool units are redeemed from a pool of any kind. In
+    /// this class pool units are withdrawn from one or more account(s), get
+    /// contributed to one or more pool(s), and then the pool units get
+    /// deposited into one or more account(s).
+    PoolRedemption(PoolRedemptionOutput),
     /// A manifest where account deposit settings get updated. In this manifest
     /// class one of the account deposit settings methods are called.
     AccountDepositSettingsUpdate(AccountSettingsUpdateOutput),

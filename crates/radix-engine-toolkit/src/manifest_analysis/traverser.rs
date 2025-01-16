@@ -174,6 +174,7 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             &mut analyzer_state.dynamic_requirement_state,
             &named_address_store,
             &instruction,
+            invocation_io,
             maybe_typed_invocation,
         );
         ManifestDynamicAnalyzer::process_instruction(

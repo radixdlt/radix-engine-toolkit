@@ -240,6 +240,7 @@ macro_rules! define_composite_analyzer {
                     requirement_state: &mut <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
+                    invocation_io: &InvocationIo<InvocationIoItems>,
                     maybe_typed_invocation: Option<(
                         &ManifestInvocationReceiver,
                         &TypedManifestNativeInvocation,
@@ -252,6 +253,7 @@ macro_rules! define_composite_analyzer {
                                 &mut requirement_state.$analyzer_ident,
                                 named_address_store,
                                 instruction,
+                                invocation_io,
                                 maybe_typed_invocation,
                             );
                         }

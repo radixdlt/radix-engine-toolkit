@@ -42,7 +42,7 @@ pub enum ManifestClassification {
     /// A manifest where claim NFT(s) are withdrawn from one or more account(s),
     /// get claimed from one or more validator(s), and then the XRD is deposited
     /// into one or more account(s).
-    ValidatorClaim,
+    ValidatorClaimXrd,
     /// A manifest where fungible resources are contributed to a pool of any
     /// kind. In this class resources are withdrawn from one or more account(s),
     /// get contributed to one or more pool(s), and then the pool units get

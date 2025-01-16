@@ -17,10 +17,20 @@
 
 mod account_settings_update;
 mod general;
+mod pool_contribution;
+mod pool_redemption;
 mod simple_transfer;
 mod transfer;
+mod validator_claim;
+mod validator_stake;
+mod validator_unstake;
 
 pub use account_settings_update::*;
 pub use general::*;
+pub use pool_contribution::*;
+pub use pool_redemption::*;
 pub use simple_transfer::*;
 pub use transfer::*;
+pub use validator_claim::*;
+pub use validator_stake::*;
+pub use validator_unstake::*;

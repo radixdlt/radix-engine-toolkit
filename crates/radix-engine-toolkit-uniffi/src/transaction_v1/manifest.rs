@@ -411,7 +411,7 @@ impl From<CoreManifestClass> for ManifestClass {
             CoreManifestClass::PoolRedemption => Self::PoolRedemption,
             CoreManifestClass::ValidatorStake => Self::ValidatorStake,
             CoreManifestClass::ValidatorUnstake => Self::ValidatorUnstake,
-            CoreManifestClass::ValidatorClaim => Self::ValidatorClaim,
+            CoreManifestClass::ValidatorClaimXrd => Self::ValidatorClaim,
             CoreManifestClass::AccountDepositSettingsUpdate => {
                 Self::AccountDepositSettingsUpdate
             }
