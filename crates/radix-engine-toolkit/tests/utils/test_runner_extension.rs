@@ -169,4 +169,32 @@ where
 
         (account, access_controller)
     }
+
+    fn new_account_locker(
+        &mut self,
+        owner_role: OwnerRole,
+    ) -> ComponentAddress {
+        let manifest = ManifestBuilder::new()
+            .lock_fee_from_faucet()
+            .call_function(
+                LOCKER_PACKAGE,
+                ACCOUNT_LOCKER_BLUEPRINT,
+                ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+                AccountLockerInstantiateManifestInput {
+                    owner_role,
+                    storer_role: rule!(allow_all),
+                    storer_updater_role: rule!(allow_all),
+                    recoverer_role: rule!(allow_all),
+                    recoverer_updater_role: rule!(allow_all),
+                    address_reservation: None,
+                },
+            )
+            .build();
+        self.execute_manifest(manifest, vec![])
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap()
+    }
 }

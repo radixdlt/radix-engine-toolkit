@@ -29,6 +29,10 @@ impl TestAddressAllocator {
         self.next_address(EntityType::GlobalPreallocatedEd25519Account)
     }
 
+    pub fn new_identity_address(&mut self) -> ComponentAddress {
+        self.next_address(EntityType::GlobalPreallocatedEd25519Identity)
+    }
+
     pub fn next_address<T: TryFrom<NodeId, Error: Debug>>(
         &mut self,
         entity_type: EntityType,
