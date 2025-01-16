@@ -18,6 +18,7 @@
 mod account_interactions;
 mod classification;
 mod dynamic_resource_movements;
+mod encountered_entities;
 mod non_fungible_dynamic_analysis;
 mod presented_proofs;
 mod requiring_auth;
