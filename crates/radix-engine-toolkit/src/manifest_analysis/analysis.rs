@@ -216,7 +216,7 @@ pub fn dynamically_analyze(
             },
         general_subintent_classification:
             CombinedAnalysisOutput {
-                static_analyzer_output: general_subintent_classification,
+                static_analyzer_output: _,
                 dynamic_analyzer_output: _,
             },
         transfer_classification:
@@ -278,8 +278,6 @@ pub fn dynamically_analyze(
         detailed_manifest_classification: vec![
             general_classification
                 .map(|_| DetailedManifestClassification::General),
-            general_subintent_classification
-                .map(|_| DetailedManifestClassification::GeneralSubintent),
             transfer_classification.map(|_| {
                 DetailedManifestClassification::Transfer {
                     is_one_to_one_transfer: simple_transfer_classification
