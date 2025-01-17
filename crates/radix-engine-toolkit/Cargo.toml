@@ -6,9 +6,9 @@ build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { workspace = true }
-scrypto = { workspace = true }
-radix-common = { workspace = true }
+sbor = { workspace = true, features = ["serde"] }
+scrypto = { workspace = true, features = ["serde"] }
+radix-common = { workspace = true, features = ["serde"] }
 radix-engine = { workspace = true }
 radix-engine-interface = { workspace = true }
 radix-substate-store-impls = { workspace = true }
@@ -19,34 +19,36 @@ radix-engine-toolkit-common = { workspace = true }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon
 # address derivations.
-bech32 = { version = "0.9.1" }
+bech32 = { workspace = true }
+
+# Better macros, this is pretty much used everywhere in the toolkit's code where
+# we need to use macros that are more powerful where we can concatenate idents.
+paste = { workspace = true }
 
 # The serde-json dependency without the serde dependency. This is used for the
 # SBOR serialization in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and
 # ONLY there. 
-serde_json = { version = "1.0.96", features = ["preserve_order"] }
-serde_with = "3.6.1"
-paste = "1.0.14"
+serde_json = { workspace = true, features = ["preserve_order"] }
+serde_with = { workspace = true }
 
-# Used by the Radix Engine Toolkit to cashe the result of some operations that
-# should only be computed once.
-lazy_static = { version = "1.4.0" }
-regex = "1.8.4"
+# Used by the radix engine toolkit logic for extracting the network id from the
+# address strings. Pretty much used to get the network specifier from the HRP.
+regex = { workspace = true }
 
-# A crate that implements the various sbor-json formats.
-sbor-json = { path = "../sbor-json" }
+# A crate that implements the various sbor-json formats and is used in here 
+# for the serialization of the payloads.
+sbor-json = { workspace = true }
 
-extend = "1.2.0"
+# A crate we use to extend types defined outside of this crate. We use this to
+# implement methods on types when we're supposed not to be able to due to the 
+# same crate rules that Rust has.
+extend = { workspace = true }
 
-# Enhanced macro rules
-macro_rules_attribute = "0.2.0"
-
-structured-map = "0.1.5"
-
-itertools = "0.14.0"
+# A crate for improved iterators that we use to create unique iterators.
+itertools = { workspace = true }
 
 [build-dependencies]
-cargo_toml = { version = "0.15.3" }
+cargo_toml = { workspace = true }
 
 [dev-dependencies]
 scrypto-test = { workspace = true }

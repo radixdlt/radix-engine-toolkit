@@ -20,7 +20,6 @@ pub mod functions;
 pub mod manifest_analysis;
 pub mod types;
 
-#[allow(unused_imports)]
 pub(crate) mod internal_prelude {
     // Modules from the standard library and core language
     pub use core::convert::*;
@@ -32,8 +31,6 @@ pub(crate) mod internal_prelude {
 
     // Modules from the Radixdlt-Scrypto Crates.
     pub use radix_common::prelude::*;
-    pub use radix_engine::blueprints::consensus_manager::*;
-    pub use radix_engine::blueprints::native_schema::*;
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier, WorktopChange,
     };
@@ -42,15 +39,12 @@ pub(crate) mod internal_prelude {
     pub use radix_engine_interface::blueprints::access_controller::*;
     pub use radix_engine_interface::blueprints::account::*;
     pub use radix_engine_interface::blueprints::consensus_manager::*;
-    pub use radix_engine_interface::blueprints::identity::*;
     pub use radix_engine_interface::blueprints::locker::*;
-    pub use radix_engine_interface::blueprints::package::*;
     pub use radix_engine_interface::blueprints::pool::*;
     pub use radix_engine_interface::blueprints::resource::*;
     pub use radix_engine_interface::prelude::*;
     pub use radix_engine_toolkit_common::receipt::{
         MetadataUpdate, RuntimeToolkitTransactionReceipt, RuntimeTypeSelector,
-        ToolkitTransactionReceipt, TypeSelector,
     };
     pub use radix_substate_store_queries::typed_native_events::*;
     pub use radix_transactions::data::*;
@@ -59,10 +53,8 @@ pub(crate) mod internal_prelude {
     pub use radix_transactions::manifest::*;
     pub use radix_transactions::prelude::*;
     pub use radix_transactions::validation::*;
-    pub use sbor::prelude::*;
     pub use sbor::representations::*;
     pub use sbor::traversal::*;
-    pub use scrypto::radix_blueprint_schema_init::*;
 
     // Modules from our own crates
     pub use sbor_json::scrypto::programmatic::utils::*;
@@ -72,12 +64,8 @@ pub(crate) mod internal_prelude {
     pub use bech32::{FromBase32, ToBase32, Variant};
     pub use extend::*;
     pub use itertools::Itertools;
-    pub use lazy_static::*;
-    pub use macro_rules_attribute::apply;
     pub use paste::*;
     pub use regex::*;
-    pub use serde_with::*;
-    pub use structured_map::*;
 }
 
 pub mod prelude {
