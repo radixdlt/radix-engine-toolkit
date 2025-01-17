@@ -322,7 +322,7 @@ impl ValidatorStakeStaticRequirementState {
 
 impl ManifestAnalyzerRequirementState for ValidatorStakeStaticRequirementState {
     fn all_requirements_met(&self) -> bool {
-        self.is_validator_stake_seen
+        self.is_withdraws_just_xrd && self.is_validator_stake_seen
     }
 }
 

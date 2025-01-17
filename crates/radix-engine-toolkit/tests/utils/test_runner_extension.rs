@@ -91,10 +91,18 @@ where
         let claim_nft = commit_result.new_resource_addresses()[0];
         let lsu = commit_result.new_resource_addresses()[1];
 
+        let validator_owner_badge = NonFungibleGlobalId::new(
+            VALIDATOR_OWNER_BADGE,
+            NonFungibleLocalId::bytes(address.as_bytes()).unwrap(),
+        );
+
         self.execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .withdraw_from_account(account, VALIDATOR_OWNER_BADGE, 1)
+                .withdraw_non_fungible_from_account(
+                    account,
+                    validator_owner_badge,
+                )
                 .take_from_worktop(VALIDATOR_OWNER_BADGE, 1, "badge")
                 .create_proof_from_bucket_of_all("badge", "proof")
                 .push_to_auth_zone("proof")
