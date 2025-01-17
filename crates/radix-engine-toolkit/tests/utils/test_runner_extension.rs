@@ -205,4 +205,103 @@ where
             .copied()
             .unwrap()
     }
+
+    fn create_pool_entities(
+        &mut self,
+        account: ComponentAddress,
+    ) -> CreatedPoolEntities {
+        let resource_address1 = self.create_freely_mintable_fungible_resource(
+            Default::default(),
+            Some(dec!(1000)),
+            18,
+            account,
+        );
+        let resource_address2 = self.create_freely_mintable_fungible_resource(
+            Default::default(),
+            Some(dec!(1000)),
+            18,
+            account,
+        );
+
+        let manifest = ManifestBuilder::new()
+            .lock_fee_from_faucet()
+            .call_function(
+                POOL_PACKAGE,
+                ONE_RESOURCE_POOL_BLUEPRINT,
+                ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
+                OneResourcePoolInstantiateManifestInput {
+                    owner_role: Default::default(),
+                    pool_manager_rule: rule!(allow_all),
+                    resource_address: resource_address1.into(),
+                    address_reservation: None,
+                },
+            )
+            .call_function(
+                POOL_PACKAGE,
+                TWO_RESOURCE_POOL_BLUEPRINT,
+                TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
+                TwoResourcePoolInstantiateManifestInput {
+                    owner_role: Default::default(),
+                    pool_manager_rule: rule!(allow_all),
+                    resource_addresses: (
+                        resource_address1.into(),
+                        resource_address2.into(),
+                    ),
+                    address_reservation: None,
+                },
+            )
+            .call_function(
+                POOL_PACKAGE,
+                MULTI_RESOURCE_POOL_BLUEPRINT,
+                MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
+                MultiResourcePoolInstantiateManifestInput {
+                    owner_role: Default::default(),
+                    pool_manager_rule: rule!(allow_all),
+                    resource_addresses: indexset![
+                        resource_address1.into(),
+                        resource_address2.into()
+                    ],
+                    address_reservation: None,
+                },
+            )
+            .build();
+        let receipt = self.execute_manifest(manifest, vec![]);
+        let commit_result = receipt.expect_commit_success();
+        let [one_pool, two_pool, multi_pool] =
+            [0, 1, 2].map(|i| commit_result.new_component_addresses()[i]);
+        let [one_pool_unit, two_pool_unit, multi_pool_unit] =
+            [0, 1, 2].map(|i| commit_result.new_resource_addresses()[i]);
+
+        CreatedPoolEntities {
+            resource_address1,
+            resource_address2,
+            one_resource_pool: PoolInformation {
+                component_address: one_pool,
+                pool_unit_resource_address: one_pool_unit,
+            },
+            two_resource_pool: PoolInformation {
+                component_address: two_pool,
+                pool_unit_resource_address: two_pool_unit,
+            },
+            multi_resource_pool: PoolInformation {
+                component_address: multi_pool,
+                pool_unit_resource_address: multi_pool_unit,
+            },
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PoolInformation {
+    pub component_address: ComponentAddress,
+    pub pool_unit_resource_address: ResourceAddress,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct CreatedPoolEntities {
+    pub resource_address1: ResourceAddress,
+    pub resource_address2: ResourceAddress,
+    pub one_resource_pool: PoolInformation,
+    pub two_resource_pool: PoolInformation,
+    pub multi_resource_pool: PoolInformation,
 }

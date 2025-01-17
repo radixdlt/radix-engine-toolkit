@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[test]
-fn single_validator_claim_is_classified_as_validator_claim_transaction() {
+fn single_validator_claim_classifies_as_validator_claim_transaction() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -88,7 +88,7 @@ fn single_validator_claim_is_classified_as_validator_claim_transaction() {
 }
 
 #[test]
-fn single_validator_claim_with_withdraw_of_non_fungibles_is_classified_as_validator_claim_transaction(
+fn single_validator_claim_with_withdraw_of_non_fungibles_classifies_as_validator_claim_transaction(
 ) {
     // Arrange
     let mut ledger =

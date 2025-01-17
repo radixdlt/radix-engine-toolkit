@@ -17,6 +17,7 @@
 
 mod general;
 mod general_subintent;
+mod pool_contribution;
 mod transfer;
 mod validator_claim;
 mod validator_stake;

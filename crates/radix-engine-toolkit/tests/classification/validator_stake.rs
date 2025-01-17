@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[test]
-fn single_validator_stake_is_classified_as_validator_stake_transaction() {
+fn single_validator_stake_classifies_as_validator_stake_transaction() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -189,7 +189,7 @@ fn transfer_in_stake_transaction_qualifies_for_classification_but_not_detailed_c
 }
 
 #[test]
-fn multiple_validator_stakes_is_classified_as_validator_stake_transaction() {
+fn multiple_validator_stakes_classifies_as_validator_stake_transaction() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();

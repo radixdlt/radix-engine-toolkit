@@ -207,67 +207,26 @@ fn pool_contributions_and_redemptions_are_permitted_in_general_transaction() {
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_account(true);
-    let resource_address1 = ledger.create_freely_mintable_fungible_resource(
-        Default::default(),
-        Some(dec!(1000)),
-        18,
-        account,
-    );
-    let resource_address2 = ledger.create_freely_mintable_fungible_resource(
-        Default::default(),
-        Some(dec!(1000)),
-        18,
-        account,
-    );
 
-    let manifest = ManifestBuilder::new()
-        .lock_fee_from_faucet()
-        .call_function(
-            POOL_PACKAGE,
-            ONE_RESOURCE_POOL_BLUEPRINT,
-            ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
-            OneResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
-                resource_address: resource_address1.into(),
-                address_reservation: None,
+    let CreatedPoolEntities {
+        resource_address1,
+        resource_address2,
+        one_resource_pool:
+            PoolInformation {
+                component_address: one_pool,
+                pool_unit_resource_address: one_pool_unit,
             },
-        )
-        .call_function(
-            POOL_PACKAGE,
-            TWO_RESOURCE_POOL_BLUEPRINT,
-            TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
-            TwoResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
-                resource_addresses: (
-                    resource_address1.into(),
-                    resource_address2.into(),
-                ),
-                address_reservation: None,
+        two_resource_pool:
+            PoolInformation {
+                component_address: two_pool,
+                pool_unit_resource_address: two_pool_unit,
             },
-        )
-        .call_function(
-            POOL_PACKAGE,
-            MULTI_RESOURCE_POOL_BLUEPRINT,
-            MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
-            MultiResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
-                resource_addresses: indexset![
-                    resource_address1.into(),
-                    resource_address2.into()
-                ],
-                address_reservation: None,
+        multi_resource_pool:
+            PoolInformation {
+                component_address: multi_pool,
+                pool_unit_resource_address: multi_pool_unit,
             },
-        )
-        .build();
-    let receipt = ledger.execute_manifest(manifest, vec![]);
-    let commit_result = receipt.expect_commit_success();
-    let [one_pool, two_pool, multi_pool] =
-        [0, 1, 2].map(|i| commit_result.new_component_addresses()[i]);
-    let [one_pool_unit, two_pool_unit, multi_pool_unit] =
-        [0, 1, 2].map(|i| commit_result.new_resource_addresses()[i]);
+    } = ledger.create_pool_entities(account);
 
     let manifest = ManifestBuilder::new()
         .with_name_lookup(|builder, lookup| {
