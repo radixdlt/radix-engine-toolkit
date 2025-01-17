@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[test]
-fn single_validator_unstake_is_classified_as_validator_stake_transaction() {
+fn single_validator_unstake_is_classified_as_validator_unstake_transaction() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -77,7 +77,7 @@ fn single_validator_unstake_is_classified_as_validator_stake_transaction() {
 }
 
 #[test]
-fn single_validator_unstake_with_lock_fee_and_withdraw_is_classified_as_validator_stake_transaction(
+fn single_validator_unstake_with_lock_fee_and_withdraw_is_classified_as_validator_unstake_transaction(
 ) {
     // Arrange
     let mut ledger =
@@ -136,7 +136,7 @@ fn single_validator_unstake_with_lock_fee_and_withdraw_is_classified_as_validato
 }
 
 #[test]
-fn multiple_validator_unstake_is_classified_as_validator_stake_transaction() {
+fn multiple_validator_unstake_is_classified_as_validator_unstake_transaction() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -253,7 +253,7 @@ fn transfer_in_unstake_transaction_qualifies_for_classification_but_not_detailed
     assert!(!detailed_manifest_classification.iter().any(
         |classification| matches!(
             classification,
-            DetailedManifestClassification::ValidatorStake(..)
+            DetailedManifestClassification::ValidatorUnstake(..)
         )
     ));
 }
