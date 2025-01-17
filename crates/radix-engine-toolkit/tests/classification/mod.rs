@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod account_deposit_settings;
 mod general;
 mod general_subintent;
 mod pool_contribution;

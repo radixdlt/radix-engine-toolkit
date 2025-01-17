@@ -159,7 +159,7 @@ fn multiple_pool_redemption_classifies_as_pool_redemption_transaction() {
         },
     )) = detailed_manifest_classification.last()
     else {
-        panic!("Not a pool contribution transaction")
+        panic!("Not a pool redemption transaction")
     };
     assert_eq!(redemption_operations.len(), 3);
 
