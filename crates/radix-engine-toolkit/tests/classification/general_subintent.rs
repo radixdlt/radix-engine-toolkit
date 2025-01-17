@@ -649,7 +649,9 @@ fn creating_access_controller_confirm_primary_role_recovery_is_not_permitted_in_
         .expect_commit_success();
 
     let manifest = ManifestBuilder::new_subintent_v2()
-        .call_method(access_controller, ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
             AccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
                 rule_set: RuleSet {
                     primary_role: rule!(allow_all),
@@ -657,8 +659,10 @@ fn creating_access_controller_confirm_primary_role_recovery_is_not_permitted_in_
                     confirmation_role: rule!(allow_all),
                 },
                 timed_recovery_delay_in_minutes: None,
-            })
-        .yield_to_parent(()).build();
+            },
+        )
+        .yield_to_parent(())
+        .build();
 
     // Act
     let StaticAnalysis {
@@ -699,7 +703,9 @@ fn creating_access_controller_confirm_recovery_role_recovery_is_not_permitted_in
         .expect_commit_success();
 
     let manifest = ManifestBuilder::new_subintent_v2()
-        .call_method(access_controller, ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
             AccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
                 rule_set: RuleSet {
                     primary_role: rule!(allow_all),
@@ -707,8 +713,10 @@ fn creating_access_controller_confirm_recovery_role_recovery_is_not_permitted_in
                     confirmation_role: rule!(allow_all),
                 },
                 timed_recovery_delay_in_minutes: None,
-            })
-        .yield_to_parent(()).build();
+            },
+        )
+        .yield_to_parent(())
+        .build();
 
     // Act
     let StaticAnalysis {
