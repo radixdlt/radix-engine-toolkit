@@ -149,7 +149,7 @@ fn withdraw_of_non_xrd_non_fungible_resource_kicks_manifest_out_of_validator_sta
 }
 
 #[test]
-fn validator_stake_detailed_classification_doesnt_permit_transfers_but_classification_does(
+fn transfer_in_stake_transaction_qualifies_for_classification_but_not_detailed_classification(
 ) {
     // Arrange
     let mut ledger =
