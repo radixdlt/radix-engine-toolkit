@@ -19,7 +19,7 @@ use crate::prelude::*;
 
 #[uniffi::export]
 pub fn get_build_information() -> BuildInformation {
-    core_information().into()
+    toolkit::functions::information::information().into()
 }
 
 #[derive(Clone, Record)]
@@ -36,21 +36,21 @@ pub enum DependencyInformation {
     Rev { value: String },
 }
 
-impl From<CoreBuildInformation> for BuildInformation {
-    fn from(value: CoreBuildInformation) -> Self {
+impl From<toolkit::BuildInformation> for BuildInformation {
+    fn from(value: toolkit::BuildInformation) -> Self {
         Self {
             version: value.version,
             scrypto_dependency: match value.scrypto_dependency {
-                CoreDependencyInformation::Branch(value) => {
+                toolkit::DependencyInformation::Branch(value) => {
                     DependencyInformation::Branch { value }
                 }
-                CoreDependencyInformation::Tag(value) => {
+                toolkit::DependencyInformation::Tag(value) => {
                     DependencyInformation::Tag { value }
                 }
-                CoreDependencyInformation::Rev(value) => {
+                toolkit::DependencyInformation::Rev(value) => {
                     DependencyInformation::Rev { value }
                 }
-                CoreDependencyInformation::Version(value) => {
+                toolkit::DependencyInformation::Version(value) => {
                     DependencyInformation::Version { value }
                 }
             },

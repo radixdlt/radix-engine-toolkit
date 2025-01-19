@@ -28,17 +28,17 @@ pub enum SignatureWithPublicKeyV1 {
     },
 }
 
-impl From<NativeSignatureWithPublicKeyV1> for SignatureWithPublicKeyV1 {
-    fn from(value: NativeSignatureWithPublicKeyV1) -> Self {
+impl From<engine::SignatureWithPublicKeyV1> for SignatureWithPublicKeyV1 {
+    fn from(value: engine::SignatureWithPublicKeyV1) -> Self {
         match value {
-            NativeSignatureWithPublicKeyV1::Secp256k1 {
-                signature: NativeSecp256k1Signature(signature),
+            engine::SignatureWithPublicKeyV1::Secp256k1 {
+                signature: engine::Secp256k1Signature(signature),
             } => Self::Secp256k1 {
                 signature: signature.to_vec(),
             },
-            NativeSignatureWithPublicKeyV1::Ed25519 {
-                signature: NativeEd25519Signature(signature),
-                public_key: NativeEd25519PublicKey(public_key),
+            engine::SignatureWithPublicKeyV1::Ed25519 {
+                signature: engine::Ed25519Signature(signature),
+                public_key: engine::Ed25519PublicKey(public_key),
             } => Self::Ed25519 {
                 signature: signature.to_vec(),
                 public_key: public_key.to_vec(),
@@ -47,7 +47,7 @@ impl From<NativeSignatureWithPublicKeyV1> for SignatureWithPublicKeyV1 {
     }
 }
 
-impl TryFrom<SignatureWithPublicKeyV1> for NativeSignatureWithPublicKeyV1 {
+impl TryFrom<SignatureWithPublicKeyV1> for engine::SignatureWithPublicKeyV1 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: SignatureWithPublicKeyV1) -> Result<Self> {
@@ -57,17 +57,17 @@ impl TryFrom<SignatureWithPublicKeyV1> for NativeSignatureWithPublicKeyV1 {
                 public_key,
             } => {
                 let public_key =
-                    public_key.try_into().map(NativeEd25519PublicKey).map_err(
+                    public_key.try_into().map(engine::Ed25519PublicKey).map_err(
                         |public_key| RadixEngineToolkitError::InvalidLength {
-                            expected: NativeEd25519PublicKey::LENGTH as u64,
+                            expected: engine::Ed25519PublicKey::LENGTH as u64,
                             actual: public_key.len() as u64,
                             data: public_key,
                         },
                     )?;
                 let signature =
-                    signature.try_into().map(NativeEd25519Signature).map_err(
+                    signature.try_into().map(engine::Ed25519Signature).map_err(
                         |signature| RadixEngineToolkitError::InvalidLength {
-                            expected: NativeEd25519Signature::LENGTH as u64,
+                            expected: engine::Ed25519Signature::LENGTH as u64,
                             actual: signature.len() as u64,
                             data: signature,
                         },
@@ -79,10 +79,10 @@ impl TryFrom<SignatureWithPublicKeyV1> for NativeSignatureWithPublicKeyV1 {
             }
             SignatureWithPublicKeyV1::Secp256k1 { signature } => signature
                 .try_into()
-                .map(NativeSecp256k1Signature)
+                .map(engine::Secp256k1Signature)
                 .map(|signature| Self::Secp256k1 { signature })
                 .map_err(|signature| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeSecp256k1Signature::LENGTH as u64,
+                    expected: engine::Secp256k1Signature::LENGTH as u64,
                     actual: signature.len() as u64,
                     data: signature,
                 }),

@@ -134,10 +134,10 @@ impl SignedPartialTransactionV2Builder {
         };
 
         // Get the signature of the subintent.
-        let subintent_hash = NativeSignedPartialTransactionV2::try_from(
+        let subintent_hash = engine::SignedPartialTransactionV2::try_from(
             signed_partial_transaction.clone(),
         )?
-        .prepare(&NativePreparationSettings::latest())?
+        .prepare(&engine::PreparationSettings::latest())?
         .subintent_hash()
         .0;
 
@@ -161,7 +161,7 @@ impl SignedPartialTransactionV2Builder {
 
 #[derive(Clone, Debug, Object)]
 pub struct SignedPartialTransactionV2BuilderSignatureStep {
-    subintent_hash: NativeHash,
+    subintent_hash: engine::Hash,
     signed_partial_transaction: SignedPartialTransactionV2,
 }
 

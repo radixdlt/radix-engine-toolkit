@@ -147,171 +147,173 @@ pub enum InstructionV1 {
 }
 
 impl InstructionV1 {
-    pub fn from_native(native: &NativeInstructionV1, network_id: u8) -> Self {
+    pub fn from_native(native: &engine::InstructionV1, network_id: u8) -> Self {
         match native {
-            NativeInstructionV1::TakeAllFromWorktop(
-                NativeTakeAllFromWorktop { resource_address },
+            engine::InstructionV1::TakeAllFromWorktop(
+                engine::TakeAllFromWorktop { resource_address },
             ) => Self::TakeAllFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV1::TakeFromWorktop(NativeTakeFromWorktop {
-                resource_address,
-                amount,
-            }) => Self::TakeFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+            engine::InstructionV1::TakeFromWorktop(
+                engine::TakeFromWorktop {
+                    resource_address,
+                    amount,
+                },
+            ) => Self::TakeFromWorktop {
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV1::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
+            engine::InstructionV1::TakeNonFungiblesFromWorktop(
+                engine::TakeNonFungiblesFromWorktop {
                     resource_address,
                     ids,
                 },
             ) => Self::TakeNonFungiblesFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
 
-            NativeInstructionV1::ReturnToWorktop(NativeReturnToWorktop {
-                bucket_id,
-            }) => Self::ReturnToWorktop {
+            engine::InstructionV1::ReturnToWorktop(
+                engine::ReturnToWorktop { bucket_id },
+            ) => Self::ReturnToWorktop {
                 bucket_id: (*bucket_id).into(),
             },
 
-            NativeInstructionV1::AssertWorktopContains(
-                NativeAssertWorktopContains {
+            engine::InstructionV1::AssertWorktopContains(
+                engine::AssertWorktopContains {
                     resource_address,
                     amount,
                 },
             ) => Self::AssertWorktopContains {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV1::AssertWorktopContainsAny(
-                NativeAssertWorktopContainsAny { resource_address },
+            engine::InstructionV1::AssertWorktopContainsAny(
+                engine::AssertWorktopContainsAny { resource_address },
             ) => Self::AssertWorktopContainsAny {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV1::AssertWorktopContainsNonFungibles(
-                NativeAssertWorktopContainsNonFungibles {
+            engine::InstructionV1::AssertWorktopContainsNonFungibles(
+                engine::AssertWorktopContainsNonFungibles {
                     resource_address,
                     ids,
                 },
             ) => Self::AssertWorktopContainsNonFungibles {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV1::PopFromAuthZone(..) => Self::PopFromAuthZone,
-            NativeInstructionV1::PushToAuthZone(NativePushToAuthZone {
+            engine::InstructionV1::PopFromAuthZone(..) => Self::PopFromAuthZone,
+            engine::InstructionV1::PushToAuthZone(engine::PushToAuthZone {
                 proof_id,
             }) => Self::PushToAuthZone {
                 proof_id: (*proof_id).into(),
             },
-            NativeInstructionV1::DropNamedProofs(..) => Self::DropNamedProofs,
-            NativeInstructionV1::DropAuthZoneProofs(..) => {
+            engine::InstructionV1::DropNamedProofs(..) => Self::DropNamedProofs,
+            engine::InstructionV1::DropAuthZoneProofs(..) => {
                 Self::DropAuthZoneProofs
             }
-            NativeInstructionV1::DropAuthZoneRegularProofs(..) => {
+            engine::InstructionV1::DropAuthZoneRegularProofs(..) => {
                 Self::DropAuthZoneRegularProofs
             }
-            NativeInstructionV1::DropAuthZoneSignatureProofs(..) => {
+            engine::InstructionV1::DropAuthZoneSignatureProofs(..) => {
                 Self::DropAuthZoneSignatureProofs
             }
-            NativeInstructionV1::CreateProofFromAuthZoneOfAll(
-                NativeCreateProofFromAuthZoneOfAll { resource_address },
+            engine::InstructionV1::CreateProofFromAuthZoneOfAll(
+                engine::CreateProofFromAuthZoneOfAll { resource_address },
             ) => Self::CreateProofFromAuthZoneOfAll {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV1::CreateProofFromAuthZoneOfAmount(
-                NativeCreateProofFromAuthZoneOfAmount {
+            engine::InstructionV1::CreateProofFromAuthZoneOfAmount(
+                engine::CreateProofFromAuthZoneOfAmount {
                     resource_address,
                     amount,
                 },
             ) => Self::CreateProofFromAuthZoneOfAmount {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV1::CreateProofFromAuthZoneOfNonFungibles(
-                NativeCreateProofFromAuthZoneOfNonFungibles {
+            engine::InstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                engine::CreateProofFromAuthZoneOfNonFungibles {
                     resource_address,
                     ids,
                 },
             ) => Self::CreateProofFromAuthZoneOfNonFungibles {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV1::CreateProofFromBucketOfAll(
-                NativeCreateProofFromBucketOfAll { bucket_id },
+            engine::InstructionV1::CreateProofFromBucketOfAll(
+                engine::CreateProofFromBucketOfAll { bucket_id },
             ) => Self::CreateProofFromBucketOfAll {
                 bucket_id: (*bucket_id).into(),
             },
-            NativeInstructionV1::CreateProofFromBucketOfAmount(
-                NativeCreateProofFromBucketOfAmount { bucket_id, amount },
+            engine::InstructionV1::CreateProofFromBucketOfAmount(
+                engine::CreateProofFromBucketOfAmount { bucket_id, amount },
             ) => Self::CreateProofFromBucketOfAmount {
                 bucket_id: (*bucket_id).into(),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV1::CreateProofFromBucketOfNonFungibles(
-                NativeCreateProofFromBucketOfNonFungibles { bucket_id, ids },
+            engine::InstructionV1::CreateProofFromBucketOfNonFungibles(
+                engine::CreateProofFromBucketOfNonFungibles { bucket_id, ids },
             ) => Self::CreateProofFromBucketOfNonFungibles {
                 bucket_id: (*bucket_id).into(),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV1::BurnResource(NativeBurnResource {
+            engine::InstructionV1::BurnResource(engine::BurnResource {
                 bucket_id,
             }) => Self::BurnResource {
                 bucket_id: (*bucket_id).into(),
             },
-            NativeInstructionV1::CloneProof(NativeCloneProof { proof_id }) => {
-                Self::CloneProof {
-                    proof_id: (*proof_id).into(),
-                }
-            }
-            NativeInstructionV1::DropProof(NativeDropProof { proof_id }) => {
-                Self::DropProof {
-                    proof_id: (*proof_id).into(),
-                }
-            }
-            NativeInstructionV1::DropAllProofs(..) => Self::DropAllProofs,
-            NativeInstructionV1::AllocateGlobalAddress(
-                NativeAllocateGlobalAddress {
+            engine::InstructionV1::CloneProof(engine::CloneProof {
+                proof_id,
+            }) => Self::CloneProof {
+                proof_id: (*proof_id).into(),
+            },
+            engine::InstructionV1::DropProof(engine::DropProof {
+                proof_id,
+            }) => Self::DropProof {
+                proof_id: (*proof_id).into(),
+            },
+            engine::InstructionV1::DropAllProofs(..) => Self::DropAllProofs,
+            engine::InstructionV1::AllocateGlobalAddress(
+                engine::AllocateGlobalAddress {
                     package_address,
                     blueprint_name,
                 },
             ) => Self::AllocateGlobalAddress {
-                package_address: Arc::new(Address::from_typed_node_id(
+                package_address: Arc::new(Address::from_node_id(
                     *package_address,
                     network_id,
                 )),
                 blueprint_name: blueprint_name.clone(),
             },
-            NativeInstructionV1::CallFunction(NativeCallFunction {
+            engine::InstructionV1::CallFunction(engine::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
@@ -325,7 +327,7 @@ impl InstructionV1 {
                 function_name: function_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV1::CallMethod(NativeCallMethod {
+            engine::InstructionV1::CallMethod(engine::CallMethod {
                 address,
                 method_name,
                 args,
@@ -336,8 +338,8 @@ impl InstructionV1 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV1::CallMetadataMethod(
-                NativeCallMetadataMethod {
+            engine::InstructionV1::CallMetadataMethod(
+                engine::CallMetadataMethod {
                     address,
                     method_name,
                     args,
@@ -349,8 +351,8 @@ impl InstructionV1 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV1::CallRoleAssignmentMethod(
-                NativeCallRoleAssignmentMethod {
+            engine::InstructionV1::CallRoleAssignmentMethod(
+                engine::CallRoleAssignmentMethod {
                     address,
                     method_name,
                     args,
@@ -362,8 +364,8 @@ impl InstructionV1 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV1::CallRoyaltyMethod(
-                NativeCallRoyaltyMethod {
+            engine::InstructionV1::CallRoyaltyMethod(
+                engine::CallRoyaltyMethod {
                     address,
                     method_name,
                     args,
@@ -375,14 +377,14 @@ impl InstructionV1 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV1::CallDirectVaultMethod(
-                NativeCallDirectVaultMethod {
+            engine::InstructionV1::CallDirectVaultMethod(
+                engine::CallDirectVaultMethod {
                     address,
                     method_name,
                     args,
                 },
             ) => Self::CallDirectVaultMethod {
-                address: Arc::new(Address::from_typed_node_id(
+                address: Arc::new(Address::from_node_id(
                     *address, network_id,
                 )),
                 method_name: method_name.to_owned(),
@@ -391,11 +393,11 @@ impl InstructionV1 {
         }
     }
 
-    pub fn to_native(&self) -> Result<NativeInstructionV1> {
+    pub fn to_native(&self) -> Result<engine::InstructionV1> {
         let value = match self {
             Self::TakeAllFromWorktop { resource_address } => {
-                NativeInstructionV1::TakeAllFromWorktop(
-                    NativeTakeAllFromWorktop {
+                engine::InstructionV1::TakeAllFromWorktop(
+                    engine::TakeAllFromWorktop {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -404,15 +406,18 @@ impl InstructionV1 {
             Self::TakeFromWorktop {
                 resource_address,
                 amount,
-            } => NativeInstructionV1::TakeFromWorktop(NativeTakeFromWorktop {
-                resource_address: (*resource_address.as_ref()).try_into()?,
-                amount: amount.0,
-            }),
+            } => engine::InstructionV1::TakeFromWorktop(
+                engine::TakeFromWorktop {
+                    resource_address: (*resource_address.as_ref())
+                        .try_into()?,
+                    amount: amount.0,
+                },
+            ),
             Self::TakeNonFungiblesFromWorktop {
                 resource_address,
                 ids,
-            } => NativeInstructionV1::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
+            } => engine::InstructionV1::TakeNonFungiblesFromWorktop(
+                engine::TakeNonFungiblesFromWorktop {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -423,23 +428,25 @@ impl InstructionV1 {
                 },
             ),
             Self::ReturnToWorktop { bucket_id } => {
-                NativeInstructionV1::ReturnToWorktop(NativeReturnToWorktop {
-                    bucket_id: (*bucket_id).into(),
-                })
+                engine::InstructionV1::ReturnToWorktop(
+                    engine::ReturnToWorktop {
+                        bucket_id: (*bucket_id).into(),
+                    },
+                )
             }
             Self::AssertWorktopContains {
                 resource_address,
                 amount,
-            } => NativeInstructionV1::AssertWorktopContains(
-                NativeAssertWorktopContains {
+            } => engine::InstructionV1::AssertWorktopContains(
+                engine::AssertWorktopContains {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     amount: amount.0,
                 },
             ),
             Self::AssertWorktopContainsAny { resource_address } => {
-                NativeInstructionV1::AssertWorktopContainsAny(
-                    NativeAssertWorktopContainsAny {
+                engine::InstructionV1::AssertWorktopContainsAny(
+                    engine::AssertWorktopContainsAny {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -448,8 +455,8 @@ impl InstructionV1 {
             Self::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
-            } => NativeInstructionV1::AssertWorktopContainsNonFungibles(
-                NativeAssertWorktopContainsNonFungibles {
+            } => engine::InstructionV1::AssertWorktopContainsNonFungibles(
+                engine::AssertWorktopContainsNonFungibles {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -460,29 +467,29 @@ impl InstructionV1 {
                 },
             ),
             Self::PopFromAuthZone => {
-                NativeInstructionV1::PopFromAuthZone(NativePopFromAuthZone)
+                engine::InstructionV1::PopFromAuthZone(engine::PopFromAuthZone)
             }
             Self::PushToAuthZone { proof_id } => {
-                NativeInstructionV1::PushToAuthZone(NativePushToAuthZone {
+                engine::InstructionV1::PushToAuthZone(engine::PushToAuthZone {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropNamedProofs => {
-                NativeInstructionV1::DropNamedProofs(NativeDropNamedProofs)
+                engine::InstructionV1::DropNamedProofs(engine::DropNamedProofs)
             }
             Self::DropAuthZoneProofs => {
-                NativeInstructionV1::DropAuthZoneProofs(
-                    NativeDropAuthZoneProofs,
+                engine::InstructionV1::DropAuthZoneProofs(
+                    engine::DropAuthZoneProofs,
                 )
             }
             Self::DropAuthZoneRegularProofs => {
-                NativeInstructionV1::DropAuthZoneRegularProofs(
-                    NativeDropAuthZoneRegularProofs,
+                engine::InstructionV1::DropAuthZoneRegularProofs(
+                    engine::DropAuthZoneRegularProofs,
                 )
             }
             Self::CreateProofFromAuthZoneOfAll { resource_address } => {
-                NativeInstructionV1::CreateProofFromAuthZoneOfAll(
-                    NativeCreateProofFromAuthZoneOfAll {
+                engine::InstructionV1::CreateProofFromAuthZoneOfAll(
+                    engine::CreateProofFromAuthZoneOfAll {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -491,8 +498,8 @@ impl InstructionV1 {
             Self::CreateProofFromAuthZoneOfAmount {
                 resource_address,
                 amount,
-            } => NativeInstructionV1::CreateProofFromAuthZoneOfAmount(
-                NativeCreateProofFromAuthZoneOfAmount {
+            } => engine::InstructionV1::CreateProofFromAuthZoneOfAmount(
+                engine::CreateProofFromAuthZoneOfAmount {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     amount: amount.0,
@@ -501,8 +508,8 @@ impl InstructionV1 {
             Self::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address,
                 ids,
-            } => NativeInstructionV1::CreateProofFromAuthZoneOfNonFungibles(
-                NativeCreateProofFromAuthZoneOfNonFungibles {
+            } => engine::InstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                engine::CreateProofFromAuthZoneOfNonFungibles {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -513,28 +520,28 @@ impl InstructionV1 {
                 },
             ),
             Self::DropAuthZoneSignatureProofs => {
-                NativeInstructionV1::DropAuthZoneSignatureProofs(
-                    NativeDropAuthZoneSignatureProofs,
+                engine::InstructionV1::DropAuthZoneSignatureProofs(
+                    engine::DropAuthZoneSignatureProofs,
                 )
             }
             Self::CreateProofFromBucketOfAll { bucket_id } => {
-                NativeInstructionV1::CreateProofFromBucketOfAll(
-                    NativeCreateProofFromBucketOfAll {
+                engine::InstructionV1::CreateProofFromBucketOfAll(
+                    engine::CreateProofFromBucketOfAll {
                         bucket_id: (*bucket_id).into(),
                     },
                 )
             }
             Self::CreateProofFromBucketOfAmount { bucket_id, amount } => {
-                NativeInstructionV1::CreateProofFromBucketOfAmount(
-                    NativeCreateProofFromBucketOfAmount {
+                engine::InstructionV1::CreateProofFromBucketOfAmount(
+                    engine::CreateProofFromBucketOfAmount {
                         bucket_id: (*bucket_id).into(),
                         amount: amount.0,
                     },
                 )
             }
             Self::CreateProofFromBucketOfNonFungibles { bucket_id, ids } => {
-                NativeInstructionV1::CreateProofFromBucketOfNonFungibles(
-                    NativeCreateProofFromBucketOfNonFungibles {
+                engine::InstructionV1::CreateProofFromBucketOfNonFungibles(
+                    engine::CreateProofFromBucketOfNonFungibles {
                         bucket_id: (*bucket_id).into(),
                         ids: ids
                             .iter()
@@ -545,29 +552,29 @@ impl InstructionV1 {
                 )
             }
             Self::BurnResource { bucket_id } => {
-                NativeInstructionV1::BurnResource(NativeBurnResource {
+                engine::InstructionV1::BurnResource(engine::BurnResource {
                     bucket_id: (*bucket_id).into(),
                 })
             }
             Self::CloneProof { proof_id } => {
-                NativeInstructionV1::CloneProof(NativeCloneProof {
+                engine::InstructionV1::CloneProof(engine::CloneProof {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropProof { proof_id } => {
-                NativeInstructionV1::DropProof(NativeDropProof {
+                engine::InstructionV1::DropProof(engine::DropProof {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropAllProofs => {
-                NativeInstructionV1::DropAllProofs(NativeDropAllProofs)
+                engine::InstructionV1::DropAllProofs(engine::DropAllProofs)
             }
             Self::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
                 args,
-            } => NativeInstructionV1::CallFunction(NativeCallFunction {
+            } => engine::InstructionV1::CallFunction(engine::CallFunction {
                 package_address: package_address.clone().try_into()?,
                 blueprint_name: blueprint_name.to_string(),
                 function_name: function_name.to_string(),
@@ -577,7 +584,7 @@ impl InstructionV1 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV1::CallMethod(NativeCallMethod {
+            } => engine::InstructionV1::CallMethod(engine::CallMethod {
                 address: address.clone().try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
@@ -586,8 +593,8 @@ impl InstructionV1 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV1::CallMetadataMethod(
-                NativeCallMetadataMethod {
+            } => engine::InstructionV1::CallMetadataMethod(
+                engine::CallMetadataMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -597,8 +604,8 @@ impl InstructionV1 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV1::CallRoleAssignmentMethod(
-                NativeCallRoleAssignmentMethod {
+            } => engine::InstructionV1::CallRoleAssignmentMethod(
+                engine::CallRoleAssignmentMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -608,8 +615,8 @@ impl InstructionV1 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV1::CallRoyaltyMethod(
-                NativeCallRoyaltyMethod {
+            } => engine::InstructionV1::CallRoyaltyMethod(
+                engine::CallRoyaltyMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -619,8 +626,8 @@ impl InstructionV1 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV1::CallDirectVaultMethod(
-                NativeCallDirectVaultMethod {
+            } => engine::InstructionV1::CallDirectVaultMethod(
+                engine::CallDirectVaultMethod {
                     address: (**address).try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -629,8 +636,8 @@ impl InstructionV1 {
             Self::AllocateGlobalAddress {
                 package_address,
                 blueprint_name,
-            } => NativeInstructionV1::AllocateGlobalAddress(
-                NativeAllocateGlobalAddress {
+            } => engine::InstructionV1::AllocateGlobalAddress(
+                engine::AllocateGlobalAddress {
                     package_address: (**package_address).try_into()?,
                     blueprint_name: blueprint_name.to_string(),
                 },

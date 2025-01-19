@@ -107,9 +107,3 @@ pub enum ManifestSborError {
     DecodeError(DecodeError),
     FmtError(std::fmt::Error),
 }
-
-#[derive(Clone, Copy)]
-pub enum ManifestSborStringRepresentation {
-    ManifestString,
-    JSON(SerializationMode),
-}

@@ -24,7 +24,7 @@ pub struct TransactionHeaderV2 {
     pub tip_basis_points: u32,
 }
 
-impl TryFrom<TransactionHeaderV2> for NativeTransactionHeaderV2 {
+impl TryFrom<TransactionHeaderV2> for engine::TransactionHeaderV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: TransactionHeaderV2) -> Result<Self> {
@@ -36,8 +36,8 @@ impl TryFrom<TransactionHeaderV2> for NativeTransactionHeaderV2 {
     }
 }
 
-impl From<NativeTransactionHeaderV2> for TransactionHeaderV2 {
-    fn from(value: NativeTransactionHeaderV2) -> Self {
+impl From<engine::TransactionHeaderV2> for TransactionHeaderV2 {
+    fn from(value: engine::TransactionHeaderV2) -> Self {
         Self {
             notary_public_key: value.notary_public_key.into(),
             notary_is_signatory: value.notary_is_signatory,

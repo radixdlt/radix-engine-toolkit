@@ -145,9 +145,9 @@ impl PreviewTransactionV2Builder {
                 .collect(),
         };
         let transaction_intent =
-            NativeTransactionIntentV2::try_from(transaction_intent)?;
+            engine::TransactionIntentV2::try_from(transaction_intent)?;
 
-        let preview_transaction = NativePreviewTransactionV2 {
+        let preview_transaction = engine::PreviewTransactionV2 {
             transaction_intent,
             root_signer_public_keys: transaction_intent_signers
                 .into_iter()

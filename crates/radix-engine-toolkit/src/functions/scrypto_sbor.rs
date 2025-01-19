@@ -82,10 +82,10 @@ where
 }
 
 pub fn encode_string_representation(
-    representation: StringRepresentation,
+    representation: ScryptoSborStringRepresentation,
 ) -> Result<Vec<u8>, ScryptoSborError> {
     match representation {
-        StringRepresentation::ProgrammaticJson(value) => {
+        ScryptoSborStringRepresentation::ProgrammaticJson(value) => {
             let value =
                 serde_json::from_str::<ProgrammaticScryptoValue>(&value)
                     .map_err(ScryptoSborError::SerdeDeserializationFailed)?;
@@ -97,11 +97,6 @@ pub fn encode_string_representation(
             scrypto_encode(&value).map_err(ScryptoSborError::EncodeError)
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub enum StringRepresentation {
-    ProgrammaticJson(String),
 }
 
 #[derive(Debug)]

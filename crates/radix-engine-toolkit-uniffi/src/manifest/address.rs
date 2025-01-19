@@ -17,54 +17,49 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 pub enum ManifestAddress {
-    Named { value: u32 },
-    Static { value: Arc<Address> },
+    Named { named_address_id: u32 },
+    Static { static_address: Arc<Address> },
 }
 
-impl From<ManifestAddress> for NativeManifestAddress {
+impl From<ManifestAddress> for engine::ManifestAddress {
     fn from(value: ManifestAddress) -> Self {
         match value {
-            ManifestAddress::Named { value } => {
-                Self::Named(NativeManifestNamedAddress(value))
-            }
-            ManifestAddress::Static { value } => Self::Static((*value).into()),
+            ManifestAddress::Named {
+                named_address_id: value,
+            } => Self::Named(engine::ManifestNamedAddress(value)),
+            ManifestAddress::Static {
+                static_address: value,
+            } => Self::Static((*value).into()),
         }
     }
 }
 
 impl ManifestAddress {
-    pub fn new(native: &NativeManifestAddress, network_id: u8) -> Self {
+    pub fn new(native: &engine::ManifestAddress, network_id: u8) -> Self {
         match native {
-            NativeManifestAddress::Named(value) => {
-                Self::Named { value: value.0 }
-            }
-            NativeManifestAddress::Static(value) => {
-                Self::Static {
-                    // The NativeManifestAddress has a custom implementation of decoding that ensures
-                    // that the address indeed has an entity type.
-                    value: Arc::new(Address::from_typed_node_id(
-                        CoreTypedNodeId::new(*value).expect(
-                            "Failed to create a TypedNodeId from a trusted manifest address",
-                        ),
-                        network_id,
-                    )),
-                }
-            }
+            engine::ManifestAddress::Named(value) => Self::Named {
+                named_address_id: value.0,
+            },
+            engine::ManifestAddress::Static(value) => Self::Static {
+                static_address: Arc::new(Address::from_node_id(
+                    *value, network_id,
+                )),
+            },
         }
     }
 
     pub fn from_dynamic_global_address(
-        native: &NativeDynamicGlobalAddress,
+        native: &engine::DynamicGlobalAddress,
         network_id: u8,
     ) -> Self {
         match native {
-            NativeDynamicGlobalAddress::Named(value) => {
-                Self::Named { value: value.0 }
-            }
-            NativeDynamicGlobalAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(
+            engine::DynamicGlobalAddress::Named(value) => Self::Named {
+                named_address_id: value.0,
+            },
+            engine::DynamicGlobalAddress::Static(value) => Self::Static {
+                static_address: Arc::new(Address::from_node_id(
                     *value, network_id,
                 )),
             },
@@ -72,15 +67,15 @@ impl ManifestAddress {
     }
 
     pub fn from_dynamic_package_address(
-        native: &NativeDynamicPackageAddress,
+        native: &engine::DynamicPackageAddress,
         network_id: u8,
     ) -> Self {
         match native {
-            NativeDynamicPackageAddress::Named(value) => {
-                Self::Named { value: value.0 }
-            }
-            NativeDynamicPackageAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(
+            engine::DynamicPackageAddress::Named(value) => Self::Named {
+                named_address_id: value.0,
+            },
+            engine::DynamicPackageAddress::Static(value) => Self::Static {
+                static_address: Arc::new(Address::from_node_id(
                     *value, network_id,
                 )),
             },
@@ -88,36 +83,36 @@ impl ManifestAddress {
     }
 }
 
-impl TryFrom<ManifestAddress> for NativeDynamicPackageAddress {
+impl TryFrom<ManifestAddress> for engine::DynamicPackageAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
         value: ManifestAddress,
     ) -> std::result::Result<Self, Self::Error> {
         match value {
-            ManifestAddress::Named { value } => {
-                Ok(Self::Named(NativeManifestNamedAddress(value)))
-            }
-            ManifestAddress::Static { value } => {
-                (*value).try_into().map(Self::Static).map_err(Into::into)
-            }
+            ManifestAddress::Named {
+                named_address_id: value,
+            } => Ok(Self::Named(engine::ManifestNamedAddress(value))),
+            ManifestAddress::Static {
+                static_address: value,
+            } => (*value).try_into().map(Self::Static).map_err(Into::into),
         }
     }
 }
 
-impl TryFrom<ManifestAddress> for NativeDynamicGlobalAddress {
+impl TryFrom<ManifestAddress> for engine::DynamicGlobalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
         value: ManifestAddress,
     ) -> std::result::Result<Self, Self::Error> {
         match value {
-            ManifestAddress::Named { value } => {
-                Ok(Self::Named(NativeManifestNamedAddress(value)))
-            }
-            ManifestAddress::Static { value } => {
-                (*value).try_into().map(Self::Static).map_err(Into::into)
-            }
+            ManifestAddress::Named {
+                named_address_id: value,
+            } => Ok(Self::Named(engine::ManifestNamedAddress(value))),
+            ManifestAddress::Static {
+                static_address: value,
+            } => (*value).try_into().map(Self::Static).map_err(Into::into),
         }
     }
 }

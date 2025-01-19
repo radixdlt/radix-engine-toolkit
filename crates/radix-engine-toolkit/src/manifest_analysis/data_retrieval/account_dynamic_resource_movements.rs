@@ -19,7 +19,7 @@ use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct AccountDynamicResourceMovementsAnalyzer(
-    AccountDynamicResourceMovements,
+    AccountDynamicResourceMovementsOutput,
 );
 
 impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
@@ -73,7 +73,7 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
 }
 
 impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
-    type Output = AccountDynamicResourceMovements;
+    type Output = AccountDynamicResourceMovementsOutput;
     type RequirementState = ConstState<true>;
 
     fn new(

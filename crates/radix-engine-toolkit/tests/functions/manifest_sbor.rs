@@ -15,13 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::prelude::{
-    manifest_encode, AddressBech32Encoder, ManifestValue, ScryptoCustomSchema,
-};
-use radix_common::{ManifestSbor, ScryptoSbor};
-use radix_engine_toolkit::functions::manifest_sbor::ManifestSborStringRepresentation;
-use sbor::generate_full_schema_from_single_type;
-use sbor::representations::SerializationMode;
+use crate::prelude::*;
+use sbor::representations::*;
 
 #[test]
 fn manifest_value_can_be_encoded() {

@@ -70,17 +70,17 @@ impl IntentCoreV2 {
     }
 }
 
-impl TryFrom<NativeIntentCoreV2> for IntentCoreV2 {
+impl TryFrom<engine::IntentCoreV2> for IntentCoreV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeIntentCoreV2 {
+        engine::IntentCoreV2 {
             blobs,
             header,
             instructions,
             message,
             children,
-        }: NativeIntentCoreV2,
+        }: engine::IntentCoreV2,
     ) -> Result<Self> {
         Ok(Self {
             instructions: Arc::new(InstructionsV2(
@@ -99,7 +99,7 @@ impl TryFrom<NativeIntentCoreV2> for IntentCoreV2 {
     }
 }
 
-impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
+impl TryFrom<IntentCoreV2> for engine::IntentCoreV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -113,18 +113,18 @@ impl TryFrom<IntentCoreV2> for NativeIntentCoreV2 {
     ) -> Result<Self> {
         Ok(Self {
             header: header.try_into()?,
-            blobs: NativeBlobsV1 {
-                blobs: blobs.into_iter().map(NativeBlobV1).collect(),
+            blobs: engine::BlobsV1 {
+                blobs: blobs.into_iter().map(engine::BlobV1).collect(),
             },
-            message: NativeMessageV2::try_from(message)?,
-            children: NativeChildSubintentSpecifiersV2 {
+            message: engine::MessageV2::try_from(message)?,
+            children: engine::ChildSubintentSpecifiersV2 {
                 children: children
                     .into_iter()
-                    .map(|value| NativeSubintentHash(value.0))
-                    .map(|hash| NativeChildSubintentSpecifier { hash })
+                    .map(|value| engine::SubintentHash(value.0))
+                    .map(|hash| engine::ChildSubintentSpecifier { hash })
                     .collect(),
             },
-            instructions: NativeInstructionsV2(
+            instructions: engine::InstructionsV2(
                 instructions.as_ref().0.to_vec(),
             ),
         })

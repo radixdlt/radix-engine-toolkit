@@ -20,7 +20,7 @@ use crate::internal_prelude::*;
 /// The resource movements that were detected in the manifest by the static
 /// analyzer.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountStaticResourceMovements {
+pub struct AccountStaticResourceMovementsOutput {
     /// The account withdraws that were observed by the static analyzer.
     pub account_withdraws: IndexMap<ComponentAddress, Vec<AccountWithdraw>>,
     /// The account deposits that were observed by the static analyzer.

@@ -54,7 +54,7 @@ impl TransactionManifestV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(core_transaction_v2_transaction_manifest_to_payload_bytes(
+        Ok(toolkit::functions::transaction_v2::transaction_manifest::to_payload_bytes(
             &native,
         )?)
     }
@@ -65,7 +65,7 @@ impl TransactionManifestV2 {
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let decompiled =
-            core_transaction_v2_transaction_manifest_from_payload_bytes(
+            toolkit::functions::transaction_v2::transaction_manifest::from_payload_bytes(
                 compiled,
             )
             .map_err(|error| {
@@ -76,43 +76,33 @@ impl TransactionManifestV2 {
 
     pub fn extract_addresses(&self) -> HashMap<EntityType, Vec<Arc<Address>>> {
         let network_id = self.instructions.1;
-        let (addresses, _) = core_transaction_v2_instructions_extract_addresses(
-            &self.instructions.0,
-        );
+        let (addresses, _) =
+            toolkit::functions::transaction_v2::instructions::extract_addresses(
+                &self.instructions.0,
+            );
 
-        let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
-        for address in addresses {
-            let entity_type = EntityType::from(address.entity_type());
-            let address =
-                Arc::new(Address::from_typed_node_id(address, network_id));
-            map.entry(entity_type).or_default().push(address);
-        }
-        map
-    }
-
-    pub fn statically_analyze(&self, network_id: u8) -> StaticAnalysis {
-        let native = self.clone().to_native();
-        StaticAnalysis::from_native(
-            core_transaction_v2_transaction_manifest_statically_analyze(
-                &native,
-            ),
-            network_id,
+        addresses.into_iter().fold(
+            HashMap::<EntityType, Vec<Arc<Address>>>::new(),
+            |mut map, node_id| {
+                if let Some(entity_type) = node_id.entity_type() {
+                    let entity_type = EntityType::from(entity_type);
+                    map.entry(entity_type).or_default().push(Arc::new(
+                        Address::from_node_id(node_id, network_id),
+                    ));
+                    map
+                } else {
+                    map
+                }
+            },
         )
     }
 
-    pub fn statically_analyze_and_validate(
-        &self,
-        network_id: u8,
-    ) -> Result<StaticAnalysisWithResourceMovements> {
+    pub fn statically_analyze(&self, network_id: u8) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
-        core_transaction_v2_transaction_manifest_statically_analyze_and_validate(&native)
-            .map_err(RadixEngineToolkitError::from)
-            .map(|static_analysis| {
-                StaticAnalysisWithResourceMovements::from_native(
-                    static_analysis,
-                    network_id,
-                )
-            })
+        let static_analysis = toolkit::functions::transaction_v2::transaction_manifest::statically_analyze(
+            &native,
+        )?;
+        Ok(StaticAnalysis::from_native(static_analysis, network_id))
     }
 
     pub fn dynamically_analyze(
@@ -122,28 +112,28 @@ impl TransactionManifestV2 {
     ) -> Result<DynamicAnalysis> {
         let native = self.clone().to_native();
         let network_definition =
-            NativeNetworkDefinition::from_network_id(network_id);
+            engine::NetworkDefinition::from_network_id(network_id);
         let receipt = serde_json::from_str::<
             SerializableToolkitTransactionReceipt,
         >(&toolkit_receipt)
         .ok()
         .and_then(|receipt| {
             receipt
-                .into_runtime_receipt(&NativeAddressBech32Decoder::new(
+                .into_runtime_receipt(&engine::AddressBech32Decoder::new(
                     &network_definition,
                 ))
                 .ok()
         })
         .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
-        core_transaction_v2_transaction_manifest_dynamically_analyze(
-            &native, &receipt,
+        toolkit::functions::transaction_v2::transaction_manifest::dynamically_analyze(
+            &native, receipt,
         )
         .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
-        .map(|summary| DynamicAnalysis::from_native(summary, network_id))?
+        .map(|summary| DynamicAnalysis::from_native(summary, network_id))
     }
 
     pub fn statically_validate(&self) -> Result<()> {
-        core_transaction_v2_transaction_manifest_statically_validate(
+        toolkit::functions::transaction_v2::transaction_manifest::statically_validate(
             &self.clone().to_native(),
         )
         .map_err(Into::into)
@@ -152,12 +142,12 @@ impl TransactionManifestV2 {
 
 impl TransactionManifestV2 {
     pub fn from_native(
-        NativeTransactionManifestV2 {
+        engine::TransactionManifestV2 {
             instructions,
             blobs,
             children,
             ..
-        }: &NativeTransactionManifestV2,
+        }: &engine::TransactionManifestV2,
         network_id: u8,
     ) -> Self {
         let blobs = blobs.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>();
@@ -172,22 +162,22 @@ impl TransactionManifestV2 {
         }
     }
 
-    pub fn to_native(&self) -> NativeTransactionManifestV2 {
+    pub fn to_native(&self) -> engine::TransactionManifestV2 {
         let blobs = self
             .blobs
             .iter()
-            .map(|blob| (native_hash(blob), blob.clone()))
+            .map(|blob| (engine::hash(blob), blob.clone()))
             .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
-        NativeTransactionManifestV2 {
+        engine::TransactionManifestV2 {
             instructions,
             blobs,
             children: self
                 .children
                 .iter()
-                .map(|value| NativeSubintentHash(value.as_ref().0))
-                .map(|value| NativeChildSubintentSpecifier { hash: value })
+                .map(|value| engine::SubintentHash(value.as_ref().0))
+                .map(|value| engine::ChildSubintentSpecifier { hash: value })
                 .collect(),
             object_names: Default::default(),
         }

@@ -41,7 +41,7 @@ impl TransactionIntentV2 {
 
     #[uniffi::constructor]
     pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_transaction_v2_transaction_intent_from_payload_bytes(
+        toolkit::functions::transaction_v2::transaction_intent::from_payload_bytes(
             compiled_intent,
         )
         .map_err(RadixEngineToolkitError::from)
@@ -62,8 +62,8 @@ impl TransactionIntentV2 {
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         let transaction_intent_hash =
-            NativeTransactionIntentV2::try_from(self.clone())?
-                .prepare(&NativePreparationSettings::latest())?
+            engine::TransactionIntentV2::try_from(self.clone())?
+                .prepare(&engine::PreparationSettings::latest())?
                 .transaction_intent_hash();
         Ok(Arc::new(TransactionHash::new(
             &transaction_intent_hash,
@@ -76,22 +76,22 @@ impl TransactionIntentV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeTransactionIntentV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_transaction_intent_to_payload_bytes(&intent)
+        engine::TransactionIntentV2::try_from(self.clone()).and_then(|intent| {
+            toolkit::functions::transaction_v2::transaction_intent::to_payload_bytes(&intent)
                 .map_err(Into::into)
         })
     }
 }
 
-impl TryFrom<NativeTransactionIntentV2> for TransactionIntentV2 {
+impl TryFrom<engine::TransactionIntentV2> for TransactionIntentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeTransactionIntentV2 {
+        engine::TransactionIntentV2 {
             transaction_header,
             root_intent_core,
             non_root_subintents,
-        }: NativeTransactionIntentV2,
+        }: engine::TransactionIntentV2,
     ) -> Result<Self> {
         Ok(Self {
             transaction_header: transaction_header.into(),
@@ -107,7 +107,7 @@ impl TryFrom<NativeTransactionIntentV2> for TransactionIntentV2 {
     }
 }
 
-impl TryFrom<TransactionIntentV2> for NativeTransactionIntentV2 {
+impl TryFrom<TransactionIntentV2> for engine::TransactionIntentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -120,7 +120,7 @@ impl TryFrom<TransactionIntentV2> for NativeTransactionIntentV2 {
         Ok(Self {
             transaction_header: transaction_header.try_into()?,
             root_intent_core: root_intent_core.as_ref().clone().try_into()?,
-            non_root_subintents: NativeNonRootSubintentsV2(
+            non_root_subintents: engine::NonRootSubintentsV2(
                 non_root_subintents
                     .into_iter()
                     .map(|item| item.as_ref().clone())

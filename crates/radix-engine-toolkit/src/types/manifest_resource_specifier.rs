@@ -63,3 +63,28 @@ impl From<ResourceSpecifier> for ManifestResourceSpecifier {
         }
     }
 }
+
+impl TryFrom<ManifestResourceSpecifier> for ResourceSpecifier {
+    type Error = ();
+
+    fn try_from(value: ManifestResourceSpecifier) -> Result<Self, Self::Error> {
+        match value {
+            ManifestResourceSpecifier::Amount(
+                ManifestResourceAddress::Static(address),
+                amount,
+            ) => Ok(Self::Amount(address, amount)),
+            ManifestResourceSpecifier::Ids(
+                ManifestResourceAddress::Static(address),
+                ids,
+            ) => Ok(Self::Ids(address, ids)),
+            ManifestResourceSpecifier::Amount(
+                ManifestResourceAddress::Named(..),
+                ..,
+            )
+            | ManifestResourceSpecifier::Ids(
+                ManifestResourceAddress::Named(..),
+                ..,
+            ) => Err(()),
+        }
+    }
+}

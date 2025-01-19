@@ -52,7 +52,7 @@ pub fn statically_analyze(
         );
         interpreter.validate_and_apply_visitor(&mut visitor)?;
         let output = visitor.output();
-        AccountStaticResourceMovements {
+        AccountStaticResourceMovementsOutput {
             account_withdraws: output.resolve_account_withdraws(),
             account_deposits: output.resolve_account_deposits(),
         }
@@ -164,7 +164,7 @@ pub fn dynamically_analyze(
         );
         interpreter.validate_and_apply_visitor(&mut visitor)?;
         let output = visitor.output();
-        AccountStaticResourceMovements {
+        AccountStaticResourceMovementsOutput {
             account_withdraws: output.resolve_account_withdraws(),
             account_deposits: output.resolve_account_deposits(),
         }

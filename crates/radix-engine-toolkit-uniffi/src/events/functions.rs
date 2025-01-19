@@ -25,7 +25,7 @@ pub fn scrypto_sbor_decode_to_native_event(
     event_data: Vec<u8>,
     network_id: u8,
 ) -> Result<TypedNativeEvent> {
-    core_scrypto_sbor_decode_to_native_event(
+    toolkit::functions::events::scrypto_sbor_decode_to_native_event(
         &event_type_identifier.try_into()?,
         &event_data,
     )
@@ -478,9 +478,9 @@ pub struct StoreEvent {
 }
 
 impl FromNative for RuleSet {
-    type Native = NativeRuleSet;
+    type Native = engine::RuleSet;
 
-    fn from_native(value: NativeRuleSet) -> Self {
+    fn from_native(value: engine::RuleSet) -> Self {
         Self {
             primary_role: Arc::new(AccessRule(value.primary_role)),
             recovery_role: Arc::new(AccessRule(value.recovery_role)),
@@ -490,7 +490,7 @@ impl FromNative for RuleSet {
 }
 
 impl ToNative for RuleSet {
-    type Native = NativeRuleSet;
+    type Native = engine::RuleSet;
 
     fn to_native(self) -> Result<Self::Native> {
         Ok(Self::Native {
@@ -502,9 +502,9 @@ impl ToNative for RuleSet {
 }
 
 impl FromNative for RecoveryProposal {
-    type Native = NativeRecoveryProposal;
+    type Native = engine::RecoveryProposal;
 
-    fn from_native(value: NativeRecoveryProposal) -> Self {
+    fn from_native(value: engine::RecoveryProposal) -> Self {
         Self {
             rule_set: <RuleSet as FromNative>::from_native(value.rule_set),
             timed_recovery_delay_in_minutes: value
@@ -514,32 +514,32 @@ impl FromNative for RecoveryProposal {
 }
 
 impl FromNative for Proposer {
-    type Native = NativeProposer;
+    type Native = engine::Proposer;
 
-    fn from_native(value: NativeProposer) -> Self {
+    fn from_native(value: engine::Proposer) -> Self {
         match value {
-            NativeProposer::Primary => Self::Primary,
-            NativeProposer::Recovery => Self::Recovery,
+            engine::Proposer::Primary => Self::Primary,
+            engine::Proposer::Recovery => Self::Recovery,
         }
     }
 }
 
 impl FromNative for Role {
-    type Native = NativeRole;
+    type Native = engine::Role;
 
-    fn from_native(value: NativeRole) -> Self {
+    fn from_native(value: engine::Role) -> Self {
         match value {
-            NativeRole::Primary => Self::Primary,
-            NativeRole::Recovery => Self::Recovery,
-            NativeRole::Confirmation => Self::Confirmation,
+            engine::Role::Primary => Self::Primary,
+            engine::Role::Recovery => Self::Recovery,
+            engine::Role::Confirmation => Self::Confirmation,
         }
     }
 }
 
 impl FromNative for ValidatorInfo {
-    type Native = NativeValidator;
+    type Native = engine::Validator;
 
-    fn from_native(value: NativeValidator) -> Self {
+    fn from_native(value: engine::Validator) -> Self {
         Self {
             key: value.key.into(),
             stake: Arc::new(Decimal(value.stake)),
@@ -548,9 +548,9 @@ impl FromNative for ValidatorInfo {
 }
 
 impl FromNative for MintFungibleResourceEvent {
-    type Native = NativeMintFungibleResourceEvent;
+    type Native = engine::MintFungibleResourceEvent;
 
-    fn from_native(value: NativeMintFungibleResourceEvent) -> Self {
+    fn from_native(value: engine::MintFungibleResourceEvent) -> Self {
         Self {
             amount: Arc::new(Decimal(value.amount)),
         }
@@ -558,9 +558,9 @@ impl FromNative for MintFungibleResourceEvent {
 }
 
 impl FromNative for BurnFungibleResourceEvent {
-    type Native = NativeBurnFungibleResourceEvent;
+    type Native = engine::BurnFungibleResourceEvent;
 
-    fn from_native(value: NativeBurnFungibleResourceEvent) -> Self {
+    fn from_native(value: engine::BurnFungibleResourceEvent) -> Self {
         Self {
             amount: Arc::new(Decimal(value.amount)),
         }
@@ -568,9 +568,9 @@ impl FromNative for BurnFungibleResourceEvent {
 }
 
 impl FromNative for MintNonFungibleResourceEvent {
-    type Native = NativeMintNonFungibleResourceEvent;
+    type Native = engine::MintNonFungibleResourceEvent;
 
-    fn from_native(value: NativeMintNonFungibleResourceEvent) -> Self {
+    fn from_native(value: engine::MintNonFungibleResourceEvent) -> Self {
         Self {
             ids: value.ids.into_iter().map(Into::into).collect(),
         }
@@ -578,9 +578,9 @@ impl FromNative for MintNonFungibleResourceEvent {
 }
 
 impl FromNative for BurnNonFungibleResourceEvent {
-    type Native = NativeBurnNonFungibleResourceEvent;
+    type Native = engine::BurnNonFungibleResourceEvent;
 
-    fn from_native(value: NativeBurnNonFungibleResourceEvent) -> Self {
+    fn from_native(value: engine::BurnNonFungibleResourceEvent) -> Self {
         Self {
             ids: value.ids.into_iter().map(Into::into).collect(),
         }
@@ -588,12 +588,12 @@ impl FromNative for BurnNonFungibleResourceEvent {
 }
 
 impl FromNativeWithNetworkContext for VaultCreationEvent {
-    type Native = NativeVaultCreationEvent;
+    type Native = engine::VaultCreationEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            vault_id: Arc::new(Address::from_typed_node_id(
-                NativeInternalAddress::try_from(native.vault_id)
+            vault_id: Arc::new(Address::from_node_id(
+                engine::InternalAddress::try_from(native.vault_id)
                     .expect("Should be valid"),
                 network_id,
             )),
@@ -602,11 +602,11 @@ impl FromNativeWithNetworkContext for VaultCreationEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolDepositEvent {
-    type Native = NativeMultiResourcePoolDepositEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -616,11 +616,11 @@ impl FromNativeWithNetworkContext for MultiResourcePoolDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolWithdrawEvent {
-    type Native = NativeMultiResourcePoolWithdrawEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -630,7 +630,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolWithdrawEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
-    type Native = NativeMultiResourcePoolRedemptionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -642,7 +642,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address::from_typed_node_id(key, network_id).as_str(),
+                        Address::from_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -652,7 +652,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
-    type Native = NativeMultiResourcePoolContributionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -662,7 +662,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address::from_typed_node_id(key, network_id).as_str(),
+                        Address::from_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -672,11 +672,11 @@ impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolDepositEvent {
-    type Native = NativeTwoResourcePoolDepositEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -686,11 +686,11 @@ impl FromNativeWithNetworkContext for TwoResourcePoolDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolWithdrawEvent {
-    type Native = NativeTwoResourcePoolWithdrawEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -700,7 +700,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolWithdrawEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
-    type Native = NativeTwoResourcePoolRedemptionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -712,7 +712,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address::from_typed_node_id(key, network_id).as_str(),
+                        Address::from_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -722,7 +722,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
-    type Native = NativeTwoResourcePoolContributionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -732,7 +732,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address::from_typed_node_id(key, network_id).as_str(),
+                        Address::from_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -742,7 +742,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
 }
 
 impl FromNative for OneResourcePoolContributionEvent {
-    type Native = NativeOneResourcePoolContributionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -755,7 +755,7 @@ impl FromNative for OneResourcePoolContributionEvent {
 }
 
 impl FromNative for OneResourcePoolRedemptionEvent {
-    type Native = NativeOneResourcePoolRedemptionEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -768,7 +768,7 @@ impl FromNative for OneResourcePoolRedemptionEvent {
 }
 
 impl FromNative for OneResourcePoolWithdrawEvent {
-    type Native = NativeOneResourcePoolWithdrawEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -778,7 +778,7 @@ impl FromNative for OneResourcePoolWithdrawEvent {
 }
 
 impl FromNative for OneResourcePoolDepositEvent {
-    type Native = NativeOneResourcePoolDepositEvent;
+    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -788,7 +788,7 @@ impl FromNative for OneResourcePoolDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for EpochChangeEvent {
-    type Native = NativeEpochChangeEvent;
+    type Native = engine::EpochChangeEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -799,7 +799,7 @@ impl FromNativeWithNetworkContext for EpochChangeEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address::from_typed_node_id(key, network_id).as_str(),
+                        Address::from_node_id(key, network_id).as_str(),
                         <ValidatorInfo as FromNative>::from_native(value),
                     )
                 })
@@ -809,7 +809,7 @@ impl FromNativeWithNetworkContext for EpochChangeEvent {
 }
 
 impl FromNative for ValidatorRewardAppliedEvent {
-    type Native = NativeValidatorRewardAppliedEvent;
+    type Native = engine::ValidatorRewardAppliedEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -820,7 +820,7 @@ impl FromNative for ValidatorRewardAppliedEvent {
 }
 
 impl FromNative for ValidatorEmissionAppliedEvent {
-    type Native = NativeValidatorEmissionAppliedEvent;
+    type Native = engine::ValidatorEmissionAppliedEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -842,7 +842,7 @@ impl FromNative for ValidatorEmissionAppliedEvent {
 }
 
 impl FromNative for ProtocolUpdateReadinessSignalEvent {
-    type Native = NativeProtocolUpdateReadinessSignalEvent;
+    type Native = engine::ProtocolUpdateReadinessSignalEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -852,7 +852,7 @@ impl FromNative for ProtocolUpdateReadinessSignalEvent {
 }
 
 impl FromNative for UpdateAcceptingStakeDelegationStateEvent {
-    type Native = NativeUpdateAcceptingStakeDelegationStateEvent;
+    type Native = engine::UpdateAcceptingStakeDelegationStateEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -862,7 +862,7 @@ impl FromNative for UpdateAcceptingStakeDelegationStateEvent {
 }
 
 impl FromNative for ClaimXrdEvent {
-    type Native = NativeClaimXrdEvent;
+    type Native = engine::ClaimXrdEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -872,7 +872,7 @@ impl FromNative for ClaimXrdEvent {
 }
 
 impl FromNative for UnstakeEvent {
-    type Native = NativeUnstakeEvent;
+    type Native = engine::UnstakeEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -882,7 +882,7 @@ impl FromNative for UnstakeEvent {
 }
 
 impl FromNative for StakeEvent {
-    type Native = NativeStakeEvent;
+    type Native = engine::StakeEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -892,7 +892,7 @@ impl FromNative for StakeEvent {
 }
 
 impl FromNative for UnregisterValidatorEvent {
-    type Native = NativeUnregisterValidatorEvent;
+    type Native = engine::UnregisterValidatorEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -902,7 +902,7 @@ impl FromNative for UnregisterValidatorEvent {
 }
 
 impl FromNative for RegisterValidatorEvent {
-    type Native = NativeRegisterValidatorEvent;
+    type Native = engine::RegisterValidatorEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -912,7 +912,7 @@ impl FromNative for RegisterValidatorEvent {
 }
 
 impl FromNative for RoundChangeEvent {
-    type Native = NativeRoundChangeEvent;
+    type Native = engine::RoundChangeEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -922,7 +922,7 @@ impl FromNative for RoundChangeEvent {
 }
 
 impl FromNative for StopTimedRecoveryEvent {
-    type Native = NativeStopTimedRecoveryEvent;
+    type Native = engine::StopTimedRecoveryEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -932,7 +932,7 @@ impl FromNative for StopTimedRecoveryEvent {
 }
 
 impl FromNative for UnlockPrimaryRoleEvent {
-    type Native = NativeUnlockPrimaryRoleEvent;
+    type Native = engine::UnlockPrimaryRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -942,7 +942,7 @@ impl FromNative for UnlockPrimaryRoleEvent {
 }
 
 impl FromNative for DepositRecoveryXrdEvent {
-    type Native = NativeDepositRecoveryXrdEvent;
+    type Native = engine::DepositRecoveryXrdEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -952,7 +952,7 @@ impl FromNative for DepositRecoveryXrdEvent {
 }
 
 impl FromNative for WithdrawRecoveryXrdEvent {
-    type Native = NativeWithdrawRecoveryXrdEvent;
+    type Native = engine::WithdrawRecoveryXrdEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -962,7 +962,7 @@ impl FromNative for WithdrawRecoveryXrdEvent {
 }
 
 impl FromNative for LockPrimaryRoleEvent {
-    type Native = NativeLockPrimaryRoleEvent;
+    type Native = engine::LockPrimaryRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -972,7 +972,7 @@ impl FromNative for LockPrimaryRoleEvent {
 }
 
 impl FromNative for CancelBadgeWithdrawAttemptEvent {
-    type Native = NativeCancelBadgeWithdrawAttemptEvent;
+    type Native = engine::CancelBadgeWithdrawAttemptEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -982,7 +982,7 @@ impl FromNative for CancelBadgeWithdrawAttemptEvent {
 }
 
 impl FromNative for CancelRecoveryProposalEvent {
-    type Native = NativeCancelRecoveryProposalEvent;
+    type Native = engine::CancelRecoveryProposalEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -992,7 +992,7 @@ impl FromNative for CancelRecoveryProposalEvent {
 }
 
 impl FromNative for BadgeWithdrawEvent {
-    type Native = NativeBadgeWithdrawEvent;
+    type Native = engine::BadgeWithdrawEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1002,7 +1002,7 @@ impl FromNative for BadgeWithdrawEvent {
 }
 
 impl FromNative for RuleSetUpdateEvent {
-    type Native = NativeRuleSetUpdateEvent;
+    type Native = engine::RuleSetUpdateEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1015,7 +1015,7 @@ impl FromNative for RuleSetUpdateEvent {
 }
 
 impl FromNative for InitiateBadgeWithdrawAttemptEvent {
-    type Native = NativeInitiateBadgeWithdrawAttemptEvent;
+    type Native = engine::InitiateBadgeWithdrawAttemptEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1025,7 +1025,7 @@ impl FromNative for InitiateBadgeWithdrawAttemptEvent {
 }
 
 impl FromNative for InitiateRecoveryEvent {
-    type Native = NativeInitiateRecoveryEvent;
+    type Native = engine::InitiateRecoveryEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1038,7 +1038,7 @@ impl FromNative for InitiateRecoveryEvent {
 }
 
 impl FromNative for SetRoleEvent {
-    type Native = NativeSetRoleEvent;
+    type Native = engine::SetRoleEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1049,7 +1049,7 @@ impl FromNative for SetRoleEvent {
 }
 
 impl FromNative for SetOwnerRoleEvent {
-    type Native = NativeSetOwnerRoleEvent;
+    type Native = engine::SetOwnerRoleEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1059,7 +1059,7 @@ impl FromNative for SetOwnerRoleEvent {
 }
 
 impl FromNative for LockOwnerRoleEvent {
-    type Native = NativeLockOwnerRoleEvent;
+    type Native = engine::LockOwnerRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
         Self {
@@ -1069,7 +1069,7 @@ impl FromNative for LockOwnerRoleEvent {
 }
 
 impl FromNativeWithNetworkContext for SetMetadataEvent {
-    type Native = NativeSetMetadataEvent;
+    type Native = engine::SetMetadataEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -1080,7 +1080,7 @@ impl FromNativeWithNetworkContext for SetMetadataEvent {
 }
 
 impl FromNative for RemoveMetadataEvent {
-    type Native = NativeRemoveMetadataEvent;
+    type Native = engine::RemoveMetadataEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self { key: native.key }
@@ -1088,13 +1088,13 @@ impl FromNative for RemoveMetadataEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountWithdrawEvent {
-    type Native = NativeAccountWithdrawEvent;
+    type Native = radix_engine::blueprints::account::WithdrawEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         match native {
             Self::Native::Fungible(resource_address, amount) => {
                 Self::Fungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1103,7 +1103,7 @@ impl FromNativeWithNetworkContext for AccountWithdrawEvent {
             }
             Self::Native::NonFungible(resource_address, ids) => {
                 Self::NonFungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1115,13 +1115,13 @@ impl FromNativeWithNetworkContext for AccountWithdrawEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountDepositEvent {
-    type Native = NativeAccountDepositEvent;
+    type Native = radix_engine::blueprints::account::DepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         match native {
             Self::Native::Fungible(resource_address, amount) => {
                 Self::Fungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1130,7 +1130,7 @@ impl FromNativeWithNetworkContext for AccountDepositEvent {
             }
             Self::Native::NonFungible(resource_address, ids) => {
                 Self::NonFungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1142,13 +1142,13 @@ impl FromNativeWithNetworkContext for AccountDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountRejectedDepositEvent {
-    type Native = NativeAccountRejectedDepositEvent;
+    type Native = radix_engine::blueprints::account::RejectedDepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         match native {
             Self::Native::Fungible(resource_address, amount) => {
                 Self::Fungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1157,7 +1157,7 @@ impl FromNativeWithNetworkContext for AccountRejectedDepositEvent {
             }
             Self::Native::NonFungible(resource_address, ids) => {
                 Self::NonFungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address: Arc::new(Address::from_node_id(
                         resource_address,
                         network_id,
                     )),
@@ -1169,11 +1169,11 @@ impl FromNativeWithNetworkContext for AccountRejectedDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountSetResourcePreferenceEvent {
-    type Native = NativeAccountSetResourcePreferenceEvent;
+    type Native = radix_engine::blueprints::account::SetResourcePreferenceEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -1185,11 +1185,12 @@ impl FromNativeWithNetworkContext for AccountSetResourcePreferenceEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountRemoveResourcePreferenceEvent {
-    type Native = NativeAccountRemoveResourcePreferenceEvent;
+    type Native =
+        radix_engine::blueprints::account::RemoveResourcePreferenceEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address::from_typed_node_id(
+            resource_address: Arc::new(Address::from_node_id(
                 native.resource_address,
                 network_id,
             )),
@@ -1198,7 +1199,7 @@ impl FromNativeWithNetworkContext for AccountRemoveResourcePreferenceEvent {
 }
 
 impl FromNative for AccountSetDefaultDepositRuleEvent {
-    type Native = NativeAccountSetDefaultDepositRuleEvent;
+    type Native = radix_engine::blueprints::account::SetDefaultDepositRuleEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1211,7 +1212,8 @@ impl FromNative for AccountSetDefaultDepositRuleEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountAddAuthorizedDepositorEvent {
-    type Native = NativeAccountAddAuthorizedDepositorEvent;
+    type Native =
+        radix_engine::blueprints::account::AddAuthorizedDepositorEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -1225,7 +1227,8 @@ impl FromNativeWithNetworkContext for AccountAddAuthorizedDepositorEvent {
 }
 
 impl FromNativeWithNetworkContext for AccountRemoveAuthorizedDepositorEvent {
-    type Native = NativeAccountRemoveAuthorizedDepositorEvent;
+    type Native =
+        radix_engine::blueprints::account::RemoveAuthorizedDepositorEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -1239,7 +1242,8 @@ impl FromNativeWithNetworkContext for AccountRemoveAuthorizedDepositorEvent {
 }
 
 impl FromNative for FungibleVaultLockFeeEvent {
-    type Native = NativeFungibleVaultLockFeeEvent;
+    type Native =
+        radix_engine::blueprints::resource::fungible_vault::LockFeeEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1249,7 +1253,8 @@ impl FromNative for FungibleVaultLockFeeEvent {
 }
 
 impl FromNative for FungibleVaultWithdrawEvent {
-    type Native = NativeFungibleVaultWithdrawEvent;
+    type Native =
+        radix_engine::blueprints::resource::fungible_vault::WithdrawEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1259,7 +1264,8 @@ impl FromNative for FungibleVaultWithdrawEvent {
 }
 
 impl FromNative for FungibleVaultDepositEvent {
-    type Native = NativeFungibleVaultDepositEvent;
+    type Native =
+        radix_engine::blueprints::resource::fungible_vault::DepositEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1269,7 +1275,8 @@ impl FromNative for FungibleVaultDepositEvent {
 }
 
 impl FromNative for FungibleVaultRecallEvent {
-    type Native = NativeFungibleVaultRecallEvent;
+    type Native =
+        radix_engine::blueprints::resource::fungible_vault::RecallEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1279,7 +1286,8 @@ impl FromNative for FungibleVaultRecallEvent {
 }
 
 impl FromNative for FungibleVaultPayFeeEvent {
-    type Native = NativeFungibleVaultPayFeeEvent;
+    type Native =
+        radix_engine::blueprints::resource::fungible_vault::PayFeeEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1289,7 +1297,8 @@ impl FromNative for FungibleVaultPayFeeEvent {
 }
 
 impl FromNative for NonFungibleVaultWithdrawEvent {
-    type Native = NativeNonFungibleVaultWithdrawEvent;
+    type Native =
+        radix_engine::blueprints::resource::non_fungible_vault::WithdrawEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1299,7 +1308,8 @@ impl FromNative for NonFungibleVaultWithdrawEvent {
 }
 
 impl FromNative for NonFungibleVaultDepositEvent {
-    type Native = NativeNonFungibleVaultDepositEvent;
+    type Native =
+        radix_engine::blueprints::resource::non_fungible_vault::DepositEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1309,7 +1319,8 @@ impl FromNative for NonFungibleVaultDepositEvent {
 }
 
 impl FromNative for NonFungibleVaultRecallEvent {
-    type Native = NativeNonFungibleVaultRecallEvent;
+    type Native =
+        radix_engine::blueprints::resource::non_fungible_vault::RecallEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -1319,15 +1330,15 @@ impl FromNative for NonFungibleVaultRecallEvent {
 }
 
 impl FromNativeWithNetworkContext for ClaimEvent {
-    type Native = NativeClaimEvent;
+    type Native = engine::ClaimEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
-        let address = Arc::new(Address::from_typed_node_id(
+        let address = Arc::new(Address::from_node_id(
             native.resource_address,
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
+            claimant: Arc::new(Address::from_node_id(
                 native.claimant.0,
                 network_id,
             )),
@@ -1342,15 +1353,15 @@ impl FromNativeWithNetworkContext for ClaimEvent {
 }
 
 impl FromNativeWithNetworkContext for RecoverEvent {
-    type Native = NativeRecoverEvent;
+    type Native = engine::RecoverEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
-        let address = Arc::new(Address::from_typed_node_id(
+        let address = Arc::new(Address::from_node_id(
             native.resource_address,
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
+            claimant: Arc::new(Address::from_node_id(
                 native.claimant.0,
                 network_id,
             )),
@@ -1365,15 +1376,15 @@ impl FromNativeWithNetworkContext for RecoverEvent {
 }
 
 impl FromNativeWithNetworkContext for StoreEvent {
-    type Native = NativeStoreEvent;
+    type Native = engine::StoreEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
-        let address = Arc::new(Address::from_typed_node_id(
+        let address = Arc::new(Address::from_node_id(
             native.resource_address,
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
+            claimant: Arc::new(Address::from_node_id(
                 native.claimant.0,
                 network_id,
             )),
@@ -1387,7 +1398,7 @@ impl FromNativeWithNetworkContext for StoreEvent {
     }
 }
 
-impl TryFrom<Emitter> for NativeEmitter {
+impl TryFrom<Emitter> for engine::Emitter {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Emitter) -> Result<Self> {
@@ -1395,8 +1406,8 @@ impl TryFrom<Emitter> for NativeEmitter {
             Emitter::Function {
                 address,
                 blueprint_name,
-            } => Ok(Self::Function(NativeBlueprintId::new(
-                &NativePackageAddress::try_from(*address)?,
+            } => Ok(Self::Function(engine::BlueprintId::new(
+                &engine::PackageAddress::try_from(*address)?,
                 blueprint_name,
             ))),
             Emitter::Method {
@@ -1407,7 +1418,7 @@ impl TryFrom<Emitter> for NativeEmitter {
     }
 }
 
-impl TryFrom<EventTypeIdentifier> for NativeEventTypeIdentifier {
+impl TryFrom<EventTypeIdentifier> for engine::EventTypeIdentifier {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: EventTypeIdentifier) -> Result<Self> {

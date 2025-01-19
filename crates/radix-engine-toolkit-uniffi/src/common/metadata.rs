@@ -118,78 +118,86 @@ pub enum MetadataValue {
     },
 }
 
+impl FromNativeWithNetworkContext for MetadataValue {
+    type Native = engine::MetadataValue;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self::from_native(&native, network_id)
+    }
+}
+
 impl MetadataValue {
-    pub fn from_native(native: &NativeMetadataValue, network_id: u8) -> Self {
+    pub fn from_native(native: &engine::MetadataValue, network_id: u8) -> Self {
         match native.clone() {
-            NativeMetadataValue::String(value) => Self::StringValue { value },
-            NativeMetadataValue::Bool(value) => Self::BoolValue { value },
+            engine::MetadataValue::String(value) => Self::StringValue { value },
+            engine::MetadataValue::Bool(value) => Self::BoolValue { value },
 
-            NativeMetadataValue::U8(value) => Self::U8Value { value },
-            NativeMetadataValue::U32(value) => Self::U32Value { value },
-            NativeMetadataValue::U64(value) => Self::U64Value { value },
-            NativeMetadataValue::I32(value) => Self::I32Value { value },
-            NativeMetadataValue::I64(value) => Self::I64Value { value },
+            engine::MetadataValue::U8(value) => Self::U8Value { value },
+            engine::MetadataValue::U32(value) => Self::U32Value { value },
+            engine::MetadataValue::U64(value) => Self::U64Value { value },
+            engine::MetadataValue::I32(value) => Self::I32Value { value },
+            engine::MetadataValue::I64(value) => Self::I64Value { value },
 
-            NativeMetadataValue::Decimal(value) => Self::DecimalValue {
+            engine::MetadataValue::Decimal(value) => Self::DecimalValue {
                 value: Arc::new(Decimal(value)),
             },
-            NativeMetadataValue::GlobalAddress(value) => {
+            engine::MetadataValue::GlobalAddress(value) => {
                 Self::GlobalAddressValue {
-                    value: Arc::new(Address::from_typed_node_id(
-                        value, network_id,
-                    )),
+                    value: Arc::new(Address::from_node_id(value, network_id)),
                 }
             }
-            NativeMetadataValue::PublicKey(value) => Self::PublicKeyValue {
+            engine::MetadataValue::PublicKey(value) => Self::PublicKeyValue {
                 value: value.into(),
             },
-            NativeMetadataValue::PublicKeyHash(value) => {
+            engine::MetadataValue::PublicKeyHash(value) => {
                 Self::PublicKeyHashValue {
                     value: value.into(),
                 }
             }
-            NativeMetadataValue::NonFungibleGlobalId(value) => {
+            engine::MetadataValue::NonFungibleGlobalId(value) => {
                 Self::NonFungibleGlobalIdValue {
                     value: Arc::new(NonFungibleGlobalId(value, network_id)),
                 }
             }
-            NativeMetadataValue::NonFungibleLocalId(value) => {
+            engine::MetadataValue::NonFungibleLocalId(value) => {
                 Self::NonFungibleLocalIdValue {
                     value: value.into(),
                 }
             }
-            NativeMetadataValue::Instant(value) => Self::InstantValue {
+            engine::MetadataValue::Instant(value) => Self::InstantValue {
                 value: value.seconds_since_unix_epoch,
             },
-            NativeMetadataValue::Url(value) => {
+            engine::MetadataValue::Url(value) => {
                 Self::UrlValue { value: value.0 }
             }
-            NativeMetadataValue::Origin(value) => {
+            engine::MetadataValue::Origin(value) => {
                 Self::OriginValue { value: value.0 }
             }
 
-            NativeMetadataValue::StringArray(value) => {
+            engine::MetadataValue::StringArray(value) => {
                 Self::StringArrayValue { value }
             }
-            NativeMetadataValue::BoolArray(value) => {
+            engine::MetadataValue::BoolArray(value) => {
                 Self::BoolArrayValue { value }
             }
 
-            NativeMetadataValue::U8Array(value) => Self::U8ArrayValue { value },
-            NativeMetadataValue::U32Array(value) => {
+            engine::MetadataValue::U8Array(value) => {
+                Self::U8ArrayValue { value }
+            }
+            engine::MetadataValue::U32Array(value) => {
                 Self::U32ArrayValue { value }
             }
-            NativeMetadataValue::U64Array(value) => {
+            engine::MetadataValue::U64Array(value) => {
                 Self::U64ArrayValue { value }
             }
-            NativeMetadataValue::I32Array(value) => {
+            engine::MetadataValue::I32Array(value) => {
                 Self::I32ArrayValue { value }
             }
-            NativeMetadataValue::I64Array(value) => {
+            engine::MetadataValue::I64Array(value) => {
                 Self::I64ArrayValue { value }
             }
 
-            NativeMetadataValue::DecimalArray(value) => {
+            engine::MetadataValue::DecimalArray(value) => {
                 Self::DecimalArrayValue {
                     value: value
                         .into_iter()
@@ -197,29 +205,27 @@ impl MetadataValue {
                         .collect(),
                 }
             }
-            NativeMetadataValue::GlobalAddressArray(value) => {
+            engine::MetadataValue::GlobalAddressArray(value) => {
                 Self::GlobalAddressArrayValue {
                     value: value
                         .into_iter()
                         .map(|value| {
-                            Arc::new(Address::from_typed_node_id(
-                                value, network_id,
-                            ))
+                            Arc::new(Address::from_node_id(value, network_id))
                         })
                         .collect(),
                 }
             }
-            NativeMetadataValue::PublicKeyArray(value) => {
+            engine::MetadataValue::PublicKeyArray(value) => {
                 Self::PublicKeyArrayValue {
                     value: value.into_iter().map(Into::into).collect(),
                 }
             }
-            NativeMetadataValue::PublicKeyHashArray(value) => {
+            engine::MetadataValue::PublicKeyHashArray(value) => {
                 Self::PublicKeyHashArrayValue {
                     value: value.into_iter().map(Into::into).collect(),
                 }
             }
-            NativeMetadataValue::NonFungibleGlobalIdArray(value) => {
+            engine::MetadataValue::NonFungibleGlobalIdArray(value) => {
                 Self::NonFungibleGlobalIdArrayValue {
                     value: value
                         .into_iter()
@@ -229,12 +235,12 @@ impl MetadataValue {
                         .collect(),
                 }
             }
-            NativeMetadataValue::NonFungibleLocalIdArray(value) => {
+            engine::MetadataValue::NonFungibleLocalIdArray(value) => {
                 Self::NonFungibleLocalIdArrayValue {
                     value: value.into_iter().map(Into::into).collect(),
                 }
             }
-            NativeMetadataValue::InstantArray(value) => {
+            engine::MetadataValue::InstantArray(value) => {
                 Self::InstantArrayValue {
                     value: value
                         .into_iter()
@@ -242,89 +248,91 @@ impl MetadataValue {
                         .collect(),
                 }
             }
-            NativeMetadataValue::UrlArray(value) => Self::UrlArrayValue {
+            engine::MetadataValue::UrlArray(value) => Self::UrlArrayValue {
                 value: value.into_iter().map(|value| value.0).collect(),
             },
-            NativeMetadataValue::OriginArray(value) => Self::OriginArrayValue {
-                value: value.into_iter().map(|value| value.0).collect(),
-            },
+            engine::MetadataValue::OriginArray(value) => {
+                Self::OriginArrayValue {
+                    value: value.into_iter().map(|value| value.0).collect(),
+                }
+            }
         }
     }
 
-    pub fn to_native(&self) -> Result<NativeMetadataValue> {
+    pub fn to_native(&self) -> Result<engine::MetadataValue> {
         let value = match self {
             Self::StringValue { value } => {
-                NativeMetadataValue::String(value.to_owned())
+                engine::MetadataValue::String(value.to_owned())
             }
-            Self::BoolValue { value } => NativeMetadataValue::Bool(*value),
+            Self::BoolValue { value } => engine::MetadataValue::Bool(*value),
 
-            Self::U8Value { value } => NativeMetadataValue::U8(*value),
-            Self::U32Value { value } => NativeMetadataValue::U32(*value),
-            Self::U64Value { value } => NativeMetadataValue::U64(*value),
-            Self::I32Value { value } => NativeMetadataValue::I32(*value),
-            Self::I64Value { value } => NativeMetadataValue::I64(*value),
+            Self::U8Value { value } => engine::MetadataValue::U8(*value),
+            Self::U32Value { value } => engine::MetadataValue::U32(*value),
+            Self::U64Value { value } => engine::MetadataValue::U64(*value),
+            Self::I32Value { value } => engine::MetadataValue::I32(*value),
+            Self::I64Value { value } => engine::MetadataValue::I64(*value),
 
             Self::DecimalValue { value } => {
-                NativeMetadataValue::Decimal(value.0)
+                engine::MetadataValue::Decimal(value.0)
             }
             Self::GlobalAddressValue { value } => {
-                NativeMetadataValue::GlobalAddress(
-                    NativeGlobalAddress::try_from(value.as_bytes())?,
+                engine::MetadataValue::GlobalAddress(
+                    engine::GlobalAddress::try_from(value.as_bytes())?,
                 )
             }
             Self::PublicKeyValue { value } => {
-                NativeMetadataValue::PublicKey(value.clone().try_into()?)
+                engine::MetadataValue::PublicKey(value.clone().try_into()?)
             }
             Self::PublicKeyHashValue { value } => {
-                NativeMetadataValue::PublicKeyHash(value.clone().try_into()?)
+                engine::MetadataValue::PublicKeyHash(value.clone().try_into()?)
             }
             Self::NonFungibleGlobalIdValue { value } => {
-                NativeMetadataValue::NonFungibleGlobalId(value.0.clone())
+                engine::MetadataValue::NonFungibleGlobalId(value.0.clone())
             }
             Self::NonFungibleLocalIdValue { value } => {
-                NativeMetadataValue::NonFungibleLocalId(
+                engine::MetadataValue::NonFungibleLocalId(
                     value.clone().try_into()?,
                 )
             }
             Self::InstantValue { value } => {
-                NativeMetadataValue::Instant(NativeInstant::new(*value))
+                engine::MetadataValue::Instant(engine::Instant::new(*value))
             }
             Self::UrlValue { value } => {
-                NativeMetadataValue::Url(NativeUncheckedUrl::of(value))
+                engine::MetadataValue::Url(engine::UncheckedUrl::of(value))
             }
-            Self::OriginValue { value } => {
-                NativeMetadataValue::Origin(NativeUncheckedOrigin::of(value))
-            }
+            Self::OriginValue { value } => engine::MetadataValue::Origin(
+                engine::UncheckedOrigin::of(value),
+            ),
 
             Self::StringArrayValue { value } => {
-                NativeMetadataValue::StringArray(value.clone())
+                engine::MetadataValue::StringArray(value.clone())
             }
             Self::BoolArrayValue { value } => {
-                NativeMetadataValue::BoolArray(value.clone())
+                engine::MetadataValue::BoolArray(value.clone())
             }
             Self::U8ArrayValue { value } => {
-                NativeMetadataValue::U8Array(value.clone())
+                engine::MetadataValue::U8Array(value.clone())
             }
             Self::U32ArrayValue { value } => {
-                NativeMetadataValue::U32Array(value.clone())
+                engine::MetadataValue::U32Array(value.clone())
             }
             Self::U64ArrayValue { value } => {
-                NativeMetadataValue::U64Array(value.clone())
+                engine::MetadataValue::U64Array(value.clone())
             }
             Self::I32ArrayValue { value } => {
-                NativeMetadataValue::I32Array(value.clone())
+                engine::MetadataValue::I32Array(value.clone())
             }
             Self::I64ArrayValue { value } => {
-                NativeMetadataValue::I64Array(value.clone())
+                engine::MetadataValue::I64Array(value.clone())
             }
 
             Self::DecimalArrayValue { value } => {
-                NativeMetadataValue::DecimalArray(
+                engine::MetadataValue::DecimalArray(
                     value.iter().map(|value| value.0).collect(),
                 )
             }
             Self::PublicKeyArrayValue { value } => {
-                NativeMetadataValue::PublicKeyArray(
+                engine::MetadataValue::PublicKeyArray(
                     value
                         .iter()
                         .map(|value| value.clone().try_into())
@@ -332,7 +340,7 @@ impl MetadataValue {
                 )
             }
             Self::PublicKeyHashArrayValue { value } => {
-                NativeMetadataValue::PublicKeyHashArray(
+                engine::MetadataValue::PublicKeyHashArray(
                     value
                         .iter()
                         .map(|value| value.clone().try_into())
@@ -340,12 +348,12 @@ impl MetadataValue {
                 )
             }
             Self::NonFungibleGlobalIdArrayValue { value } => {
-                NativeMetadataValue::NonFungibleGlobalIdArray(
+                engine::MetadataValue::NonFungibleGlobalIdArray(
                     value.iter().map(|value| value.0.clone()).collect(),
                 )
             }
             Self::NonFungibleLocalIdArrayValue { value } => {
-                NativeMetadataValue::NonFungibleLocalIdArray(
+                engine::MetadataValue::NonFungibleLocalIdArray(
                     value
                         .iter()
                         .map(|value| value.clone().try_into())
@@ -353,30 +361,30 @@ impl MetadataValue {
                 )
             }
             Self::GlobalAddressArrayValue { value } => {
-                NativeMetadataValue::GlobalAddressArray(
+                engine::MetadataValue::GlobalAddressArray(
                     value
                         .iter()
                         .map(|value| {
-                            NativeGlobalAddress::try_from(value.as_bytes())
+                            engine::GlobalAddress::try_from(value.as_bytes())
                                 .map_err(Into::into)
                         })
                         .collect::<Result<_>>()?,
                 )
             }
             Self::InstantArrayValue { value } => {
-                NativeMetadataValue::InstantArray(
+                engine::MetadataValue::InstantArray(
                     value
                         .iter()
-                        .map(|value| NativeInstant::new(*value))
+                        .map(|value| engine::Instant::new(*value))
                         .collect(),
                 )
             }
-            Self::UrlArrayValue { value } => NativeMetadataValue::UrlArray(
-                value.iter().map(NativeUncheckedUrl::of).collect(),
+            Self::UrlArrayValue { value } => engine::MetadataValue::UrlArray(
+                value.iter().map(engine::UncheckedUrl::of).collect(),
             ),
             Self::OriginArrayValue { value } => {
-                NativeMetadataValue::OriginArray(
-                    value.iter().map(NativeUncheckedOrigin::of).collect(),
+                engine::MetadataValue::OriginArray(
+                    value.iter().map(engine::UncheckedOrigin::of).collect(),
                 )
             }
         };
@@ -394,12 +402,12 @@ pub fn metadata_sbor_decode(
     network_id: u8,
 ) -> Result<MetadataValue> {
     let native = match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-            native_scrypto_decode::<NativeMetadataValue>(&bytes)
+        Some(engine::SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            engine::scrypto_decode::<engine::MetadataValue>(&bytes)
                 .map_err(Into::into)
         }
-        Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-            native_manifest_decode::<NativeMetadataValue>(&bytes)
+        Some(engine::MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+            engine::manifest_decode::<engine::MetadataValue>(&bytes)
                 .map_err(Into::into)
         }
         v => Err(RadixEngineToolkitError::DecodeError {
@@ -412,5 +420,5 @@ pub fn metadata_sbor_decode(
 #[uniffi::export]
 pub fn metadata_sbor_encode(value: MetadataValue) -> Result<Vec<u8>> {
     let native = value.to_native()?;
-    Ok(native_scrypto_encode(&native).expect("Can't fail"))
+    Ok(engine::scrypto_encode(&native).expect("Can't fail"))
 }

@@ -33,15 +33,15 @@ pub struct Secp256k1PublicKey {
     value: Vec<u8>,
 }
 
-impl From<NativePublicKey> for PublicKey {
-    fn from(value: NativePublicKey) -> Self {
+impl From<engine::PublicKey> for PublicKey {
+    fn from(value: engine::PublicKey) -> Self {
         match value {
-            NativePublicKey::Secp256k1(NativeSecp256k1PublicKey(value)) => {
+            engine::PublicKey::Secp256k1(engine::Secp256k1PublicKey(value)) => {
                 Self::Secp256k1 {
                     value: value.to_vec(),
                 }
             }
-            NativePublicKey::Ed25519(NativeEd25519PublicKey(value)) => {
+            engine::PublicKey::Ed25519(engine::Ed25519PublicKey(value)) => {
                 Self::Ed25519 {
                     value: value.to_vec(),
                 }
@@ -50,26 +50,26 @@ impl From<NativePublicKey> for PublicKey {
     }
 }
 
-impl TryFrom<PublicKey> for NativePublicKey {
+impl TryFrom<PublicKey> for engine::PublicKey {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: PublicKey) -> Result<Self> {
         match value {
             PublicKey::Ed25519 { value } => value
                 .try_into()
-                .map(NativeEd25519PublicKey)
+                .map(engine::Ed25519PublicKey)
                 .map(Self::Ed25519)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeEd25519PublicKey::LENGTH as u64,
+                    expected: engine::Ed25519PublicKey::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
             PublicKey::Secp256k1 { value } => value
                 .try_into()
-                .map(NativeSecp256k1PublicKey)
+                .map(engine::Secp256k1PublicKey)
                 .map(Self::Secp256k1)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeSecp256k1PublicKey::LENGTH as u64,
+                    expected: engine::Secp256k1PublicKey::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
@@ -77,48 +77,48 @@ impl TryFrom<PublicKey> for NativePublicKey {
     }
 }
 
-impl From<NativeEd25519PublicKey> for Ed25519PublicKey {
-    fn from(value: NativeEd25519PublicKey) -> Self {
+impl From<engine::Ed25519PublicKey> for Ed25519PublicKey {
+    fn from(value: engine::Ed25519PublicKey) -> Self {
         Self {
             value: value.0.to_vec(),
         }
     }
 }
 
-impl TryFrom<Ed25519PublicKey> for NativeEd25519PublicKey {
+impl TryFrom<Ed25519PublicKey> for engine::Ed25519PublicKey {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Ed25519PublicKey) -> Result<Self> {
         value
             .value
             .try_into()
-            .map(NativeEd25519PublicKey)
+            .map(engine::Ed25519PublicKey)
             .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                expected: NativeSecp256k1PublicKey::LENGTH as u64,
+                expected: engine::Secp256k1PublicKey::LENGTH as u64,
                 actual: value.len() as u64,
                 data: value,
             })
     }
 }
 
-impl From<NativeSecp256k1PublicKey> for Secp256k1PublicKey {
-    fn from(value: NativeSecp256k1PublicKey) -> Self {
+impl From<engine::Secp256k1PublicKey> for Secp256k1PublicKey {
+    fn from(value: engine::Secp256k1PublicKey) -> Self {
         Self {
             value: value.0.to_vec(),
         }
     }
 }
 
-impl TryFrom<Secp256k1PublicKey> for NativeSecp256k1PublicKey {
+impl TryFrom<Secp256k1PublicKey> for engine::Secp256k1PublicKey {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Secp256k1PublicKey) -> Result<Self> {
         value
             .value
             .try_into()
-            .map(NativeSecp256k1PublicKey)
+            .map(engine::Secp256k1PublicKey)
             .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                expected: NativeSecp256k1PublicKey::LENGTH as u64,
+                expected: engine::Secp256k1PublicKey::LENGTH as u64,
                 actual: value.len() as u64,
                 data: value,
             })

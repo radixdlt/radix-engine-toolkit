@@ -34,19 +34,19 @@ pub struct ResourceManagerRole {
 }
 
 impl ResourceManagerRole {
-    resource_manager_role_conversion! {NativeMintRoles, minter}
-    resource_manager_role_conversion! {NativeBurnRoles, burner}
-    resource_manager_role_conversion! {NativeFreezeRoles, freezer}
-    resource_manager_role_conversion! {NativeRecallRoles, recaller}
-    resource_manager_role_conversion! {NativeWithdrawRoles, withdrawer}
-    resource_manager_role_conversion! {NativeDepositRoles, depositor}
+    resource_manager_role_conversion! {MintRoles, minter}
+    resource_manager_role_conversion! {BurnRoles, burner}
+    resource_manager_role_conversion! {FreezeRoles, freezer}
+    resource_manager_role_conversion! {RecallRoles, recaller}
+    resource_manager_role_conversion! {WithdrawRoles, withdrawer}
+    resource_manager_role_conversion! {DepositRoles, depositor}
 }
 
 impl ToNative for FungibleResourceRoles {
-    type Native = NativeFungibleResourceRoles;
+    type Native = engine::FungibleResourceRoles;
 
     fn to_native(self) -> Result<Self::Native> {
-        Ok(NativeFungibleResourceRoles {
+        Ok(engine::FungibleResourceRoles {
             mint_roles: self
                 .mint_roles
                 .map(|value| value.to_native_mint_roles()),
@@ -70,10 +70,10 @@ impl ToNative for FungibleResourceRoles {
 }
 
 macro_rules! resource_manager_role_conversion {
-    ($ty: ty, $name: ident) => {
+    ($ty: ident, $name: ident) => {
         paste::paste! {
-            pub fn [< to_ $ty: snake >](&self) -> $ty<NativeRoleDefinition> {
-                $ty {
+            pub fn [< to_native_ $ty: snake >](&self) -> engine::$ty<engine::RoleDefinition> {
+                engine::$ty {
                     $name: self.role.as_ref().map(|value| value.0.clone()),
                     [< $name _updater >]: self.role_updater.as_ref().map(|value| value.0.clone()),
                 }

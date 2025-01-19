@@ -23,7 +23,7 @@ use crate::internal_prelude::*;
 /// performed by amount then we will attempt to resolve the non-fungible ids
 /// from the amount we see in the worktop changes.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountDynamicResourceMovements {
+pub struct AccountDynamicResourceMovementsOutput {
     /// The account withdraws that were observed by the static analyzer.
     pub account_withdraws: IndexMap<GlobalAddress, Vec<InvocationIoItem>>,
     /// The account deposits that were observed by the static analyzer.

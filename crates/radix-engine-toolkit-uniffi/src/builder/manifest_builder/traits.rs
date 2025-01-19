@@ -52,7 +52,7 @@ where
     }
 }
 
-impl<A, B> FromWithNameRecordContext<Vec<A>> for IndexSet<B>
+impl<A, B> FromWithNameRecordContext<Vec<A>> for engine::IndexSet<B>
 where
     B: FromWithNameRecordContext<A> + std::hash::Hash + Eq,
 {
@@ -65,11 +65,14 @@ where
     }
 }
 
-impl<A, B> FromWithNameRecordContext<IndexSet<A>> for Vec<B>
+impl<A, B> FromWithNameRecordContext<engine::IndexSet<A>> for Vec<B>
 where
     B: FromWithNameRecordContext<A>,
 {
-    fn from(item: IndexSet<A>, name_record: &NameRecord) -> Result<Self> {
+    fn from(
+        item: engine::IndexSet<A>,
+        name_record: &NameRecord,
+    ) -> Result<Self> {
         item.into_iter()
             .map(|item| {
                 <B as FromWithNameRecordContext<A>>::from(item, name_record)
@@ -212,15 +215,15 @@ macro_rules! impl_from_with_name_record_for_address_from_arc_address {
     };
 }
 impl_from_with_name_record_for_address_from_arc_address![
-    NativeGlobalAddress,
-    NativeInternalAddress,
-    NativeResourceAddress,
-    NativeComponentAddress,
-    NativePackageAddress,
-    NativeDynamicGlobalAddress,
-    NativeDynamicResourceAddress,
-    NativeDynamicComponentAddress,
-    NativeDynamicPackageAddress,
+    engine::GlobalAddress,
+    engine::InternalAddress,
+    engine::ResourceAddress,
+    engine::ComponentAddress,
+    engine::PackageAddress,
+    engine::DynamicGlobalAddress,
+    engine::DynamicResourceAddress,
+    engine::DynamicComponentAddress,
+    engine::DynamicPackageAddress,
 ];
 
 macro_rules! impl_from_with_name_record_for_address_from_string {
@@ -238,18 +241,20 @@ macro_rules! impl_from_with_name_record_for_address_from_string {
     };
 }
 impl_from_with_name_record_for_address_from_string![
-    NativeGlobalAddress,
-    NativeInternalAddress,
-    NativeResourceAddress,
-    NativeComponentAddress,
-    NativePackageAddress,
-    NativeDynamicGlobalAddress,
-    NativeDynamicResourceAddress,
-    NativeDynamicComponentAddress,
-    NativeDynamicPackageAddress,
+    engine::GlobalAddress,
+    engine::InternalAddress,
+    engine::ResourceAddress,
+    engine::ComponentAddress,
+    engine::PackageAddress,
+    engine::DynamicGlobalAddress,
+    engine::DynamicResourceAddress,
+    engine::DynamicComponentAddress,
+    engine::DynamicPackageAddress,
 ];
 
-impl FromWithNameRecordContext<ManifestBuilderBucket> for NativeManifestBucket {
+impl FromWithNameRecordContext<ManifestBuilderBucket>
+    for engine::ManifestBucket
+{
     fn from(
         item: ManifestBuilderBucket,
         name_record: &NameRecord,
@@ -258,7 +263,7 @@ impl FromWithNameRecordContext<ManifestBuilderBucket> for NativeManifestBucket {
     }
 }
 
-impl FromWithNameRecordContext<ManifestBuilderProof> for NativeManifestProof {
+impl FromWithNameRecordContext<ManifestBuilderProof> for engine::ManifestProof {
     fn from(
         item: ManifestBuilderProof,
         name_record: &NameRecord,
@@ -268,7 +273,7 @@ impl FromWithNameRecordContext<ManifestBuilderProof> for NativeManifestProof {
 }
 
 impl FromWithNameRecordContext<ManifestBuilderAddressReservation>
-    for NativeManifestAddressReservation
+    for engine::ManifestAddressReservation
 {
     fn from(
         item: ManifestBuilderAddressReservation,
@@ -279,7 +284,7 @@ impl FromWithNameRecordContext<ManifestBuilderAddressReservation>
 }
 
 impl FromWithNameRecordContext<ManifestBuilderNamedAddress>
-    for NativeManifestNamedAddress
+    for engine::ManifestNamedAddress
 {
     fn from(
         item: ManifestBuilderNamedAddress,
@@ -289,26 +294,26 @@ impl FromWithNameRecordContext<ManifestBuilderNamedAddress>
     }
 }
 
-impl FromWithNameRecordContext<Arc<Decimal>> for NativeDecimal {
+impl FromWithNameRecordContext<Arc<Decimal>> for engine::Decimal {
     fn from(item: Arc<Decimal>, _: &NameRecord) -> Result<Self> {
         Ok(item.0)
     }
 }
 
-impl FromWithNameRecordContext<Arc<PreciseDecimal>> for NativePreciseDecimal {
+impl FromWithNameRecordContext<Arc<PreciseDecimal>> for engine::PreciseDecimal {
     fn from(item: Arc<PreciseDecimal>, _: &NameRecord) -> Result<Self> {
         Ok(item.0)
     }
 }
 
-impl FromWithNameRecordContext<Arc<AccessRule>> for NativeAccessRule {
+impl FromWithNameRecordContext<Arc<AccessRule>> for engine::AccessRule {
     fn from(item: Arc<AccessRule>, _: &NameRecord) -> Result<Self> {
         Ok(item.0.clone())
     }
 }
 
 impl FromWithNameRecordContext<AccountDefaultDepositRule>
-    for NativeDefaultDepositRule
+    for engine::DefaultDepositRule
 {
     fn from(item: AccountDefaultDepositRule, _: &NameRecord) -> Result<Self> {
         item.to_native()
@@ -316,7 +321,7 @@ impl FromWithNameRecordContext<AccountDefaultDepositRule>
 }
 
 impl FromWithNameRecordContext<ResourcePreference>
-    for NativeResourcePreference
+    for engine::ResourcePreference
 {
     fn from(item: ResourcePreference, _: &NameRecord) -> Result<Self> {
         item.to_native()
@@ -324,7 +329,7 @@ impl FromWithNameRecordContext<ResourcePreference>
 }
 
 impl FromWithNameRecordContext<ResourceOrNonFungible>
-    for NativeResourceOrNonFungible
+    for engine::ResourceOrNonFungible
 {
     fn from(item: ResourceOrNonFungible, _: &NameRecord) -> Result<Self> {
         item.to_native()
@@ -332,15 +337,15 @@ impl FromWithNameRecordContext<ResourceOrNonFungible>
 }
 
 impl FromWithNameRecordContext<ResourceOrNonFungible>
-    for NativeManifestResourceOrNonFungible
+    for engine::ManifestResourceOrNonFungible
 {
     fn from(item: ResourceOrNonFungible, _: &NameRecord) -> Result<Self> {
         match item {
             ResourceOrNonFungible::Resource { value } => (*value)
                 .try_into()
-                .map(NativeManifestResourceOrNonFungible::Resource),
+                .map(engine::ManifestResourceOrNonFungible::Resource),
             ResourceOrNonFungible::NonFungible { value } => {
-                Ok(NativeManifestResourceOrNonFungible::NonFungible(
+                Ok(engine::ManifestResourceOrNonFungible::NonFungible(
                     value.0.clone(),
                 ))
             }
@@ -348,66 +353,66 @@ impl FromWithNameRecordContext<ResourceOrNonFungible>
     }
 }
 
-impl FromWithNameRecordContext<OwnerRole> for NativeOwnerRole {
+impl FromWithNameRecordContext<OwnerRole> for engine::OwnerRole {
     fn from(item: OwnerRole, _: &NameRecord) -> Result<Self> {
         item.to_native()
     }
 }
 
 impl FromWithNameRecordContext<NonFungibleLocalId>
-    for NativeNonFungibleLocalId
+    for engine::NonFungibleLocalId
 {
     fn from(item: NonFungibleLocalId, _: &NameRecord) -> Result<Self> {
-        NativeNonFungibleLocalId::try_from(item)
+        engine::NonFungibleLocalId::try_from(item)
     }
 }
 
 impl FromWithNameRecordContext<NonFungibleGlobalId>
-    for NativeNonFungibleGlobalId
+    for engine::NonFungibleGlobalId
 {
     fn from(item: NonFungibleGlobalId, _: &NameRecord) -> Result<Self> {
         Ok(item.0)
     }
 }
 
-impl FromWithNameRecordContext<MetadataValue> for NativeMetadataValue {
+impl FromWithNameRecordContext<MetadataValue> for engine::MetadataValue {
     fn from(item: MetadataValue, _: &NameRecord) -> Result<Self> {
         item.to_native()
     }
 }
 
-impl FromWithNameRecordContext<String> for NativeRoleKey {
+impl FromWithNameRecordContext<String> for engine::RoleKey {
     fn from(item: String, _: &NameRecord) -> Result<Self> {
-        Ok(NativeRoleKey::new(item))
+        Ok(engine::RoleKey::new(item))
     }
 }
 
-impl FromWithNameRecordContext<ModuleId> for NativeObjectModuleId {
+impl FromWithNameRecordContext<ModuleId> for engine::ObjectModuleId {
     fn from(item: ModuleId, _: &NameRecord) -> Result<Self> {
         Ok(item.into())
     }
 }
 
-impl FromWithNameRecordContext<RoyaltyAmount> for NativeRoyaltyAmount {
+impl FromWithNameRecordContext<RoyaltyAmount> for engine::RoyaltyAmount {
     fn from(item: RoyaltyAmount, _: &NameRecord) -> Result<Self> {
         Ok(item.into())
     }
 }
 
-impl FromWithNameRecordContext<RuleSet> for NativeRuleSet {
+impl FromWithNameRecordContext<RuleSet> for engine::RuleSet {
     fn from(item: RuleSet, _: &NameRecord) -> Result<Self> {
         item.to_native()
     }
 }
 
-impl FromWithNameRecordContext<WithdrawStrategy> for NativeWithdrawStrategy {
+impl FromWithNameRecordContext<WithdrawStrategy> for engine::WithdrawStrategy {
     fn from(item: WithdrawStrategy, _: &NameRecord) -> Result<Self> {
         Ok(item.into())
     }
 }
 
 impl FromWithNameRecordContext<Vec<ManifestBuilderBucket>>
-    for NativeManifestBucketBatch
+    for engine::ManifestBucketBatch
 {
     fn from(
         item: Vec<ManifestBuilderBucket>,
@@ -425,10 +430,10 @@ impl FromWithNameRecordContext<Vec<ManifestBuilderBucket>>
     }
 }
 
-impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
+impl FromWithNameRecordContext<PublicKey> for engine::Secp256k1PublicKey {
     fn from(item: PublicKey, _: &NameRecord) -> Result<Self> {
-        if let NativePublicKey::Secp256k1(public_key) =
-            NativePublicKey::try_from(item)?
+        if let engine::PublicKey::Secp256k1(public_key) =
+            engine::PublicKey::try_from(item)?
         {
             Ok(public_key)
         } else {
@@ -438,18 +443,18 @@ impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
 }
 
 impl FromWithNameRecordContext<ResourceSpecifier>
-    for NativeLockerResourceSpecifier
+    for radix_engine_interface::blueprints::locker::ResourceSpecifier
 {
     fn from(item: ResourceSpecifier, name_record: &NameRecord) -> Result<Self> {
         match item {
             ResourceSpecifier::Amount {
                 resource_address: _,
                 amount,
-            } => Ok(NativeLockerResourceSpecifier::Fungible(amount.0)),
+            } => Ok(radix_engine_interface::blueprints::locker::ResourceSpecifier::Fungible(amount.0)),
             ResourceSpecifier::Ids {
                 resource_address: _,
                 ids,
-            } => Ok(NativeLockerResourceSpecifier::NonFungible(
+            } => Ok(radix_engine_interface::blueprints::locker::ResourceSpecifier::NonFungible(
                 FromWithNameRecordContext::<Vec<_>>::from(ids, name_record)?,
             )),
         }

@@ -19,7 +19,7 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
 pub struct TransactionHash(
-    pub(crate) NativeHash,
+    pub(crate) engine::Hash,
     pub(crate) String,
     pub(crate) u8,
 );
@@ -29,8 +29,11 @@ impl TransactionHash {
     #[uniffi::constructor]
     pub fn from_str(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition =
-            NativeNetworkDefinition::from_network_id(network_id);
-        let hash = core_decode_transaction_id(&string, &network_definition)?;
+            engine::NetworkDefinition::from_network_id(network_id);
+        let hash = toolkit::functions::utils::decode_transaction_id(
+            &string,
+            &network_definition,
+        )?;
         Ok(Arc::new(Self(hash, string, network_id)))
     }
 
@@ -54,12 +57,12 @@ impl TransactionHash {
 impl TransactionHash {
     pub fn new<T>(hash: &T, network_id: u8) -> Self
     where
-        T: NativeIsTransactionHash + NativeIsHash,
+        T: engine::IsTransactionHash + engine::IsHash,
     {
         let network_definition =
-            NativeNetworkDefinition::from_network_id(network_id);
+            engine::NetworkDefinition::from_network_id(network_id);
         let bech32_encoder =
-            NativeTransactionHashBech32Encoder::new(&network_definition);
+            engine::TransactionHashBech32Encoder::new(&network_definition);
         let encoded = bech32_encoder
             .encode(hash)
             .expect("Bech32m encoding tx hashes cant fail");

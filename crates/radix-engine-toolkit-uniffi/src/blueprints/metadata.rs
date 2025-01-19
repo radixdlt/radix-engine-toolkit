@@ -32,7 +32,7 @@ pub struct MetadataModuleConfig {
 }
 
 impl ToNative for MetadataInit {
-    type Native = NativeMetadataInit;
+    type Native = engine::MetadataInit;
 
     fn to_native(self) -> Result<Self::Native> {
         self.into_iter()
@@ -46,7 +46,7 @@ impl ToNative for MetadataInit {
 
                 Ok((
                     key,
-                    NativeKeyValueStoreInitEntry::<NativeMetadataValue> {
+                    engine::KeyValueStoreInitEntry::<engine::MetadataValue> {
                         lock: value.lock,
                         value: metadata,
                     },
@@ -55,26 +55,26 @@ impl ToNative for MetadataInit {
             .collect::<Result<
                 IndexMap<
                     String,
-                    NativeKeyValueStoreInitEntry<NativeMetadataValue>,
+                    engine::KeyValueStoreInitEntry<engine::MetadataValue>,
                 >,
             >>()
-            .map(|data| NativeMetadataInit { data })
+            .map(|data| engine::MetadataInit { data })
     }
 }
 
 impl ToNative for MetadataModuleConfig {
-    type Native = NativeModuleConfig<NativeMetadataInit>;
+    type Native = engine::ModuleConfig<engine::MetadataInit>;
 
     fn to_native(self) -> Result<Self::Native> {
-        Ok(NativeModuleConfig::<NativeMetadataInit> {
+        Ok(engine::ModuleConfig::<engine::MetadataInit> {
             init: self.init.to_native()?,
-            roles: NativeRoleAssignmentInit {
+            roles: engine::RoleAssignmentInit {
                 data: self
                     .roles
                     .into_iter()
                     .map(|(key, value)| {
                         (
-                            NativeRoleKey { key },
+                            engine::RoleKey { key },
                             value.map(|value| value.0.clone()),
                         )
                     })

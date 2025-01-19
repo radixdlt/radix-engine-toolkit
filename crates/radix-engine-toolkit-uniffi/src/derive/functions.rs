@@ -22,11 +22,12 @@ pub fn derive_preallocated_account_address_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<Address>> {
-    let public_key = NativePublicKey::try_from(public_key)?;
-    let address = NativeComponentAddress::preallocated_account_from_public_key(
-        &public_key,
-    );
-    Ok(Arc::new(Address::from_typed_node_id(address, network_id)))
+    let public_key = engine::PublicKey::try_from(public_key)?;
+    let address =
+        engine::ComponentAddress::preallocated_account_from_public_key(
+            &public_key,
+        );
+    Ok(Arc::new(Address::from_node_id(address, network_id)))
 }
 
 #[uniffi::export]
@@ -34,11 +35,12 @@ pub fn derive_preallocated_identity_address_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<Address>> {
-    let public_key = NativePublicKey::try_from(public_key)?;
-    let address = NativeComponentAddress::preallocated_identity_from_public_key(
-        &public_key,
-    );
-    Ok(Arc::new(Address::from_typed_node_id(address, network_id)))
+    let public_key = engine::PublicKey::try_from(public_key)?;
+    let address =
+        engine::ComponentAddress::preallocated_identity_from_public_key(
+            &public_key,
+        );
+    Ok(Arc::new(Address::from_node_id(address, network_id)))
 }
 
 #[uniffi::export]
@@ -46,9 +48,9 @@ pub fn derive_signature_badge_non_fungible_global_id_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
-    let public_key = NativePublicKey::try_from(public_key)?;
+    let public_key = engine::PublicKey::try_from(public_key)?;
     let non_fungible_global_id =
-        core_preallocated_signature_non_fungible_global_id_from_public_key(
+        toolkit::functions::derive::preallocated_signature_non_fungible_global_id_from_public_key(
             &public_key,
         );
     Ok(Arc::new(NonFungibleGlobalId(
@@ -63,9 +65,9 @@ pub fn derive_global_caller_non_fungible_global_id_from_component_address(
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
     let component_address =
-        NativeComponentAddress::try_from(*component_address)?;
+        engine::ComponentAddress::try_from(*component_address)?;
     let non_fungible_global_id =
-        core_global_caller_non_fungible_global_id_from_component_address(
+        toolkit::functions::derive::global_caller_non_fungible_global_id_from_component_address(
             component_address,
         );
     Ok(Arc::new(NonFungibleGlobalId(
@@ -79,9 +81,9 @@ pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_add
     package_address: Arc<Address>,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
-    let package_address = NativePackageAddress::try_from(*package_address)?;
+    let package_address = engine::PackageAddress::try_from(*package_address)?;
     let non_fungible_global_id =
-        core_package_of_direct_caller_non_fungible_global_id_from_component_address(
+        toolkit::functions::derive::package_of_direct_caller_non_fungible_global_id_from_component_address(
             package_address,
         );
     Ok(Arc::new(NonFungibleGlobalId(
@@ -96,10 +98,10 @@ pub fn derive_preallocated_account_address_from_olympia_account_address(
     network_id: u8,
 ) -> Result<Arc<Address>> {
     let component_address =
-        core_preallocated_account_address_from_olympia_account_address(
+        toolkit::functions::derive::preallocated_account_address_from_olympia_account_address(
             &olympia_account_address.0,
         )?;
-    Ok(Arc::new(Address::from_typed_node_id(
+    Ok(Arc::new(Address::from_node_id(
         component_address,
         network_id,
     )))
@@ -110,10 +112,10 @@ pub fn derive_resource_address_from_olympia_resource_address(
     olympia_resource_address: Arc<OlympiaAddress>,
     network_id: u8,
 ) -> Result<Arc<Address>> {
-    let resource_address = core_resource_address_from_olympia_resource_address(
+    let resource_address = toolkit::functions::derive::resource_address_from_olympia_resource_address(
         &olympia_resource_address.0,
     )?;
-    Ok(Arc::new(Address::from_typed_node_id(
+    Ok(Arc::new(Address::from_node_id(
         resource_address,
         network_id,
     )))
@@ -123,13 +125,15 @@ pub fn derive_resource_address_from_olympia_resource_address(
 pub fn derive_public_key_from_olympia_account_address(
     olympia_resource_address: Arc<OlympiaAddress>,
 ) -> Result<PublicKey> {
-    core_public_key_from_olympia_account_address(&olympia_resource_address.0)
-        .map(
-            |NativeSecp256k1PublicKey(public_key)| PublicKey::Secp256k1 {
-                value: public_key.to_vec(),
-            },
-        )
-        .map_err(Into::into)
+    toolkit::functions::derive::public_key_from_olympia_account_address(
+        &olympia_resource_address.0,
+    )
+    .map(
+        |engine::Secp256k1PublicKey(public_key)| PublicKey::Secp256k1 {
+            value: public_key.to_vec(),
+        },
+    )
+    .map_err(Into::into)
 }
 
 #[uniffi::export]
@@ -137,15 +141,16 @@ pub fn derive_olympia_account_address_from_public_key(
     public_key: PublicKey,
     olympia_network: OlympiaNetwork,
 ) -> Result<Arc<OlympiaAddress>> {
-    let public_key = match NativePublicKey::try_from(public_key)? {
-        NativePublicKey::Secp256k1(pk) => Ok(pk),
-        NativePublicKey::Ed25519(..) => {
+    let public_key = match engine::PublicKey::try_from(public_key)? {
+        engine::PublicKey::Secp256k1(pk) => Ok(pk),
+        engine::PublicKey::Ed25519(..) => {
             Err(RadixEngineToolkitError::InvalidPublicKey)
         }
     }?;
-    let address = core_olympia_account_address_from_public_key(
-        &public_key,
-        olympia_network.into(),
-    );
+    let address =
+        toolkit::functions::derive::olympia_account_address_from_public_key(
+            &public_key,
+            olympia_network.into(),
+        );
     Ok(Arc::new(OlympiaAddress(address)))
 }

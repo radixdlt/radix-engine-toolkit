@@ -25,18 +25,18 @@ pub enum ModuleId {
     RoleAssignment,
 }
 
-impl From<NativeObjectModuleId> for ModuleId {
-    fn from(value: NativeObjectModuleId) -> Self {
+impl From<engine::ObjectModuleId> for ModuleId {
+    fn from(value: engine::ObjectModuleId) -> Self {
         match value {
-            NativeObjectModuleId::Main => Self::Main,
-            NativeObjectModuleId::Metadata => Self::Metadata,
-            NativeObjectModuleId::Royalty => Self::Royalty,
-            NativeObjectModuleId::RoleAssignment => Self::RoleAssignment,
+            engine::ObjectModuleId::Main => Self::Main,
+            engine::ObjectModuleId::Metadata => Self::Metadata,
+            engine::ObjectModuleId::Royalty => Self::Royalty,
+            engine::ObjectModuleId::RoleAssignment => Self::RoleAssignment,
         }
     }
 }
 
-impl From<ModuleId> for NativeObjectModuleId {
+impl From<ModuleId> for engine::ObjectModuleId {
     fn from(value: ModuleId) -> Self {
         match value {
             ModuleId::Main => Self::Main,

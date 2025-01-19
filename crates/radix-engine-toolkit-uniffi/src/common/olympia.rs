@@ -48,22 +48,22 @@ pub enum OlympiaNetwork {
     Localnet,
 }
 
-impl From<CoreOlympiaNetwork> for OlympiaNetwork {
-    fn from(value: CoreOlympiaNetwork) -> Self {
+impl From<toolkit::OlympiaNetwork> for OlympiaNetwork {
+    fn from(value: toolkit::OlympiaNetwork) -> Self {
         match value {
-            CoreOlympiaNetwork::Mainnet => Self::Mainnet,
-            CoreOlympiaNetwork::Stokenet => Self::Stokenet,
-            CoreOlympiaNetwork::Releasenet => Self::Releasenet,
-            CoreOlympiaNetwork::RCNet => Self::RCNet,
-            CoreOlympiaNetwork::Milestonenet => Self::Milestonenet,
-            CoreOlympiaNetwork::Devopsnet => Self::Devopsnet,
-            CoreOlympiaNetwork::Sandpitnet => Self::Sandpitnet,
-            CoreOlympiaNetwork::Localnet => Self::Localnet,
+            toolkit::OlympiaNetwork::Mainnet => Self::Mainnet,
+            toolkit::OlympiaNetwork::Stokenet => Self::Stokenet,
+            toolkit::OlympiaNetwork::Releasenet => Self::Releasenet,
+            toolkit::OlympiaNetwork::RCNet => Self::RCNet,
+            toolkit::OlympiaNetwork::Milestonenet => Self::Milestonenet,
+            toolkit::OlympiaNetwork::Devopsnet => Self::Devopsnet,
+            toolkit::OlympiaNetwork::Sandpitnet => Self::Sandpitnet,
+            toolkit::OlympiaNetwork::Localnet => Self::Localnet,
         }
     }
 }
 
-impl From<OlympiaNetwork> for CoreOlympiaNetwork {
+impl From<OlympiaNetwork> for toolkit::OlympiaNetwork {
     fn from(value: OlympiaNetwork) -> Self {
         match value {
             OlympiaNetwork::Mainnet => Self::Mainnet,

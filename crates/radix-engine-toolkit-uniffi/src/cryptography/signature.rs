@@ -23,15 +23,15 @@ pub enum SignatureV1 {
     Ed25519 { value: Vec<u8> },
 }
 
-impl From<NativeSignatureV1> for SignatureV1 {
-    fn from(value: NativeSignatureV1) -> Self {
+impl From<engine::SignatureV1> for SignatureV1 {
+    fn from(value: engine::SignatureV1) -> Self {
         match value {
-            NativeSignatureV1::Secp256k1(NativeSecp256k1Signature(value)) => {
+            engine::SignatureV1::Secp256k1(engine::Secp256k1Signature(value)) => {
                 Self::Secp256k1 {
                     value: value.to_vec(),
                 }
             }
-            NativeSignatureV1::Ed25519(NativeEd25519Signature(value)) => {
+            engine::SignatureV1::Ed25519(engine::Ed25519Signature(value)) => {
                 Self::Ed25519 {
                     value: value.to_vec(),
                 }
@@ -40,26 +40,26 @@ impl From<NativeSignatureV1> for SignatureV1 {
     }
 }
 
-impl TryFrom<SignatureV1> for NativeSignatureV1 {
+impl TryFrom<SignatureV1> for engine::SignatureV1 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: SignatureV1) -> Result<Self> {
         match value {
             SignatureV1::Ed25519 { value } => value
                 .try_into()
-                .map(NativeEd25519Signature)
+                .map(engine::Ed25519Signature)
                 .map(Self::Ed25519)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeEd25519Signature::LENGTH as u64,
+                    expected: engine::Ed25519Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
             SignatureV1::Secp256k1 { value } => value
                 .try_into()
-                .map(NativeSecp256k1Signature)
+                .map(engine::Secp256k1Signature)
                 .map(Self::Secp256k1)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeSecp256k1Signature::LENGTH as u64,
+                    expected: engine::Secp256k1Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),

@@ -41,7 +41,7 @@ impl SignedPartialTransactionV2 {
 
     #[uniffi::constructor]
     pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_transaction_v2_signed_partial_transaction_from_payload_bytes(
+        toolkit::functions::transaction_v2::signed_partial_transaction::from_payload_bytes(
             compiled_intent,
         )
         .map_err(RadixEngineToolkitError::from)
@@ -79,9 +79,9 @@ impl SignedPartialTransactionV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeSignedPartialTransactionV2::try_from(self.clone()).and_then(
+        engine::SignedPartialTransactionV2::try_from(self.clone()).and_then(
             |intent| {
-                core_transaction_v2_signed_partial_transaction_to_payload_bytes(
+                toolkit::functions::transaction_v2::signed_partial_transaction::to_payload_bytes(
                     &intent,
                 )
                 .map_err(Into::into)
@@ -90,23 +90,25 @@ impl SignedPartialTransactionV2 {
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {
-        core_transaction_v2_signed_partial_transaction_statically_validate(
+        toolkit::functions::transaction_v2::signed_partial_transaction::statically_validate(
             &self.clone().try_into()?,
-            &NativeNetworkDefinition::from_network_id(network_id),
+            &engine::NetworkDefinition::from_network_id(network_id),
         )
         .map_err(Into::into)
     }
 }
 
-impl TryFrom<NativeSignedPartialTransactionV2> for SignedPartialTransactionV2 {
+impl TryFrom<engine::SignedPartialTransactionV2>
+    for SignedPartialTransactionV2
+{
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeSignedPartialTransactionV2 {
+        engine::SignedPartialTransactionV2 {
             partial_transaction,
             root_subintent_signatures,
             non_root_subintent_signatures,
-        }: NativeSignedPartialTransactionV2,
+        }: engine::SignedPartialTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
             partial_transaction: Arc::new(partial_transaction.try_into()?),
@@ -132,7 +134,9 @@ impl TryFrom<NativeSignedPartialTransactionV2> for SignedPartialTransactionV2 {
     }
 }
 
-impl TryFrom<SignedPartialTransactionV2> for NativeSignedPartialTransactionV2 {
+impl TryFrom<SignedPartialTransactionV2>
+    for engine::SignedPartialTransactionV2
+{
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -143,33 +147,35 @@ impl TryFrom<SignedPartialTransactionV2> for NativeSignedPartialTransactionV2 {
         }: SignedPartialTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
-            partial_transaction: NativePartialTransactionV2::try_from(
+            partial_transaction: engine::PartialTransactionV2::try_from(
                 partial_transaction.as_ref().clone(),
             )?,
             root_subintent_signatures: root_subintent_signatures
                 .into_iter()
                 .map(|value| {
-                    NativeSignatureWithPublicKeyV1::try_from(value)
-                        .map(NativeIntentSignature)
+                    engine::SignatureWithPublicKeyV1::try_from(value)
+                        .map(engine::IntentSignatureV1)
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeIntentSignaturesV2 { signatures: value })?,
+                .map(|value| engine::IntentSignaturesV2 {
+                    signatures: value,
+                })?,
             non_root_subintent_signatures: non_root_subintent_signatures
                 .into_iter()
                 .map(|value| {
                     value
                         .into_iter()
                         .map(|value| {
-                            NativeSignatureWithPublicKeyV1::try_from(value)
-                                .map(NativeIntentSignature)
+                            engine::SignatureWithPublicKeyV1::try_from(value)
+                                .map(engine::IntentSignatureV1)
                         })
                         .collect::<Result<_>>()
-                        .map(|value| NativeIntentSignaturesV2 {
+                        .map(|value| engine::IntentSignaturesV2 {
                             signatures: value,
                         })
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeNonRootSubintentSignaturesV2 {
+                .map(|value| engine::NonRootSubintentSignaturesV2 {
                     by_subintent: value,
                 })?,
         })

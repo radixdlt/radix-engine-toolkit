@@ -43,7 +43,7 @@ impl SignedTransactionIntentV2 {
     pub fn from_payload_bytes(
         compiled_signed_intent: Vec<u8>,
     ) -> Result<Arc<Self>> {
-        core_transaction_v2_signed_transaction_intent_from_payload_bytes(
+        toolkit::functions::transaction_v2::signed_transaction_intent::from_payload_bytes(
             compiled_signed_intent,
         )
         .map_err(RadixEngineToolkitError::from)
@@ -63,15 +63,15 @@ impl SignedTransactionIntentV2 {
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeSignedTransactionIntentV2::try_from(self.clone()).and_then(
+        engine::SignedTransactionIntentV2::try_from(self.clone()).and_then(
             |signed_intent| {
-                core_transaction_v2_signed_transaction_intent_hash(
+                toolkit::functions::transaction_v2::signed_transaction_intent::hash(
                     &signed_intent,
                 )
                 .map_err(Into::into)
                 .map(|hash| {
                     let signed_intent_hash =
-                        NativeSignedTransactionIntentHash(hash.hash);
+                        engine::SignedTransactionIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
                         self.transaction_intent
@@ -93,9 +93,9 @@ impl SignedTransactionIntentV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeSignedTransactionIntentV2::try_from(self.clone()).and_then(
+        engine::SignedTransactionIntentV2::try_from(self.clone()).and_then(
             |signed_intent| {
-                core_transaction_v2_signed_transaction_intent_to_payload_bytes(
+                toolkit::functions::transaction_v2::signed_transaction_intent::to_payload_bytes(
                     &signed_intent,
                 )
                 .map_err(Into::into)
@@ -104,15 +104,15 @@ impl SignedTransactionIntentV2 {
     }
 }
 
-impl TryFrom<NativeSignedTransactionIntentV2> for SignedTransactionIntentV2 {
+impl TryFrom<engine::SignedTransactionIntentV2> for SignedTransactionIntentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeSignedTransactionIntentV2 {
+        engine::SignedTransactionIntentV2 {
             transaction_intent,
             transaction_intent_signatures,
             non_root_subintent_signatures,
-        }: NativeSignedTransactionIntentV2,
+        }: engine::SignedTransactionIntentV2,
     ) -> Result<Self> {
         Ok(Self {
             transaction_intent: transaction_intent.try_into().map(Arc::new)?,
@@ -138,7 +138,7 @@ impl TryFrom<NativeSignedTransactionIntentV2> for SignedTransactionIntentV2 {
     }
 }
 
-impl TryFrom<SignedTransactionIntentV2> for NativeSignedTransactionIntentV2 {
+impl TryFrom<SignedTransactionIntentV2> for engine::SignedTransactionIntentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -149,33 +149,35 @@ impl TryFrom<SignedTransactionIntentV2> for NativeSignedTransactionIntentV2 {
         }: SignedTransactionIntentV2,
     ) -> Result<Self> {
         Ok(Self {
-            transaction_intent: NativeTransactionIntentV2::try_from(
+            transaction_intent: engine::TransactionIntentV2::try_from(
                 transaction_intent.as_ref().clone(),
             )?,
             transaction_intent_signatures: transaction_intent_signatures
                 .into_iter()
                 .map(|value| {
-                    NativeSignatureWithPublicKeyV1::try_from(value)
-                        .map(NativeIntentSignature)
+                    engine::SignatureWithPublicKeyV1::try_from(value)
+                        .map(engine::IntentSignatureV1)
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeIntentSignaturesV2 { signatures: value })?,
+                .map(|value| engine::IntentSignaturesV2 {
+                    signatures: value,
+                })?,
             non_root_subintent_signatures: non_root_subintent_signatures
                 .into_iter()
                 .map(|value| {
                     value
                         .into_iter()
                         .map(|value| {
-                            NativeSignatureWithPublicKeyV1::try_from(value)
-                                .map(NativeIntentSignature)
+                            engine::SignatureWithPublicKeyV1::try_from(value)
+                                .map(engine::IntentSignatureV1)
                         })
                         .collect::<Result<_>>()
-                        .map(|value| NativeIntentSignaturesV2 {
+                        .map(|value| engine::IntentSignaturesV2 {
                             signatures: value,
                         })
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeNonRootSubintentSignaturesV2 {
+                .map(|value| engine::NonRootSubintentSignaturesV2 {
                     by_subintent: value,
                 })?,
         })

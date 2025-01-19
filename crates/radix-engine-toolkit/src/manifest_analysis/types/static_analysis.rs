@@ -42,7 +42,7 @@ pub struct StaticAnalysis {
     /// A summary of all of the account resource movements that occurred in the
     /// manifest as seen by the static resource movements analyzer.
     pub account_static_resource_movements_summary:
-        AccountStaticResourceMovements,
+        AccountStaticResourceMovementsOutput,
 
     /// A summary of all of the proofs created from accounts that could be
     /// observed in the manifest.

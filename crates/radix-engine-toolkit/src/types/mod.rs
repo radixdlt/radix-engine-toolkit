@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod build_information;
 mod detailed_transaction_type_output;
 mod grouped_entity_type;
 mod grouped_instruction;
@@ -25,12 +26,15 @@ mod manifest_invocation_receiver;
 mod manifest_resource_specifier;
 mod named_address_store;
 mod node_id;
+mod olympia_network;
 mod operation;
 mod resolved_manifest_address;
+mod sbor_string_representation;
 mod transaction_hash;
 mod update;
 mod worktop_changes;
 
+pub use build_information::*;
 pub use detailed_transaction_type_output::*;
 pub use grouped_entity_type::*;
 pub use grouped_instruction::*;
@@ -41,8 +45,10 @@ pub use manifest_invocation_receiver::*;
 pub use manifest_resource_specifier::*;
 pub use named_address_store::*;
 pub use node_id::*;
+pub use olympia_network::*;
 pub use operation::*;
 pub use resolved_manifest_address::*;
+pub use sbor_string_representation::*;
 pub use transaction_hash::*;
 pub use update::*;
 pub use worktop_changes::*;

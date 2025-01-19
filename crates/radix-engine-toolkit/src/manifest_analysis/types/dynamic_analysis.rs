@@ -42,12 +42,12 @@ pub struct DynamicAnalysis {
     /// A summary of all of the account resource movements that occurred in the
     /// manifest as seen by the static resource movements analyzer.
     pub account_static_resource_movements_summary:
-        AccountStaticResourceMovements,
+        AccountStaticResourceMovementsOutput,
 
     /// A summary of all of the account resource movements that occurred in the
     /// manifest as seen by the dynamic analyzer.
     pub account_dynamic_resource_movements_summary:
-        AccountDynamicResourceMovements,
+        AccountDynamicResourceMovementsOutput,
 
     /// A summary of all of the proofs created from accounts that could be
     /// observed in the manifest.
@@ -55,7 +55,7 @@ pub struct DynamicAnalysis {
 
     /// A summary of the entities that were created as a side-effect of this
     /// transaction executing.
-    pub entities_newly_created_summary: NewEntitiesSummary,
+    pub entities_newly_created_summary: NewEntitiesOutput,
 
     /// A summary of all of the entities encountered in the manifest while
     /// traversing it. This covers pretty much all entities whether they're

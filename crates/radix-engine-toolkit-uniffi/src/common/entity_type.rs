@@ -43,7 +43,7 @@ pub enum EntityType {
     InternalKeyValueStore,
 }
 
-impl From<EntityType> for NativeEntityType {
+impl From<EntityType> for engine::EntityType {
     fn from(value: EntityType) -> Self {
         match value {
             EntityType::GlobalPackage => Self::GlobalPackage,
@@ -92,65 +92,65 @@ impl From<EntityType> for NativeEntityType {
     }
 }
 
-impl From<NativeEntityType> for EntityType {
-    fn from(value: NativeEntityType) -> Self {
+impl From<engine::EntityType> for EntityType {
+    fn from(value: engine::EntityType) -> Self {
         match value {
-            NativeEntityType::GlobalPackage => Self::GlobalPackage,
-            NativeEntityType::GlobalFungibleResourceManager => {
+            engine::EntityType::GlobalPackage => Self::GlobalPackage,
+            engine::EntityType::GlobalFungibleResourceManager => {
                 Self::GlobalFungibleResourceManager
             }
-            NativeEntityType::GlobalNonFungibleResourceManager => {
+            engine::EntityType::GlobalNonFungibleResourceManager => {
                 Self::GlobalNonFungibleResourceManager
             }
-            NativeEntityType::GlobalConsensusManager => {
+            engine::EntityType::GlobalConsensusManager => {
                 Self::GlobalConsensusManager
             }
-            NativeEntityType::GlobalValidator => Self::GlobalValidator,
-            NativeEntityType::GlobalAccessController => {
+            engine::EntityType::GlobalValidator => Self::GlobalValidator,
+            engine::EntityType::GlobalAccessController => {
                 Self::GlobalAccessController
             }
-            NativeEntityType::GlobalAccount => Self::GlobalAccount,
-            NativeEntityType::GlobalIdentity => Self::GlobalIdentity,
-            NativeEntityType::GlobalGenericComponent => {
+            engine::EntityType::GlobalAccount => Self::GlobalAccount,
+            engine::EntityType::GlobalIdentity => Self::GlobalIdentity,
+            engine::EntityType::GlobalGenericComponent => {
                 Self::GlobalGenericComponent
             }
-            NativeEntityType::GlobalPreallocatedSecp256k1Account => {
+            engine::EntityType::GlobalPreallocatedSecp256k1Account => {
                 Self::GlobalPreallocatedSecp256k1Account
             }
-            NativeEntityType::GlobalPreallocatedEd25519Account => {
+            engine::EntityType::GlobalPreallocatedEd25519Account => {
                 Self::GlobalPreallocatedEd25519Account
             }
-            NativeEntityType::GlobalPreallocatedSecp256k1Identity => {
+            engine::EntityType::GlobalPreallocatedSecp256k1Identity => {
                 Self::GlobalPreallocatedSecp256k1Identity
             }
-            NativeEntityType::GlobalPreallocatedEd25519Identity => {
+            engine::EntityType::GlobalPreallocatedEd25519Identity => {
                 Self::GlobalPreallocatedEd25519Identity
             }
-            NativeEntityType::GlobalOneResourcePool => {
+            engine::EntityType::GlobalOneResourcePool => {
                 Self::GlobalOneResourcePool
             }
-            NativeEntityType::GlobalTwoResourcePool => {
+            engine::EntityType::GlobalTwoResourcePool => {
                 Self::GlobalTwoResourcePool
             }
-            NativeEntityType::GlobalMultiResourcePool => {
+            engine::EntityType::GlobalMultiResourcePool => {
                 Self::GlobalMultiResourcePool
             }
-            NativeEntityType::GlobalTransactionTracker => {
+            engine::EntityType::GlobalTransactionTracker => {
                 Self::GlobalTransactionTracker
             }
-            NativeEntityType::InternalFungibleVault => {
+            engine::EntityType::InternalFungibleVault => {
                 Self::InternalFungibleVault
             }
-            NativeEntityType::InternalNonFungibleVault => {
+            engine::EntityType::InternalNonFungibleVault => {
                 Self::InternalNonFungibleVault
             }
-            NativeEntityType::InternalGenericComponent => {
+            engine::EntityType::InternalGenericComponent => {
                 Self::InternalGenericComponent
             }
-            NativeEntityType::InternalKeyValueStore => {
+            engine::EntityType::InternalKeyValueStore => {
                 Self::InternalKeyValueStore
             }
-            NativeEntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
+            engine::EntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
         }
     }
 }

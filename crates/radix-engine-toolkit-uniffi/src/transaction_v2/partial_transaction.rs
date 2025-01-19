@@ -38,7 +38,7 @@ impl PartialTransactionV2 {
 
     #[uniffi::constructor]
     pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_transaction_v2_partial_transaction_from_payload_bytes(
+        toolkit::functions::transaction_v2::partial_transaction::from_payload_bytes(
             compiled_intent,
         )
         .map_err(RadixEngineToolkitError::from)
@@ -60,21 +60,21 @@ impl PartialTransactionV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativePartialTransactionV2::try_from(self.clone()).and_then(|intent| {
-            core_transaction_v2_partial_transaction_to_payload_bytes(&intent)
+        engine::PartialTransactionV2::try_from(self.clone()).and_then(|intent| {
+            toolkit::functions::transaction_v2::partial_transaction::to_payload_bytes(&intent)
                 .map_err(Into::into)
         })
     }
 }
 
-impl TryFrom<NativePartialTransactionV2> for PartialTransactionV2 {
+impl TryFrom<engine::PartialTransactionV2> for PartialTransactionV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativePartialTransactionV2 {
+        engine::PartialTransactionV2 {
             root_subintent,
             non_root_subintents,
-        }: NativePartialTransactionV2,
+        }: engine::PartialTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
             root_subintent: Arc::new(SubintentV2::try_from(root_subintent)?),
@@ -87,7 +87,7 @@ impl TryFrom<NativePartialTransactionV2> for PartialTransactionV2 {
     }
 }
 
-impl TryFrom<PartialTransactionV2> for NativePartialTransactionV2 {
+impl TryFrom<PartialTransactionV2> for engine::PartialTransactionV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -98,7 +98,7 @@ impl TryFrom<PartialTransactionV2> for NativePartialTransactionV2 {
     ) -> Result<Self> {
         Ok(Self {
             root_subintent: root_subintent.as_ref().clone().try_into()?,
-            non_root_subintents: NativeNonRootSubintentsV2(
+            non_root_subintents: engine::NonRootSubintentsV2(
                 non_root_subintents
                     .into_iter()
                     .map(|item| item.as_ref().clone())

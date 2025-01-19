@@ -23,16 +23,16 @@ pub enum ManifestExpression {
     EntireAuthZone,
 }
 
-impl From<NativeManifestExpression> for ManifestExpression {
-    fn from(value: NativeManifestExpression) -> Self {
+impl From<engine::ManifestExpression> for ManifestExpression {
+    fn from(value: engine::ManifestExpression) -> Self {
         match value {
-            NativeManifestExpression::EntireAuthZone => Self::EntireAuthZone,
-            NativeManifestExpression::EntireWorktop => Self::EntireWorktop,
+            engine::ManifestExpression::EntireAuthZone => Self::EntireAuthZone,
+            engine::ManifestExpression::EntireWorktop => Self::EntireWorktop,
         }
     }
 }
 
-impl From<ManifestExpression> for NativeManifestExpression {
+impl From<ManifestExpression> for engine::ManifestExpression {
     fn from(value: ManifestExpression) -> Self {
         match value {
             ManifestExpression::EntireAuthZone => Self::EntireAuthZone,

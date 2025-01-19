@@ -139,7 +139,7 @@ pub enum ManifestBuilderValueKind {
     AddressReservationValue,
 }
 
-impl From<ManifestBuilderValueKind> for NativeManifestValueKind {
+impl From<ManifestBuilderValueKind> for engine::ManifestValueKind {
     fn from(value: ManifestBuilderValueKind) -> Self {
         match value {
             /* Primitive */
@@ -161,83 +161,83 @@ impl From<ManifestBuilderValueKind> for NativeManifestValueKind {
             ManifestBuilderValueKind::MapValue => Self::Map,
             /* Custom */
             ManifestBuilderValueKind::AddressValue => {
-                Self::Custom(NativeManifestCustomValueKind::Address)
+                Self::Custom(engine::ManifestCustomValueKind::Address)
             }
             ManifestBuilderValueKind::BucketValue => {
-                Self::Custom(NativeManifestCustomValueKind::Bucket)
+                Self::Custom(engine::ManifestCustomValueKind::Bucket)
             }
             ManifestBuilderValueKind::ProofValue => {
-                Self::Custom(NativeManifestCustomValueKind::Proof)
+                Self::Custom(engine::ManifestCustomValueKind::Proof)
             }
             ManifestBuilderValueKind::ExpressionValue => {
-                Self::Custom(NativeManifestCustomValueKind::Expression)
+                Self::Custom(engine::ManifestCustomValueKind::Expression)
             }
             ManifestBuilderValueKind::BlobValue => {
-                Self::Custom(NativeManifestCustomValueKind::Blob)
+                Self::Custom(engine::ManifestCustomValueKind::Blob)
             }
             ManifestBuilderValueKind::DecimalValue => {
-                Self::Custom(NativeManifestCustomValueKind::Decimal)
+                Self::Custom(engine::ManifestCustomValueKind::Decimal)
             }
             ManifestBuilderValueKind::PreciseDecimalValue => {
-                Self::Custom(NativeManifestCustomValueKind::PreciseDecimal)
+                Self::Custom(engine::ManifestCustomValueKind::PreciseDecimal)
             }
-            ManifestBuilderValueKind::NonFungibleLocalIdValue => {
-                Self::Custom(NativeManifestCustomValueKind::NonFungibleLocalId)
-            }
-            ManifestBuilderValueKind::AddressReservationValue => {
-                Self::Custom(NativeManifestCustomValueKind::AddressReservation)
-            }
+            ManifestBuilderValueKind::NonFungibleLocalIdValue => Self::Custom(
+                engine::ManifestCustomValueKind::NonFungibleLocalId,
+            ),
+            ManifestBuilderValueKind::AddressReservationValue => Self::Custom(
+                engine::ManifestCustomValueKind::AddressReservation,
+            ),
         }
     }
 }
 
-impl From<NativeManifestValueKind> for ManifestBuilderValueKind {
-    fn from(value: NativeManifestValueKind) -> Self {
+impl From<engine::ManifestValueKind> for ManifestBuilderValueKind {
+    fn from(value: engine::ManifestValueKind) -> Self {
         match value {
             /* Primitive */
-            NativeManifestValueKind::Bool => Self::BoolValue,
-            NativeManifestValueKind::I8 => Self::I8Value,
-            NativeManifestValueKind::I16 => Self::I16Value,
-            NativeManifestValueKind::I32 => Self::I32Value,
-            NativeManifestValueKind::I64 => Self::I64Value,
-            NativeManifestValueKind::I128 => Self::I128Value,
-            NativeManifestValueKind::U8 => Self::U8Value,
-            NativeManifestValueKind::U16 => Self::U16Value,
-            NativeManifestValueKind::U32 => Self::U32Value,
-            NativeManifestValueKind::U64 => Self::U64Value,
-            NativeManifestValueKind::U128 => Self::U128Value,
-            NativeManifestValueKind::String => Self::StringValue,
-            NativeManifestValueKind::Enum => Self::EnumValue,
-            NativeManifestValueKind::Array => Self::ArrayValue,
-            NativeManifestValueKind::Tuple => Self::TupleValue,
-            NativeManifestValueKind::Map => Self::MapValue,
+            engine::ManifestValueKind::Bool => Self::BoolValue,
+            engine::ManifestValueKind::I8 => Self::I8Value,
+            engine::ManifestValueKind::I16 => Self::I16Value,
+            engine::ManifestValueKind::I32 => Self::I32Value,
+            engine::ManifestValueKind::I64 => Self::I64Value,
+            engine::ManifestValueKind::I128 => Self::I128Value,
+            engine::ManifestValueKind::U8 => Self::U8Value,
+            engine::ManifestValueKind::U16 => Self::U16Value,
+            engine::ManifestValueKind::U32 => Self::U32Value,
+            engine::ManifestValueKind::U64 => Self::U64Value,
+            engine::ManifestValueKind::U128 => Self::U128Value,
+            engine::ManifestValueKind::String => Self::StringValue,
+            engine::ManifestValueKind::Enum => Self::EnumValue,
+            engine::ManifestValueKind::Array => Self::ArrayValue,
+            engine::ManifestValueKind::Tuple => Self::TupleValue,
+            engine::ManifestValueKind::Map => Self::MapValue,
             /* Custom */
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Address,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Address,
             ) => Self::AddressValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Bucket,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Bucket,
             ) => Self::BucketValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Proof,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Proof,
             ) => Self::ProofValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Expression,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Expression,
             ) => Self::ExpressionValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Blob,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Blob,
             ) => Self::BlobValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::Decimal,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::Decimal,
             ) => Self::DecimalValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::PreciseDecimal,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::PreciseDecimal,
             ) => Self::PreciseDecimalValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::NonFungibleLocalId,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::NonFungibleLocalId,
             ) => Self::NonFungibleLocalIdValue,
-            NativeManifestValueKind::Custom(
-                NativeManifestCustomValueKind::AddressReservation,
+            engine::ManifestValueKind::Custom(
+                engine::ManifestCustomValueKind::AddressReservation,
             ) => Self::AddressReservationValue,
         }
     }
@@ -247,51 +247,51 @@ impl ManifestBuilderValue {
     pub fn to_native(
         &self,
         name_record: &NameRecord,
-    ) -> Result<NativeManifestValue> {
+    ) -> Result<engine::ManifestValue> {
         let value = match self {
             Self::BoolValue { value } => {
-                NativeManifestValue::Bool { value: *value }
+                engine::ManifestValue::Bool { value: *value }
             }
 
             Self::U8Value { value } => {
-                NativeManifestValue::U8 { value: *value }
+                engine::ManifestValue::U8 { value: *value }
             }
             Self::U16Value { value } => {
-                NativeManifestValue::U16 { value: *value }
+                engine::ManifestValue::U16 { value: *value }
             }
             Self::U32Value { value } => {
-                NativeManifestValue::U32 { value: *value }
+                engine::ManifestValue::U32 { value: *value }
             }
             Self::U64Value { value } => {
-                NativeManifestValue::U64 { value: *value }
+                engine::ManifestValue::U64 { value: *value }
             }
-            Self::U128Value { value } => NativeManifestValue::U128 {
+            Self::U128Value { value } => engine::ManifestValue::U128 {
                 value: value.parse()?,
             },
 
             Self::I8Value { value } => {
-                NativeManifestValue::I8 { value: *value }
+                engine::ManifestValue::I8 { value: *value }
             }
             Self::I16Value { value } => {
-                NativeManifestValue::I16 { value: *value }
+                engine::ManifestValue::I16 { value: *value }
             }
             Self::I32Value { value } => {
-                NativeManifestValue::I32 { value: *value }
+                engine::ManifestValue::I32 { value: *value }
             }
             Self::I64Value { value } => {
-                NativeManifestValue::I64 { value: *value }
+                engine::ManifestValue::I64 { value: *value }
             }
-            Self::I128Value { value } => NativeManifestValue::I128 {
+            Self::I128Value { value } => engine::ManifestValue::I128 {
                 value: value.parse()?,
             },
 
-            Self::StringValue { value } => NativeManifestValue::String {
+            Self::StringValue { value } => engine::ManifestValue::String {
                 value: value.clone(),
             },
             Self::EnumValue {
                 discriminator,
                 fields,
-            } => NativeManifestValue::Enum {
+            } => engine::ManifestValue::Enum {
                 discriminator: *discriminator,
                 fields: fields
                     .iter()
@@ -301,14 +301,14 @@ impl ManifestBuilderValue {
             Self::ArrayValue {
                 element_value_kind,
                 elements,
-            } => NativeManifestValue::Array {
+            } => engine::ManifestValue::Array {
                 element_value_kind: (*element_value_kind).into(),
                 elements: elements
                     .iter()
                     .map(|item| item.to_native(name_record))
                     .collect::<Result<_>>()?,
             },
-            Self::TupleValue { fields } => NativeManifestValue::Tuple {
+            Self::TupleValue { fields } => engine::ManifestValue::Tuple {
                 fields: fields
                     .iter()
                     .map(|item| item.to_native(name_record))
@@ -318,7 +318,7 @@ impl ManifestBuilderValue {
                 key_value_kind,
                 value_value_kind,
                 entries,
-            } => NativeManifestValue::Map {
+            } => engine::ManifestValue::Map {
                 key_value_kind: (*key_value_kind).into(),
                 value_value_kind: (*value_value_kind).into(),
                 entries: entries
@@ -332,50 +332,50 @@ impl ManifestBuilderValue {
                     })
                     .collect::<Result<_>>()?,
             },
-            Self::AddressValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Address(
+            Self::AddressValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Address(
                     value.to_native(name_record)?,
                 ),
             },
-            Self::BucketValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Bucket(
+            Self::BucketValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Bucket(
                     value.to_native(name_record)?,
                 ),
             },
-            Self::ProofValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Proof(
+            Self::ProofValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Proof(
                     value.to_native(name_record)?,
                 ),
             },
             Self::AddressReservationValue { value } => {
-                NativeManifestValue::Custom {
-                    value: NativeManifestCustomValue::AddressReservation(
+                engine::ManifestValue::Custom {
+                    value: engine::ManifestCustomValue::AddressReservation(
                         value.to_native(name_record)?,
                     ),
                 }
             }
-            Self::ExpressionValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Expression((*value).into()),
+            Self::ExpressionValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Expression((*value).into()),
             },
-            Self::BlobValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Blob(value.clone().into()),
+            Self::BlobValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Blob(value.clone().into()),
             },
-            Self::DecimalValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Decimal(native_from_decimal(
-                    &value.0,
-                )),
+            Self::DecimalValue { value } => engine::ManifestValue::Custom {
+                value: engine::ManifestCustomValue::Decimal(
+                    engine::from_decimal(value.0),
+                ),
             },
             Self::PreciseDecimalValue { value } => {
-                NativeManifestValue::Custom {
-                    value: NativeManifestCustomValue::PreciseDecimal(
-                        native_from_precise_decimal(&value.0),
+                engine::ManifestValue::Custom {
+                    value: engine::ManifestCustomValue::PreciseDecimal(
+                        engine::from_precise_decimal(value.0),
                     ),
                 }
             }
             Self::NonFungibleLocalIdValue { value } => {
-                NativeManifestValue::Custom {
-                    value: NativeManifestCustomValue::NonFungibleLocalId(
-                        native_from_non_fungible_local_id(
+                engine::ManifestValue::Custom {
+                    value: engine::ManifestCustomValue::NonFungibleLocalId(
+                        engine::from_non_fungible_local_id(
                             value.clone().try_into()?,
                         ),
                     ),

@@ -24,21 +24,21 @@ pub enum RoyaltyAmount {
     Usd { value: Arc<Decimal> },
 }
 
-impl From<NativeRoyaltyAmount> for RoyaltyAmount {
-    fn from(value: NativeRoyaltyAmount) -> Self {
+impl From<engine::RoyaltyAmount> for RoyaltyAmount {
+    fn from(value: engine::RoyaltyAmount) -> Self {
         match value {
-            NativeRoyaltyAmount::Free => Self::Free,
-            NativeRoyaltyAmount::Xrd(amount) => Self::Xrd {
+            engine::RoyaltyAmount::Free => Self::Free,
+            engine::RoyaltyAmount::Xrd(amount) => Self::Xrd {
                 value: Arc::new(Decimal(amount)),
             },
-            NativeRoyaltyAmount::Usd(amount) => Self::Usd {
+            engine::RoyaltyAmount::Usd(amount) => Self::Usd {
                 value: Arc::new(Decimal(amount)),
             },
         }
     }
 }
 
-impl From<RoyaltyAmount> for NativeRoyaltyAmount {
+impl From<RoyaltyAmount> for engine::RoyaltyAmount {
     fn from(value: RoyaltyAmount) -> Self {
         match value {
             RoyaltyAmount::Free => Self::Free,

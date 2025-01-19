@@ -77,7 +77,7 @@ fn transfer_of_fungibles_with_take_from_worktop_results_in_guaranteed_deposit()
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -130,7 +130,7 @@ fn transfer_of_fungibles_with_take_all_from_worktop_results_in_guaranteed_deposi
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -186,7 +186,7 @@ fn transfer_of_non_fungibles_by_amount_results_in_predicted_deposit() {
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -253,7 +253,7 @@ fn transfer_of_non_fungibles_by_amount_with_take_by_ids_results_in_guaranteed_de
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -314,7 +314,7 @@ fn transfer_of_non_fungibles_by_amount_assertion_results_in_guaranteed_deposit()
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -368,7 +368,7 @@ fn getting_xrd_from_faucet_results_in_predicted_deposit() {
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },
@@ -534,7 +534,7 @@ fn test_transfer(
         _,
         DynamicAnalysis {
             account_dynamic_resource_movements_summary:
-                AccountDynamicResourceMovements {
+                AccountDynamicResourceMovementsOutput {
                     account_withdraws,
                     account_deposits,
                 },

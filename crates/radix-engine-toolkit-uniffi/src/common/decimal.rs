@@ -22,7 +22,12 @@ use crate::prelude::*;
 macro_rules! define_uniffi_decimal {
     ($type: ty, $to_inner: ident, $from_inner: ident) => {
         paste::paste! {
-            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>],$crate::prelude::[<NativeInner $type>], $to_inner, $from_inner}
+            define_uniffi_decimal!{
+                [<$type>],
+                $crate::prelude::engine::$type,
+                $crate::prelude::engine::[<Inner $type>],
+                $to_inner,
+                $from_inner}
         }
     };
     ($ident: ident, $native_type: ty, $native_inner_type: ty, $to_inner: ident, $from_inner: ident) => {
@@ -58,22 +63,22 @@ macro_rules! define_uniffi_decimal {
                 }
 
                 pub fn add(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeCheckedAdd;
+                    use $crate::prelude::engine::CheckedAdd;
                     self.0.checked_add(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn sub(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeCheckedSub;
+                    use $crate::prelude::engine::CheckedSub;
                     self.0.checked_sub(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn mul(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeCheckedMul;
+                    use $crate::prelude::engine::CheckedMul;
                     self.0.checked_mul(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn div(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeCheckedDiv;
+                    use $crate::prelude::engine::CheckedDiv;
                     self.0.checked_div(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
@@ -201,18 +206,18 @@ pub enum WithdrawStrategy {
     Rounded { rounding_mode: RoundingMode },
 }
 
-impl From<NativeWithdrawStrategy> for WithdrawStrategy {
-    fn from(value: NativeWithdrawStrategy) -> Self {
+impl From<engine::WithdrawStrategy> for WithdrawStrategy {
+    fn from(value: engine::WithdrawStrategy) -> Self {
         match value {
-            NativeWithdrawStrategy::Exact => Self::Exact,
-            NativeWithdrawStrategy::Rounded(mode) => Self::Rounded {
+            engine::WithdrawStrategy::Exact => Self::Exact,
+            engine::WithdrawStrategy::Rounded(mode) => Self::Rounded {
                 rounding_mode: mode.into(),
             },
         }
     }
 }
 
-impl From<WithdrawStrategy> for NativeWithdrawStrategy {
+impl From<WithdrawStrategy> for engine::WithdrawStrategy {
     fn from(value: WithdrawStrategy) -> Self {
         match value {
             WithdrawStrategy::Exact => Self::Exact,
@@ -234,52 +239,52 @@ pub enum RoundingMode {
     ToNearestMidpointToEven,
 }
 
-impl From<RoundingMode> for crate::prelude::NativeRoundingMode {
+impl From<RoundingMode> for crate::prelude::engine::RoundingMode {
     fn from(value: RoundingMode) -> Self {
         match value {
             RoundingMode::ToPositiveInfinity => {
-                crate::prelude::NativeRoundingMode::ToPositiveInfinity
+                crate::prelude::engine::RoundingMode::ToPositiveInfinity
             }
             RoundingMode::ToNegativeInfinity => {
-                crate::prelude::NativeRoundingMode::ToNegativeInfinity
+                crate::prelude::engine::RoundingMode::ToNegativeInfinity
             }
-            RoundingMode::ToZero => crate::prelude::NativeRoundingMode::ToZero,
+            RoundingMode::ToZero => crate::prelude::engine::RoundingMode::ToZero,
             RoundingMode::AwayFromZero => {
-                crate::prelude::NativeRoundingMode::AwayFromZero
+                crate::prelude::engine::RoundingMode::AwayFromZero
             }
             RoundingMode::ToNearestMidpointTowardZero => {
-                crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero
+                crate::prelude::engine::RoundingMode::ToNearestMidpointTowardZero
             }
             RoundingMode::ToNearestMidpointAwayFromZero => {
-                crate::prelude::NativeRoundingMode::ToNearestMidpointAwayFromZero
+                crate::prelude::engine::RoundingMode::ToNearestMidpointAwayFromZero
             }
             RoundingMode::ToNearestMidpointToEven => {
-                crate::prelude::NativeRoundingMode::ToNearestMidpointToEven
+                crate::prelude::engine::RoundingMode::ToNearestMidpointToEven
             }
         }
     }
 }
 
-impl From<crate::prelude::NativeRoundingMode> for RoundingMode {
-    fn from(value: crate::prelude::NativeRoundingMode) -> Self {
+impl From<crate::prelude::engine::RoundingMode> for RoundingMode {
+    fn from(value: crate::prelude::engine::RoundingMode) -> Self {
         match value {
-            crate::prelude::NativeRoundingMode::ToPositiveInfinity => {
+            crate::prelude::engine::RoundingMode::ToPositiveInfinity => {
                 RoundingMode::ToPositiveInfinity
             }
-            crate::prelude::NativeRoundingMode::ToNegativeInfinity => {
+            crate::prelude::engine::RoundingMode::ToNegativeInfinity => {
                 RoundingMode::ToNegativeInfinity
             }
-            crate::prelude::NativeRoundingMode::ToZero => RoundingMode::ToZero,
-            crate::prelude::NativeRoundingMode::AwayFromZero => {
+            crate::prelude::engine::RoundingMode::ToZero => RoundingMode::ToZero,
+            crate::prelude::engine::RoundingMode::AwayFromZero => {
                 RoundingMode::AwayFromZero
             }
-            crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero => {
+            crate::prelude::engine::RoundingMode::ToNearestMidpointTowardZero => {
                 RoundingMode::ToNearestMidpointTowardZero
             }
-            crate::prelude::NativeRoundingMode::ToNearestMidpointAwayFromZero => {
+            crate::prelude::engine::RoundingMode::ToNearestMidpointAwayFromZero => {
                 RoundingMode::ToNearestMidpointAwayFromZero
             }
-            crate::prelude::NativeRoundingMode::ToNearestMidpointToEven => {
+            crate::prelude::engine::RoundingMode::ToNearestMidpointToEven => {
                 RoundingMode::ToNearestMidpointToEven
             }
         }

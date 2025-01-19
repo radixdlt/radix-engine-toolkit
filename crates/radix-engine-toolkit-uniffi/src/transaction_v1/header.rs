@@ -28,14 +28,14 @@ pub struct TransactionHeaderV1 {
     pub tip_percentage: u16,
 }
 
-impl TryFrom<TransactionHeaderV1> for NativeTransactionHeaderV1 {
+impl TryFrom<TransactionHeaderV1> for engine::TransactionHeaderV1 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: TransactionHeaderV1) -> Result<Self> {
         Ok(Self {
             network_id: value.network_id,
-            start_epoch_inclusive: NativeEpoch::of(value.start_epoch_inclusive),
-            end_epoch_exclusive: NativeEpoch::of(value.end_epoch_exclusive),
+            start_epoch_inclusive: engine::Epoch::of(value.start_epoch_inclusive),
+            end_epoch_exclusive: engine::Epoch::of(value.end_epoch_exclusive),
             nonce: value.nonce,
             notary_public_key: value.notary_public_key.try_into()?,
             notary_is_signatory: value.notary_is_signatory,
@@ -44,8 +44,8 @@ impl TryFrom<TransactionHeaderV1> for NativeTransactionHeaderV1 {
     }
 }
 
-impl From<NativeTransactionHeaderV1> for TransactionHeaderV1 {
-    fn from(value: NativeTransactionHeaderV1) -> Self {
+impl From<engine::TransactionHeaderV1> for TransactionHeaderV1 {
+    fn from(value: engine::TransactionHeaderV1) -> Self {
         Self {
             network_id: value.network_id,
             start_epoch_inclusive: value.start_epoch_inclusive.number(),

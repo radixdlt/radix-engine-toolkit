@@ -29,29 +29,31 @@ pub struct IntentHeaderV2 {
     pub intent_discriminator: u64,
 }
 
-impl TryFrom<IntentHeaderV2> for NativeIntentHeaderV2 {
+impl TryFrom<IntentHeaderV2> for engine::IntentHeaderV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: IntentHeaderV2) -> Result<Self> {
         Ok(Self {
             network_id: value.network_id,
 
-            start_epoch_inclusive: NativeEpoch::of(value.start_epoch_inclusive),
-            end_epoch_exclusive: NativeEpoch::of(value.end_epoch_exclusive),
+            start_epoch_inclusive: engine::Epoch::of(
+                value.start_epoch_inclusive,
+            ),
+            end_epoch_exclusive: engine::Epoch::of(value.end_epoch_exclusive),
             min_proposer_timestamp_inclusive: value
                 .min_proposer_timestamp_inclusive
-                .map(NativeInstant::new),
+                .map(engine::Instant::new),
             max_proposer_timestamp_exclusive: value
                 .max_proposer_timestamp_exclusive
-                .map(NativeInstant::new),
+                .map(engine::Instant::new),
 
             intent_discriminator: value.intent_discriminator,
         })
     }
 }
 
-impl From<NativeIntentHeaderV2> for IntentHeaderV2 {
-    fn from(value: NativeIntentHeaderV2) -> Self {
+impl From<engine::IntentHeaderV2> for IntentHeaderV2 {
+    fn from(value: engine::IntentHeaderV2) -> Self {
         Self {
             network_id: value.network_id,
             start_epoch_inclusive: value.start_epoch_inclusive.number(),

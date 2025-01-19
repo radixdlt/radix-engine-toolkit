@@ -166,8 +166,8 @@ impl AnalysisTransactionReceipt {
         &self.worktop_changes
     }
 
-    pub fn new_entities_summary(&self) -> NewEntitiesSummary {
-        NewEntitiesSummary {
+    pub fn new_entities_summary(&self) -> NewEntitiesOutput {
+        NewEntitiesOutput {
             new_global_entities: self.new_entities_of_type(),
             new_internal_entities: self.new_entities_of_type(),
             new_component_entities: self.new_entities_of_type(),

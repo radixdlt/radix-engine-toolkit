@@ -23,15 +23,15 @@ pub enum PublicKeyHash {
     Ed25519 { value: Vec<u8> },
 }
 
-impl From<NativePublicKeyHash> for PublicKeyHash {
-    fn from(value: NativePublicKeyHash) -> Self {
+impl From<engine::PublicKeyHash> for PublicKeyHash {
+    fn from(value: engine::PublicKeyHash) -> Self {
         match value {
-            NativePublicKeyHash::Secp256k1(NativeSecp256k1PublicKeyHash(
+            engine::PublicKeyHash::Secp256k1(engine::Secp256k1PublicKeyHash(
                 value,
             )) => Self::Secp256k1 {
                 value: value.to_vec(),
             },
-            NativePublicKeyHash::Ed25519(NativeEd25519PublicKeyHash(value)) => {
+            engine::PublicKeyHash::Ed25519(engine::Ed25519PublicKeyHash(value)) => {
                 Self::Ed25519 {
                     value: value.to_vec(),
                 }
@@ -40,26 +40,26 @@ impl From<NativePublicKeyHash> for PublicKeyHash {
     }
 }
 
-impl TryFrom<PublicKeyHash> for NativePublicKeyHash {
+impl TryFrom<PublicKeyHash> for engine::PublicKeyHash {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: PublicKeyHash) -> Result<Self> {
         match value {
             PublicKeyHash::Ed25519 { value } => value
                 .try_into()
-                .map(NativeEd25519PublicKeyHash)
+                .map(engine::Ed25519PublicKeyHash)
                 .map(Self::Ed25519)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeNodeId::RID_LENGTH as u64,
+                    expected: engine::NodeId::RID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
             PublicKeyHash::Secp256k1 { value } => value
                 .try_into()
-                .map(NativeSecp256k1PublicKeyHash)
+                .map(engine::Secp256k1PublicKeyHash)
                 .map(Self::Secp256k1)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeNodeId::RID_LENGTH as u64,
+                    expected: engine::NodeId::RID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),

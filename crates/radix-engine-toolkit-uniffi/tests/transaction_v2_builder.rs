@@ -89,15 +89,16 @@ fn partial_transaction_builder_produces_valid_partial_transactions(
         .build();
 
     // Assert
-    let partial_transaction = NativeSignedPartialTransactionV2::try_from(
+    let partial_transaction = engine::SignedPartialTransactionV2::try_from(
         partial_transaction.as_ref().clone(),
     )?;
-    let validator = NativeTransactionValidator::new_with_latest_config(
-        &NativeNetworkDefinition::mainnet(),
+    let validator = engine::TransactionValidator::new_with_latest_config(
+        &engine::NetworkDefinition::mainnet(),
     );
     validator
         .validate_signed_partial_transaction_v2(
-            partial_transaction.prepare(&NativePreparationSettings::latest())?,
+            partial_transaction
+                .prepare(&engine::PreparationSettings::latest())?,
         )
         .expect("Validation error");
 
@@ -156,15 +157,16 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_child_su
         .build();
 
     // Assert
-    let partial_transaction = NativeSignedPartialTransactionV2::try_from(
+    let partial_transaction = engine::SignedPartialTransactionV2::try_from(
         partial_transaction.as_ref().clone(),
     )?;
-    let validator = NativeTransactionValidator::new_with_latest_config(
-        &NativeNetworkDefinition::mainnet(),
+    let validator = engine::TransactionValidator::new_with_latest_config(
+        &engine::NetworkDefinition::mainnet(),
     );
     validator
         .validate_signed_partial_transaction_v2(
-            partial_transaction.prepare(&NativePreparationSettings::latest())?,
+            partial_transaction
+                .prepare(&engine::PreparationSettings::latest())?,
         )
         .expect("Validation error");
 
@@ -250,15 +252,16 @@ fn partial_transaction_builder_produces_valid_partial_transactions_with_multiple
         .build();
 
     // Assert
-    let partial_transaction = NativeSignedPartialTransactionV2::try_from(
+    let partial_transaction = engine::SignedPartialTransactionV2::try_from(
         partial_transaction.as_ref().clone(),
     )?;
-    let validator = NativeTransactionValidator::new_with_latest_config(
-        &NativeNetworkDefinition::mainnet(),
+    let validator = engine::TransactionValidator::new_with_latest_config(
+        &engine::NetworkDefinition::mainnet(),
     );
     validator
         .validate_signed_partial_transaction_v2(
-            partial_transaction.prepare(&NativePreparationSettings::latest())?,
+            partial_transaction
+                .prepare(&engine::PreparationSettings::latest())?,
         )
         .expect("Validation error");
 
@@ -299,14 +302,14 @@ fn transaction_builder_v2_produces_statically_valid_transactions() -> Result<()>
 
     // Assert
     let notarized_transaction =
-        NativeNotarizedTransactionV2::try_from(transaction.as_ref().clone())?;
-    let validator = NativeTransactionValidator::new_with_latest_config(
-        &NativeNetworkDefinition::mainnet(),
+        engine::NotarizedTransactionV2::try_from(transaction.as_ref().clone())?;
+    let validator = engine::TransactionValidator::new_with_latest_config(
+        &engine::NetworkDefinition::mainnet(),
     );
     validator
         .validate_notarized_v2(
             notarized_transaction
-                .prepare(&NativePreparationSettings::latest())?,
+                .prepare(&engine::PreparationSettings::latest())?,
         )
         .expect("Validation failed");
 
@@ -394,14 +397,14 @@ fn transaction_builder_v2_produces_statically_valid_transactions_with_multiple_l
 
     // Assert
     let notarized_transaction =
-        NativeNotarizedTransactionV2::try_from(transaction.as_ref().clone())?;
-    let validator = NativeTransactionValidator::new_with_latest_config(
-        &NativeNetworkDefinition::mainnet(),
+        engine::NotarizedTransactionV2::try_from(transaction.as_ref().clone())?;
+    let validator = engine::TransactionValidator::new_with_latest_config(
+        &engine::NetworkDefinition::mainnet(),
     );
     validator
         .validate_notarized_v2(
             notarized_transaction
-                .prepare(&NativePreparationSettings::latest())?,
+                .prepare(&engine::PreparationSettings::latest())?,
         )
         .expect("Validation failed");
 
@@ -439,15 +442,15 @@ fn preview_v2_builder_produces_valid_preview_transactions() -> Result<()> {
         .build()?;
 
     // Assert
-    let native_preview_transaction = NativePreviewTransactionV2::from_raw(
+    let preview_transaction = engine::PreviewTransactionV2::from_raw(
         &RawPreviewTransaction::from_vec(preview_transaction),
     )
     .expect("Failed");
     let transaction_validator =
-        NativeTransactionValidator::new_with_latest_config(
-            &NativeNetworkDefinition::mainnet(),
+        engine::TransactionValidator::new_with_latest_config(
+            &engine::NetworkDefinition::mainnet(),
         );
-    native_preview_transaction
+    preview_transaction
         .prepare_and_validate(&transaction_validator)
         .expect("Validation failed!");
 
@@ -457,7 +460,7 @@ fn preview_v2_builder_produces_valid_preview_transactions() -> Result<()> {
 fn private_keys<const N: usize>() -> [Arc<PrivateKey>; N] {
     std::array::from_fn(|i| i + 1)
         .map(|value| value as u64)
-        .map(|value| NativeEd25519PrivateKey::from_u64(value).unwrap())
-        .map(|value| PrivateKey(NativePrivateKey::Ed25519(value)))
+        .map(|value| engine::Ed25519PrivateKey::from_u64(value).unwrap())
+        .map(|value| PrivateKey(engine::PrivateKey::Ed25519(value)))
         .map(Arc::new)
 }

@@ -177,171 +177,173 @@ pub enum InstructionV2 {
 }
 
 impl InstructionV2 {
-    pub fn from_native(native: &NativeInstructionV2, network_id: u8) -> Self {
+    pub fn from_native(native: &engine::InstructionV2, network_id: u8) -> Self {
         match native {
-            NativeInstructionV2::TakeAllFromWorktop(
-                NativeTakeAllFromWorktop { resource_address },
+            engine::InstructionV2::TakeAllFromWorktop(
+                engine::TakeAllFromWorktop { resource_address },
             ) => Self::TakeAllFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV2::TakeFromWorktop(NativeTakeFromWorktop {
-                resource_address,
-                amount,
-            }) => Self::TakeFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+            engine::InstructionV2::TakeFromWorktop(
+                engine::TakeFromWorktop {
+                    resource_address,
+                    amount,
+                },
+            ) => Self::TakeFromWorktop {
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV2::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
+            engine::InstructionV2::TakeNonFungiblesFromWorktop(
+                engine::TakeNonFungiblesFromWorktop {
                     resource_address,
                     ids,
                 },
             ) => Self::TakeNonFungiblesFromWorktop {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
 
-            NativeInstructionV2::ReturnToWorktop(NativeReturnToWorktop {
-                bucket_id,
-            }) => Self::ReturnToWorktop {
+            engine::InstructionV2::ReturnToWorktop(
+                engine::ReturnToWorktop { bucket_id },
+            ) => Self::ReturnToWorktop {
                 bucket_id: (*bucket_id).into(),
             },
 
-            NativeInstructionV2::AssertWorktopContains(
-                NativeAssertWorktopContains {
+            engine::InstructionV2::AssertWorktopContains(
+                engine::AssertWorktopContains {
                     resource_address,
                     amount,
                 },
             ) => Self::AssertWorktopContains {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV2::AssertWorktopContainsAny(
-                NativeAssertWorktopContainsAny { resource_address },
+            engine::InstructionV2::AssertWorktopContainsAny(
+                engine::AssertWorktopContainsAny { resource_address },
             ) => Self::AssertWorktopContainsAny {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV2::AssertWorktopContainsNonFungibles(
-                NativeAssertWorktopContainsNonFungibles {
+            engine::InstructionV2::AssertWorktopContainsNonFungibles(
+                engine::AssertWorktopContainsNonFungibles {
                     resource_address,
                     ids,
                 },
             ) => Self::AssertWorktopContainsNonFungibles {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV2::PopFromAuthZone(..) => Self::PopFromAuthZone,
-            NativeInstructionV2::PushToAuthZone(NativePushToAuthZone {
+            engine::InstructionV2::PopFromAuthZone(..) => Self::PopFromAuthZone,
+            engine::InstructionV2::PushToAuthZone(engine::PushToAuthZone {
                 proof_id,
             }) => Self::PushToAuthZone {
                 proof_id: (*proof_id).into(),
             },
-            NativeInstructionV2::DropNamedProofs(..) => Self::DropNamedProofs,
-            NativeInstructionV2::DropAuthZoneProofs(..) => {
+            engine::InstructionV2::DropNamedProofs(..) => Self::DropNamedProofs,
+            engine::InstructionV2::DropAuthZoneProofs(..) => {
                 Self::DropAuthZoneProofs
             }
-            NativeInstructionV2::DropAuthZoneRegularProofs(..) => {
+            engine::InstructionV2::DropAuthZoneRegularProofs(..) => {
                 Self::DropAuthZoneRegularProofs
             }
-            NativeInstructionV2::DropAuthZoneSignatureProofs(..) => {
+            engine::InstructionV2::DropAuthZoneSignatureProofs(..) => {
                 Self::DropAuthZoneSignatureProofs
             }
-            NativeInstructionV2::CreateProofFromAuthZoneOfAll(
-                NativeCreateProofFromAuthZoneOfAll { resource_address },
+            engine::InstructionV2::CreateProofFromAuthZoneOfAll(
+                engine::CreateProofFromAuthZoneOfAll { resource_address },
             ) => Self::CreateProofFromAuthZoneOfAll {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
             },
-            NativeInstructionV2::CreateProofFromAuthZoneOfAmount(
-                NativeCreateProofFromAuthZoneOfAmount {
+            engine::InstructionV2::CreateProofFromAuthZoneOfAmount(
+                engine::CreateProofFromAuthZoneOfAmount {
                     resource_address,
                     amount,
                 },
             ) => Self::CreateProofFromAuthZoneOfAmount {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV2::CreateProofFromAuthZoneOfNonFungibles(
-                NativeCreateProofFromAuthZoneOfNonFungibles {
+            engine::InstructionV2::CreateProofFromAuthZoneOfNonFungibles(
+                engine::CreateProofFromAuthZoneOfNonFungibles {
                     resource_address,
                     ids,
                 },
             ) => Self::CreateProofFromAuthZoneOfNonFungibles {
-                resource_address: Arc::new(Address::from_typed_node_id(
+                resource_address: Arc::new(Address::from_node_id(
                     *resource_address,
                     network_id,
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV2::CreateProofFromBucketOfAll(
-                NativeCreateProofFromBucketOfAll { bucket_id },
+            engine::InstructionV2::CreateProofFromBucketOfAll(
+                engine::CreateProofFromBucketOfAll { bucket_id },
             ) => Self::CreateProofFromBucketOfAll {
                 bucket_id: (*bucket_id).into(),
             },
-            NativeInstructionV2::CreateProofFromBucketOfAmount(
-                NativeCreateProofFromBucketOfAmount { bucket_id, amount },
+            engine::InstructionV2::CreateProofFromBucketOfAmount(
+                engine::CreateProofFromBucketOfAmount { bucket_id, amount },
             ) => Self::CreateProofFromBucketOfAmount {
                 bucket_id: (*bucket_id).into(),
                 amount: Arc::new(Decimal(*amount)),
             },
-            NativeInstructionV2::CreateProofFromBucketOfNonFungibles(
-                NativeCreateProofFromBucketOfNonFungibles { bucket_id, ids },
+            engine::InstructionV2::CreateProofFromBucketOfNonFungibles(
+                engine::CreateProofFromBucketOfNonFungibles { bucket_id, ids },
             ) => Self::CreateProofFromBucketOfNonFungibles {
                 bucket_id: (*bucket_id).into(),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
-            NativeInstructionV2::BurnResource(NativeBurnResource {
+            engine::InstructionV2::BurnResource(engine::BurnResource {
                 bucket_id,
             }) => Self::BurnResource {
                 bucket_id: (*bucket_id).into(),
             },
-            NativeInstructionV2::CloneProof(NativeCloneProof { proof_id }) => {
-                Self::CloneProof {
-                    proof_id: (*proof_id).into(),
-                }
-            }
-            NativeInstructionV2::DropProof(NativeDropProof { proof_id }) => {
-                Self::DropProof {
-                    proof_id: (*proof_id).into(),
-                }
-            }
-            NativeInstructionV2::DropAllProofs(..) => Self::DropAllProofs,
-            NativeInstructionV2::AllocateGlobalAddress(
-                NativeAllocateGlobalAddress {
+            engine::InstructionV2::CloneProof(engine::CloneProof {
+                proof_id,
+            }) => Self::CloneProof {
+                proof_id: (*proof_id).into(),
+            },
+            engine::InstructionV2::DropProof(engine::DropProof {
+                proof_id,
+            }) => Self::DropProof {
+                proof_id: (*proof_id).into(),
+            },
+            engine::InstructionV2::DropAllProofs(..) => Self::DropAllProofs,
+            engine::InstructionV2::AllocateGlobalAddress(
+                engine::AllocateGlobalAddress {
                     package_address,
                     blueprint_name,
                 },
             ) => Self::AllocateGlobalAddress {
-                package_address: Arc::new(Address::from_typed_node_id(
+                package_address: Arc::new(Address::from_node_id(
                     *package_address,
                     network_id,
                 )),
                 blueprint_name: blueprint_name.clone(),
             },
-            NativeInstructionV2::CallFunction(NativeCallFunction {
+            engine::InstructionV2::CallFunction(engine::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
@@ -355,7 +357,7 @@ impl InstructionV2 {
                 function_name: function_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::CallMethod(NativeCallMethod {
+            engine::InstructionV2::CallMethod(engine::CallMethod {
                 address,
                 method_name,
                 args,
@@ -366,8 +368,8 @@ impl InstructionV2 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::CallMetadataMethod(
-                NativeCallMetadataMethod {
+            engine::InstructionV2::CallMetadataMethod(
+                engine::CallMetadataMethod {
                     address,
                     method_name,
                     args,
@@ -379,8 +381,8 @@ impl InstructionV2 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::CallRoleAssignmentMethod(
-                NativeCallRoleAssignmentMethod {
+            engine::InstructionV2::CallRoleAssignmentMethod(
+                engine::CallRoleAssignmentMethod {
                     address,
                     method_name,
                     args,
@@ -392,8 +394,8 @@ impl InstructionV2 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::CallRoyaltyMethod(
-                NativeCallRoyaltyMethod {
+            engine::InstructionV2::CallRoyaltyMethod(
+                engine::CallRoyaltyMethod {
                     address,
                     method_name,
                     args,
@@ -405,37 +407,35 @@ impl InstructionV2 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::CallDirectVaultMethod(
-                NativeCallDirectVaultMethod {
+            engine::InstructionV2::CallDirectVaultMethod(
+                engine::CallDirectVaultMethod {
                     address,
                     method_name,
                     args,
                 },
             ) => Self::CallDirectVaultMethod {
-                address: Arc::new(Address::from_typed_node_id(
-                    *address, network_id,
-                )),
+                address: Arc::new(Address::from_node_id(*address, network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::YieldToParent(NativeYieldToParent {
+            engine::InstructionV2::YieldToParent(engine::YieldToParent {
                 args,
             }) => Self::YieldToParent {
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::YieldToChild(NativeYieldToChild {
+            engine::InstructionV2::YieldToChild(engine::YieldToChild {
                 child_index,
                 args,
             }) => Self::YieldToChild {
                 child_index: child_index.0,
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::VerifyParent(NativeVerifyParent {
+            engine::InstructionV2::VerifyParent(engine::VerifyParent {
                 access_rule,
             }) => Self::VerifyParent {
                 access_rule: Arc::new(AccessRule(access_rule.clone())),
             },
-            NativeInstructionV2::AssertWorktopResourcesOnly(
+            engine::InstructionV2::AssertWorktopResourcesOnly(
                 assert_worktop_resources_only,
             ) => Self::AssertWorktopResourcesOnly {
                 constraints: assert_worktop_resources_only
@@ -443,7 +443,7 @@ impl InstructionV2 {
                     .iter()
                     .map(|(address, constraint)| {
                         (
-                            Address::unsafe_from_raw(
+                            Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
@@ -453,7 +453,7 @@ impl InstructionV2 {
                     })
                     .collect(),
             },
-            NativeInstructionV2::AssertWorktopResourcesInclude(
+            engine::InstructionV2::AssertWorktopResourcesInclude(
                 assert_worktop_resources_include,
             ) => Self::AssertWorktopResourcesInclude {
                 constraints: assert_worktop_resources_include
@@ -461,7 +461,7 @@ impl InstructionV2 {
                     .iter()
                     .map(|(address, constraint)| {
                         (
-                            Address::unsafe_from_raw(
+                            Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
@@ -471,7 +471,7 @@ impl InstructionV2 {
                     })
                     .collect(),
             },
-            NativeInstructionV2::AssertNextCallReturnsOnly(
+            engine::InstructionV2::AssertNextCallReturnsOnly(
                 assert_next_call_returns_only,
             ) => Self::AssertNextCallReturnsOnly {
                 constraints: assert_next_call_returns_only
@@ -479,7 +479,7 @@ impl InstructionV2 {
                     .iter()
                     .map(|(address, constraint)| {
                         (
-                            Address::unsafe_from_raw(
+                            Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
@@ -489,7 +489,7 @@ impl InstructionV2 {
                     })
                     .collect(),
             },
-            NativeInstructionV2::AssertNextCallReturnsInclude(
+            engine::InstructionV2::AssertNextCallReturnsInclude(
                 assert_next_call_returns_include,
             ) => Self::AssertNextCallReturnsInclude {
                 constraints: assert_next_call_returns_include
@@ -497,7 +497,7 @@ impl InstructionV2 {
                     .iter()
                     .map(|(address, constraint)| {
                         (
-                            Address::unsafe_from_raw(
+                            Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
@@ -507,7 +507,7 @@ impl InstructionV2 {
                     })
                     .collect(),
             },
-            NativeInstructionV2::AssertBucketContents(
+            engine::InstructionV2::AssertBucketContents(
                 assert_bucket_contents,
             ) => Self::AssertBucketContents {
                 constraint: assert_bucket_contents.constraint.clone().into(),
@@ -516,11 +516,11 @@ impl InstructionV2 {
         }
     }
 
-    pub fn to_native(&self) -> Result<NativeInstructionV2> {
+    pub fn to_native(&self) -> Result<engine::InstructionV2> {
         let value = match self {
             Self::TakeAllFromWorktop { resource_address } => {
-                NativeInstructionV2::TakeAllFromWorktop(
-                    NativeTakeAllFromWorktop {
+                engine::InstructionV2::TakeAllFromWorktop(
+                    engine::TakeAllFromWorktop {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -529,15 +529,18 @@ impl InstructionV2 {
             Self::TakeFromWorktop {
                 resource_address,
                 amount,
-            } => NativeInstructionV2::TakeFromWorktop(NativeTakeFromWorktop {
-                resource_address: (*resource_address.as_ref()).try_into()?,
-                amount: amount.0,
-            }),
+            } => engine::InstructionV2::TakeFromWorktop(
+                engine::TakeFromWorktop {
+                    resource_address: (*resource_address.as_ref())
+                        .try_into()?,
+                    amount: amount.0,
+                },
+            ),
             Self::TakeNonFungiblesFromWorktop {
                 resource_address,
                 ids,
-            } => NativeInstructionV2::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
+            } => engine::InstructionV2::TakeNonFungiblesFromWorktop(
+                engine::TakeNonFungiblesFromWorktop {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -548,23 +551,25 @@ impl InstructionV2 {
                 },
             ),
             Self::ReturnToWorktop { bucket_id } => {
-                NativeInstructionV2::ReturnToWorktop(NativeReturnToWorktop {
-                    bucket_id: (*bucket_id).into(),
-                })
+                engine::InstructionV2::ReturnToWorktop(
+                    engine::ReturnToWorktop {
+                        bucket_id: (*bucket_id).into(),
+                    },
+                )
             }
             Self::AssertWorktopContains {
                 resource_address,
                 amount,
-            } => NativeInstructionV2::AssertWorktopContains(
-                NativeAssertWorktopContains {
+            } => engine::InstructionV2::AssertWorktopContains(
+                engine::AssertWorktopContains {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     amount: amount.0,
                 },
             ),
             Self::AssertWorktopContainsAny { resource_address } => {
-                NativeInstructionV2::AssertWorktopContainsAny(
-                    NativeAssertWorktopContainsAny {
+                engine::InstructionV2::AssertWorktopContainsAny(
+                    engine::AssertWorktopContainsAny {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -573,8 +578,8 @@ impl InstructionV2 {
             Self::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
-            } => NativeInstructionV2::AssertWorktopContainsNonFungibles(
-                NativeAssertWorktopContainsNonFungibles {
+            } => engine::InstructionV2::AssertWorktopContainsNonFungibles(
+                engine::AssertWorktopContainsNonFungibles {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -585,29 +590,29 @@ impl InstructionV2 {
                 },
             ),
             Self::PopFromAuthZone => {
-                NativeInstructionV2::PopFromAuthZone(NativePopFromAuthZone)
+                engine::InstructionV2::PopFromAuthZone(engine::PopFromAuthZone)
             }
             Self::PushToAuthZone { proof_id } => {
-                NativeInstructionV2::PushToAuthZone(NativePushToAuthZone {
+                engine::InstructionV2::PushToAuthZone(engine::PushToAuthZone {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropNamedProofs => {
-                NativeInstructionV2::DropNamedProofs(NativeDropNamedProofs)
+                engine::InstructionV2::DropNamedProofs(engine::DropNamedProofs)
             }
             Self::DropAuthZoneProofs => {
-                NativeInstructionV2::DropAuthZoneProofs(
-                    NativeDropAuthZoneProofs,
+                engine::InstructionV2::DropAuthZoneProofs(
+                    engine::DropAuthZoneProofs,
                 )
             }
             Self::DropAuthZoneRegularProofs => {
-                NativeInstructionV2::DropAuthZoneRegularProofs(
-                    NativeDropAuthZoneRegularProofs,
+                engine::InstructionV2::DropAuthZoneRegularProofs(
+                    engine::DropAuthZoneRegularProofs,
                 )
             }
             Self::CreateProofFromAuthZoneOfAll { resource_address } => {
-                NativeInstructionV2::CreateProofFromAuthZoneOfAll(
-                    NativeCreateProofFromAuthZoneOfAll {
+                engine::InstructionV2::CreateProofFromAuthZoneOfAll(
+                    engine::CreateProofFromAuthZoneOfAll {
                         resource_address: (*resource_address.as_ref())
                             .try_into()?,
                     },
@@ -616,8 +621,8 @@ impl InstructionV2 {
             Self::CreateProofFromAuthZoneOfAmount {
                 resource_address,
                 amount,
-            } => NativeInstructionV2::CreateProofFromAuthZoneOfAmount(
-                NativeCreateProofFromAuthZoneOfAmount {
+            } => engine::InstructionV2::CreateProofFromAuthZoneOfAmount(
+                engine::CreateProofFromAuthZoneOfAmount {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     amount: amount.0,
@@ -626,8 +631,8 @@ impl InstructionV2 {
             Self::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address,
                 ids,
-            } => NativeInstructionV2::CreateProofFromAuthZoneOfNonFungibles(
-                NativeCreateProofFromAuthZoneOfNonFungibles {
+            } => engine::InstructionV2::CreateProofFromAuthZoneOfNonFungibles(
+                engine::CreateProofFromAuthZoneOfNonFungibles {
                     resource_address: (*resource_address.as_ref())
                         .try_into()?,
                     ids: ids
@@ -638,28 +643,28 @@ impl InstructionV2 {
                 },
             ),
             Self::DropAuthZoneSignatureProofs => {
-                NativeInstructionV2::DropAuthZoneSignatureProofs(
-                    NativeDropAuthZoneSignatureProofs,
+                engine::InstructionV2::DropAuthZoneSignatureProofs(
+                    engine::DropAuthZoneSignatureProofs,
                 )
             }
             Self::CreateProofFromBucketOfAll { bucket_id } => {
-                NativeInstructionV2::CreateProofFromBucketOfAll(
-                    NativeCreateProofFromBucketOfAll {
+                engine::InstructionV2::CreateProofFromBucketOfAll(
+                    engine::CreateProofFromBucketOfAll {
                         bucket_id: (*bucket_id).into(),
                     },
                 )
             }
             Self::CreateProofFromBucketOfAmount { bucket_id, amount } => {
-                NativeInstructionV2::CreateProofFromBucketOfAmount(
-                    NativeCreateProofFromBucketOfAmount {
+                engine::InstructionV2::CreateProofFromBucketOfAmount(
+                    engine::CreateProofFromBucketOfAmount {
                         bucket_id: (*bucket_id).into(),
                         amount: amount.0,
                     },
                 )
             }
             Self::CreateProofFromBucketOfNonFungibles { bucket_id, ids } => {
-                NativeInstructionV2::CreateProofFromBucketOfNonFungibles(
-                    NativeCreateProofFromBucketOfNonFungibles {
+                engine::InstructionV2::CreateProofFromBucketOfNonFungibles(
+                    engine::CreateProofFromBucketOfNonFungibles {
                         bucket_id: (*bucket_id).into(),
                         ids: ids
                             .iter()
@@ -670,29 +675,29 @@ impl InstructionV2 {
                 )
             }
             Self::BurnResource { bucket_id } => {
-                NativeInstructionV2::BurnResource(NativeBurnResource {
+                engine::InstructionV2::BurnResource(engine::BurnResource {
                     bucket_id: (*bucket_id).into(),
                 })
             }
             Self::CloneProof { proof_id } => {
-                NativeInstructionV2::CloneProof(NativeCloneProof {
+                engine::InstructionV2::CloneProof(engine::CloneProof {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropProof { proof_id } => {
-                NativeInstructionV2::DropProof(NativeDropProof {
+                engine::InstructionV2::DropProof(engine::DropProof {
                     proof_id: (*proof_id).into(),
                 })
             }
             Self::DropAllProofs => {
-                NativeInstructionV2::DropAllProofs(NativeDropAllProofs)
+                engine::InstructionV2::DropAllProofs(engine::DropAllProofs)
             }
             Self::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
                 args,
-            } => NativeInstructionV2::CallFunction(NativeCallFunction {
+            } => engine::InstructionV2::CallFunction(engine::CallFunction {
                 package_address: package_address.clone().try_into()?,
                 blueprint_name: blueprint_name.to_string(),
                 function_name: function_name.to_string(),
@@ -702,7 +707,7 @@ impl InstructionV2 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV2::CallMethod(NativeCallMethod {
+            } => engine::InstructionV2::CallMethod(engine::CallMethod {
                 address: address.clone().try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
@@ -711,8 +716,8 @@ impl InstructionV2 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV2::CallMetadataMethod(
-                NativeCallMetadataMethod {
+            } => engine::InstructionV2::CallMetadataMethod(
+                engine::CallMetadataMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -722,8 +727,8 @@ impl InstructionV2 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV2::CallRoleAssignmentMethod(
-                NativeCallRoleAssignmentMethod {
+            } => engine::InstructionV2::CallRoleAssignmentMethod(
+                engine::CallRoleAssignmentMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -733,8 +738,8 @@ impl InstructionV2 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV2::CallRoyaltyMethod(
-                NativeCallRoyaltyMethod {
+            } => engine::InstructionV2::CallRoyaltyMethod(
+                engine::CallRoyaltyMethod {
                     address: address.clone().try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -744,8 +749,8 @@ impl InstructionV2 {
                 address,
                 method_name,
                 args,
-            } => NativeInstructionV2::CallDirectVaultMethod(
-                NativeCallDirectVaultMethod {
+            } => engine::InstructionV2::CallDirectVaultMethod(
+                engine::CallDirectVaultMethod {
                     address: (**address).try_into()?,
                     method_name: method_name.to_owned(),
                     args: args.to_native()?,
@@ -754,37 +759,37 @@ impl InstructionV2 {
             Self::AllocateGlobalAddress {
                 package_address,
                 blueprint_name,
-            } => NativeInstructionV2::AllocateGlobalAddress(
-                NativeAllocateGlobalAddress {
+            } => engine::InstructionV2::AllocateGlobalAddress(
+                engine::AllocateGlobalAddress {
                     package_address: (**package_address).try_into()?,
                     blueprint_name: blueprint_name.to_string(),
                 },
             ),
             Self::YieldToParent { args } => {
-                NativeInstructionV2::YieldToParent(NativeYieldToParent {
+                engine::InstructionV2::YieldToParent(engine::YieldToParent {
                     args: args.to_native()?,
                 })
             }
             Self::YieldToChild { child_index, args } => {
-                NativeInstructionV2::YieldToChild(NativeYieldToChild {
-                    child_index: NativeManifestNamedIntentIndex(*child_index),
+                engine::InstructionV2::YieldToChild(engine::YieldToChild {
+                    child_index: engine::ManifestNamedIntentIndex(*child_index),
                     args: args.to_native()?,
                 })
             }
             Self::VerifyParent { access_rule } => {
-                NativeInstructionV2::VerifyParent(NativeVerifyParent {
+                engine::InstructionV2::VerifyParent(engine::VerifyParent {
                     access_rule: access_rule.0.clone(),
                 })
             }
             Self::AssertWorktopResourcesOnly { constraints } => {
-                NativeInstructionV2::AssertWorktopResourcesOnly(
-                    NativeAssertWorktopResourcesOnly {
+                engine::InstructionV2::AssertWorktopResourcesOnly(
+                    engine::AssertWorktopResourcesOnly {
                         constraints: constraints
                             .iter()
                             .map(|(address, constraint)| -> Result<_> {
                                 let address = Address::new(address.to_owned())?;
                                 let resource_address =
-                                    NativeResourceAddress::try_from(
+                                    engine::ResourceAddress::try_from(
                                         address.as_bytes(),
                                     )?;
                                 let constraint =
@@ -794,13 +799,13 @@ impl InstructionV2 {
                             })
                             .collect::<Result<
                                 Vec<(
-                                    NativeResourceAddress,
-                                    NativeManifestResourceConstraint,
+                                    engine::ResourceAddress,
+                                    engine::ManifestResourceConstraint,
                                 )>,
                             >>()
                             .map(|constraints| {
                                 constraints.into_iter().fold(
-                                    NativeManifestResourceConstraints::new(),
+                                    engine::ManifestResourceConstraints::new(),
                                     |acc, (address, constraint)| {
                                         acc.with(address, constraint)
                                     },
@@ -810,14 +815,14 @@ impl InstructionV2 {
                 )
             }
             Self::AssertWorktopResourcesInclude { constraints } => {
-                NativeInstructionV2::AssertWorktopResourcesInclude(
-                    NativeAssertWorktopResourcesInclude {
+                engine::InstructionV2::AssertWorktopResourcesInclude(
+                    engine::AssertWorktopResourcesInclude {
                         constraints: constraints
                             .iter()
                             .map(|(address, constraint)| -> Result<_> {
                                 let address = Address::new(address.to_owned())?;
                                 let resource_address =
-                                    NativeResourceAddress::try_from(
+                                    engine::ResourceAddress::try_from(
                                         address.as_bytes(),
                                     )?;
                                 let constraint =
@@ -827,13 +832,13 @@ impl InstructionV2 {
                             })
                             .collect::<Result<
                                 Vec<(
-                                    NativeResourceAddress,
-                                    NativeManifestResourceConstraint,
+                                    engine::ResourceAddress,
+                                    engine::ManifestResourceConstraint,
                                 )>,
                             >>()
                             .map(|constraints| {
                                 constraints.into_iter().fold(
-                                    NativeManifestResourceConstraints::new(),
+                                    engine::ManifestResourceConstraints::new(),
                                     |acc, (address, constraint)| {
                                         acc.with(address, constraint)
                                     },
@@ -843,14 +848,14 @@ impl InstructionV2 {
                 )
             }
             Self::AssertNextCallReturnsOnly { constraints } => {
-                NativeInstructionV2::AssertNextCallReturnsOnly(
-                    NativeAssertNextCallReturnsOnly {
+                engine::InstructionV2::AssertNextCallReturnsOnly(
+                    engine::AssertNextCallReturnsOnly {
                         constraints: constraints
                             .iter()
                             .map(|(address, constraint)| -> Result<_> {
                                 let address = Address::new(address.to_owned())?;
                                 let resource_address =
-                                    NativeResourceAddress::try_from(
+                                    engine::ResourceAddress::try_from(
                                         address.as_bytes(),
                                     )?;
                                 let constraint =
@@ -860,13 +865,13 @@ impl InstructionV2 {
                             })
                             .collect::<Result<
                                 Vec<(
-                                    NativeResourceAddress,
-                                    NativeManifestResourceConstraint,
+                                    engine::ResourceAddress,
+                                    engine::ManifestResourceConstraint,
                                 )>,
                             >>()
                             .map(|constraints| {
                                 constraints.into_iter().fold(
-                                    NativeManifestResourceConstraints::new(),
+                                    engine::ManifestResourceConstraints::new(),
                                     |acc, (address, constraint)| {
                                         acc.with(address, constraint)
                                     },
@@ -876,14 +881,14 @@ impl InstructionV2 {
                 )
             }
             Self::AssertNextCallReturnsInclude { constraints } => {
-                NativeInstructionV2::AssertNextCallReturnsInclude(
-                    NativeAssertNextCallReturnsInclude {
+                engine::InstructionV2::AssertNextCallReturnsInclude(
+                    engine::AssertNextCallReturnsInclude {
                         constraints: constraints
                             .iter()
                             .map(|(address, constraint)| -> Result<_> {
                                 let address = Address::new(address.to_owned())?;
                                 let resource_address =
-                                    NativeResourceAddress::try_from(
+                                    engine::ResourceAddress::try_from(
                                         address.as_bytes(),
                                     )?;
                                 let constraint =
@@ -893,13 +898,13 @@ impl InstructionV2 {
                             })
                             .collect::<Result<
                                 Vec<(
-                                    NativeResourceAddress,
-                                    NativeManifestResourceConstraint,
+                                    engine::ResourceAddress,
+                                    engine::ManifestResourceConstraint,
                                 )>,
                             >>()
                             .map(|constraints| {
                                 constraints.into_iter().fold(
-                                    NativeManifestResourceConstraints::new(),
+                                    engine::ManifestResourceConstraints::new(),
                                     |acc, (address, constraint)| {
                                         acc.with(address, constraint)
                                     },
@@ -911,8 +916,8 @@ impl InstructionV2 {
             Self::AssertBucketContents {
                 bucket_id,
                 constraint,
-            } => NativeInstructionV2::AssertBucketContents(
-                NativeAssertBucketContents {
+            } => engine::InstructionV2::AssertBucketContents(
+                engine::AssertBucketContents {
                     bucket_id: (*bucket_id).into(),
                     constraint: constraint.clone().try_into()?,
                 },

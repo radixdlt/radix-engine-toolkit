@@ -172,7 +172,7 @@ impl TransactionV2Builder {
 
 #[derive(Clone, Debug, Object)]
 pub struct TransactionV2BuilderSignatureStep {
-    intent_hash: NativeHash,
+    intent_hash: engine::Hash,
     signed_transaction_intent: SignedTransactionIntentV2,
 }
 

@@ -22,11 +22,11 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd944
 scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
+radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
 

@@ -16,7 +16,8 @@
 // under the License.
 
 use radix_common::prelude::AddressBech32Decoder;
-use radix_engine_toolkit::functions::derive::{self, OlympiaNetwork};
+use radix_engine_toolkit::functions::derive;
+use radix_engine_toolkit::prelude::*;
 use scrypto::prelude::*;
 
 #[test]
