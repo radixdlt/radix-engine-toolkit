@@ -83,14 +83,12 @@ impl SignedTransactionIntentV1 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        engine::SignedIntentV1::try_from(self.clone()).and_then(
-            |signed_intent| {
-                toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(
-                    &signed_intent,
-                )
-                .map_err(Into::into)
-            },
-        )
+        engine::SignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
+            toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(
+                &signed_intent,
+            )
+            .map_err(Into::into)
+        })
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {

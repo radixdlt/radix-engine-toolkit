@@ -54,9 +54,11 @@ impl SubintentManifestV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(toolkit::functions::transaction_v2::subintent_manifest::to_payload_bytes(
-            &native,
-        )?)
+        Ok(
+            toolkit::functions::transaction_v2::subintent_manifest::to_payload_bytes(
+                &native,
+            )?,
+        )
     }
 
     #[uniffi::constructor]
@@ -65,10 +67,10 @@ impl SubintentManifestV2 {
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let decompiled =
-            toolkit::functions::transaction_v2::subintent_manifest::from_payload_bytes(compiled)
-                .map_err(|error| {
-                    RadixEngineToolkitError::ManifestSborError { error }
-                })?;
+            toolkit::functions::transaction_v2::subintent_manifest::from_payload_bytes(
+                compiled,
+            )
+            .map_err(|error| RadixEngineToolkitError::ManifestSborError { error })?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 

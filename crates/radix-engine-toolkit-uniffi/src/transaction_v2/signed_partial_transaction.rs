@@ -45,9 +45,7 @@ impl SignedPartialTransactionV2 {
             compiled_intent,
         )
         .map_err(RadixEngineToolkitError::from)
-        .and_then(|partial_transaction| {
-            partial_transaction.try_into().map(Arc::new)
-        })
+        .and_then(|partial_transaction| partial_transaction.try_into().map(Arc::new))
     }
 
     pub fn partial_transaction(&self) -> Arc<PartialTransactionV2> {
@@ -79,14 +77,12 @@ impl SignedPartialTransactionV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        engine::SignedPartialTransactionV2::try_from(self.clone()).and_then(
-            |intent| {
-                toolkit::functions::transaction_v2::signed_partial_transaction::to_payload_bytes(
-                    &intent,
-                )
-                .map_err(Into::into)
-            },
-        )
+        engine::SignedPartialTransactionV2::try_from(self.clone()).and_then(|intent| {
+            toolkit::functions::transaction_v2::signed_partial_transaction::to_payload_bytes(
+                &intent,
+            )
+            .map_err(Into::into)
+        })
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {

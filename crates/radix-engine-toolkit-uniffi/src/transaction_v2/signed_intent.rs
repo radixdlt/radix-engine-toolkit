@@ -47,9 +47,7 @@ impl SignedTransactionIntentV2 {
             compiled_signed_intent,
         )
         .map_err(RadixEngineToolkitError::from)
-        .and_then(|transaction_intent| {
-            transaction_intent.try_into().map(Arc::new)
-        })
+        .and_then(|transaction_intent| transaction_intent.try_into().map(Arc::new))
     }
 
     pub fn transaction_intent(&self) -> Arc<TransactionIntentV2> {
@@ -74,10 +72,7 @@ impl SignedTransactionIntentV2 {
                         engine::SignedTransactionIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
-                        self.transaction_intent
-                            .root_intent_core
-                            .header
-                            .network_id,
+                        self.transaction_intent.root_intent_core.header.network_id,
                     ))
                 })
             },
@@ -93,14 +88,12 @@ impl SignedTransactionIntentV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        engine::SignedTransactionIntentV2::try_from(self.clone()).and_then(
-            |signed_intent| {
-                toolkit::functions::transaction_v2::signed_transaction_intent::to_payload_bytes(
-                    &signed_intent,
-                )
-                .map_err(Into::into)
-            },
-        )
+        engine::SignedTransactionIntentV2::try_from(self.clone()).and_then(|signed_intent| {
+            toolkit::functions::transaction_v2::signed_transaction_intent::to_payload_bytes(
+                &signed_intent,
+            )
+            .map_err(Into::into)
+        })
     }
 }
 

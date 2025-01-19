@@ -60,7 +60,9 @@ impl PrivateKey {
     pub fn raw(&self) -> Vec<u8> {
         match &self.0 {
             engine::PrivateKey::Ed25519(private_key) => private_key.to_bytes(),
-            engine::PrivateKey::Secp256k1(private_key) => private_key.to_bytes(),
+            engine::PrivateKey::Secp256k1(private_key) => {
+                private_key.to_bytes()
+            }
         }
     }
 

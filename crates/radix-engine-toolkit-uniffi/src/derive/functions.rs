@@ -112,9 +112,10 @@ pub fn derive_resource_address_from_olympia_resource_address(
     olympia_resource_address: Arc<OlympiaAddress>,
     network_id: u8,
 ) -> Result<Arc<Address>> {
-    let resource_address = toolkit::functions::derive::resource_address_from_olympia_resource_address(
-        &olympia_resource_address.0,
-    )?;
+    let resource_address =
+        toolkit::functions::derive::resource_address_from_olympia_resource_address(
+            &olympia_resource_address.0,
+        )?;
     Ok(Arc::new(Address::from_node_id(
         resource_address,
         network_id,

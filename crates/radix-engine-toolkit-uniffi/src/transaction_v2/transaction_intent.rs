@@ -77,8 +77,10 @@ impl TransactionIntentV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         engine::TransactionIntentV2::try_from(self.clone()).and_then(|intent| {
-            toolkit::functions::transaction_v2::transaction_intent::to_payload_bytes(&intent)
-                .map_err(Into::into)
+            toolkit::functions::transaction_v2::transaction_intent::to_payload_bytes(
+                &intent,
+            )
+            .map_err(Into::into)
         })
     }
 }

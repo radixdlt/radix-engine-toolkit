@@ -602,7 +602,8 @@ impl FromNativeWithNetworkContext for VaultCreationEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolDepositEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::DepositEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::multi_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -616,7 +617,8 @@ impl FromNativeWithNetworkContext for MultiResourcePoolDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolWithdrawEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::WithdrawEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::multi_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -630,7 +632,8 @@ impl FromNativeWithNetworkContext for MultiResourcePoolWithdrawEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::RedemptionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::multi_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -652,7 +655,8 @@ impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
 }
 
 impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::multi_resource_pool::ContributionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::multi_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -672,7 +676,8 @@ impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolDepositEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::DepositEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::two_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -686,7 +691,8 @@ impl FromNativeWithNetworkContext for TwoResourcePoolDepositEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolWithdrawEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::WithdrawEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::two_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -700,7 +706,8 @@ impl FromNativeWithNetworkContext for TwoResourcePoolWithdrawEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::RedemptionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::two_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -722,7 +729,8 @@ impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
 }
 
 impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::two_resource_pool::ContributionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::two_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
@@ -742,7 +750,8 @@ impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
 }
 
 impl FromNative for OneResourcePoolContributionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::ContributionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::one_resource_pool::ContributionEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -755,7 +764,8 @@ impl FromNative for OneResourcePoolContributionEvent {
 }
 
 impl FromNative for OneResourcePoolRedemptionEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::RedemptionEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::one_resource_pool::RedemptionEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -768,7 +778,8 @@ impl FromNative for OneResourcePoolRedemptionEvent {
 }
 
 impl FromNative for OneResourcePoolWithdrawEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::WithdrawEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::one_resource_pool::WithdrawEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -778,7 +789,8 @@ impl FromNative for OneResourcePoolWithdrawEvent {
 }
 
 impl FromNative for OneResourcePoolDepositEvent {
-    type Native = radix_engine::blueprints::pool::v1::events::one_resource_pool::DepositEvent;
+    type Native =
+        radix_engine::blueprints::pool::v1::events::one_resource_pool::DepositEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {

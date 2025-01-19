@@ -450,13 +450,17 @@ impl FromWithNameRecordContext<ResourceSpecifier>
             ResourceSpecifier::Amount {
                 resource_address: _,
                 amount,
-            } => Ok(radix_engine_interface::blueprints::locker::ResourceSpecifier::Fungible(amount.0)),
+            } => Ok(
+                radix_engine_interface::blueprints::locker::ResourceSpecifier::Fungible(amount.0),
+            ),
             ResourceSpecifier::Ids {
                 resource_address: _,
                 ids,
-            } => Ok(radix_engine_interface::blueprints::locker::ResourceSpecifier::NonFungible(
-                FromWithNameRecordContext::<Vec<_>>::from(ids, name_record)?,
-            )),
+            } => Ok(
+                radix_engine_interface::blueprints::locker::ResourceSpecifier::NonFungible(
+                    FromWithNameRecordContext::<Vec<_>>::from(ids, name_record)?,
+                ),
+            ),
         }
     }
 }

@@ -150,7 +150,9 @@ impl From<engine::EntityType> for EntityType {
             engine::EntityType::InternalKeyValueStore => {
                 Self::InternalKeyValueStore
             }
-            engine::EntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
+            engine::EntityType::GlobalAccountLocker => {
+                Self::GlobalAccountLocker
+            }
         }
     }
 }

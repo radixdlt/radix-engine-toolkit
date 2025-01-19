@@ -34,7 +34,9 @@ impl TryFrom<TransactionHeaderV1> for engine::TransactionHeaderV1 {
     fn try_from(value: TransactionHeaderV1) -> Result<Self> {
         Ok(Self {
             network_id: value.network_id,
-            start_epoch_inclusive: engine::Epoch::of(value.start_epoch_inclusive),
+            start_epoch_inclusive: engine::Epoch::of(
+                value.start_epoch_inclusive,
+            ),
             end_epoch_exclusive: engine::Epoch::of(value.end_epoch_exclusive),
             nonce: value.nonce,
             notary_public_key: value.notary_public_key.try_into()?,

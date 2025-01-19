@@ -565,23 +565,24 @@ impl FromNativeWithNetworkContext for NewEntitiesOutput {
             new_non_fungibles: new_non_fungibles
                 .into_iter()
                 .map(|value| {
-                    Arc::new(FromNativeWithNetworkContext::from_native(
-                        value, network_id,
-                    ))
+                    Arc::new(FromNativeWithNetworkContext::from_native(value, network_id))
                 })
                 .collect(),
             global_entities_metadata: global_entities_metadata
                 .into_iter()
                 .map(|(address, metadata_updates)| {
                     (
-                        Arc::new(Address::from_node_id(address, network_id))
-                            .as_str(),
+                        Arc::new(Address::from_node_id(address, network_id)).as_str(),
                         metadata_updates
                             .into_iter()
                             .map(|(key, value)| {
                                 (
                                     key,
-                                    value.map(|value| FromNativeWithNetworkContext::from_native(value, network_id)),
+                                    value.map(|value| {
+                                        FromNativeWithNetworkContext::from_native(
+                                            value, network_id,
+                                        )
+                                    }),
                                 )
                             })
                             .collect(),
@@ -837,11 +838,7 @@ impl ResourceSpecifier {
             radix_engine_interface::blueprints::locker::ResourceSpecifier::NonFungible(ids) => {
                 ResourceSpecifier::Ids {
                     resource_address: address,
-                    ids: ids
-                        .clone()
-                        .into_iter()
-                        .map(From::from)
-                        .collect(),
+                    ids: ids.clone().into_iter().map(From::from).collect(),
                 }
             }
         }

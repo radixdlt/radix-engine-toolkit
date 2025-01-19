@@ -49,10 +49,12 @@ impl Hash {
     pub fn sbor_decode(bytes: Vec<u8>) -> Result<Arc<Self>> {
         let native = match bytes.first().copied() {
             Some(engine::SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                engine::scrypto_decode::<engine::Hash>(&bytes).map_err(Into::into)
+                engine::scrypto_decode::<engine::Hash>(&bytes)
+                    .map_err(Into::into)
             }
             Some(engine::MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-                engine::manifest_decode::<engine::Hash>(&bytes).map_err(Into::into)
+                engine::manifest_decode::<engine::Hash>(&bytes)
+                    .map_err(Into::into)
             }
             v => Err(RadixEngineToolkitError::DecodeError {
                 error: format!("Invalid index byte: {v:?}"),

@@ -384,9 +384,7 @@ impl InstructionV1 {
                     args,
                 },
             ) => Self::CallDirectVaultMethod {
-                address: Arc::new(Address::from_node_id(
-                    *address, network_id,
-                )),
+                address: Arc::new(Address::from_node_id(*address, network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },

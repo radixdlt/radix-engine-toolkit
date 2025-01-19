@@ -26,11 +26,11 @@ pub enum SignatureV1 {
 impl From<engine::SignatureV1> for SignatureV1 {
     fn from(value: engine::SignatureV1) -> Self {
         match value {
-            engine::SignatureV1::Secp256k1(engine::Secp256k1Signature(value)) => {
-                Self::Secp256k1 {
-                    value: value.to_vec(),
-                }
-            }
+            engine::SignatureV1::Secp256k1(engine::Secp256k1Signature(
+                value,
+            )) => Self::Secp256k1 {
+                value: value.to_vec(),
+            },
             engine::SignatureV1::Ed25519(engine::Ed25519Signature(value)) => {
                 Self::Ed25519 {
                     value: value.to_vec(),

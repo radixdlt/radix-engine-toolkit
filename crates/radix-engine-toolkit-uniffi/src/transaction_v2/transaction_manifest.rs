@@ -54,9 +54,11 @@ impl TransactionManifestV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(toolkit::functions::transaction_v2::transaction_manifest::to_payload_bytes(
-            &native,
-        )?)
+        Ok(
+            toolkit::functions::transaction_v2::transaction_manifest::to_payload_bytes(
+                &native,
+            )?,
+        )
     }
 
     #[uniffi::constructor]
@@ -68,9 +70,7 @@ impl TransactionManifestV2 {
             toolkit::functions::transaction_v2::transaction_manifest::from_payload_bytes(
                 compiled,
             )
-            .map_err(|error| {
-                RadixEngineToolkitError::ManifestSborError { error }
-            })?;
+            .map_err(|error| RadixEngineToolkitError::ManifestSborError { error })?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 
@@ -99,9 +99,10 @@ impl TransactionManifestV2 {
 
     pub fn statically_analyze(&self, network_id: u8) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
-        let static_analysis = toolkit::functions::transaction_v2::transaction_manifest::statically_analyze(
-            &native,
-        )?;
+        let static_analysis =
+            toolkit::functions::transaction_v2::transaction_manifest::statically_analyze(
+                &native,
+            )?;
         Ok(StaticAnalysis::from_native(static_analysis, network_id))
     }
 

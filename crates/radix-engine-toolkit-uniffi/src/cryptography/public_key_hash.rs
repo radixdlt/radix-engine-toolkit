@@ -26,16 +26,16 @@ pub enum PublicKeyHash {
 impl From<engine::PublicKeyHash> for PublicKeyHash {
     fn from(value: engine::PublicKeyHash) -> Self {
         match value {
-            engine::PublicKeyHash::Secp256k1(engine::Secp256k1PublicKeyHash(
-                value,
-            )) => Self::Secp256k1 {
+            engine::PublicKeyHash::Secp256k1(
+                engine::Secp256k1PublicKeyHash(value),
+            ) => Self::Secp256k1 {
                 value: value.to_vec(),
             },
-            engine::PublicKeyHash::Ed25519(engine::Ed25519PublicKeyHash(value)) => {
-                Self::Ed25519 {
-                    value: value.to_vec(),
-                }
-            }
+            engine::PublicKeyHash::Ed25519(engine::Ed25519PublicKeyHash(
+                value,
+            )) => Self::Ed25519 {
+                value: value.to_vec(),
+            },
         }
     }
 }

@@ -93,14 +93,12 @@ impl NotarizedTransactionV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        engine::NotarizedTransactionV2::try_from(self.clone()).and_then(
-            |notarized_transaction| {
-                toolkit::functions::transaction_v2::notarized_transaction::to_payload_bytes(
-                    &notarized_transaction,
-                )
-                .map_err(Into::into)
-            },
-        )
+        engine::NotarizedTransactionV2::try_from(self.clone()).and_then(|notarized_transaction| {
+            toolkit::functions::transaction_v2::notarized_transaction::to_payload_bytes(
+                &notarized_transaction,
+            )
+            .map_err(Into::into)
+        })
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {

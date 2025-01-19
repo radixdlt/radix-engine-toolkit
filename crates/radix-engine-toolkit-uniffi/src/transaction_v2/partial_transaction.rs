@@ -42,9 +42,7 @@ impl PartialTransactionV2 {
             compiled_intent,
         )
         .map_err(RadixEngineToolkitError::from)
-        .and_then(|partial_transaction| {
-            partial_transaction.try_into().map(Arc::new)
-        })
+        .and_then(|partial_transaction| partial_transaction.try_into().map(Arc::new))
     }
 
     pub fn root_subintent(&self) -> Arc<SubintentV2> {
@@ -61,8 +59,10 @@ impl PartialTransactionV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         engine::PartialTransactionV2::try_from(self.clone()).and_then(|intent| {
-            toolkit::functions::transaction_v2::partial_transaction::to_payload_bytes(&intent)
-                .map_err(Into::into)
+            toolkit::functions::transaction_v2::partial_transaction::to_payload_bytes(
+                &intent,
+            )
+            .map_err(Into::into)
         })
     }
 }
