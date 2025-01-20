@@ -132,6 +132,9 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
             AccountBlueprintMethod::RemoveAuthorizedDepositor(..) => {
                 &mut [&mut self.0.accounts_remove_authorized_depositor_from]
             }
+            AccountBlueprintMethod::Balance(..)
+            | AccountBlueprintMethod::NonFungibleLocalIds(..)
+            | AccountBlueprintMethod::HasNonFungible(..) => &mut [],
         };
         for set in sets_to_add_to {
             set.insert(receiver.into());

@@ -103,7 +103,10 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 AccountBlueprintMethod::TryDepositOrRefund(..)
                 | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
                 | AccountBlueprintMethod::TryDepositOrAbort(..)
-                | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
+                | AccountBlueprintMethod::TryDepositBatchOrAbort(..)
+                | AccountBlueprintMethod::Balance(..)
+                | AccountBlueprintMethod::NonFungibleLocalIds(..)
+                | AccountBlueprintMethod::HasNonFungible(..) => {}
             },
             Some((
                 _,
@@ -153,7 +156,8 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                         self.0.identities.insert(receiver.into());
                     }
                 }
-                RoleAssignmentBlueprintMethod::Get(..) => {}
+                RoleAssignmentBlueprintMethod::Get(..)
+                | RoleAssignmentBlueprintMethod::GetOwnerRole(..) => {}
             },
             // Metadata Module
             Some((

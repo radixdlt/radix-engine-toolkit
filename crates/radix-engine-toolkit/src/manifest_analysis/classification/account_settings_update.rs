@@ -233,7 +233,10 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
             | AccountBlueprintMethod::TryDepositOrRefund(..)
             | AccountBlueprintMethod::TryDepositBatchOrRefund(..)
             | AccountBlueprintMethod::TryDepositOrAbort(..)
-            | AccountBlueprintMethod::TryDepositBatchOrAbort(..) => {}
+            | AccountBlueprintMethod::TryDepositBatchOrAbort(..)
+            | AccountBlueprintMethod::Balance(..)
+            | AccountBlueprintMethod::NonFungibleLocalIds(..)
+            | AccountBlueprintMethod::HasNonFungible(..) => {}
         }
     }
 }
