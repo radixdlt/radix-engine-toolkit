@@ -23,6 +23,14 @@ pub struct AccessRule(pub engine::AccessRule);
 #[uniffi::export]
 impl AccessRule {
     #[uniffi::constructor]
+    pub fn from_scrypto_sbor_payload(payload: Vec<u8>) -> Result<Arc<Self>> {
+        engine::scrypto_decode(&payload)
+            .map_err(Into::into)
+            .map(Self)
+            .map(Arc::new)
+    }
+
+    #[uniffi::constructor]
     pub fn require(
         resource_or_non_fungible: ResourceOrNonFungible,
     ) -> Result<Arc<Self>> {
@@ -164,6 +172,23 @@ impl AccessRule {
         };
         Arc::new(AccessRule(access_rule))
     }
+
+    pub fn extract_addresses(&self, network_id: u8) -> AccessRulesAddresses {
+        let (resource_addresses, global_ids) =
+            toolkit::functions::access_rule::extract_addresses(&self.0);
+        AccessRulesAddresses {
+            resource_addresses: resource_addresses
+                .into_iter()
+                .map(|value| Address::from_node_id(value, network_id))
+                .map(Arc::new)
+                .collect(),
+            non_fungible_global_ids: global_ids
+                .into_iter()
+                .map(|value| NonFungibleGlobalId(value, network_id))
+                .map(Arc::new)
+                .collect(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Enum, Hash, PartialEq, Eq)]
@@ -231,4 +256,10 @@ impl ToNative for OwnerRole {
             }
         }
     }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessRulesAddresses {
+    pub resource_addresses: Vec<Arc<Address>>,
+    pub non_fungible_global_ids: Vec<Arc<NonFungibleGlobalId>>,
 }

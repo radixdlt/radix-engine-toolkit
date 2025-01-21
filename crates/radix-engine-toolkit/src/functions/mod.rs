@@ -21,6 +21,7 @@
 
 pub mod information;
 
+pub mod access_rule;
 pub mod derive;
 
 pub mod manifest_sbor;
