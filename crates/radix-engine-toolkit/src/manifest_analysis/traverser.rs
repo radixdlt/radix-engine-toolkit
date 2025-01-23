@@ -117,11 +117,9 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
         {
             break;
         }
-        ManifestStaticAnalyzer::process_requirement(
-            &analyzer_state.analyzer,
-            &mut analyzer_state.static_requirement_state,
-            context,
-        );
+        analyzer_state
+            .static_requirement_state
+            .process_instruction(context);
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             context,
@@ -245,20 +243,16 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
         {
             break;
         }
-        ManifestStaticAnalyzer::process_requirement(
-            &analyzer_state.analyzer,
-            &mut analyzer_state.static_requirement_state,
-            context,
-        );
+        analyzer_state
+            .static_requirement_state
+            .process_instruction(context);
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             context,
         );
-        ManifestDynamicAnalyzer::process_requirement(
-            &analyzer_state.analyzer,
-            &mut analyzer_state.dynamic_requirement_state,
-            context,
-        );
+        analyzer_state
+            .dynamic_requirement_state
+            .process_instruction(context);
         ManifestDynamicAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             context,

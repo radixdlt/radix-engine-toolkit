@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
         self.0
     }
 
-    fn process_requirement(
-        &self,
-        _: &mut Self::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // The primary set of invocations that require auth from either accounts
         // or identities are method calls. No function calls so far require it.

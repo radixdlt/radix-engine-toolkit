@@ -48,21 +48,6 @@ impl ManifestStaticAnalyzer for ValidatorUnstakeAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(typed_native_invocation)
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -100,25 +85,6 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
             static_analyzer_output: (),
             dynamic_analyzer_output: self.0,
         }
-    }
-
-    fn process_requirement(
-        &self,
-        requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(
-            dynamic_analysis_invocation_io,
-            typed_native_invocation,
-        );
     }
 
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
@@ -180,26 +146,6 @@ pub struct ValidatorUnstakeStaticRequirementState {
     is_validator_unstake_seen: bool,
 }
 
-impl ValidatorUnstakeStaticRequirementState {
-    fn on_instruction(
-        &mut self,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(..),
-            invocation:
-                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                    ValidatorBlueprintInvocation::Method(
-                        ValidatorBlueprintMethod::Unstake(..),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            self.is_validator_unstake_seen = true
-        }
-    }
-}
-
 impl ManifestAnalyzerRequirementState
     for ValidatorUnstakeStaticRequirementState
 {
@@ -207,6 +153,25 @@ impl ManifestAnalyzerRequirementState
         match self.is_validator_unstake_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        if let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                    invocation:
+                        TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                            ValidatorBlueprintInvocation::Method(
+                                ValidatorBlueprintMethod::Unstake(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
+        {
+            self.is_validator_unstake_seen = true
         }
     }
 }
@@ -238,14 +203,28 @@ pub struct ValidatorUnstakeDynamicRequirementState {
     accumulator: HashMap<ResourceAddress, Decimal>,
 }
 
-impl ValidatorUnstakeDynamicRequirementState {
-    fn on_instruction(
-        &mut self,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+impl ManifestAnalyzerRequirementState
+    for ValidatorUnstakeDynamicRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
+
         match typed_native_invocation {
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -271,11 +250,11 @@ impl ValidatorUnstakeDynamicRequirementState {
                             ),
                         ),
                     ),
-            }) => {
+            } => {
                 *self.accumulator.entry(*resource_address).or_default() +=
                     *amount;
             }
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -283,8 +262,8 @@ impl ValidatorUnstakeDynamicRequirementState {
                             ValidatorBlueprintMethod::Unstake(..),
                         ),
                     ),
-            }) => {
-                for lsu in invocation_io.input.items_iter() {
+            } => {
+                for lsu in dynamic_analysis_invocation_io.input.items_iter() {
                     *self
                         .accumulator
                         .entry(*lsu.resource_address())
@@ -292,17 +271,6 @@ impl ValidatorUnstakeDynamicRequirementState {
                 }
             }
             _ => {}
-        }
-    }
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorUnstakeDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.values().all(Decimal::is_zero) {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
         }
     }
 }

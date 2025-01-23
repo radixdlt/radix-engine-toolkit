@@ -54,16 +54,6 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
         <Self as ManifestDynamicAnalyzer>::Output,
     >;
 
-    /// A method that is used to process the [`RequirementState`] for some
-    /// instruction.
-    ///
-    /// [`RequirementState`]: ManifestStaticAnalyzer::RequirementState
-    fn process_requirement(
-        &self,
-        requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        context: AnalysisContext<'_>,
-    );
-
     /// A method used to process instructions and extract information from them.
     fn process_instruction(&mut self, context: AnalysisContext<'_>);
 }

@@ -48,14 +48,6 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        requirement_state.handle_instruction(context.instruction());
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
@@ -85,6 +77,12 @@ impl ManifestAnalyzerRequirementState for GeneralRequirementState {
             RequirementState::CurrentlyUnfulfilled
         }
     }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        self.is_any_instruction_seen = true;
+        self.is_yield_to_parent_seen |=
+            context.instruction().as_yield_to_parent().is_some()
+    }
 }
 
 impl GeneralRequirementState {
@@ -94,12 +92,6 @@ impl GeneralRequirementState {
             is_yield_to_parent_seen: false,
             is_any_instruction_seen: false,
         }
-    }
-
-    pub fn handle_instruction(&mut self, instruction: &GroupedInstruction) {
-        self.is_any_instruction_seen = true;
-        self.is_yield_to_parent_seen |=
-            instruction.as_yield_to_parent().is_some()
     }
 }
 

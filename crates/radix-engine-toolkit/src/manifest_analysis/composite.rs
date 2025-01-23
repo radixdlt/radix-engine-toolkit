@@ -88,22 +88,6 @@ macro_rules! define_composite_analyzer {
                     }
                 }
 
-                fn process_requirement(
-                    &self,
-                    requirement_state: &mut Self::RequirementState,
-                    context: AnalysisContext<'_>
-                ) {
-                    $(
-                        if self.$analyzer_ident.1 {
-                            $crate::internal_prelude::ManifestStaticAnalyzer::process_requirement(
-                                &self.$analyzer_ident.0,
-                                &mut requirement_state.$analyzer_ident,
-                                context,
-                            );
-                        }
-                    )*
-                }
-
                 fn process_instruction(
                     &mut self,
                     context: AnalysisContext<'_>
@@ -195,22 +179,6 @@ macro_rules! define_composite_analyzer {
                             )*
                         }
                     }
-                }
-
-                fn process_requirement(
-                    &self,
-                    requirement_state: &mut <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
-                    context: AnalysisContext<'_>
-                ) {
-                    $(
-                        if self.$analyzer_ident.1 {
-                            $crate::internal_prelude::ManifestDynamicAnalyzer::process_requirement(
-                                &self.$analyzer_ident.0,
-                                &mut requirement_state.$analyzer_ident,
-                                context,
-                            );
-                        }
-                    )*
                 }
 
                 fn process_instruction(
@@ -356,6 +324,12 @@ macro_rules! define_composite_analyzer {
                 fn requirement_state(&self) -> RequirementState {
                     RequirementState::Fulfilled
                 }
+
+                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                    $(
+                        $crate::internal_prelude::ManifestAnalyzerRequirementState::process_instruction(&mut self.$analyzer_ident, context);
+                    )*
+                }
             }
 
             pub struct [< $type_ident DynamicRequirementState >] {
@@ -369,6 +343,12 @@ macro_rules! define_composite_analyzer {
             {
                 fn requirement_state(&self) -> RequirementState {
                     RequirementState::Fulfilled
+                }
+
+                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                    $(
+                        $crate::internal_prelude::ManifestAnalyzerRequirementState::process_instruction(&mut self.$analyzer_ident, context);
+                    )*
                 }
             }
         }

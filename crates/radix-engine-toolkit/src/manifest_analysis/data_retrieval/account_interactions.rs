@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
         self.0
     }
 
-    fn process_requirement(
-        &self,
-        _: &mut Self::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // We just need to rely on the typed native invocation to extract all of
         // the account interactions that we can see in the manifest. For the

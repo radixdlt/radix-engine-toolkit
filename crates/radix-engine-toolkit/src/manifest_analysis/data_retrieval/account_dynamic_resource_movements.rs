@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        _: &mut Self::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
@@ -71,13 +64,6 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
             static_analyzer_output: (),
             dynamic_analyzer_output: self.0,
         }
-    }
-
-    fn process_requirement(
-        &self,
-        _: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
     }
 
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {

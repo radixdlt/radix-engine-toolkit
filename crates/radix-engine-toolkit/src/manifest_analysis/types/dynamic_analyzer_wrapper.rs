@@ -52,14 +52,6 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         self.0.output()
     }
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        self.0.process_requirement(requirement_state, context);
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         self.0.process_instruction(context);
     }
@@ -99,13 +91,6 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
             static_analyzer_output: self.0.output(),
             dynamic_analyzer_output: (),
         }
-    }
-
-    fn process_requirement(
-        &self,
-        _: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
     }
 
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {}

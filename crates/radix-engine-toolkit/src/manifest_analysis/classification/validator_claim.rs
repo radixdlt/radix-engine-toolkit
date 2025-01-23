@@ -48,21 +48,6 @@ impl ManifestStaticAnalyzer for ValidatorClaimAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(typed_native_invocation)
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -100,25 +85,6 @@ impl ManifestDynamicAnalyzer for ValidatorClaimAnalyzer {
             static_analyzer_output: (),
             dynamic_analyzer_output: self.0,
         }
-    }
-
-    fn process_requirement(
-        &self,
-        requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(
-            dynamic_analysis_invocation_io,
-            typed_native_invocation,
-        );
     }
 
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
@@ -179,31 +145,30 @@ pub struct ValidatorClaimStaticRequirementState {
     is_validator_claim_seen: bool,
 }
 
-impl ValidatorClaimStaticRequirementState {
-    fn on_instruction(
-        &mut self,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(..),
-            invocation:
-                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                    ValidatorBlueprintInvocation::Method(
-                        ValidatorBlueprintMethod::ClaimXrd(..),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            self.is_validator_claim_seen = true
-        }
-    }
-}
-
 impl ManifestAnalyzerRequirementState for ValidatorClaimStaticRequirementState {
     fn requirement_state(&self) -> RequirementState {
         match self.is_validator_claim_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        if let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                    invocation:
+                        TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                            ValidatorBlueprintInvocation::Method(
+                                ValidatorBlueprintMethod::ClaimXrd(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
+        {
+            self.is_validator_claim_seen = true
         }
     }
 }
@@ -235,14 +200,30 @@ pub struct ValidatorClaimDynamicRequirementState {
     accumulator: HashMap<ResourceAddress, Decimal>,
 }
 
-impl ValidatorClaimDynamicRequirementState {
-    fn on_instruction(
-        &mut self,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+impl ManifestAnalyzerRequirementState
+    for ValidatorClaimDynamicRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        // All of the accumulators must equal to zero. In this case, it means
+        // that all of the resources that were withdrawn were deposited or were
+        // passed to the `claim` method on the validators.
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
         match typed_native_invocation {
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -264,10 +245,10 @@ impl ValidatorClaimDynamicRequirementState {
                             ),
                         ),
                     ),
-            }) => {
+            } => {
                 *self.accumulator.entry(*resource_address).or_default() += *amount;
             }
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -289,11 +270,11 @@ impl ValidatorClaimDynamicRequirementState {
                             ),
                         ),
                     ),
-            }) => {
+            } => {
                 *self.accumulator.entry(*resource_address).or_default() +=
                     Decimal::from(ids.len());
             }
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -301,8 +282,10 @@ impl ValidatorClaimDynamicRequirementState {
                             ValidatorBlueprintMethod::ClaimXrd(..),
                         ),
                     ),
-            }) => {
-                if let Some(claim_nft) = invocation_io.input.items_iter().next() {
+            } => {
+                if let Some(claim_nft) =
+                    dynamic_analysis_invocation_io.input.items_iter().next()
+                {
                     *self
                         .accumulator
                         .entry(*claim_nft.resource_address())
@@ -310,20 +293,6 @@ impl ValidatorClaimDynamicRequirementState {
                 }
             }
             _ => {}
-        }
-    }
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorClaimDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        // All of the accumulators must equal to zero. In this case, it means
-        // that all of the resources that were withdrawn were deposited or were
-        // passed to the `claim` method on the validators.
-        match self.accumulator.values().all(Decimal::is_zero) {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
         }
     }
 }

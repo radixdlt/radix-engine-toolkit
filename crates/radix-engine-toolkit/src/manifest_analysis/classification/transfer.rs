@@ -39,22 +39,6 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation { invocation, .. }),
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.handle_invocation(Some(invocation))
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
@@ -69,6 +53,40 @@ impl ManifestAnalyzerRequirementState for TransferRequirementState {
         match self.is_withdraw_seen && self.is_deposit_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    invocation: typed_native_invocation,
+                    ..
+                }),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        match typed_native_invocation {
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(
+                    AccountBlueprintMethod::Withdraw(..)
+                    | AccountBlueprintMethod::WithdrawNonFungibles(..)
+                    | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                    | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+                ),
+            ) => self.is_withdraw_seen = true,
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(
+                    AccountBlueprintMethod::Deposit(..)
+                    | AccountBlueprintMethod::DepositBatch(..)
+                    | AccountBlueprintMethod::TryDepositOrAbort(..)
+                    | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
+                ),
+            ) => self.is_deposit_seen = true,
+            _ => {}
         }
     }
 }

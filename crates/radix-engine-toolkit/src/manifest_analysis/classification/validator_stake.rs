@@ -48,21 +48,6 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(typed_native_invocation)
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -100,25 +85,6 @@ impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
             static_analyzer_output: (),
             dynamic_analyzer_output: self.0,
         }
-    }
-
-    fn process_requirement(
-        &self,
-        requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(
-            dynamic_analysis_invocation_io,
-            typed_native_invocation,
-        );
     }
 
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
@@ -183,56 +149,57 @@ impl Default for ValidatorStakeStaticRequirementState {
     }
 }
 
-impl ValidatorStakeStaticRequirementState {
-    fn on_instruction(
-        &mut self,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(..),
-            invocation:
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Withdraw(
-                            AccountWithdrawManifestInput {
-                                resource_address,
-                                ..
-                            },
-                        )
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(
-                            AccountLockFeeAndWithdrawManifestInput {
-                                resource_address,
-                                ..
-                            },
-                        ),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            self.is_withdraws_just_xrd &=
-                *resource_address == ManifestResourceAddress::Static(XRD)
-        }
-
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(..),
-            invocation:
-                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                    ValidatorBlueprintInvocation::Method(
-                        ValidatorBlueprintMethod::Stake(..),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            self.is_validator_stake_seen = true
-        }
-    }
-}
-
 impl ManifestAnalyzerRequirementState for ValidatorStakeStaticRequirementState {
     fn requirement_state(&self) -> RequirementState {
         match self.is_withdraws_just_xrd && self.is_validator_stake_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        match typed_native_invocation {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Withdraw(
+                                AccountWithdrawManifestInput {
+                                    resource_address,
+                                    ..
+                                },
+                            )
+                            | AccountBlueprintMethod::LockFeeAndWithdraw(
+                                AccountLockFeeAndWithdrawManifestInput {
+                                    resource_address,
+                                    ..
+                                },
+                            ),
+                        ),
+                    ),
+            } => {
+                self.is_withdraws_just_xrd &=
+                    *resource_address == ManifestResourceAddress::Static(XRD)
+            }
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                        ValidatorBlueprintInvocation::Method(
+                            ValidatorBlueprintMethod::Stake(..),
+                        ),
+                    ),
+            } => self.is_validator_stake_seen = true,
+            _ => {}
         }
     }
 }
@@ -262,14 +229,28 @@ pub struct ValidatorStakeDynamicRequirementState {
     accumulator: Decimal,
 }
 
-impl ValidatorStakeDynamicRequirementState {
-    fn on_instruction(
-        &mut self,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+impl ManifestAnalyzerRequirementState
+    for ValidatorStakeDynamicRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.is_zero() {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
+
         match typed_native_invocation {
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -291,10 +272,10 @@ impl ValidatorStakeDynamicRequirementState {
                             ),
                         ),
                     ),
-            }) => {
+            } => {
                 self.accumulator += *amount;
             }
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -302,22 +283,12 @@ impl ValidatorStakeDynamicRequirementState {
                             ValidatorBlueprintMethod::Stake(..),
                         ),
                     ),
-            }) => {
-                let staked_xrd = invocation_io.input.resource_amount(&XRD);
+            } => {
+                let staked_xrd =
+                    dynamic_analysis_invocation_io.input.resource_amount(&XRD);
                 self.accumulator -= staked_xrd;
             }
             _ => {}
-        }
-    }
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorStakeDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.is_zero() {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
         }
     }
 }

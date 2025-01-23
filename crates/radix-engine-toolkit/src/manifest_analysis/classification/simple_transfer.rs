@@ -45,14 +45,6 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        requirement_state.transition(context.instruction());
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         self.transition(context.instruction());
     }
@@ -75,6 +67,10 @@ impl ManifestAnalyzerRequirementState for SimpleTransferStateMachine {
                 RequirementState::PermanentlyUnfulfilled
             }
         }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        self.transition(context.instruction());
     }
 }
 

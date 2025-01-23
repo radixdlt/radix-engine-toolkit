@@ -15,12 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::internal_prelude::*;
+
 /// A trait that's implemented to mark some type as being the requirement state
-/// of a visitor. This trait provides a single method which computes the current
-/// requirement state of the visitor.
+/// of a visitor. This trait provides a method for computing the current state
+/// of whether the visitor's requirements are fulfilled or not and a method for
+/// handling possible updates to the state.
 pub trait ManifestAnalyzerRequirementState {
     /// A method that computes the visitor's requirement state.
     fn requirement_state(&self) -> RequirementState;
+
+    /// A method that's called when an instruction is encountered to be
+    /// processed by the requirement state.
+    fn process_instruction(&mut self, context: AnalysisContext<'_>);
 }
 
 /// An enum that captures the various states that the visitor's requirements

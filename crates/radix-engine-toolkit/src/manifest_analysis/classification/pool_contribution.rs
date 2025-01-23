@@ -48,21 +48,6 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(typed_native_invocation)
-    }
-
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -100,25 +85,6 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
             static_analyzer_output: (),
             dynamic_analyzer_output: self.0,
         }
-    }
-
-    fn process_requirement(
-        &self,
-        requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation,
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-        requirement_state.on_instruction(
-            dynamic_analysis_invocation_io,
-            typed_native_invocation,
-        );
     }
 
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
@@ -180,36 +146,6 @@ pub struct PoolContributionStaticRequirementState {
     is_pool_contribution_seen: bool,
 }
 
-impl PoolContributionStaticRequirementState {
-    fn on_instruction(
-        &mut self,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(..),
-            invocation:
-                TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                    OneResourcePoolBlueprintInvocation::Method(
-                        OneResourcePoolBlueprintMethod::Contribute(..),
-                    ),
-                )
-                | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                    TwoResourcePoolBlueprintInvocation::Method(
-                        TwoResourcePoolBlueprintMethod::Contribute(..),
-                    ),
-                )
-                | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                    MultiResourcePoolBlueprintInvocation::Method(
-                        MultiResourcePoolBlueprintMethod::Contribute(..),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            self.is_pool_contribution_seen = true
-        }
-    }
-}
-
 impl ManifestAnalyzerRequirementState
     for PoolContributionStaticRequirementState
 {
@@ -217,6 +153,35 @@ impl ManifestAnalyzerRequirementState
         match self.is_pool_contribution_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        if let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                    invocation:
+                        TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
+                            OneResourcePoolBlueprintInvocation::Method(
+                                OneResourcePoolBlueprintMethod::Contribute(..),
+                            ),
+                        )
+                        | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                            TwoResourcePoolBlueprintInvocation::Method(
+                                TwoResourcePoolBlueprintMethod::Contribute(..),
+                            ),
+                        )
+                        | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                            MultiResourcePoolBlueprintInvocation::Method(
+                                MultiResourcePoolBlueprintMethod::Contribute(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
+        {
+            self.is_pool_contribution_seen = true
         }
     }
 }
@@ -229,14 +194,27 @@ pub struct PoolContributionDynamicRequirementState {
     accumulator: HashMap<ResourceAddress, Decimal>,
 }
 
-impl PoolContributionDynamicRequirementState {
-    fn on_instruction(
-        &mut self,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+impl ManifestAnalyzerRequirementState
+    for PoolContributionDynamicRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
         match typed_native_invocation {
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -258,10 +236,10 @@ impl PoolContributionDynamicRequirementState {
                             ),
                         ),
                     ),
-            }) => {
+            } => {
                 *self.accumulator.entry(*resource_address).or_default() += *amount;
             }
-            Some(TypedNativeInvocation {
+            TypedNativeInvocation {
                 receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
@@ -279,25 +257,14 @@ impl PoolContributionDynamicRequirementState {
                             MultiResourcePoolBlueprintMethod::Contribute(..),
                         ),
                     ),
-            }) => {
-                for item in invocation_io.input.items_iter() {
+            } => {
+                for item in dynamic_analysis_invocation_io.input.items_iter() {
                     let resource_address = item.resource_address();
                     let amount = item.amount();
                     *self.accumulator.entry(*resource_address).or_default() -= *amount;
                 }
             }
             _ => {}
-        }
-    }
-}
-
-impl ManifestAnalyzerRequirementState
-    for PoolContributionDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.values().all(Decimal::is_zero) {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
         }
     }
 }

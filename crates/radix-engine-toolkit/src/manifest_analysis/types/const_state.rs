@@ -27,6 +27,8 @@ impl<const STATE: bool> ManifestAnalyzerRequirementState for ConstState<STATE> {
             false => RequirementState::PermanentlyUnfulfilled,
         }
     }
+
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
 impl<const STATE: bool> ManifestAnalyzerPermissionState for ConstState<STATE> {

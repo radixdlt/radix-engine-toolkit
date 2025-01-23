@@ -48,11 +48,11 @@ pub trait ManifestStaticAnalyzer: Sized {
 
     /// The type that the visitor uses to describe if the instructions that it
     /// has encountered have so far been permitted or not.
-    type PermissionState: ManifestAnalyzerPermissionState + Sized;
+    type PermissionState: ManifestAnalyzerPermissionState;
 
     /// The type that the visitor uses to describe if it's requirements for
     /// instructions is permitted or not.
-    type RequirementState: ManifestAnalyzerRequirementState + Sized;
+    type RequirementState: ManifestAnalyzerRequirementState;
 
     /// A function used to construct the manifest analysis static visitor as
     /// well as its permission state and requirement state and return them back
@@ -67,21 +67,6 @@ pub trait ManifestStaticAnalyzer: Sized {
 
     /// A method that consumes the visitor and returns the output.
     fn output(self) -> Self::Output;
-
-    /// A method that is used to process the [`RequirementState`] for some
-    /// instruction.
-    ///
-    /// We do not provide a default implementation of this method to require all
-    /// visitors to provide one. A default implementation to a method like this
-    /// could lead to security issues and therefore we require that visitors
-    /// always implement this method even if it does nothing.
-    ///
-    /// [`RequirementState`]: ManifestStaticAnalyzer::RequirementState
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    );
 
     /// A method used to process instructions and extract information from them.
     fn process_instruction(&mut self, context: AnalysisContext<'_>);

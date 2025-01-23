@@ -41,33 +41,6 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
         self.0
     }
 
-    fn process_requirement(
-        &self,
-        requirement_state: &mut Self::RequirementState,
-        context: AnalysisContext<'_>,
-    ) {
-        if let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver: ManifestInvocationReceiver::GlobalMethod(_),
-                    invocation:
-                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                            AccountBlueprintInvocation::Method(
-                                AccountBlueprintMethod::SetDefaultDepositRule(..)
-                                | AccountBlueprintMethod::SetResourcePreference(..)
-                                | AccountBlueprintMethod::RemoveResourcePreference(..)
-                                | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
-                            ),
-                        ),
-                }),
-            ..
-        } = context
-        {
-            requirement_state.is_any_account_settings_update_seen = true
-        }
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         let AnalysisContext::InvocationInstruction {
             typed_native_invocation:
@@ -166,6 +139,29 @@ impl ManifestAnalyzerRequirementState
         match self.is_any_account_settings_update_seen {
             true => RequirementState::Fulfilled,
             false => RequirementState::CurrentlyUnfulfilled,
+        }
+    }
+
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        if let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(_),
+                    invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::SetDefaultDepositRule(..)
+                                | AccountBlueprintMethod::SetResourcePreference(..)
+                                | AccountBlueprintMethod::RemoveResourcePreference(..)
+                                | AccountBlueprintMethod::AddAuthorizedDepositor(..)
+                                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
+        {
+            self.is_any_account_settings_update_seen = true
         }
     }
 }

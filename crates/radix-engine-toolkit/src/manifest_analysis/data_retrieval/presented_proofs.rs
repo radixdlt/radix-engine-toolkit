@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
         self.0
     }
 
-    fn process_requirement(
-        &self,
-        _: &mut Self::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // Interpreting the typed invocation and converting it into a resource
         // specifier of the created proof.

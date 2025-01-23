@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
         self.0
     }
 
-    fn process_requirement(
-        &self,
-        _: &mut Self::RequirementState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         let indexed_value =
             IndexedManifestValue::from_typed(context.instruction());
