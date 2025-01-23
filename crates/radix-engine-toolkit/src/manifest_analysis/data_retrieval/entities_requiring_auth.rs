@@ -113,7 +113,7 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 | AccountLockerBlueprintMethod::ClaimNonFungibles(
                     AccountLockerClaimNonFungiblesManifestInput { claimant, .. },
                 ) => {
-                    self.0.accounts.insert((*claimant).into());
+                    self.0.accounts.insert(claimant.0.into());
                 }
                 AccountLockerBlueprintMethod::Store(..)
                 | AccountLockerBlueprintMethod::Airdrop(..)

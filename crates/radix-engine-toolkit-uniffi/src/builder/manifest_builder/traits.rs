@@ -226,6 +226,30 @@ impl_from_with_name_record_for_address_from_arc_address![
     engine::DynamicPackageAddress,
 ];
 
+impl<M: engine::TypeInfoMarker> FromWithNameRecordContext<Arc<Address>>
+    for engine::GenericGlobal<engine::ManifestComponentAddress, M>
+{
+    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
+        (*item)
+            .try_into()
+            .map(engine::ManifestComponentAddress::Static)
+            .map(Self::new)
+    }
+}
+
+impl<M: engine::TypeInfoMarker> FromWithNameRecordContext<String>
+    for engine::GenericGlobal<engine::ManifestComponentAddress, M>
+{
+    fn from(item: String, _: &NameRecord) -> Result<Self> {
+        Address::new(item).and_then(|value| {
+            (*value)
+                .try_into()
+                .map(engine::ManifestComponentAddress::Static)
+                .map(Self::new)
+        })
+    }
+}
+
 macro_rules! impl_from_with_name_record_for_address_from_string {
     (
         $( $type: ty ),* $(,)?

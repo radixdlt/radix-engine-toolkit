@@ -43,6 +43,7 @@ pub mod engine {
     pub use radix_engine::utils::*;
     pub use radix_engine_interface::blueprints::access_controller::*;
     pub use radix_engine_interface::blueprints::account::*;
+    pub use radix_engine_interface::blueprints::component::*;
     pub use radix_engine_interface::blueprints::consensus_manager::*;
     pub use radix_engine_interface::blueprints::identity::*;
     pub use radix_engine_interface::blueprints::locker::*;

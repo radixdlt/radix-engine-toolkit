@@ -466,9 +466,9 @@ impl ManifestV2Builder {
                 engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(engine::DynamicPackageAddress::Static)?,
+                    .map(engine::ManifestPackageAddress::Static)?,
                 engine::ManifestAddress::Named(value) => {
-                    engine::DynamicPackageAddress::Named(value)
+                    engine::ManifestPackageAddress::Named(value)
                 }
             };
             let args = engine::ManifestValue::Tuple {
@@ -501,9 +501,9 @@ impl ManifestV2Builder {
                 engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(engine::DynamicGlobalAddress::Static)?,
+                    .map(engine::ManifestGlobalAddress::Static)?,
                 engine::ManifestAddress::Named(value) => {
-                    engine::DynamicGlobalAddress::Named(value)
+                    engine::ManifestGlobalAddress::Named(value)
                 }
             };
             let args = engine::ManifestValue::Tuple {
@@ -535,9 +535,9 @@ impl ManifestV2Builder {
                 engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(engine::DynamicGlobalAddress::Static)?,
+                    .map(engine::ManifestGlobalAddress::Static)?,
                 engine::ManifestAddress::Named(value) => {
-                    engine::DynamicGlobalAddress::Named(value)
+                    engine::ManifestGlobalAddress::Named(value)
                 }
             };
             let args = engine::ManifestValue::Tuple {
@@ -570,9 +570,9 @@ impl ManifestV2Builder {
                 engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(engine::DynamicGlobalAddress::Static)?,
+                    .map(engine::ManifestGlobalAddress::Static)?,
                 engine::ManifestAddress::Named(value) => {
-                    engine::DynamicGlobalAddress::Named(value)
+                    engine::ManifestGlobalAddress::Named(value)
                 }
             };
             let args = engine::ManifestValue::Tuple {
@@ -605,9 +605,9 @@ impl ManifestV2Builder {
                 engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(engine::DynamicGlobalAddress::Static)?,
+                    .map(engine::ManifestGlobalAddress::Static)?,
                 engine::ManifestAddress::Named(value) => {
-                    engine::DynamicGlobalAddress::Named(value)
+                    engine::ManifestGlobalAddress::Named(value)
                 }
             };
             let args = engine::ManifestValue::Tuple {
@@ -697,7 +697,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(address),
+                    address: engine::ManifestGlobalAddress::Static(address),
                     method_name: engine::ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
                     args: manifest_args!(
                         engine::ManifestExpression::EntireWorktop
@@ -725,7 +725,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(address),
+                    address: engine::ManifestGlobalAddress::Static(address),
                     method_name:
                         engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT
                             .to_owned(),
@@ -756,7 +756,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(address),
+                    address: engine::ManifestGlobalAddress::Static(address),
                     method_name:
                         engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
                             .to_owned(),
@@ -783,7 +783,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallFunction(engine::CallFunction {
-                    package_address: engine::DynamicPackageAddress::Static(
+                    package_address: engine::ManifestPackageAddress::Static(
                         engine::PACKAGE_PACKAGE,
                     ),
                     blueprint_name: engine::PACKAGE_BLUEPRINT.to_owned(),
@@ -824,7 +824,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallFunction(engine::CallFunction {
-                    package_address: engine::DynamicPackageAddress::Static(
+                    package_address: engine::ManifestPackageAddress::Static(
                         engine::PACKAGE_PACKAGE,
                     ),
                     blueprint_name: engine::PACKAGE_BLUEPRINT.to_owned(),
@@ -849,7 +849,7 @@ impl ManifestV2Builder {
         builder_arc_map(self, |builder| {
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(
+                    address: engine::ManifestGlobalAddress::Static(
                         engine::FAUCET.into(),
                     ),
                     method_name: "free".to_owned(),
@@ -864,7 +864,7 @@ impl ManifestV2Builder {
         builder_arc_map(self, |builder| {
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(
+                    address: engine::ManifestGlobalAddress::Static(
                         engine::FAUCET.into(),
                     ),
                     method_name: "lock_fee".to_owned(),
@@ -916,7 +916,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallFunction(engine::CallFunction {
-                    package_address: engine::DynamicPackageAddress::Static(
+                    package_address: engine::ManifestPackageAddress::Static(
                         engine::ACCESS_CONTROLLER_PACKAGE,
                     ),
                     blueprint_name: engine::ACCESS_CONTROLLER_BLUEPRINT
@@ -967,7 +967,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallFunction(engine::CallFunction {
-                    package_address: engine::DynamicPackageAddress::Static(
+                    package_address: engine::ManifestPackageAddress::Static(
                         engine::ACCESS_CONTROLLER_PACKAGE,
                     ),
                     blueprint_name: engine::ACCESS_CONTROLLER_BLUEPRINT
@@ -1044,7 +1044,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallFunction(engine::CallFunction {
-                    package_address: engine::DynamicPackageAddress::Static(
+                    package_address: engine::ManifestPackageAddress::Static(
                         engine::RESOURCE_PACKAGE,
                     ),
                     blueprint_name: engine::FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
@@ -1069,7 +1069,7 @@ impl ManifestV2Builder {
 
             let instruction =
                 engine::InstructionV2::CallMethod(engine::CallMethod {
-                    address: engine::DynamicGlobalAddress::Static(
+                    address: engine::ManifestGlobalAddress::Static(
                         resource_address.into(),
                     ),
                     method_name: engine::FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
@@ -1374,7 +1374,7 @@ macro_rules! builder_alias_internal {
                 ) -> $crate::prelude::Result<Arc<Self>> {
                     $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
                         let instruction = $crate::prelude::engine::InstructionV2::$instruction( engine::[< $instruction >]{
-                            address: $crate::prelude::engine::DynamicGlobalAddress::Static((*address).try_into()?),
+                            address: $crate::prelude::engine::ManifestGlobalAddress::Static((*address).try_into()?),
                             method_name: $method_ident.to_owned(),
                             args: $crate::prelude::engine::to_manifest_value_and_unwrap! {
                                 &engine::$input_type {
@@ -1423,7 +1423,7 @@ macro_rules! builder_alias_internal {
             ) -> $crate::prelude::Result<Arc<Self>> {
                 $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
                     let instruction = $crate::prelude::engine::InstructionV2::CallFunction(engine::CallFunction {
-                        package_address: $crate::prelude::engine::DynamicPackageAddress::Static($package_address),
+                        package_address: $crate::prelude::engine::ManifestPackageAddress::Static($package_address),
                         blueprint_name: $blueprint_ident.to_owned(),
                         function_name: $function_ident.to_owned(),
                         args: $crate::prelude::engine::to_manifest_value_and_unwrap! {
@@ -1548,7 +1548,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_WITHDRAW_IDENT,
         instruction: CallMethod,
         args: AccountWithdrawManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -1557,7 +1557,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: AccountWithdrawNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -1567,7 +1567,7 @@ builder_alias! {
         instruction: CallMethod,
         args: AccountLockFeeAndWithdrawManifestInput {
             amount_to_lock: (Arc<Decimal> => engine::Decimal),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -1577,7 +1577,7 @@ builder_alias! {
         instruction: CallMethod,
         args: AccountLockFeeAndWithdrawNonFungiblesManifestInput {
             amount_to_lock: (Arc<Decimal> => engine::Decimal),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -1586,7 +1586,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
         instruction: CallMethod,
         args: AccountCreateProofOfAmountManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -1595,7 +1595,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: AccountCreateProofOfNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -1612,7 +1612,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
         args: AccountSetResourcePreferenceManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             resource_preference: (ResourcePreference => engine::ResourcePreference),
         }
     },
@@ -1621,7 +1621,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
         args: AccountRemoveResourcePreferenceManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
         }
     },
     {
@@ -1629,7 +1629,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_BURN_IDENT,
         instruction: CallMethod,
         args: AccountBurnManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -1638,7 +1638,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: AccountBurnNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -1979,7 +1979,7 @@ builder_alias! {
         args: OneResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => engine::OwnerRole),
             pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
@@ -2041,7 +2041,7 @@ builder_alias! {
         args: TwoResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => engine::OwnerRole),
             pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
-            resource_addresses: (Vec<Arc<Address>> => (engine::DynamicResourceAddress, engine::DynamicResourceAddress)),
+            resource_addresses: (Vec<Arc<Address>> => (engine::ManifestResourceAddress, engine::ManifestResourceAddress)),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
@@ -2074,7 +2074,7 @@ builder_alias! {
         method_ident: engine::TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
         args: TwoResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
             withdraw_strategy: (WithdrawStrategy => engine::WithdrawStrategy)
         }
@@ -2104,7 +2104,7 @@ builder_alias! {
         args: MultiResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => engine::OwnerRole),
             pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
-            resource_addresses: (Vec<Arc<Address>> => engine::IndexSet<engine::DynamicResourceAddress>),
+            resource_addresses: (Vec<Arc<Address>> => engine::IndexSet<engine::ManifestResourceAddress>),
             address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
@@ -2137,7 +2137,7 @@ builder_alias! {
         method_ident: engine::MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
         args: MultiResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
             withdraw_strategy: (WithdrawStrategy => engine::WithdrawStrategy)
         }
@@ -2285,7 +2285,7 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_STORE_IDENT,
         instruction: CallMethod,
         args: AccountLockerStoreManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
             bucket: (ManifestBuilderBucket => engine::ManifestBucket),
             try_direct_send: (bool => bool),
         }
@@ -2297,7 +2297,7 @@ builder_alias! {
         args: AccountLockerAirdropManifestInput {
             claimants: (
                 HashMap<String, ResourceSpecifier> =>
-                IndexMap<engine::DynamicComponentAddress, radix_engine_interface::blueprints::locker::ResourceSpecifier>
+                IndexMap<engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>, radix_engine_interface::blueprints::locker::ResourceSpecifier>
             ),
             bucket: (ManifestBuilderBucket => engine::ManifestBucket),
             try_direct_send: (bool => bool),
@@ -2308,8 +2308,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_RECOVER_IDENT,
         instruction: CallMethod,
         args: AccountLockerRecoverManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -2318,8 +2318,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: AccountLockerRecoverNonFungiblesManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -2328,8 +2328,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_CLAIM_IDENT,
         instruction: CallMethod,
         args: AccountLockerClaimManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             amount: (Arc<Decimal> => engine::Decimal),
         }
     },
@@ -2338,8 +2338,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
         args: AccountLockerClaimNonFungiblesManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
@@ -2348,8 +2348,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
         instruction: CallMethod,
         args: AccountLockerGetAmountManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
         }
     },
     {
@@ -2357,8 +2357,8 @@ builder_alias! {
         method_ident: engine::ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
         instruction: CallMethod,
         args: AccountLockerGetNonFungibleLocalIdsManifestInput {
-            claimant: (Arc<Address> => engine::DynamicComponentAddress),
-            resource_address: (Arc<Address> => engine::DynamicResourceAddress),
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             limit: (u32 => u32)
         }
     },
