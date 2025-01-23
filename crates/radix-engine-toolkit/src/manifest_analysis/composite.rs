@@ -88,20 +88,6 @@ macro_rules! define_composite_analyzer {
                     }
                 }
 
-                fn process_permission(
-                    &self,
-                    permission_state: &mut Self::PermissionState,
-                    context: AnalysisContext<'_>
-                ) {
-                    $(
-                        $crate::internal_prelude::ManifestStaticAnalyzer::process_permission(
-                            &self.$analyzer_ident.0,
-                            &mut permission_state.$analyzer_ident,
-                            context,
-                        );
-                    )*
-                }
-
                 fn process_requirement(
                     &self,
                     requirement_state: &mut Self::RequirementState,
@@ -349,6 +335,12 @@ macro_rules! define_composite_analyzer {
                 fn all_instructions_permitted(&self) -> bool {
                     // We always permit instructions
                     true
+                }
+
+                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                    $(
+                        $crate::internal_prelude::ManifestAnalyzerPermissionState::process_instruction(&mut self.$analyzer_ident, context);
+                    )*
                 }
             }
 

@@ -68,21 +68,6 @@ pub trait ManifestStaticAnalyzer: Sized {
     /// A method that consumes the visitor and returns the output.
     fn output(self) -> Self::Output;
 
-    /// A method that is used to process the [`PermissionState`] for some
-    /// instruction.
-    ///
-    /// We do not provide a default implementation of this method to require all
-    /// visitors to provide one. A default implementation to a method like this
-    /// could lead to security issues and therefore we require that visitors
-    /// always implement this method even if it does nothing.
-    ///
-    /// [`PermissionState`]: ManifestStaticAnalyzer::PermissionState
-    fn process_permission(
-        &self,
-        permission_state: &mut Self::PermissionState,
-        context: AnalysisContext<'_>,
-    );
-
     /// A method that is used to process the [`RequirementState`] for some
     /// instruction.
     ///

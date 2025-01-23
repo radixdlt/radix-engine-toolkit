@@ -17,35 +17,31 @@
 
 use crate::internal_prelude::*;
 
+pub type PermissionStateStaticCallback = fn(AnalysisContext<'_>) -> bool;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SimplePermissionState(bool);
+pub struct CallbackPermissionState<F: FnMut(AnalysisContext<'_>) -> bool> {
+    state: bool,
+    callback: F,
+}
 
-impl Default for SimplePermissionState {
-    fn default() -> Self {
-        Self(true)
+impl<F: FnMut(AnalysisContext<'_>) -> bool> CallbackPermissionState<F> {
+    pub fn new(callback: F) -> Self {
+        Self {
+            state: true,
+            callback,
+        }
     }
 }
 
-impl ManifestAnalyzerPermissionState for SimplePermissionState {
+impl<F: FnMut(AnalysisContext<'_>) -> bool> ManifestAnalyzerPermissionState
+    for CallbackPermissionState<F>
+{
     fn all_instructions_permitted(&self) -> bool {
-        self.0
-    }
-}
-
-impl SimplePermissionState {
-    pub fn new(value: bool) -> Self {
-        Self(value)
+        self.state
     }
 
-    pub fn next_instruction_is_not_permitted(&mut self) {
-        self.next_instruction_status(false)
-    }
-
-    pub fn next_instruction_is_permitted(&mut self) {
-        self.next_instruction_status(true)
-    }
-
-    pub fn next_instruction_status(&mut self, is_permitted: bool) {
-        self.0 &= is_permitted
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        self.state &= (self.callback)(context);
     }
 }

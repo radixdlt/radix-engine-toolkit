@@ -33,4 +33,6 @@ impl<const STATE: bool> ManifestAnalyzerPermissionState for ConstState<STATE> {
     fn all_instructions_permitted(&self) -> bool {
         STATE
     }
+
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }

@@ -15,10 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-/// A trait used to describe the state whether all the instructions that the
-/// visitor encountered were permitted or not.
+use crate::internal_prelude::*;
+
+/// A trait that's implemented to mark some type as being the permission state
+/// of a visitor. This trait provides a method for computing the current state
+/// of whether the visitor is accepting additional instructions or not and also
+/// a method for handling possible updates to the state.
 pub trait ManifestAnalyzerPermissionState {
     /// A method that computes if all of the instructions that were encountered
     /// in a manifest were permitted for some visitor or not.
     fn all_instructions_permitted(&self) -> bool;
+
+    /// A method that's called when an instruction is encountered to be
+    /// processed by the permission state.
+    fn process_instruction(&mut self, context: AnalysisContext<'_>);
 }

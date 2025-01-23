@@ -52,14 +52,6 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         self.0.output()
     }
 
-    fn process_permission(
-        &self,
-        permission_state: &mut Self::PermissionState,
-        context: AnalysisContext<'_>,
-    ) {
-        self.0.process_permission(permission_state, context);
-    }
-
     fn process_requirement(
         &self,
         requirement_state: &mut Self::RequirementState,

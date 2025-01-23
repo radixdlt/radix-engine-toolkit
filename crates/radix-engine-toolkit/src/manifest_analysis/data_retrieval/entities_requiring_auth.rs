@@ -36,13 +36,6 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
         self.0
     }
 
-    fn process_permission(
-        &self,
-        _: &mut Self::PermissionState,
-        _: AnalysisContext<'_>,
-    ) {
-    }
-
     fn process_requirement(
         &self,
         _: &mut Self::RequirementState,

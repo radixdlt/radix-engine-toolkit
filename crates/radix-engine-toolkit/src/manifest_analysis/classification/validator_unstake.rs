@@ -32,111 +32,21 @@ pub struct ValidatorUnstakeAnalyzer(ValidatorUnstakingOutput);
 impl ManifestStaticAnalyzer for ValidatorUnstakeAnalyzer {
     type Initializer = ();
     type Output = ();
-    type PermissionState = SimplePermissionState;
+    type PermissionState =
+        CallbackPermissionState<PermissionStateStaticCallback>;
     type RequirementState = ValidatorUnstakeStaticRequirementState;
 
     fn new(
         _: Self::Initializer,
     ) -> (Self, Self::PermissionState, Self::RequirementState) {
-        Default::default()
+        (
+            Default::default(),
+            CallbackPermissionState::new(is_instruction_permitted),
+            Default::default(),
+        )
     }
 
     fn output(self) -> Self::Output {}
-
-    fn process_permission(
-        &self,
-        permission_state: &mut Self::PermissionState,
-        context: AnalysisContext<'_>,
-    ) {
-        // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match context.instruction() {
-            // Selective Permissions
-            GroupedInstruction::InvocationInstructions(
-                InvocationInstructions::CallMethod(CallMethod {
-                    address,
-                    method_name,
-                    ..
-                }),
-            ) => {
-                let grouped_entity_type = match address {
-                    ManifestGlobalAddress::Static(static_address) => {
-                        static_address.as_node_id().entity_type()
-                    }
-                    ManifestGlobalAddress::Named(named_address) => context
-                        .named_address_store()
-                        .get(named_address)
-                        .and_then(BlueprintId::entity_type),
-                }
-                .map(GroupedEntityType::from);
-
-                match (grouped_entity_type, method_name.as_str()) {
-                    // Selective Permissions
-                    (
-                        Some(GroupedEntityType::AccountEntities(..)),
-                        ACCOUNT_WITHDRAW_IDENT
-                        | ACCOUNT_DEPOSIT_IDENT
-                        | ACCOUNT_DEPOSIT_BATCH_IDENT
-                        | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
-                        | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
-                        | ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
-                        | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
-                        | ACCOUNT_LOCK_FEE_IDENT
-                        | ACCOUNT_LOCK_CONTINGENT_FEE_IDENT
-                        | ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
-                    )
-                    | (
-                        Some(GroupedEntityType::AccessControllerEntities(..)),
-                        ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
-                    )
-                    | (
-                        Some(GroupedEntityType::ValidatorEntities(..)),
-                        VALIDATOR_UNSTAKE_IDENT,
-                    ) => true,
-                    // Disallowed Invocations
-                    (
-                        Some(
-                            GroupedEntityType::IdentityEntities(..)
-                            | GroupedEntityType::PoolEntities(..)
-                            | GroupedEntityType::InternalEntities(..)
-                            | GroupedEntityType::SystemEntities(..)
-                            | GroupedEntityType::ResourceManagerEntities(..)
-                            | GroupedEntityType::PackageEntities(..)
-                            | GroupedEntityType::ValidatorEntities(..)
-                            | GroupedEntityType::AccountEntities(..)
-                            | GroupedEntityType::AccessControllerEntities(..)
-                            | GroupedEntityType::GenericComponentEntities(..)
-                            | GroupedEntityType::AccountLockerEntities(..),
-                        )
-                        | None,
-                        _,
-                    ) => false,
-                }
-            }
-            GroupedInstruction::TakeFromWorktopInstructions(
-                TakeFromWorktopInstructions::TakeFromWorktop(..)
-                | TakeFromWorktopInstructions::TakeAllFromWorktop(..),
-            ) => true,
-            // Permitted Instructions
-            GroupedInstruction::ReturnToWorktopInstructions(..)
-            | GroupedInstruction::AssertionInstructions(..)
-            | GroupedInstruction::ProofInstructions(..) => true,
-            // Disallowed Instructions
-            GroupedInstruction::TakeFromWorktopInstructions(
-                TakeFromWorktopInstructions::TakeNonFungiblesFromWorktop(..),
-            )
-            | GroupedInstruction::SubintentInstructions(..)
-            | GroupedInstruction::BurnResourceInstructions(..)
-            | GroupedInstruction::AddressAllocationInstructions(..)
-            | GroupedInstruction::InvocationInstructions(
-                InvocationInstructions::CallFunction(..)
-                | InvocationInstructions::CallRoyaltyMethod(..)
-                | InvocationInstructions::CallMetadataMethod(..)
-                | InvocationInstructions::CallDirectVaultMethod(..)
-                | InvocationInstructions::CallRoleAssignmentMethod(..),
-            ) => false,
-        };
-        permission_state.next_instruction_status(is_next_instruction_permitted);
-    }
 
     fn process_requirement(
         &self,
@@ -172,7 +82,12 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
         <Self as ManifestStaticAnalyzer>::RequirementState,
         <Self as ManifestDynamicAnalyzer>::RequirementState,
     ) {
-        Default::default()
+        (
+            Default::default(),
+            CallbackPermissionState::new(is_instruction_permitted),
+            Default::default(),
+            Default::default(),
+        )
     }
 
     fn output(
@@ -407,4 +322,93 @@ pub struct ValidatorUnstakeOperation {
     /* Output */
     pub claim_nft_address: ResourceAddress,
     pub claim_nft_ids: IndexSet<NonFungibleLocalId>,
+}
+
+fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {
+    match context.instruction() {
+        // Selective Permissions
+        GroupedInstruction::InvocationInstructions(
+            InvocationInstructions::CallMethod(CallMethod {
+                address,
+                method_name,
+                ..
+            }),
+        ) => {
+            let grouped_entity_type = match address {
+                ManifestGlobalAddress::Static(static_address) => {
+                    static_address.as_node_id().entity_type()
+                }
+                ManifestGlobalAddress::Named(named_address) => context
+                    .named_address_store()
+                    .get(named_address)
+                    .and_then(BlueprintId::entity_type),
+            }
+            .map(GroupedEntityType::from);
+
+            match (grouped_entity_type, method_name.as_str()) {
+                // Selective Permissions
+                (
+                    Some(GroupedEntityType::AccountEntities(..)),
+                    ACCOUNT_WITHDRAW_IDENT
+                    | ACCOUNT_DEPOSIT_IDENT
+                    | ACCOUNT_DEPOSIT_BATCH_IDENT
+                    | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
+                    | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
+                    | ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
+                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
+                    | ACCOUNT_LOCK_FEE_IDENT
+                    | ACCOUNT_LOCK_CONTINGENT_FEE_IDENT
+                    | ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                )
+                | (
+                    Some(GroupedEntityType::AccessControllerEntities(..)),
+                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                )
+                | (
+                    Some(GroupedEntityType::ValidatorEntities(..)),
+                    VALIDATOR_UNSTAKE_IDENT,
+                ) => true,
+                // Disallowed Invocations
+                (
+                    Some(
+                        GroupedEntityType::IdentityEntities(..)
+                        | GroupedEntityType::PoolEntities(..)
+                        | GroupedEntityType::InternalEntities(..)
+                        | GroupedEntityType::SystemEntities(..)
+                        | GroupedEntityType::ResourceManagerEntities(..)
+                        | GroupedEntityType::PackageEntities(..)
+                        | GroupedEntityType::ValidatorEntities(..)
+                        | GroupedEntityType::AccountEntities(..)
+                        | GroupedEntityType::AccessControllerEntities(..)
+                        | GroupedEntityType::GenericComponentEntities(..)
+                        | GroupedEntityType::AccountLockerEntities(..),
+                    )
+                    | None,
+                    _,
+                ) => false,
+            }
+        }
+        GroupedInstruction::TakeFromWorktopInstructions(
+            TakeFromWorktopInstructions::TakeFromWorktop(..)
+            | TakeFromWorktopInstructions::TakeAllFromWorktop(..),
+        ) => true,
+        // Permitted Instructions
+        GroupedInstruction::ReturnToWorktopInstructions(..)
+        | GroupedInstruction::AssertionInstructions(..)
+        | GroupedInstruction::ProofInstructions(..) => true,
+        // Disallowed Instructions
+        GroupedInstruction::TakeFromWorktopInstructions(
+            TakeFromWorktopInstructions::TakeNonFungiblesFromWorktop(..),
+        )
+        | GroupedInstruction::SubintentInstructions(..)
+        | GroupedInstruction::BurnResourceInstructions(..)
+        | GroupedInstruction::AddressAllocationInstructions(..)
+        | GroupedInstruction::InvocationInstructions(
+            InvocationInstructions::CallFunction(..)
+            | InvocationInstructions::CallRoyaltyMethod(..)
+            | InvocationInstructions::CallMetadataMethod(..)
+            | InvocationInstructions::CallDirectVaultMethod(..)
+            | InvocationInstructions::CallRoleAssignmentMethod(..),
+        ) => false,
+    }
 }

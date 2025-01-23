@@ -108,11 +108,9 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
         };
 
         /* Visitor processing */
-        ManifestStaticAnalyzer::process_permission(
-            &analyzer_state.analyzer,
-            &mut analyzer_state.static_permission_state,
-            context,
-        );
+        analyzer_state
+            .static_permission_state
+            .process_instruction(context);
         if !analyzer_state
             .static_permission_state
             .all_instructions_permitted()
@@ -238,11 +236,9 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
         };
 
         /* Visitor processing */
-        ManifestStaticAnalyzer::process_permission(
-            &analyzer_state.analyzer,
-            &mut analyzer_state.static_permission_state,
-            context,
-        );
+        analyzer_state
+            .static_permission_state
+            .process_instruction(context);
         if !analyzer_state
             .static_permission_state
             .all_instructions_permitted()
