@@ -89,41 +89,30 @@ macro_rules! define_composite_analyzer {
                 }
 
                 fn process_permission(
-                    &mut self,
+                    &self,
                     permission_state: &mut Self::PermissionState,
-                    named_address_store: &NamedAddressStore,
-                    instruction: &GroupedInstruction,
-                    typed_native_invocation: Option<&TypedNativeInvocation>,
+                    context: AnalysisContext<'_>
                 ) {
                     $(
-                        if $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&permission_state.$analyzer_ident) {
-                            $crate::internal_prelude::ManifestStaticAnalyzer::process_permission(
-                                &mut self.$analyzer_ident.0,
-                                &mut permission_state.$analyzer_ident,
-                                named_address_store,
-                                instruction,
-                                typed_native_invocation,
-                            );
-                        }
-                        self.$analyzer_ident.1 = $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&permission_state.$analyzer_ident);
+                        $crate::internal_prelude::ManifestStaticAnalyzer::process_permission(
+                            &self.$analyzer_ident.0,
+                            &mut permission_state.$analyzer_ident,
+                            context,
+                        );
                     )*
                 }
 
                 fn process_requirement(
-                    &mut self,
+                    &self,
                     requirement_state: &mut Self::RequirementState,
-                    named_address_store: &NamedAddressStore,
-                    instruction: &GroupedInstruction,
-                    typed_native_invocation: Option<&TypedNativeInvocation>,
+                    context: AnalysisContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
                             $crate::internal_prelude::ManifestStaticAnalyzer::process_requirement(
-                                &mut self.$analyzer_ident.0,
+                                &self.$analyzer_ident.0,
                                 &mut requirement_state.$analyzer_ident,
-                                named_address_store,
-                                instruction,
-                                typed_native_invocation,
+                                context,
                             );
                         }
                     )*
@@ -131,17 +120,13 @@ macro_rules! define_composite_analyzer {
 
                 fn process_instruction(
                     &mut self,
-                    named_address_store: &NamedAddressStore,
-                    instruction: &GroupedInstruction,
-                    typed_native_invocation: Option<&TypedNativeInvocation>,
+                    context: AnalysisContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
                             $crate::internal_prelude::ManifestStaticAnalyzer::process_instruction(
                                 &mut self.$analyzer_ident.0,
-                                named_address_store,
-                                instruction,
-                                typed_native_invocation,
+                                context,
                             );
                         }
                     )*
@@ -227,22 +212,16 @@ macro_rules! define_composite_analyzer {
                 }
 
                 fn process_requirement(
-                    &mut self,
+                    &self,
                     requirement_state: &mut <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
-                    named_address_store: &NamedAddressStore,
-                    instruction: &GroupedInstruction,
-                    invocation_io: &InvocationIo<InvocationIoItems>,
-                    typed_native_invocation: Option<&TypedNativeInvocation>,
+                    context: AnalysisContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
                             $crate::internal_prelude::ManifestDynamicAnalyzer::process_requirement(
-                                &mut self.$analyzer_ident.0,
+                                &self.$analyzer_ident.0,
                                 &mut requirement_state.$analyzer_ident,
-                                named_address_store,
-                                instruction,
-                                invocation_io,
-                                typed_native_invocation,
+                                context,
                             );
                         }
                     )*
@@ -250,19 +229,13 @@ macro_rules! define_composite_analyzer {
 
                 fn process_instruction(
                     &mut self,
-                    named_address_store: &NamedAddressStore,
-                    instruction: &GroupedInstruction,
-                    invocation_io: &InvocationIo<InvocationIoItems>,
-                    typed_native_invocation: Option<&TypedNativeInvocation>,
+                    context: AnalysisContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
                             $crate::internal_prelude::ManifestDynamicAnalyzer::process_instruction(
                                 &mut self.$analyzer_ident.0,
-                                named_address_store,
-                                instruction,
-                                invocation_io,
-                                typed_native_invocation,
+                                context,
                             );
                         }
                     )*

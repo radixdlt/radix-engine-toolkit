@@ -37,30 +37,25 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         _: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        let Some(typed_native_invocation) = typed_native_invocation else {
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            ..
+        } = context
+        else {
             return;
         };
         match typed_native_invocation {

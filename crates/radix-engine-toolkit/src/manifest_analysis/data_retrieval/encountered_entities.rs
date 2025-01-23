@@ -37,30 +37,22 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         _: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
-    ) {
-        let indexed_value = IndexedManifestValue::from_typed(&instruction);
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let indexed_value =
+            IndexedManifestValue::from_typed(context.instruction());
 
         let named_addresses = indexed_value.named_addresses();
         let static_addresses = indexed_value.static_addresses();

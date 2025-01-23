@@ -37,39 +37,34 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         _: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // We just need to rely on the typed native invocation to extract all of
         // the account interactions that we can see in the manifest. For the
         // account addresses we will use the manifest invocation receiver.
-        let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
-            invocation:
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(method),
-                ),
-        }) = typed_native_invocation
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                    invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(method),
+                        ),
+                }),
+            ..
+        } = context
         else {
             return;
         };

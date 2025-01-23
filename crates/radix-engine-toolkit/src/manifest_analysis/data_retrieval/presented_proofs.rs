@@ -37,32 +37,27 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         _: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // Interpreting the typed invocation and converting it into a resource
         // specifier of the created proof.
-        let Some(typed_native_invocation) = typed_native_invocation else {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            ..
+        } = context
+        else {
             return;
         };
         let (account, proof_specifier) = match typed_native_invocation {

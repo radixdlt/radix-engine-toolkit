@@ -44,14 +44,12 @@ impl ManifestStaticAnalyzer for ValidatorClaimAnalyzer {
     fn output(self) -> Self::Output {}
 
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match instruction {
+        let is_next_instruction_permitted = match context.instruction() {
             // Selective Permissions
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
@@ -64,11 +62,10 @@ impl ManifestStaticAnalyzer for ValidatorClaimAnalyzer {
                     ManifestGlobalAddress::Static(static_address) => {
                         static_address.as_node_id().entity_type()
                     }
-                    ManifestGlobalAddress::Named(named_address) => {
-                        named_address_store
-                            .get(named_address)
-                            .and_then(BlueprintId::entity_type)
-                    }
+                    ManifestGlobalAddress::Named(named_address) => context
+                        .named_address_store()
+                        .get(named_address)
+                        .and_then(BlueprintId::entity_type),
                 }
                 .map(GroupedEntityType::from);
 
@@ -138,21 +135,21 @@ impl ManifestStaticAnalyzer for ValidatorClaimAnalyzer {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation,
+            ..
+        } = context
+        else {
+            return;
+        };
         requirement_state.on_instruction(typed_native_invocation)
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
-    ) {
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
         // requires us to monitor some invocations and resource movements.
@@ -187,64 +184,70 @@ impl ManifestDynamicAnalyzer for ValidatorClaimAnalyzer {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        requirement_state
-            .on_instruction(invocation_io, typed_native_invocation);
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation,
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
+        requirement_state.on_instruction(
+            dynamic_analysis_invocation_io,
+            typed_native_invocation,
+        );
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        if let Some(TypedNativeInvocation {
-            receiver:
-                ManifestInvocationReceiver::GlobalMethod(
-                    ResolvedManifestAddress::Static {
-                        static_address: validator_address,
-                    },
-                ),
-            invocation:
-                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                    ValidatorBlueprintInvocation::Method(
-                        ValidatorBlueprintMethod::ClaimXrd(..),
-                    ),
-                ),
-        }) = typed_native_invocation
-        {
-            let validator_address = ComponentAddress::try_from(
-                *validator_address,
-            )
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver:
+                        ManifestInvocationReceiver::GlobalMethod(
+                            ResolvedManifestAddress::Static {
+                                static_address: validator_address,
+                            },
+                        ),
+                    invocation:
+                        TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                            ValidatorBlueprintInvocation::Method(
+                                ValidatorBlueprintMethod::ClaimXrd(..),
+                            ),
+                        ),
+                }),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        let validator_address = ComponentAddress::try_from(*validator_address)
             .expect(
                 "Must succeed since the typed invocation conversion succeeded",
             );
 
-            let input = invocation_io.input.items_iter().next();
-            let output = invocation_io.output.items_iter().next();
+        let input = dynamic_analysis_invocation_io.input.items_iter().next();
+        let output = dynamic_analysis_invocation_io.output.items_iter().next();
 
-            if let Some((
-                InvocationIoItem::NonFungible(
-                    claim_nft_resource_address,
-                    claim_nft_ids,
-                ),
-                InvocationIoItem::Fungible(XRD, xrd_amount),
-            )) = input.zip(output)
-            {
-                self.0.claim_operations.push(ValidatorClaimOperation {
-                    validator_address,
-                    claim_nft_address: *claim_nft_resource_address,
-                    claim_nft_ids: (**claim_nft_ids).clone(),
-                    xrd_amount: **xrd_amount,
-                });
-            }
+        if let Some((
+            InvocationIoItem::NonFungible(
+                claim_nft_resource_address,
+                claim_nft_ids,
+            ),
+            InvocationIoItem::Fungible(XRD, xrd_amount),
+        )) = input.zip(output)
+        {
+            self.0.claim_operations.push(ValidatorClaimOperation {
+                validator_address,
+                claim_nft_address: *claim_nft_resource_address,
+                claim_nft_ids: (**claim_nft_ids).clone(),
+                xrd_amount: **xrd_amount,
+            });
         }
     }
 }

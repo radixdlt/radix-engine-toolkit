@@ -30,12 +30,44 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
     // id mapping of the named addresses.
     let mut named_address_store = NamedAddressStore::new();
 
+    let invocation_static_information = {
+        // The initial worktop state is only unknown if the manifest is a
+        // subintent manifest. Otherwise, in the case of a v1 or v2 manifest the
+        // initial worktop state is known to be zero since they can't be used as
+        // subintents and can't be yielded into.
+        let initial_worktop_state_is_unknown = manifest.is_subintent();
+        let interpreter = StaticManifestInterpreter::new(
+            ValidationRuleset::babylon_equivalent(),
+            manifest,
+        );
+        let mut visitor = StaticResourceMovementsVisitor::new(
+            initial_worktop_state_is_unknown,
+        );
+        interpreter.validate_and_apply_visitor(&mut visitor)?;
+        let output = visitor.output();
+        output.invocation_static_information
+    };
+
     // Iterating over all of the instructions in the manifest and processing
     // them in preparation for calling the visitor.
-    for instruction in manifest
+    for (instruction_index, instruction) in manifest
         .iter_cloned_instructions()
         .map(GroupedInstruction::from)
+        .enumerate()
     {
+        let instruction_index = InstructionIndex::of(instruction_index);
+
+        let static_analysis_invocation_io = InvocationIo {
+            input: invocation_static_information
+                .get(instruction_index.value())
+                .map(|value| value.input.clone())
+                .unwrap_or_default(),
+            output: invocation_static_information
+                .get(instruction_index.value())
+                .map(|value| value.output.clone())
+                .unwrap_or_default(),
+        };
+
         /* Pre-Visitor Processing */
         // If we encounter an address allocation we store it in the named
         // address store.
@@ -58,13 +90,28 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
                 },
             );
 
+        let context = if instruction.belongs_to_invocation_instructions() {
+            AnalysisContext::InvocationInstruction {
+                named_address_store: &named_address_store,
+                instruction_index: &instruction_index,
+                instruction: &instruction,
+                typed_native_invocation: typed_native_invocation.as_ref(),
+                static_analysis_invocation_io: &static_analysis_invocation_io,
+                dynamic_analysis_invocation_io: None,
+            }
+        } else {
+            AnalysisContext::NonInvocationInstruction {
+                named_address_store: &named_address_store,
+                instruction_index: &instruction_index,
+                instruction: &instruction,
+            }
+        };
+
         /* Visitor processing */
         ManifestStaticAnalyzer::process_permission(
-            &mut analyzer_state.analyzer,
+            &analyzer_state.analyzer,
             &mut analyzer_state.static_permission_state,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
         if !analyzer_state
             .static_permission_state
@@ -73,17 +120,13 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
             break;
         }
         ManifestStaticAnalyzer::process_requirement(
-            &mut analyzer_state.analyzer,
+            &analyzer_state.analyzer,
             &mut analyzer_state.static_requirement_state,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
     }
 
@@ -110,6 +153,24 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
     let indexed_invocation_io =
         IndexedInvocationIo::compute(manifest, worktop_changes)?;
 
+    let invocation_static_information = {
+        // The initial worktop state is only unknown if the manifest is a
+        // subintent manifest. Otherwise, in the case of a v1 or v2 manifest the
+        // initial worktop state is known to be zero since they can't be used as
+        // subintents and can't be yielded into.
+        let initial_worktop_state_is_unknown = manifest.is_subintent();
+        let interpreter = StaticManifestInterpreter::new(
+            ValidationRuleset::babylon_equivalent(),
+            manifest,
+        );
+        let mut visitor = StaticResourceMovementsVisitor::new(
+            initial_worktop_state_is_unknown,
+        );
+        interpreter.validate_and_apply_visitor(&mut visitor)?;
+        let output = visitor.output();
+        output.invocation_static_information
+    };
+
     // Iterating over all of the instructions in the manifest and processing
     // them in preparation for calling the visitor.
     let instructions_iterator = manifest
@@ -122,6 +183,17 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             )
         });
     for (instruction_index, instruction) in instructions_iterator {
+        let static_analysis_invocation_io = InvocationIo {
+            input: invocation_static_information
+                .get(instruction_index.value())
+                .map(|value| value.input.clone())
+                .unwrap_or_default(),
+            output: invocation_static_information
+                .get(instruction_index.value())
+                .map(|value| value.output.clone())
+                .unwrap_or_default(),
+        };
+
         /* Pre-Visitor Processing */
         // If we encounter an address allocation we store it in the named
         // address store.
@@ -148,13 +220,28 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
         let invocation_io =
             indexed_invocation_io.for_instruction(&instruction_index);
 
+        let context = if instruction.belongs_to_invocation_instructions() {
+            AnalysisContext::InvocationInstruction {
+                named_address_store: &named_address_store,
+                instruction_index: &instruction_index,
+                instruction: &instruction,
+                typed_native_invocation: typed_native_invocation.as_ref(),
+                static_analysis_invocation_io: &static_analysis_invocation_io,
+                dynamic_analysis_invocation_io: Some(invocation_io),
+            }
+        } else {
+            AnalysisContext::NonInvocationInstruction {
+                named_address_store: &named_address_store,
+                instruction_index: &instruction_index,
+                instruction: &instruction,
+            }
+        };
+
         /* Visitor processing */
         ManifestStaticAnalyzer::process_permission(
-            &mut analyzer_state.analyzer,
+            &analyzer_state.analyzer,
             &mut analyzer_state.static_permission_state,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
         if !analyzer_state
             .static_permission_state
@@ -163,32 +250,22 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             break;
         }
         ManifestStaticAnalyzer::process_requirement(
-            &mut analyzer_state.analyzer,
+            &analyzer_state.analyzer,
             &mut analyzer_state.static_requirement_state,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
-            &named_address_store,
-            &instruction,
-            typed_native_invocation.as_ref(),
+            context,
         );
         ManifestDynamicAnalyzer::process_requirement(
-            &mut analyzer_state.analyzer,
+            &analyzer_state.analyzer,
             &mut analyzer_state.dynamic_requirement_state,
-            &named_address_store,
-            &instruction,
-            invocation_io,
-            typed_native_invocation.as_ref(),
+            context,
         );
         ManifestDynamicAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
-            &named_address_store,
-            &instruction,
-            invocation_io,
-            typed_native_invocation.as_ref(),
+            context,
         );
     }
 
@@ -430,6 +507,12 @@ pub enum TraverserError {
     InvalidNamedAddress,
     StaticResourceMovementsError(Box<StaticResourceMovementsError>),
     TypedManifestNativeInvocationError(Box<TypedManifestNativeInvocationError>),
+}
+
+impl From<StaticResourceMovementsError> for TraverserError {
+    fn from(v: StaticResourceMovementsError) -> Self {
+        Self::StaticResourceMovementsError(Box::new(v))
+    }
 }
 
 impl From<Box<StaticResourceMovementsError>> for TraverserError {

@@ -46,14 +46,12 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
     fn output(self) -> Self::Output {}
 
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match instruction {
+        let is_next_instruction_permitted = match context.instruction() {
             // Selective Permissions
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
@@ -66,11 +64,10 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
                     ManifestGlobalAddress::Static(static_address) => {
                         static_address.as_node_id().entity_type()
                     }
-                    ManifestGlobalAddress::Named(named_address) => {
-                        named_address_store
-                            .get(named_address)
-                            .and_then(BlueprintId::entity_type)
-                    }
+                    ManifestGlobalAddress::Named(named_address) => context
+                        .named_address_store()
+                        .get(named_address)
+                        .and_then(BlueprintId::entity_type),
                 }
                 .map(GroupedEntityType::from);
 
@@ -167,22 +164,14 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        requirement_state.handle_instruction(instruction);
+        requirement_state.handle_instruction(context.instruction());
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
-    ) {
-    }
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
 pub struct GeneralInitializer {

@@ -53,46 +53,23 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        self.0.process_permission(
-            permission_state,
-            named_address_store,
-            instruction,
-            typed_native_invocation,
-        );
+        self.0.process_permission(permission_state, context);
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        self.0.process_requirement(
-            requirement_state,
-            named_address_store,
-            instruction,
-            typed_native_invocation,
-        );
+        self.0.process_requirement(requirement_state, context);
     }
 
-    fn process_instruction(
-        &mut self,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        self.0.process_instruction(
-            named_address_store,
-            instruction,
-            typed_native_invocation,
-        );
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        self.0.process_instruction(context);
     }
 }
 
@@ -133,21 +110,11 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: &InvocationIo<InvocationIoItems>,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: &InvocationIo<InvocationIoItems>,
-        _: Option<&TypedNativeInvocation>,
-    ) {
-    }
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }

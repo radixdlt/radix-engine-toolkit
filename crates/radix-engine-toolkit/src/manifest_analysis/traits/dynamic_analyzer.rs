@@ -59,22 +59,13 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
     ///
     /// [`RequirementState`]: ManifestStaticAnalyzer::RequirementState
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     );
 
     /// A method used to process instructions and extract information from them.
-    fn process_instruction(
-        &mut self,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    );
+    fn process_instruction(&mut self, context: AnalysisContext<'_>);
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default, Hash)]

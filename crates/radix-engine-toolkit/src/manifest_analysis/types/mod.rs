@@ -17,6 +17,7 @@
 
 mod account_dynamic_resource_movements;
 mod account_static_resource_movements;
+mod analysis_context;
 mod analysis_receipt;
 mod const_state;
 mod detailed_manifest_classification;
@@ -31,6 +32,7 @@ mod typed_native_invocation;
 
 pub use account_dynamic_resource_movements::*;
 pub use account_static_resource_movements::*;
+pub use analysis_context::*;
 pub use analysis_receipt::*;
 pub use const_state::*;
 pub use detailed_manifest_classification::*;

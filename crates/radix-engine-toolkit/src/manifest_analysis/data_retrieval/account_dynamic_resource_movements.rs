@@ -37,30 +37,20 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
     fn output(self) -> Self::Output {}
 
     fn process_permission(
-        &mut self,
+        &self,
         _: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
-    ) {
-    }
+    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
 }
 
 impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
@@ -91,22 +81,13 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         _: &mut <Self as ManifestDynamicAnalyzer>::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        _: &InvocationIo<InvocationIoItems>,
-        _: Option<&TypedNativeInvocation>,
+        _: AnalysisContext<'_>,
     ) {
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        dynamic_analysis_invocation_io: &InvocationIo<InvocationIoItems>,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
         // Note: it was deemed to not be worth it to support dynamic addresses
         // here as this information is not exactly useful to the user. What is
         // a user supposed to do with "a new resource was created and withdrawn
@@ -116,7 +97,12 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         // all parts of the code base without offering something that Sargon, or
         // any other client will have a use of. If clients have a use for this,
         // maybe they can write their own analyzer that does this :).
-        let Some(typed_native_invocation) = typed_native_invocation else {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation: Some(typed_native_invocation),
+            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            ..
+        } = context
+        else {
             return;
         };
         match typed_native_invocation {

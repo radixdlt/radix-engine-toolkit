@@ -46,32 +46,23 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
     fn output(self) -> Self::Output {}
 
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        _: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        permission_state.transition(instruction);
+        permission_state.transition(context.instruction());
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        requirement_state.transition(instruction);
+        requirement_state.transition(context.instruction());
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
-    ) {
-        self.transition(instruction);
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        self.transition(context.instruction());
     }
 }
 

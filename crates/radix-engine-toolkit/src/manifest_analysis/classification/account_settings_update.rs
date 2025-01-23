@@ -37,14 +37,12 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
     }
 
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        _: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
         // Compute if the next instruction is permitted or not.
-        let is_next_instruction_permitted = match instruction {
+        let is_next_instruction_permitted = match context.instruction() {
             GroupedInstruction::InvocationInstructions(
                 InvocationInstructions::CallMethod(CallMethod {
                     address,
@@ -56,11 +54,10 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
                     ManifestGlobalAddress::Static(static_address) => {
                         static_address.as_node_id().entity_type()
                     }
-                    ManifestGlobalAddress::Named(named_address) => {
-                        named_address_store
-                            .get(named_address)
-                            .and_then(BlueprintId::entity_type)
-                    }
+                    ManifestGlobalAddress::Named(named_address) => context
+                        .named_address_store()
+                        .get(named_address)
+                        .and_then(BlueprintId::entity_type),
                 }
                 .map(GroupedEntityType::from);
 
@@ -123,43 +120,44 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
     }
 
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     ) {
-        if let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(_),
-            invocation:
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::SetDefaultDepositRule(..)
-                        | AccountBlueprintMethod::SetResourcePreference(..)
-                        | AccountBlueprintMethod::RemoveResourcePreference(..)
-                        | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                        | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
-                    ),
-                ),
-        }) = typed_native_invocation
+        if let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(_),
+                    invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::SetDefaultDepositRule(..)
+                                | AccountBlueprintMethod::SetResourcePreference(..)
+                                | AccountBlueprintMethod::RemoveResourcePreference(..)
+                                | AccountBlueprintMethod::AddAuthorizedDepositor(..)
+                                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
         {
             requirement_state.is_any_account_settings_update_seen = true
         }
     }
 
-    fn process_instruction(
-        &mut self,
-        _: &NamedAddressStore,
-        _: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    ) {
-        let Some(TypedNativeInvocation {
-            receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
-            invocation:
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(method),
-                ),
-        }) = typed_native_invocation
+    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+        let AnalysisContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                    invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(method),
+                        ),
+                }),
+            ..
+        } = context
         else {
             return;
         };

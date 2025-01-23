@@ -78,11 +78,9 @@ pub trait ManifestStaticAnalyzer: Sized {
     ///
     /// [`PermissionState`]: ManifestStaticAnalyzer::PermissionState
     fn process_permission(
-        &mut self,
+        &self,
         permission_state: &mut Self::PermissionState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     );
 
     /// A method that is used to process the [`RequirementState`] for some
@@ -95,18 +93,11 @@ pub trait ManifestStaticAnalyzer: Sized {
     ///
     /// [`RequirementState`]: ManifestStaticAnalyzer::RequirementState
     fn process_requirement(
-        &mut self,
+        &self,
         requirement_state: &mut Self::RequirementState,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
+        context: AnalysisContext<'_>,
     );
 
     /// A method used to process instructions and extract information from them.
-    fn process_instruction(
-        &mut self,
-        named_address_store: &NamedAddressStore,
-        instruction: &GroupedInstruction,
-        typed_native_invocation: Option<&TypedNativeInvocation>,
-    );
+    fn process_instruction(&mut self, context: AnalysisContext<'_>);
 }
