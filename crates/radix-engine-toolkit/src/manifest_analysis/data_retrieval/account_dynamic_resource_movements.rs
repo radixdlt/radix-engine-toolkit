@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,10 +58,7 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 }
@@ -105,10 +96,7 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         _: &InvocationIo<InvocationIoItems>,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -116,11 +104,8 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        dynamic_analysis_invocation_io: &InvocationIo<InvocationIoItems>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         // Note: it was deemed to not be worth it to support dynamic addresses
         // here as this information is not exactly useful to the user. What is
@@ -131,31 +116,38 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         // all parts of the code base without offering something that Sargon, or
         // any other client will have a use of. If clients have a use for this,
         // maybe they can write their own analyzer that does this :).
-        match maybe_typed_invocation {
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(
-                    ResolvedManifestAddress::Static {
-                        static_address: account_address,
-                    },
-                ),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Withdraw(AccountWithdrawManifestInput {
-                            resource_address:
-                                ManifestResourceAddress::Static(resource_address),
-                            amount,
-                        })
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(
-                            AccountLockFeeAndWithdrawManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(resource_address),
-                                amount,
-                                ..
-                            },
+        let Some(typed_native_invocation) = typed_native_invocation else {
+            return;
+        };
+        match typed_native_invocation {
+            TypedNativeInvocation {
+                receiver:
+                    ManifestInvocationReceiver::GlobalMethod(
+                        ResolvedManifestAddress::Static {
+                            static_address: account_address,
+                        },
+                    ),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Withdraw(
+                                AccountWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    amount,
+                                },
+                            )
+                            | AccountBlueprintMethod::LockFeeAndWithdraw(
+                                AccountLockFeeAndWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    amount,
+                                    ..
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => {
+            } => {
                 let is_fungible_resource_manager = resource_address.is_fungible();
 
                 // This is a withdraw of amount of a fungible resource, we will
@@ -179,39 +171,41 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
                         .entry(*account_address)
                         .or_default()
                         .extend(
-                            invocation_io
+                            dynamic_analysis_invocation_io
                                 .output
                                 .io_of_resource(resource_address)
                                 .cloned(),
                         );
                 }
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(
-                    ResolvedManifestAddress::Static {
-                        static_address: account_address,
-                    },
-                ),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::WithdrawNonFungibles(
-                            AccountWithdrawNonFungiblesManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(resource_address),
-                                ids,
-                            },
-                        )
-                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(
-                            AccountLockFeeAndWithdrawNonFungiblesManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(resource_address),
-                                ids,
-                                ..
-                            },
+            TypedNativeInvocation {
+                receiver:
+                    ManifestInvocationReceiver::GlobalMethod(
+                        ResolvedManifestAddress::Static {
+                            static_address: account_address,
+                        },
+                    ),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::WithdrawNonFungibles(
+                                AccountWithdrawNonFungiblesManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    ids,
+                                },
+                            )
+                            | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(
+                                AccountLockFeeAndWithdrawNonFungiblesManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    ids,
+                                    ..
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => {
+            } => {
                 self.0
                     .account_withdraws
                     .entry(*account_address)
@@ -221,26 +215,28 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
                         ids.clone(),
                     ));
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(
-                    ResolvedManifestAddress::Static {
-                        static_address: account_address,
-                    },
-                ),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Deposit(..)
-                        | AccountBlueprintMethod::DepositBatch(..)
-                        | AccountBlueprintMethod::TryDepositOrAbort(..)
-                        | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
+            TypedNativeInvocation {
+                receiver:
+                    ManifestInvocationReceiver::GlobalMethod(
+                        ResolvedManifestAddress::Static {
+                            static_address: account_address,
+                        },
                     ),
-                ),
-            )) => {
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Deposit(..)
+                            | AccountBlueprintMethod::DepositBatch(..)
+                            | AccountBlueprintMethod::TryDepositOrAbort(..)
+                            | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
+                        ),
+                    ),
+            } => {
                 self.0
                     .account_deposits
                     .entry(*account_address)
                     .or_default()
-                    .extend(invocation_io.input.items_iter().cloned());
+                    .extend(dynamic_analysis_invocation_io.input.items_iter().cloned());
             }
             _ => {}
         }

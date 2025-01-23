@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,25 +58,23 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         // We just need to rely on the typed native invocation to extract all of
         // the account interactions that we can see in the manifest. For the
         // account addresses we will use the manifest invocation receiver.
-        let Some((
-            ManifestInvocationReceiver::GlobalMethod(receiver),
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(account_method),
-            ),
-        )) = maybe_typed_invocation
+        let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+            invocation:
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(method),
+                ),
+        }) = typed_native_invocation
         else {
             return;
         };
 
-        let sets_to_add_to: &mut [_] = match account_method {
+        let sets_to_add_to: &mut [_] = match method {
             AccountBlueprintMethod::Securify(..) => {
                 &mut [&mut self.0.accounts_securified]
             }

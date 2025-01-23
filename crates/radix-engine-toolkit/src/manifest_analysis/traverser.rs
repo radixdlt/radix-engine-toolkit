@@ -50,10 +50,13 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
         }
 
         // Attempting to create a typed invocation from the instruction.
-        let maybe_typed_invocation =
-            resolve_typed_invocation(&instruction, &named_address_store)?;
-        let maybe_typed_invocation =
-            maybe_typed_invocation.as_ref().map(|(a, b)| (a, b));
+        let typed_native_invocation =
+            resolve_typed_invocation(&instruction, &named_address_store)?.map(
+                |(receiver, invocation)| TypedNativeInvocation {
+                    receiver,
+                    invocation,
+                },
+            );
 
         /* Visitor processing */
         ManifestStaticAnalyzer::process_permission(
@@ -61,7 +64,7 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
             &mut analyzer_state.static_permission_state,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         if !analyzer_state
             .static_permission_state
@@ -74,13 +77,13 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
             &mut analyzer_state.static_requirement_state,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
     }
 
@@ -133,10 +136,13 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
         }
 
         // Attempting to create a typed invocation from the instruction.
-        let maybe_typed_invocation =
-            resolve_typed_invocation(&instruction, &named_address_store)?;
-        let maybe_typed_invocation =
-            maybe_typed_invocation.as_ref().map(|(a, b)| (a, b));
+        let typed_native_invocation =
+            resolve_typed_invocation(&instruction, &named_address_store)?.map(
+                |(receiver, invocation)| TypedNativeInvocation {
+                    receiver,
+                    invocation,
+                },
+            );
 
         // Attempting to get the dynamic invocation io of this invocation.
         let invocation_io =
@@ -148,7 +154,7 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             &mut analyzer_state.static_permission_state,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         if !analyzer_state
             .static_permission_state
@@ -161,13 +167,13 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             &mut analyzer_state.static_requirement_state,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         ManifestStaticAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             &named_address_store,
             &instruction,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         ManifestDynamicAnalyzer::process_requirement(
             &mut analyzer_state.analyzer,
@@ -175,14 +181,14 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             &named_address_store,
             &instruction,
             invocation_io,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
         ManifestDynamicAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             &named_address_store,
             &instruction,
             invocation_io,
-            maybe_typed_invocation,
+            typed_native_invocation.as_ref(),
         );
     }
 

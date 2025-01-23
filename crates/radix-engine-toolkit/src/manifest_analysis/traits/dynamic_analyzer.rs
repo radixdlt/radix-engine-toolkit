@@ -64,10 +64,7 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     );
 
     /// A method used to process instructions and extract information from them.
@@ -76,10 +73,7 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     );
 }
 

@@ -48,10 +48,7 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // Compute if the next instruction is permitted or not.
         let is_next_instruction_permitted = match instruction {
@@ -155,22 +152,16 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
         requirement_state: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        requirement_state.on_instruction(maybe_typed_invocation)
+        requirement_state.on_instruction(typed_native_invocation)
     }
 
     fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -211,12 +202,10 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        requirement_state.on_instruction(invocation_io, maybe_typed_invocation);
+        requirement_state
+            .on_instruction(invocation_io, typed_native_invocation);
     }
 
     fn process_instruction(
@@ -224,33 +213,32 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(
-                ResolvedManifestAddress::Static {
-                    static_address: pool_address,
-                },
-            ),
-            TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                OneResourcePoolBlueprintInvocation::Method(
-                    OneResourcePoolBlueprintMethod::Contribute(..),
+        if let Some(TypedNativeInvocation {
+            receiver:
+                ManifestInvocationReceiver::GlobalMethod(
+                    ResolvedManifestAddress::Static {
+                        static_address: pool_address,
+                    },
                 ),
-            )
-            | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                TwoResourcePoolBlueprintInvocation::Method(
-                    TwoResourcePoolBlueprintMethod::Contribute(..),
+            invocation:
+                TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
+                    OneResourcePoolBlueprintInvocation::Method(
+                        OneResourcePoolBlueprintMethod::Contribute(..),
+                    ),
+                )
+                | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                    TwoResourcePoolBlueprintInvocation::Method(
+                        TwoResourcePoolBlueprintMethod::Contribute(..),
+                    ),
+                )
+                | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                    MultiResourcePoolBlueprintInvocation::Method(
+                        MultiResourcePoolBlueprintMethod::Contribute(..),
+                    ),
                 ),
-            )
-            | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                MultiResourcePoolBlueprintInvocation::Method(
-                    MultiResourcePoolBlueprintMethod::Contribute(..),
-                ),
-            ),
-        )) = maybe_typed_invocation
+        }) = typed_native_invocation
         {
             let pool_address = ComponentAddress::try_from(*pool_address)
                 .expect(
@@ -287,29 +275,27 @@ pub struct PoolContributionStaticRequirementState {
 impl PoolContributionStaticRequirementState {
     fn on_instruction(
         &mut self,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(..),
-            TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                OneResourcePoolBlueprintInvocation::Method(
-                    OneResourcePoolBlueprintMethod::Contribute(..),
+        if let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(..),
+            invocation:
+                TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
+                    OneResourcePoolBlueprintInvocation::Method(
+                        OneResourcePoolBlueprintMethod::Contribute(..),
+                    ),
+                )
+                | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                    TwoResourcePoolBlueprintInvocation::Method(
+                        TwoResourcePoolBlueprintMethod::Contribute(..),
+                    ),
+                )
+                | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                    MultiResourcePoolBlueprintInvocation::Method(
+                        MultiResourcePoolBlueprintMethod::Contribute(..),
+                    ),
                 ),
-            )
-            | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                TwoResourcePoolBlueprintInvocation::Method(
-                    TwoResourcePoolBlueprintMethod::Contribute(..),
-                ),
-            )
-            | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                MultiResourcePoolBlueprintInvocation::Method(
-                    MultiResourcePoolBlueprintMethod::Contribute(..),
-                ),
-            ),
-        )) = maybe_typed_invocation
+        }) = typed_native_invocation
         {
             self.is_pool_contribution_seen = true
         }
@@ -336,52 +322,53 @@ impl PoolContributionDynamicRequirementState {
     fn on_instruction(
         &mut self,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        match maybe_typed_invocation {
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(..),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Withdraw(AccountWithdrawManifestInput {
-                            resource_address:
-                                ManifestResourceAddress::Static(resource_address),
-                            amount,
-                        })
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(
-                            AccountLockFeeAndWithdrawManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(resource_address),
-                                amount,
-                                ..
-                            },
+        match typed_native_invocation {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Withdraw(
+                                AccountWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    amount,
+                                },
+                            )
+                            | AccountBlueprintMethod::LockFeeAndWithdraw(
+                                AccountLockFeeAndWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(resource_address),
+                                    amount,
+                                    ..
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => {
+            }) => {
                 *self.accumulator.entry(*resource_address).or_default() += *amount;
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(..),
-                TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                    OneResourcePoolBlueprintInvocation::Method(
-                        OneResourcePoolBlueprintMethod::Contribute(..),
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
+                        OneResourcePoolBlueprintInvocation::Method(
+                            OneResourcePoolBlueprintMethod::Contribute(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                        TwoResourcePoolBlueprintInvocation::Method(
+                            TwoResourcePoolBlueprintMethod::Contribute(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                        MultiResourcePoolBlueprintInvocation::Method(
+                            MultiResourcePoolBlueprintMethod::Contribute(..),
+                        ),
                     ),
-                )
-                | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                    TwoResourcePoolBlueprintInvocation::Method(
-                        TwoResourcePoolBlueprintMethod::Contribute(..),
-                    ),
-                )
-                | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                    MultiResourcePoolBlueprintInvocation::Method(
-                        MultiResourcePoolBlueprintMethod::Contribute(..),
-                    ),
-                ),
-            )) => {
+            }) => {
                 for item in invocation_io.input.items_iter() {
                     let resource_address = item.resource_address();
                     let amount = item.amount();

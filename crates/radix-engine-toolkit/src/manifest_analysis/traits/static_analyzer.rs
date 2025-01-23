@@ -82,10 +82,7 @@ pub trait ManifestStaticAnalyzer: Sized {
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     );
 
     /// A method that is used to process the [`RequirementState`] for some
@@ -102,10 +99,7 @@ pub trait ManifestStaticAnalyzer: Sized {
         requirement_state: &mut Self::RequirementState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     );
 
     /// A method used to process instructions and extract information from them.
@@ -113,9 +107,6 @@ pub trait ManifestStaticAnalyzer: Sized {
         &mut self,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     );
 }

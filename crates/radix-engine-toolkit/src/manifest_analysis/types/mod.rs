@@ -27,6 +27,7 @@ mod manifest_classification;
 mod new_entities_summary;
 mod simple_permission_state;
 mod static_analysis;
+mod typed_native_invocation;
 
 pub use account_dynamic_resource_movements::*;
 pub use account_static_resource_movements::*;
@@ -40,3 +41,4 @@ pub use manifest_classification::*;
 pub use new_entities_summary::*;
 pub use simple_permission_state::*;
 pub use static_analysis::*;
+pub use typed_native_invocation::*;

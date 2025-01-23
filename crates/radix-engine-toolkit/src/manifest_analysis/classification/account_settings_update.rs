@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // Compute if the next instruction is permitted or not.
         let is_next_instruction_permitted = match instruction {
@@ -130,23 +127,21 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
         requirement_state: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(_),
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(
-                    AccountBlueprintMethod::SetDefaultDepositRule(..)
-                    | AccountBlueprintMethod::SetResourcePreference(..)
-                    | AccountBlueprintMethod::RemoveResourcePreference(..)
-                    | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                    | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
+        if let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(_),
+            invocation:
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(
+                        AccountBlueprintMethod::SetDefaultDepositRule(..)
+                        | AccountBlueprintMethod::SetResourcePreference(..)
+                        | AccountBlueprintMethod::RemoveResourcePreference(..)
+                        | AccountBlueprintMethod::AddAuthorizedDepositor(..)
+                        | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
+                    ),
                 ),
-            ),
-        )) = maybe_typed_invocation
+        }) = typed_native_invocation
         {
             requirement_state.is_any_account_settings_update_seen = true
         }
@@ -156,17 +151,15 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        let Some((
-            ManifestInvocationReceiver::GlobalMethod(receiver),
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(method),
-            ),
-        )) = maybe_typed_invocation
+        let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+            invocation:
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(method),
+                ),
+        }) = typed_native_invocation
         else {
             return;
         };

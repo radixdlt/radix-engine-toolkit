@@ -48,10 +48,7 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // Compute if the next instruction is permitted or not.
         let is_next_instruction_permitted = match instruction {
@@ -149,22 +146,16 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
         requirement_state: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        requirement_state.on_instruction(maybe_typed_invocation)
+        requirement_state.on_instruction(typed_native_invocation)
     }
 
     fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
@@ -205,12 +196,10 @@ impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        requirement_state.on_instruction(invocation_io, maybe_typed_invocation);
+        requirement_state
+            .on_instruction(invocation_io, typed_native_invocation);
     }
 
     fn process_instruction(
@@ -218,23 +207,22 @@ impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(
-                ResolvedManifestAddress::Static {
-                    static_address: validator_address,
-                },
-            ),
-            TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                ValidatorBlueprintInvocation::Method(
-                    ValidatorBlueprintMethod::Stake(..),
+        if let Some(TypedNativeInvocation {
+            receiver:
+                ManifestInvocationReceiver::GlobalMethod(
+                    ResolvedManifestAddress::Static {
+                        static_address: validator_address,
+                    },
                 ),
-            ),
-        )) = maybe_typed_invocation
+            invocation:
+                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                    ValidatorBlueprintInvocation::Method(
+                        ValidatorBlueprintMethod::Stake(..),
+                    ),
+                ),
+        }) = typed_native_invocation
         {
             let validator_address = ComponentAddress::try_from(
                 *validator_address,
@@ -278,42 +266,42 @@ impl Default for ValidatorStakeStaticRequirementState {
 impl ValidatorStakeStaticRequirementState {
     fn on_instruction(
         &mut self,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(..),
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(
-                    AccountBlueprintMethod::Withdraw(
-                        AccountWithdrawManifestInput {
-                            resource_address, ..
-                        },
-                    )
-                    | AccountBlueprintMethod::LockFeeAndWithdraw(
-                        AccountLockFeeAndWithdrawManifestInput {
-                            resource_address,
-                            ..
-                        },
+        if let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(..),
+            invocation:
+                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                    AccountBlueprintInvocation::Method(
+                        AccountBlueprintMethod::Withdraw(
+                            AccountWithdrawManifestInput {
+                                resource_address,
+                                ..
+                            },
+                        )
+                        | AccountBlueprintMethod::LockFeeAndWithdraw(
+                            AccountLockFeeAndWithdrawManifestInput {
+                                resource_address,
+                                ..
+                            },
+                        ),
                     ),
                 ),
-            ),
-        )) = maybe_typed_invocation
+        }) = typed_native_invocation
         {
             self.is_withdraws_just_xrd &=
                 *resource_address == ManifestResourceAddress::Static(XRD)
         }
 
-        if let Some((
-            ManifestInvocationReceiver::GlobalMethod(..),
-            TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                ValidatorBlueprintInvocation::Method(
-                    ValidatorBlueprintMethod::Stake(..),
+        if let Some(TypedNativeInvocation {
+            receiver: ManifestInvocationReceiver::GlobalMethod(..),
+            invocation:
+                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                    ValidatorBlueprintInvocation::Method(
+                        ValidatorBlueprintMethod::Stake(..),
+                    ),
                 ),
-            ),
-        )) = maybe_typed_invocation
+        }) = typed_native_invocation
         {
             self.is_validator_stake_seen = true
         }
@@ -355,44 +343,43 @@ impl ValidatorStakeDynamicRequirementState {
     fn on_instruction(
         &mut self,
         invocation_io: &InvocationIo<InvocationIoItems>,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        match maybe_typed_invocation {
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(..),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Withdraw(
-                            AccountWithdrawManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(XRD),
-                                amount,
-                            },
-                        )
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(
-                            AccountLockFeeAndWithdrawManifestInput {
-                                resource_address:
-                                    ManifestResourceAddress::Static(XRD),
-                                amount,
-                                ..
-                            },
+        match typed_native_invocation {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Withdraw(
+                                AccountWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(XRD),
+                                    amount,
+                                },
+                            )
+                            | AccountBlueprintMethod::LockFeeAndWithdraw(
+                                AccountLockFeeAndWithdrawManifestInput {
+                                    resource_address:
+                                        ManifestResourceAddress::Static(XRD),
+                                    amount,
+                                    ..
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => {
+            }) => {
                 self.accumulator += *amount;
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(..),
-                TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                    ValidatorBlueprintInvocation::Method(
-                        ValidatorBlueprintMethod::Stake(..),
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
+                        ValidatorBlueprintInvocation::Method(
+                            ValidatorBlueprintMethod::Stake(..),
+                        ),
                     ),
-                ),
-            )) => {
+            }) => {
                 let staked_xrd = invocation_io.input.resource_amount(&XRD);
                 self.accumulator -= staked_xrd;
             }

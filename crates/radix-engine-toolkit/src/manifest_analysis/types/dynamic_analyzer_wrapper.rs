@@ -57,16 +57,13 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         self.0.process_permission(
             permission_state,
             named_address_store,
             instruction,
-            maybe_typed_invocation,
+            typed_native_invocation,
         );
     }
 
@@ -75,16 +72,13 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         requirement_state: &mut Self::RequirementState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         self.0.process_requirement(
             requirement_state,
             named_address_store,
             instruction,
-            maybe_typed_invocation,
+            typed_native_invocation,
         );
     }
 
@@ -92,15 +86,12 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         &mut self,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         self.0.process_instruction(
             named_address_store,
             instruction,
-            maybe_typed_invocation,
+            typed_native_invocation,
         );
     }
 }
@@ -147,10 +138,7 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         _: &InvocationIo<InvocationIoItems>,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -159,10 +147,7 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
         _: &NamedAddressStore,
         _: &GroupedInstruction,
         _: &InvocationIo<InvocationIoItems>,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 }

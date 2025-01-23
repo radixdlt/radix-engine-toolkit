@@ -93,10 +93,7 @@ macro_rules! define_composite_analyzer {
                     permission_state: &mut Self::PermissionState,
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
-                    maybe_typed_invocation: Option<(
-                        &ManifestInvocationReceiver,
-                        &TypedManifestNativeInvocation,
-                    )>,
+                    typed_native_invocation: Option<&TypedNativeInvocation>,
                 ) {
                     $(
                         if $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&permission_state.$analyzer_ident) {
@@ -105,7 +102,7 @@ macro_rules! define_composite_analyzer {
                                 &mut permission_state.$analyzer_ident,
                                 named_address_store,
                                 instruction,
-                                maybe_typed_invocation,
+                                typed_native_invocation,
                             );
                         }
                         self.$analyzer_ident.1 = $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&permission_state.$analyzer_ident);
@@ -117,10 +114,7 @@ macro_rules! define_composite_analyzer {
                     requirement_state: &mut Self::RequirementState,
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
-                    maybe_typed_invocation: Option<(
-                        &ManifestInvocationReceiver,
-                        &TypedManifestNativeInvocation,
-                    )>,
+                    typed_native_invocation: Option<&TypedNativeInvocation>,
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -129,7 +123,7 @@ macro_rules! define_composite_analyzer {
                                 &mut requirement_state.$analyzer_ident,
                                 named_address_store,
                                 instruction,
-                                maybe_typed_invocation,
+                                typed_native_invocation,
                             );
                         }
                     )*
@@ -139,10 +133,7 @@ macro_rules! define_composite_analyzer {
                     &mut self,
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
-                    maybe_typed_invocation: Option<(
-                        &ManifestInvocationReceiver,
-                        &TypedManifestNativeInvocation,
-                    )>,
+                    typed_native_invocation: Option<&TypedNativeInvocation>,
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -150,7 +141,7 @@ macro_rules! define_composite_analyzer {
                                 &mut self.$analyzer_ident.0,
                                 named_address_store,
                                 instruction,
-                                maybe_typed_invocation,
+                                typed_native_invocation,
                             );
                         }
                     )*
@@ -241,10 +232,7 @@ macro_rules! define_composite_analyzer {
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
                     invocation_io: &InvocationIo<InvocationIoItems>,
-                    maybe_typed_invocation: Option<(
-                        &ManifestInvocationReceiver,
-                        &TypedManifestNativeInvocation,
-                    )>,
+                    typed_native_invocation: Option<&TypedNativeInvocation>,
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -254,7 +242,7 @@ macro_rules! define_composite_analyzer {
                                 named_address_store,
                                 instruction,
                                 invocation_io,
-                                maybe_typed_invocation,
+                                typed_native_invocation,
                             );
                         }
                     )*
@@ -265,10 +253,7 @@ macro_rules! define_composite_analyzer {
                     named_address_store: &NamedAddressStore,
                     instruction: &GroupedInstruction,
                     invocation_io: &InvocationIo<InvocationIoItems>,
-                    maybe_typed_invocation: Option<(
-                        &ManifestInvocationReceiver,
-                        &TypedManifestNativeInvocation,
-                    )>,
+                    typed_native_invocation: Option<&TypedNativeInvocation>,
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -277,7 +262,7 @@ macro_rules! define_composite_analyzer {
                                 named_address_store,
                                 instruction,
                                 invocation_io,
-                                maybe_typed_invocation,
+                                typed_native_invocation,
                             );
                         }
                     )*

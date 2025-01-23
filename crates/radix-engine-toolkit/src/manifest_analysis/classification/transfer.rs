@@ -39,10 +39,7 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
         permission_state: &mut Self::PermissionState,
         named_address_store: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         // Compute if the next instruction is permitted or not.
         let is_next_instruction_permitted = match instruction {
@@ -132,23 +129,19 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
         requirement_state: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        requirement_state
-            .handle_invocation(maybe_typed_invocation.map(|(_, t)| t));
+        requirement_state.handle_invocation(
+            typed_native_invocation
+                .map(|TypedNativeInvocation { invocation, .. }| invocation),
+        );
     }
 
     fn process_instruction(
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 }

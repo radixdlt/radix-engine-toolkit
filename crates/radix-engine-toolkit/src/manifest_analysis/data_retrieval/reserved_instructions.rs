@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,102 +58,118 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
-        match maybe_typed_invocation {
+        let Some(typed_native_invocation) = typed_native_invocation else {
+            return;
+        };
+        match typed_native_invocation {
             // Account
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(AccountBlueprintMethod::Securify(
-                        ..,
-                    )),
-                ),
-            )) => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::Securify(..),
+                        ),
+                    ),
+            } => {
                 self.0.account_securify_invocations.insert(receiver.into());
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::LockFee(..)
-                        | AccountBlueprintMethod::LockContingentFee(..)
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(..)
-                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::LockFee(..)
+                            | AccountBlueprintMethod::LockContingentFee(..)
+                            | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                            | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+                        ),
                     ),
-                ),
-            )) => {
+            } => {
                 self.0.account_lock_fee_invocations.insert(receiver.into());
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Set(
-                        MetadataSetInput { key, .. },
-                    )),
-                ),
-            )) if key == "owner_keys" && receiver.is_account() => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(
+                            MetadataBlueprintMethod::Set(MetadataSetInput {
+                                key, ..
+                            }),
+                        ),
+                    ),
+            } if key == OWNER_KEYS_METADATA_KEY && receiver.is_account() => {
                 self.0
                     .account_update_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Lock(
-                        MetadataLockInput { key, .. },
-                    )),
-                ),
-            )) if key == "owner_keys" && receiver.is_account() => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(
+                            MetadataBlueprintMethod::Lock(MetadataLockInput {
+                                key, ..
+                            }),
+                        ),
+                    ),
+            } if key == OWNER_KEYS_METADATA_KEY && receiver.is_account() => {
                 self.0
                     .account_lock_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
             // Identity
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::IdentityBlueprintInvocation(
-                    IdentityBlueprintInvocation::Method(
-                        IdentityBlueprintMethod::Securify(..),
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                        IdentityBlueprintInvocation::Method(
+                            IdentityBlueprintMethod::Securify(..),
+                        ),
                     ),
-                ),
-            )) => {
+            } => {
                 self.0.identity_securify_invocations.insert(receiver.into());
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Set(
-                        MetadataSetInput { key, .. },
-                    )),
-                ),
-            )) if key == "owner_keys" && receiver.is_identity() => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(
+                            MetadataBlueprintMethod::Set(MetadataSetInput {
+                                key, ..
+                            }),
+                        ),
+                    ),
+            } if key == OWNER_KEYS_METADATA_KEY && receiver.is_identity() => {
                 self.0
                     .identity_update_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::Method(MetadataBlueprintMethod::Lock(
-                        MetadataLockInput { key, .. },
-                    )),
-                ),
-            )) if key == "owner_keys" && receiver.is_identity() => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(
+                            MetadataBlueprintMethod::Lock(MetadataLockInput {
+                                key, ..
+                            }),
+                        ),
+                    ),
+            } if key == OWNER_KEYS_METADATA_KEY && receiver.is_identity() => {
                 self.0
                     .identity_lock_owner_keys_metadata_field_invocations
                     .insert(receiver.into());
             }
             // Access Controller
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                    AccessControllerBlueprintInvocation::Method(..),
-                ),
-            )) => {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(..),
+                    ),
+            } => {
                 self.0.access_controller_invocations.insert(receiver.into());
             }
             _ => {}

@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,10 +58,7 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         let indexed_value = IndexedManifestValue::from_typed(&instruction);
 

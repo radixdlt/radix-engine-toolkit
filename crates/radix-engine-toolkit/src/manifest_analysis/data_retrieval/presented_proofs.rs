@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,43 +58,45 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         // Interpreting the typed invocation and converting it into a resource
         // specifier of the created proof.
-        let (account, proof_specifier) = match maybe_typed_invocation {
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::CreateProofOfAmount(
-                            AccountCreateProofOfAmountManifestInput {
-                                resource_address,
-                                amount,
-                            },
+        let Some(typed_native_invocation) = typed_native_invocation else {
+            return;
+        };
+        let (account, proof_specifier) = match typed_native_invocation {
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::CreateProofOfAmount(
+                                AccountCreateProofOfAmountManifestInput {
+                                    resource_address,
+                                    amount,
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => (
+            } => (
                 receiver,
                 ManifestResourceSpecifier::Amount(*resource_address, *amount),
             ),
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::CreateProofOfNonFungibles(
-                            AccountCreateProofOfNonFungiblesManifestInput {
-                                resource_address,
-                                ids,
-                            },
+            TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::CreateProofOfNonFungibles(
+                                AccountCreateProofOfNonFungiblesManifestInput {
+                                    resource_address,
+                                    ids,
+                                },
+                            ),
                         ),
                     ),
-                ),
-            )) => (
+            } => (
                 receiver,
                 ManifestResourceSpecifier::Ids(*resource_address, ids.clone()),
             ),

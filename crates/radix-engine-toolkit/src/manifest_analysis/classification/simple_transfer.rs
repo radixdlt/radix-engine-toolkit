@@ -50,10 +50,7 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
         permission_state: &mut Self::PermissionState,
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         permission_state.transition(instruction);
     }
@@ -63,10 +60,7 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
         requirement_state: &mut Self::RequirementState,
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         requirement_state.transition(instruction);
     }
@@ -75,10 +69,7 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
         &mut self,
         _: &NamedAddressStore,
         instruction: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
         self.transition(instruction);
     }

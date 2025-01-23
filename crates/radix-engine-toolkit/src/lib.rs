@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod constants;
 pub mod extensions;
 pub mod functions;
 pub mod manifest_analysis;
@@ -71,6 +72,7 @@ pub(crate) mod internal_prelude {
 pub mod prelude {
     pub use crate::*;
 
+    pub use crate::constants::*;
     pub use crate::extensions::*;
     pub use crate::functions;
     pub use crate::manifest_analysis::*;

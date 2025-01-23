@@ -41,10 +41,7 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
         _: &mut Self::PermissionState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -53,10 +50,7 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
         _: &mut Self::RequirementState,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        _: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        _: Option<&TypedNativeInvocation>,
     ) {
     }
 
@@ -64,22 +58,20 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
         &mut self,
         _: &NamedAddressStore,
         _: &GroupedInstruction,
-        maybe_typed_invocation: Option<(
-            &ManifestInvocationReceiver,
-            &TypedManifestNativeInvocation,
-        )>,
+        typed_native_invocation: Option<&TypedNativeInvocation>,
     ) {
         // The primary set of invocations that require auth from either accounts
         // or identities are method calls. No function calls so far require it.
         // So, we match for this.
-        match maybe_typed_invocation {
+        match typed_native_invocation {
             // Account
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(method),
-                ),
-            )) => match method {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(method),
+                    ),
+            }) => match method {
                 AccountBlueprintMethod::Securify(..)
                 | AccountBlueprintMethod::LockFee(..)
                 | AccountBlueprintMethod::LockContingentFee(..)
@@ -108,12 +100,13 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 | AccountBlueprintMethod::NonFungibleLocalIds(..)
                 | AccountBlueprintMethod::HasNonFungible(..) => {}
             },
-            Some((
-                _,
-                TypedManifestNativeInvocation::AccountLockerBlueprintInvocation(
-                    AccountLockerBlueprintInvocation::Method(method),
-                ),
-            )) => match method {
+            Some(TypedNativeInvocation {
+                invocation:
+                    TypedManifestNativeInvocation::AccountLockerBlueprintInvocation(
+                        AccountLockerBlueprintInvocation::Method(method),
+                    ),
+                ..
+            }) => match method {
                 AccountLockerBlueprintMethod::Claim(
                     AccountLockerClaimManifestInput { claimant, .. },
                 )
@@ -130,23 +123,25 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 | AccountLockerBlueprintMethod::GetNonFungibleLocalIds(..) => {}
             },
             // Identities
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::IdentityBlueprintInvocation(
-                    IdentityBlueprintInvocation::Method(
-                        IdentityBlueprintMethod::Securify(..),
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                        IdentityBlueprintInvocation::Method(
+                            IdentityBlueprintMethod::Securify(..),
+                        ),
                     ),
-                ),
-            )) => {
+            }) => {
                 self.0.identities.insert(receiver.into());
             }
             // Role Assignment Module
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::RoleAssignmentBlueprintInvocation(
-                    RoleAssignmentBlueprintInvocation::Method(method),
-                ),
-            )) => match method {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::RoleAssignmentBlueprintInvocation(
+                        RoleAssignmentBlueprintInvocation::Method(method),
+                    ),
+            }) => match method {
                 RoleAssignmentBlueprintMethod::SetOwner(..)
                 | RoleAssignmentBlueprintMethod::LockOwner(..)
                 | RoleAssignmentBlueprintMethod::Set(..) => {
@@ -160,12 +155,13 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 | RoleAssignmentBlueprintMethod::GetOwnerRole(..) => {}
             },
             // Metadata Module
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                    MetadataBlueprintInvocation::Method(method),
-                ),
-            )) => match method {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(method),
+                    ),
+            }) => match method {
                 MetadataBlueprintMethod::Set(..)
                 | MetadataBlueprintMethod::Lock(..)
                 | MetadataBlueprintMethod::Remove(..) => {
@@ -178,12 +174,13 @@ impl ManifestStaticAnalyzer for EntitiesRequiringAuthAnalyzer {
                 MetadataBlueprintMethod::Get(..) => {}
             },
             // Royalty Module
-            Some((
-                ManifestInvocationReceiver::GlobalMethod(receiver),
-                TypedManifestNativeInvocation::ComponentRoyaltyBlueprintInvocation(
-                    ComponentRoyaltyBlueprintInvocation::Method(method),
-                ),
-            )) => match method {
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::ComponentRoyaltyBlueprintInvocation(
+                        ComponentRoyaltyBlueprintInvocation::Method(method),
+                    ),
+            }) => match method {
                 ComponentRoyaltyBlueprintMethod::SetRoyalty(_)
                 | ComponentRoyaltyBlueprintMethod::LockRoyalty(_)
                 | ComponentRoyaltyBlueprintMethod::ClaimRoyalties(_) => {
