@@ -67,8 +67,22 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
 }
 
 impl ManifestAnalyzerRequirementState for SimpleTransferStateMachine {
-    fn all_requirements_met(&self) -> bool {
-        matches!(self, Self::DepositPerformed)
+    fn requirement_state(&self) -> RequirementState {
+        match self {
+            SimpleTransferStateMachine::DepositPerformed => {
+                RequirementState::Fulfilled
+            }
+            SimpleTransferStateMachine::InitialState
+            | SimpleTransferStateMachine::AccessControllerProofCreated
+            | SimpleTransferStateMachine::FeeLockPerformed
+            | SimpleTransferStateMachine::ResourcesWithdrawn
+            | SimpleTransferStateMachine::ResourcesInBucket => {
+                RequirementState::CurrentlyUnfulfilled
+            }
+            SimpleTransferStateMachine::InvalidState => {
+                RequirementState::PermanentlyUnfulfilled
+            }
+        }
     }
 }
 

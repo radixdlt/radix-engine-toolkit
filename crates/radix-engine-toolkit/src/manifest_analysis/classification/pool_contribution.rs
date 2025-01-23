@@ -304,8 +304,11 @@ impl PoolContributionStaticRequirementState {
 impl ManifestAnalyzerRequirementState
     for PoolContributionStaticRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.is_pool_contribution_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_pool_contribution_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
@@ -382,8 +385,11 @@ impl PoolContributionDynamicRequirementState {
 impl ManifestAnalyzerRequirementState
     for PoolContributionDynamicRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.accumulator.values().all(Decimal::is_zero)
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

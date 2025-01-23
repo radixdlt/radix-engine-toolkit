@@ -240,8 +240,11 @@ pub struct AccountSettingsUpdateRequirementState {
 impl ManifestAnalyzerRequirementState
     for AccountSettingsUpdateRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.is_any_account_settings_update_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_any_account_settings_update_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

@@ -281,8 +281,11 @@ impl ValidatorClaimStaticRequirementState {
 }
 
 impl ManifestAnalyzerRequirementState for ValidatorClaimStaticRequirementState {
-    fn all_requirements_met(&self) -> bool {
-        self.is_validator_claim_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_validator_claim_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
@@ -395,11 +398,14 @@ impl ValidatorClaimDynamicRequirementState {
 impl ManifestAnalyzerRequirementState
     for ValidatorClaimDynamicRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
+    fn requirement_state(&self) -> RequirementState {
         // All of the accumulators must equal to zero. In this case, it means
         // that all of the resources that were withdrawn were deposited or were
         // passed to the `claim` method on the validators.
-        self.accumulator.values().all(Decimal::is_zero)
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

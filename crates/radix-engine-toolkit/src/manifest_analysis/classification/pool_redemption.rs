@@ -299,8 +299,11 @@ impl PoolRedemptionStaticRequirementState {
 }
 
 impl ManifestAnalyzerRequirementState for PoolRedemptionStaticRequirementState {
-    fn all_requirements_met(&self) -> bool {
-        self.is_pool_redemption_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_pool_redemption_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
@@ -377,8 +380,11 @@ impl PoolRedemptionDynamicRequirementState {
 impl ManifestAnalyzerRequirementState
     for PoolRedemptionDynamicRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.accumulator.values().all(Decimal::is_zero)
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

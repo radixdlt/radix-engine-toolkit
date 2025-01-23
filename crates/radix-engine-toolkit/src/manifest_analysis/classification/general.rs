@@ -191,11 +191,13 @@ pub struct GeneralRequirementState {
 }
 
 impl ManifestAnalyzerRequirementState for GeneralRequirementState {
-    fn all_requirements_met(&self) -> bool {
-        if self.for_subintent {
-            self.is_yield_to_parent_seen
+    fn requirement_state(&self) -> RequirementState {
+        if self.for_subintent && self.is_yield_to_parent_seen
+            || !self.for_subintent && self.is_any_instruction_seen
+        {
+            RequirementState::Fulfilled
         } else {
-            self.is_any_instruction_seen
+            RequirementState::CurrentlyUnfulfilled
         }
     }
 }

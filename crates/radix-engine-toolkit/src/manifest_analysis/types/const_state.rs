@@ -21,8 +21,11 @@ use crate::internal_prelude::*;
 pub struct ConstState<const STATE: bool>;
 
 impl<const STATE: bool> ManifestAnalyzerRequirementState for ConstState<STATE> {
-    fn all_requirements_met(&self) -> bool {
-        STATE
+    fn requirement_state(&self) -> RequirementState {
+        match STATE {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::PermanentlyUnfulfilled,
+        }
     }
 }
 

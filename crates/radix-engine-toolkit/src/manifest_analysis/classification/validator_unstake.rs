@@ -288,8 +288,11 @@ impl ValidatorUnstakeStaticRequirementState {
 impl ManifestAnalyzerRequirementState
     for ValidatorUnstakeStaticRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.is_validator_unstake_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_validator_unstake_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
@@ -381,11 +384,11 @@ impl ValidatorUnstakeDynamicRequirementState {
 impl ManifestAnalyzerRequirementState
     for ValidatorUnstakeDynamicRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        // All of the accumulators must equal to zero. In this case, it means
-        // that all of the resources that were withdrawn were deposited or were
-        // passed to the `unstake` method on the validators.
-        self.accumulator.values().all(Decimal::is_zero)
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.values().all(Decimal::is_zero) {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

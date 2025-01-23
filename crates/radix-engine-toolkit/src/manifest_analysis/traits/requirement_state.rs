@@ -15,10 +15,38 @@
 // specific language governing permissions and limitations
 // under the License.
 
-/// A trait used to describe the state that visitors use to describe if their
-/// requirements are currently met or not.
+/// A trait that's implemented to mark some type as being the requirement state
+/// of a visitor. This trait provides a single method which computes the current
+/// requirement state of the visitor.
 pub trait ManifestAnalyzerRequirementState {
-    /// A method that computes if the requirements that the visitor has are met
-    /// or not.
-    fn all_requirements_met(&self) -> bool;
+    /// A method that computes the visitor's requirement state.
+    fn requirement_state(&self) -> RequirementState;
+}
+
+/// An enum that captures the various states that the visitor's requirements
+/// could be in.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum RequirementState {
+    /// In this state the requirements of the visitor are fulfilled and if the
+    /// manifest traverser were to stop at this instruction then the visitor's
+    /// requirements would be fulfilled and an output would be produced assuming
+    /// that the permission state also resolves to [`true`].
+    Fulfilled,
+    /// In this state the requirements of the visitor are unfulfilled but not
+    /// violated and could certainly be fulfilled if more instructions are seen
+    /// by the visitor. If the manifest were to end with a visitor in this state
+    /// then the visitor would not produce output since it's requirements were't
+    /// fulfilled.
+    CurrentlyUnfulfilled,
+    /// In this case the requirements of the visitor are unfulfilled and the
+    /// visitor is certain that they will never be fulfilled in the future. In
+    /// this case, the traverser may stop going through instructions and just
+    /// report that there's no output for the visitor.
+    PermanentlyUnfulfilled,
+}
+
+impl RequirementState {
+    pub fn is_fulfilled(&self) -> bool {
+        matches!(self, Self::Fulfilled)
+    }
 }

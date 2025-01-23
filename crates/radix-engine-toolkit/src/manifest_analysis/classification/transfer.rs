@@ -147,8 +147,11 @@ pub struct TransferRequirementState {
 }
 
 impl ManifestAnalyzerRequirementState for TransferRequirementState {
-    fn all_requirements_met(&self) -> bool {
-        self.is_withdraw_seen && self.is_deposit_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_withdraw_seen && self.is_deposit_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 

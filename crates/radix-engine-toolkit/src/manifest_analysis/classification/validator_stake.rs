@@ -314,8 +314,11 @@ impl ValidatorStakeStaticRequirementState {
 }
 
 impl ManifestAnalyzerRequirementState for ValidatorStakeStaticRequirementState {
-    fn all_requirements_met(&self) -> bool {
-        self.is_withdraws_just_xrd && self.is_validator_stake_seen
+    fn requirement_state(&self) -> RequirementState {
+        match self.is_withdraws_just_xrd && self.is_validator_stake_seen {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
@@ -396,8 +399,11 @@ impl ValidatorStakeDynamicRequirementState {
 impl ManifestAnalyzerRequirementState
     for ValidatorStakeDynamicRequirementState
 {
-    fn all_requirements_met(&self) -> bool {
-        self.accumulator.is_zero()
+    fn requirement_state(&self) -> RequirementState {
+        match self.accumulator.is_zero() {
+            true => RequirementState::Fulfilled,
+            false => RequirementState::CurrentlyUnfulfilled,
+        }
     }
 }
 
