@@ -45,7 +45,9 @@ pub fn extract_entities(
     }
 
     let mut visitor = AccessRuleEntitiesVisitor::default();
-    access_rule.dfs_traverse_nodes(&mut visitor).expect("Visitor will not error");
+    access_rule
+        .dfs_traverse_nodes(&mut visitor)
+        .expect("Visitor will not error");
     visitor.output()
 }
 
@@ -57,15 +59,22 @@ mod test {
     fn addresses_can_be_found_in_access_rules() {
         // Arrange
         let required_resource = XRD;
-        let required_non_fungible = NonFungibleGlobalId::from_public_key(&Secp256k1PublicKey([1; 33]));
-        let rule = rule!(require(required_resource) && require(required_non_fungible.clone()));
+        let required_non_fungible =
+            NonFungibleGlobalId::from_public_key(&Secp256k1PublicKey([1; 33]));
+        let rule = rule!(
+            require(required_resource)
+                && require(required_non_fungible.clone())
+        );
 
         // Act
         let entities = extract_entities(&rule);
 
         // Assert
         assert_eq!(entities.len(), 2);
-        assert!(entities.contains(&ResourceOrNonFungible::Resource(required_resource)));
-        assert!(entities.contains(&ResourceOrNonFungible::NonFungible(required_non_fungible)));
+        assert!(entities
+            .contains(&ResourceOrNonFungible::Resource(required_resource)));
+        assert!(entities.contains(&ResourceOrNonFungible::NonFungible(
+            required_non_fungible
+        )));
     }
 }

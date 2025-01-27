@@ -167,7 +167,10 @@ impl AccessRule {
         Arc::new(AccessRule(access_rule))
     }
 
-    pub fn extract_entities(&self, network_id: u8) -> Vec<ResourceOrNonFungible> {
+    pub fn extract_entities(
+        &self,
+        network_id: u8,
+    ) -> Vec<ResourceOrNonFungible> {
         let extraced_entities = core_extract_entities(&self.0);
         extraced_entities
             .into_iter()

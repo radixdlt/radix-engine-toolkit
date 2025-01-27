@@ -64,8 +64,8 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
 }
 
 #[test]
-fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction()
- {
+fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
+) {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -1076,12 +1076,10 @@ fn pool_contribution_transactions_are_recognized() {
     );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolContribution {
-            pool_addresses,
-            pool_contributions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolContribution {
+        pool_addresses,
+        pool_contributions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1303,12 +1301,10 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
     );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolContribution {
-            pool_addresses,
-            pool_contributions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolContribution {
+        pool_addresses,
+        pool_contributions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1558,12 +1554,10 @@ fn pool_redemption_transactions_are_recognized() {
     );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolRedemption {
-            pool_addresses,
-            pool_redemptions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolRedemption {
+        pool_addresses,
+        pool_redemptions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1918,16 +1912,12 @@ fn validator_unstake_transactions_are_recognized() {
     );
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1))
-    );
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2))
-    );
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)));
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)));
 }
 
 #[test]
@@ -2716,8 +2706,8 @@ fn subintent_manifest_with_yield_to_child_is_not_a_general_subintent() {
 }
 
 #[test]
-fn subintent_manifest_of_transfer_with_metadata_update_is_not_a_general_subintent()
- {
+fn subintent_manifest_of_transfer_with_metadata_update_is_not_a_general_subintent(
+) {
     let account =
         ComponentAddress::new_or_panic([EntityType::GlobalAccount as u8; 30]);
     subintent_manifest_classification_test(

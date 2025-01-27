@@ -47,13 +47,13 @@ where
     NonFungibleGlobalId::from_public_key(public_key)
 }
 
-pub fn global_caller_non_fungible_global_id_from_component_address(
-    component_address: ComponentAddress,
+pub fn global_caller_non_fungible_global_id_from_global_address(
+    caller_address: GlobalAddress,
 ) -> NonFungibleGlobalId {
-    NonFungibleGlobalId::global_caller_badge(component_address)
+    NonFungibleGlobalId::global_caller_badge(caller_address)
 }
 
-pub fn package_of_direct_caller_non_fungible_global_id_from_component_address(
+pub fn package_of_direct_caller_non_fungible_global_id_from_package_address(
     package_address: PackageAddress,
 ) -> NonFungibleGlobalId {
     NonFungibleGlobalId::package_of_direct_caller_badge(package_address)

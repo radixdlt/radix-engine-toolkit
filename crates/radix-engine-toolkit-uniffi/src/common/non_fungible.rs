@@ -97,7 +97,7 @@ impl NonFungibleGlobalId {
         component_address: Arc<Address>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_global_caller_non_fungible_global_id_from_component_address(
+        derive_global_caller_non_fungible_global_id_from_global_address(
             component_address,
             network_id,
         )
