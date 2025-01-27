@@ -513,17 +513,14 @@ pub fn dynamically_analyze<M: ReadableManifest>(
                                     k,
                                     v.into_iter()
                                         .map(|(badge, operation)| {
-                                            (
-                                                badge,
-                                                match operation {
-                                                    Update::Set(()) => {
-                                                        Operation::Added
-                                                    }
-                                                    Update::Remove => {
-                                                        Operation::Removed
-                                                    }
-                                                },
-                                            )
+                                            (badge, match operation {
+                                                Update::Set(()) => {
+                                                    Operation::Added
+                                                }
+                                                Update::Remove => {
+                                                    Operation::Removed
+                                                }
+                                            })
                                         })
                                         .collect(),
                                 )

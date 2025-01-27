@@ -16,7 +16,7 @@
 // under the License.
 
 use super::value::ProgrammaticScryptoValue;
-use super::visitor::{traverse, AddressNetworkMismatchVisitor};
+use super::visitor::{AddressNetworkMismatchVisitor, traverse};
 
 pub fn value_contains_network_mismatch(
     value: &ProgrammaticScryptoValue,

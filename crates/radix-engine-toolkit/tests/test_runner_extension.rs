@@ -33,17 +33,12 @@ where
         &mut self,
         manifest: TransactionManifestV1,
     ) -> TransactionReceiptV1 {
-        self.preview_manifest(
-            manifest,
-            vec![],
-            0,
-            PreviewFlags {
-                use_free_credit: true,
-                assume_all_signature_proofs: true,
-                skip_epoch_check: true,
-                disable_auth: true,
-            },
-        )
+        self.preview_manifest(manifest, vec![], 0, PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+            disable_auth: true,
+        })
     }
 
     fn summarize(
