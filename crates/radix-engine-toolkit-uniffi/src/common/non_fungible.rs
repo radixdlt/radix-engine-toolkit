@@ -130,6 +130,14 @@ impl NonFungibleGlobalId {
             NativeAddressBech32Encoder::new(&network_definition);
         self.0.to_canonical_string(&bech32_encoder)
     }
+
+    pub fn is_global_caller_badge(&self) -> bool {
+        self.0.resource_address() == NATIVE_GLOBAL_CALLER_RESOURCE
+    }
+
+    pub fn is_package_of_direct_caller_badge(&self) -> bool {
+        self.0.resource_address() == NATIVE_PACKAGE_OF_DIRECT_CALLER_RESOURCE
+    }
 }
 
 #[derive(Clone, Debug, Enum, Hash, PartialEq, Eq)]
