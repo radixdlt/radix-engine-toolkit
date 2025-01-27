@@ -4,4 +4,4 @@ from radix_engine_toolkit_uniffi import *
 build_info = get_build_information()
 
 # Assert
-assert build_info.version == "2.2.0-dev2"
+assert build_info.version == "2.2.2"

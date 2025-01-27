@@ -19,7 +19,7 @@ import (
 func TestRetVersion(t *testing.T) {
 	var buildInfo = radix_engine_toolkit_uniffi.GetBuildInformation()
 
-	if buildInfo.Version != "2.2.0-dev2" {
+	if buildInfo.Version != "2.2.2" {
 		t.Fatalf("Wrong RET version: %s", buildInfo.Version)
 	}
 }
