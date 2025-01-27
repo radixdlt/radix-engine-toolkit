@@ -71,10 +71,8 @@ mod test {
 
         // Assert
         assert_eq!(entities.len(), 2);
-        assert!(
-            entities
-                .contains(&ResourceOrNonFungible::Resource(required_resource))
-        );
+        assert!(entities
+            .contains(&ResourceOrNonFungible::Resource(required_resource)));
         assert!(entities.contains(&ResourceOrNonFungible::NonFungible(
             required_non_fungible
         )));

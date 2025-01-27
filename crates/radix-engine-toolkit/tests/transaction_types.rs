@@ -64,8 +64,8 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
 }
 
 #[test]
-fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction()
- {
+fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
+) {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -121,21 +121,27 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::Transfer,
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::Transfer, ManifestClass::General]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         &dynamic_analysis.detailed_classification[0],
@@ -207,21 +213,27 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::Transfer,
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::Transfer, ManifestClass::General]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -296,23 +308,29 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::Transfer,
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::Transfer, ManifestClass::General]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -386,16 +404,22 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(static_analysis.classification, indexset![]);
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
@@ -460,16 +484,22 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(static_analysis.classification, indexset![]);
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
@@ -533,16 +563,22 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(static_analysis.classification, indexset![]);
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account2 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
@@ -603,16 +639,20 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
 
     assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -677,16 +717,20 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
 
     assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -746,16 +790,20 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
 
     assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -820,16 +868,20 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
 
     assert!(dynamic_analysis.account_withdraws.is_empty());
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account1 => vec![
-            ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
         dynamic_analysis.detailed_classification[0],
@@ -942,123 +994,132 @@ fn pool_contribution_transactions_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::PoolContribution
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::PoolContribution]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            /* One pool contribution */
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            /* Two pool contribution */
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            /* Multi pool contribution */
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource3,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource4,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            /* One Pool Units */
-            ResourceIndicator::Fungible(
-                one_pool_unit,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 3
-                    }
-                )
-            ),
-            /* Two Pool Units */
-            ResourceIndicator::Fungible(
-                two_pool_unit,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 9
-                    }
-                )
-            ),
-            /* Multi Pool Units */
-            ResourceIndicator::Fungible(
-                multi_pool_unit,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 15
-                    }
-                )
-            ),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                /* One pool contribution */
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                /* Two pool contribution */
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                /* Multi pool contribution */
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource3,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource4,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                /* One Pool Units */
+                ResourceIndicator::Fungible(
+                    one_pool_unit,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 3
+                        }
+                    )
+                ),
+                /* Two Pool Units */
+                ResourceIndicator::Fungible(
+                    two_pool_unit,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 9
+                        }
+                    )
+                ),
+                /* Multi Pool Units */
+                ResourceIndicator::Fungible(
+                    multi_pool_unit,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 15
+                        }
+                    )
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolContribution {
-            pool_addresses,
-            pool_contributions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolContribution {
+        pool_addresses,
+        pool_contributions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
-    assert_eq!(pool_addresses.clone(), indexset![
-        one_pool, two_pool, multi_pool,
-    ]);
-    assert_eq!(pool_contributions.clone(), vec![
-        TrackedPoolContribution {
-            pool_address: one_pool,
-            contributed_resources: indexmap! {
-                resource1 => dec!(100)
+    assert_eq!(
+        pool_addresses.clone(),
+        indexset![one_pool, two_pool, multi_pool,]
+    );
+    assert_eq!(
+        pool_contributions.clone(),
+        vec![
+            TrackedPoolContribution {
+                pool_address: one_pool,
+                contributed_resources: indexmap! {
+                    resource1 => dec!(100)
+                },
+                pool_units_resource_address: one_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: one_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-        TrackedPoolContribution {
-            pool_address: two_pool,
-            contributed_resources: indexmap! {
-                resource1 => dec!(100),
-                resource2 => dec!(100)
+            TrackedPoolContribution {
+                pool_address: two_pool,
+                contributed_resources: indexmap! {
+                    resource1 => dec!(100),
+                    resource2 => dec!(100)
+                },
+                pool_units_resource_address: two_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: two_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-        TrackedPoolContribution {
-            pool_address: multi_pool,
-            contributed_resources: indexmap! {
-                resource1 => dec!(100),
-                resource2 => dec!(100),
-                resource3 => dec!(100),
-                resource4 => dec!(100)
+            TrackedPoolContribution {
+                pool_address: multi_pool,
+                contributed_resources: indexmap! {
+                    resource1 => dec!(100),
+                    resource2 => dec!(100),
+                    resource3 => dec!(100),
+                    resource4 => dec!(100)
+                },
+                pool_units_resource_address: multi_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: multi_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-    ]);
+        ]
+    );
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
@@ -1142,131 +1203,139 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::PoolContribution
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::PoolContribution]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource3,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource4,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource3,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                resource4,
-                FungibleResourceIndicator::Guaranteed(dec!(50))
-            ),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                multi_pool_unit,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 5
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                multi_pool_unit,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(50),
-                        instruction_index: 11
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(50),
-                        instruction_index: 11
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(50),
-                        instruction_index: 11
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource3,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(50),
-                        instruction_index: 11
-                    }
-                )
-            ),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource3,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource4,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource3,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    resource4,
+                    FungibleResourceIndicator::Guaranteed(dec!(50))
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    multi_pool_unit,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 5
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    multi_pool_unit,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(50),
+                            instruction_index: 11
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(50),
+                            instruction_index: 11
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(50),
+                            instruction_index: 11
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource3,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(50),
+                            instruction_index: 11
+                        }
+                    )
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolContribution {
-            pool_addresses,
-            pool_contributions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolContribution {
+        pool_addresses,
+        pool_contributions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
     assert_eq!(pool_addresses.clone(), indexset![multi_pool,]);
-    assert_eq!(pool_contributions.clone(), vec![
-        TrackedPoolContribution {
-            pool_address: multi_pool,
-            contributed_resources: indexmap! {
-                resource1 => dec!(100),
-                resource2 => dec!(100),
-                resource3 => dec!(100),
-                resource4 => dec!(100)
+    assert_eq!(
+        pool_contributions.clone(),
+        vec![
+            TrackedPoolContribution {
+                pool_address: multi_pool,
+                contributed_resources: indexmap! {
+                    resource1 => dec!(100),
+                    resource2 => dec!(100),
+                    resource3 => dec!(100),
+                    resource4 => dec!(100)
+                },
+                pool_units_resource_address: multi_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: multi_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-        TrackedPoolContribution {
-            pool_address: multi_pool,
-            contributed_resources: indexmap! {
-                resource1 => dec!(50),
-                resource2 => dec!(50),
-                resource3 => dec!(50),
-                resource4 => dec!(50)
-            },
-            pool_units_resource_address: multi_pool_unit,
-            pool_units_amount: dec!(50)
-        }
-    ]);
+            TrackedPoolContribution {
+                pool_address: multi_pool,
+                contributed_resources: indexmap! {
+                    resource1 => dec!(50),
+                    resource2 => dec!(50),
+                    resource3 => dec!(50),
+                    resource4 => dec!(50)
+                },
+                pool_units_resource_address: multi_pool_unit,
+                pool_units_amount: dec!(50)
+            }
+        ]
+    );
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
@@ -1331,9 +1400,10 @@ fn pool_redemption_transactions_are_recognized() {
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
     ledger
-        .execute_manifest(manifest, vec![NonFungibleGlobalId::from_public_key(
-            &pk,
-        )])
+        .execute_manifest(
+            manifest,
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        )
         .expect_commit_success();
 
     let manifest = ManifestBuilder::new()
@@ -1414,111 +1484,120 @@ fn pool_redemption_transactions_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::PoolRedemption
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::PoolRedemption]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                one_pool_unit,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                two_pool_unit,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                multi_pool_unit,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            /* One pool contribution */
-            ResourceIndicator::Fungible(
-                resource1,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(300),
-                        instruction_index: 9
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource2,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(200),
-                        instruction_index: 9
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource3,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 9
-                    }
-                )
-            ),
-            ResourceIndicator::Fungible(
-                resource4,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(100),
-                        instruction_index: 9
-                    }
-                )
-            ),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    one_pool_unit,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    two_pool_unit,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    multi_pool_unit,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                /* One pool contribution */
+                ResourceIndicator::Fungible(
+                    resource1,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(300),
+                            instruction_index: 9
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource2,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(200),
+                            instruction_index: 9
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource3,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 9
+                        }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    resource4,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(100),
+                            instruction_index: 9
+                        }
+                    )
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [
-        DetailedManifestClass::PoolRedemption {
-            pool_addresses,
-            pool_redemptions,
-        },
-    ] = dynamic_analysis.detailed_classification.as_slice()
+    let [DetailedManifestClass::PoolRedemption {
+        pool_addresses,
+        pool_redemptions,
+    }] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
-    assert_eq!(pool_addresses.clone(), indexset![
-        one_pool, two_pool, multi_pool,
-    ]);
-    assert_eq!(pool_redemptions.clone(), vec![
-        TrackedPoolRedemption {
-            pool_address: one_pool,
-            redeemed_resources: indexmap! {
-                resource1 => dec!(100)
+    assert_eq!(
+        pool_addresses.clone(),
+        indexset![one_pool, two_pool, multi_pool,]
+    );
+    assert_eq!(
+        pool_redemptions.clone(),
+        vec![
+            TrackedPoolRedemption {
+                pool_address: one_pool,
+                redeemed_resources: indexmap! {
+                    resource1 => dec!(100)
+                },
+                pool_units_resource_address: one_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: one_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-        TrackedPoolRedemption {
-            pool_address: two_pool,
-            redeemed_resources: indexmap! {
-                resource1 => dec!(100),
-                resource2 => dec!(100)
+            TrackedPoolRedemption {
+                pool_address: two_pool,
+                redeemed_resources: indexmap! {
+                    resource1 => dec!(100),
+                    resource2 => dec!(100)
+                },
+                pool_units_resource_address: two_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: two_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-        TrackedPoolRedemption {
-            pool_address: multi_pool,
-            redeemed_resources: indexmap! {
-                resource1 => dec!(100),
-                resource2 => dec!(100),
-                resource3 => dec!(100),
-                resource4 => dec!(100)
+            TrackedPoolRedemption {
+                pool_address: multi_pool,
+                redeemed_resources: indexmap! {
+                    resource1 => dec!(100),
+                    resource2 => dec!(100),
+                    resource3 => dec!(100),
+                    resource4 => dec!(100)
+                },
+                pool_units_resource_address: multi_pool_unit,
+                pool_units_amount: dec!(100)
             },
-            pool_units_resource_address: multi_pool_unit,
-            pool_units_amount: dec!(100)
-        },
-    ]);
+        ]
+    );
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
@@ -1584,34 +1663,41 @@ fn validator_stake_transactions_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::ValidatorStake
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::ValidatorStake]
+    );
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                XRD,
-                FungibleResourceIndicator::Guaranteed(dec!(200))
-            )
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                stake_unit1,
-                FungibleResourceIndicator::Predicted(
-                    Predicted { value: dec!(100), instruction_index: 5 }
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    XRD,
+                    FungibleResourceIndicator::Guaranteed(dec!(200))
                 )
-            ),
-            ResourceIndicator::Fungible(
-                stake_unit2,
-                FungibleResourceIndicator::Predicted(
-                    Predicted { value: dec!(100), instruction_index: 5 }
-                )
-            ),
-        ]
-    });
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    stake_unit1,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted { value: dec!(100), instruction_index: 5 }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    stake_unit2,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted { value: dec!(100), instruction_index: 5 }
+                    )
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
         dynamic_analysis.detailed_classification[0],
@@ -1717,9 +1803,10 @@ fn validator_unstake_transactions_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::ValidatorUnstake
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::ValidatorUnstake]
+    );
 
     let nf_id_local_1 = NonFungibleLocalId::from_str(
         "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}",
@@ -1730,52 +1817,58 @@ fn validator_unstake_transactions_are_recognized() {
     )
     .unwrap();
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                stake_unit1,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-            ResourceIndicator::Fungible(
-                stake_unit2,
-                FungibleResourceIndicator::Guaranteed(dec!(100))
-            ),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            ResourceIndicator::NonFungible(
-                claim_nft1,
-                NonFungibleResourceIndicator::ByAll {
-                    predicted_amount: Predicted {
-                        value: dec!(1),
-                        instruction_index: 6
-                    },
-                    predicted_ids: Predicted {
-                        value: indexset![
-                            nf_id_local_1.clone()
-                        ],
-                        instruction_index: 6
-                    },
-                }
-            ),
-            ResourceIndicator::NonFungible(
-                claim_nft2,
-                NonFungibleResourceIndicator::ByAll {
-                    predicted_amount: Predicted {
-                        value: dec!(1),
-                        instruction_index: 6
-                    },
-                    predicted_ids: Predicted {
-                        value: indexset![
-                            nf_id_local_2.clone()
-                        ],
-                        instruction_index: 6
-                    },
-                }
-            ),
-        ]
-    });
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    stake_unit1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    stake_unit2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::NonFungible(
+                    claim_nft1,
+                    NonFungibleResourceIndicator::ByAll {
+                        predicted_amount: Predicted {
+                            value: dec!(1),
+                            instruction_index: 6
+                        },
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                nf_id_local_1.clone()
+                            ],
+                            instruction_index: 6
+                        },
+                    }
+                ),
+                ResourceIndicator::NonFungible(
+                    claim_nft2,
+                    NonFungibleResourceIndicator::ByAll {
+                        predicted_amount: Predicted {
+                            value: dec!(1),
+                            instruction_index: 6
+                        },
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                nf_id_local_2.clone()
+                            ],
+                            instruction_index: 6
+                        },
+                    }
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
         dynamic_analysis.detailed_classification[0],
@@ -1819,16 +1912,12 @@ fn validator_unstake_transactions_are_recognized() {
     );
 
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1))
-    );
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2))
-    );
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)));
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)));
 }
 
 #[test]
@@ -1940,9 +2029,10 @@ fn validator_claim_transactions_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::ValidatorClaim
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::ValidatorClaim]
+    );
 
     let nf_id_local_1 = NonFungibleLocalId::from_str(
         "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}",
@@ -1953,47 +2043,53 @@ fn validator_claim_transactions_are_recognized() {
     )
     .unwrap();
 
-    assert_eq!(dynamic_analysis.account_withdraws, indexmap! {
-        account => vec![
-            ResourceIndicator::NonFungible(
-                claim_nft1,
-                NonFungibleResourceIndicator::ByAmount {
-                    amount: dec!(1),
-                    predicted_ids: Predicted {
-                        value: indexset![
-                            nf_id_local_1.clone()
-                        ],
-                        instruction_index: 0
-                    },
-                }
-            ),
-            ResourceIndicator::NonFungible(
-                claim_nft2,
-                NonFungibleResourceIndicator::ByAmount {
-                    amount: dec!(1),
-                    predicted_ids: Predicted {
-                        value: indexset![
-                            nf_id_local_2.clone()
-                        ],
-                        instruction_index: 1
-                    },
-                }
-            ),
-        ]
-    });
-    assert_eq!(dynamic_analysis.account_deposits, indexmap! {
-        account => vec![
-            ResourceIndicator::Fungible(
-                XRD,
-                FungibleResourceIndicator::Predicted(
-                    Predicted {
-                        value: dec!(200),
-                        instruction_index: 6
+    assert_eq!(
+        dynamic_analysis.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::NonFungible(
+                    claim_nft1,
+                    NonFungibleResourceIndicator::ByAmount {
+                        amount: dec!(1),
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                nf_id_local_1.clone()
+                            ],
+                            instruction_index: 0
+                        },
                     }
-                )
-            ),
-        ]
-    });
+                ),
+                ResourceIndicator::NonFungible(
+                    claim_nft2,
+                    NonFungibleResourceIndicator::ByAmount {
+                        amount: dec!(1),
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                nf_id_local_2.clone()
+                            ],
+                            instruction_index: 1
+                        },
+                    }
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        dynamic_analysis.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    XRD,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(200),
+                            instruction_index: 6
+                        }
+                    )
+                ),
+            ]
+        }
+    );
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
         dynamic_analysis.detailed_classification[0],
@@ -2128,9 +2224,10 @@ fn account_deposit_settings_changes_are_recognized() {
 
     assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
     assert_eq!(static_analysis.accounts_deposited_into, indexset![]);
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::AccountDepositSettingsUpdate
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::AccountDepositSettingsUpdate]
+    );
     assert!(dynamic_analysis.account_withdraws.is_empty());
     assert!(dynamic_analysis.account_deposits.is_empty());
     assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
@@ -2227,23 +2324,37 @@ fn presented_proofs_non_fungible() {
     //Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
-        .create_proof_from_account_of_non_fungibles(account_1, address_1, [
-            NonFungibleLocalId::integer(1),
-        ])
-        .create_proof_from_account_of_non_fungibles(account_1, address_2, [
-            NonFungibleLocalId::integer(3),
-        ])
-        .create_proof_from_account_of_non_fungibles(account_2, address_3, [
-            NonFungibleLocalId::integer(2),
-            NonFungibleLocalId::integer(3),
-        ])
-        .create_proof_from_account_of_non_fungibles(account_1, address_1, [
-            NonFungibleLocalId::integer(1),
-            NonFungibleLocalId::integer(2),
-        ])
-        .create_proof_from_account_of_non_fungibles(account_2, address_3, [
-            NonFungibleLocalId::integer(2),
-        ])
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_1,
+            [NonFungibleLocalId::integer(1)],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_2,
+            [NonFungibleLocalId::integer(3)],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_2,
+            address_3,
+            [
+                NonFungibleLocalId::integer(2),
+                NonFungibleLocalId::integer(3),
+            ],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_1,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2),
+            ],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_2,
+            address_3,
+            [NonFungibleLocalId::integer(2)],
+        )
         .build();
     let (static_analysis, _) = ledger.summarize(manifest);
 
@@ -2455,9 +2566,10 @@ fn account_locker_is_recognized_as_general_transaction() {
         dynamic_analysis.detailed_classification.len(),
         1
     );
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
     assert_eq_three!(
         static_analysis.presented_proofs.len(),
         dynamic_analysis.presented_proofs.len(),
@@ -2542,9 +2654,10 @@ fn lock_fee_manifest_has_no_classification_except_general() {
         dynamic_analysis.detailed_classification.len(),
         1
     );
-    assert_eq!(static_analysis.classification, indexset![
-        ManifestClass::General
-    ]);
+    assert_eq!(
+        static_analysis.classification,
+        indexset![ManifestClass::General]
+    );
 }
 
 #[test]
@@ -2593,8 +2706,8 @@ fn subintent_manifest_with_yield_to_child_is_not_a_general_subintent() {
 }
 
 #[test]
-fn subintent_manifest_of_transfer_with_metadata_update_is_not_a_general_subintent()
- {
+fn subintent_manifest_of_transfer_with_metadata_update_is_not_a_general_subintent(
+) {
     let account =
         ComponentAddress::new_or_panic([EntityType::GlobalAccount as u8; 30]);
     subintent_manifest_classification_test(

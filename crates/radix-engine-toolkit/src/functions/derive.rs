@@ -16,6 +16,7 @@
 // under the License.
 
 use bech32::{FromBase32, ToBase32};
+use scrypto::engine::wasm_api::blueprint;
 use scrypto::prelude::*;
 
 use crate::utils;
@@ -47,13 +48,19 @@ where
     NonFungibleGlobalId::from_public_key(public_key)
 }
 
-pub fn global_caller_non_fungible_global_id_from_component_address(
-    component_address: ComponentAddress,
+pub fn global_caller_non_fungible_global_id_from_global_address(
+    caller_address: GlobalAddress,
 ) -> NonFungibleGlobalId {
-    NonFungibleGlobalId::global_caller_badge(component_address)
+    NonFungibleGlobalId::global_caller_badge(caller_address)
 }
 
-pub fn package_of_direct_caller_non_fungible_global_id_from_component_address(
+pub fn global_caller_non_fungible_global_id_from_blueprint_id(
+    blueprint_id: BlueprintId,
+) -> NonFungibleGlobalId {
+    NonFungibleGlobalId::global_caller_badge(blueprint_id)
+}
+
+pub fn package_of_direct_caller_non_fungible_global_id_from_package_address(
     package_address: PackageAddress,
 ) -> NonFungibleGlobalId {
     NonFungibleGlobalId::package_of_direct_caller_badge(package_address)
@@ -210,6 +217,12 @@ pub fn node_address_from_public_key(
 
     bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m)
         .expect("Should not panic since all data is trusted.")
+}
+
+pub fn public_key_hash_from_public_key<P: HasPublicKeyHash>(
+    public_key: &P,
+) -> <P as HasPublicKeyHash>::TypedPublicKeyHash {
+    public_key.get_hash()
 }
 
 pub enum OlympiaNetwork {
