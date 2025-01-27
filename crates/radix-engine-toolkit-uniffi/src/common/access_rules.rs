@@ -25,6 +25,14 @@ pub struct AccessRule(pub NativeAccessRule);
 #[uniffi::export]
 impl AccessRule {
     #[uniffi::constructor]
+    pub fn from_scrypto_sbor_payload(payload: Vec<u8>) -> Result<Arc<Self>> {
+        native_scrypto_decode(&payload)
+            .map_err(RadixEngineToolkitError::from)
+            .map(Self)
+            .map(Arc::new)
+    }
+
+    #[uniffi::constructor]
     pub fn require(
         resource_or_non_fungible: ResourceOrNonFungible,
     ) -> Result<Arc<Self>> {
@@ -157,6 +165,17 @@ impl AccessRule {
             }
         };
         Arc::new(AccessRule(access_rule))
+    }
+
+    pub fn extract_entities(
+        &self,
+        network_id: u8,
+    ) -> Vec<ResourceOrNonFungible> {
+        let extraced_entities = core_extract_entities(&self.0);
+        extraced_entities
+            .into_iter()
+            .map(|item| ResourceOrNonFungible::from_native(item, network_id))
+            .collect()
     }
 }
 

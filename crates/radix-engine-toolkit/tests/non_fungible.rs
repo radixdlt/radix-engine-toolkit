@@ -53,16 +53,12 @@ fn dynamic_analysis_new_non_fungible_list_initial_supply() {
 
     // Assert
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(*address, nf_id_1))
-    );
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(*address, nf_id_2))
-    );
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(*address, nf_id_1)));
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
 }
 
 #[test]
@@ -105,11 +101,9 @@ fn dynamic_analysis_new_non_fungible_list_after_mint() {
 
     // Assert
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(*address, nf_id_2))
-    );
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
 }
 
 #[test]
@@ -200,11 +194,9 @@ fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
 
     // Assert
     assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
-    assert!(
-        dynamic_analysis
-            .newly_created_non_fungibles
-            .contains(&NonFungibleGlobalId::new(*address, nf_id_3))
-    );
+    assert!(dynamic_analysis
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(*address, nf_id_3)));
 }
 
 #[test]
@@ -234,12 +226,18 @@ fn dynamic_analysis_new_non_fungible_list_after_update() {
             NonFungibleResourceRoles::single_locked_rule(AccessRule::AllowAll),
             ModuleConfig::default(),
             Some(vec![
-                (nf_id_1.clone(), NfData {
-                    name: "data_1".to_string(),
-                }),
-                (nf_id_2.clone(), NfData {
-                    name: "data_2".to_string(),
-                }),
+                (
+                    nf_id_1.clone(),
+                    NfData {
+                        name: "data_1".to_string(),
+                    },
+                ),
+                (
+                    nf_id_2.clone(),
+                    NfData {
+                        name: "data_2".to_string(),
+                    },
+                ),
             ]),
         )
         .try_deposit_entire_worktop_or_abort(account, None)
