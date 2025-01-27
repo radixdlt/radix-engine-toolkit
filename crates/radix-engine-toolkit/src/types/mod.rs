@@ -16,7 +16,6 @@
 // under the License.
 
 mod build_information;
-mod detailed_transaction_type_output;
 mod grouped_entity_type;
 mod grouped_instruction;
 mod indexed_manifest_value;
@@ -35,7 +34,6 @@ mod update;
 mod worktop_changes;
 
 pub use build_information::*;
-pub use detailed_transaction_type_output::*;
 pub use grouped_entity_type::*;
 pub use grouped_instruction::*;
 pub use indexed_manifest_value::*;
