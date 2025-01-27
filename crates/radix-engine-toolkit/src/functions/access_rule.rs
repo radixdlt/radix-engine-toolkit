@@ -7,7 +7,7 @@ pub fn extract_entities(
     pub struct AccessRuleEntitiesVisitor(IndexSet<ResourceOrNonFungible>);
 
     impl AccessRuleEntitiesVisitor {
-        pub fn output(self) -> IndexSet<ResourceOrNonFungible> {
+        pub fn into_output(self) -> IndexSet<ResourceOrNonFungible> {
             self.0
         }
     }
