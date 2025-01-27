@@ -93,12 +93,25 @@ impl NonFungibleGlobalId {
     }
 
     #[uniffi::constructor]
-    pub fn global_caller_badge(
+    pub fn global_caller_badge_from_global_address(
         component_address: Arc<Address>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
         derive_global_caller_non_fungible_global_id_from_global_address(
             component_address,
+            network_id,
+        )
+    }
+
+    #[uniffi::constructor]
+    pub fn global_caller_badge_from_blueprint_id(
+        package_address: Arc<Address>,
+        blueprint_name: String,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_global_caller_non_fungible_global_id_from_blueprint_id(
+            package_address,
+            blueprint_name,
             network_id,
         )
     }

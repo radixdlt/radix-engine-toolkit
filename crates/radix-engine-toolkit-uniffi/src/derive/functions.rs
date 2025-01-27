@@ -74,6 +74,27 @@ pub fn derive_global_caller_non_fungible_global_id_from_global_address(
 }
 
 #[uniffi::export]
+pub fn derive_global_caller_non_fungible_global_id_from_blueprint_id(
+    package_address: Arc<Address>,
+    blueprint_name: String,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let package_address = NativePackageAddress::try_from(*package_address)?;
+    let blueprint_id = NativeBlueprintId {
+        package_address,
+        blueprint_name,
+    };
+    let non_fungible_global_id =
+        core_global_caller_non_fungible_global_id_from_blueprint_id(
+            blueprint_id,
+        );
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
 pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
     package_address: Arc<Address>,
     network_id: u8,

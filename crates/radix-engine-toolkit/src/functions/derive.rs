@@ -16,6 +16,7 @@
 // under the License.
 
 use bech32::{FromBase32, ToBase32};
+use scrypto::engine::wasm_api::blueprint;
 use scrypto::prelude::*;
 
 use crate::utils;
@@ -51,6 +52,12 @@ pub fn global_caller_non_fungible_global_id_from_global_address(
     caller_address: GlobalAddress,
 ) -> NonFungibleGlobalId {
     NonFungibleGlobalId::global_caller_badge(caller_address)
+}
+
+pub fn global_caller_non_fungible_global_id_from_blueprint_id(
+    blueprint_id: BlueprintId,
+) -> NonFungibleGlobalId {
+    NonFungibleGlobalId::global_caller_badge(blueprint_id)
 }
 
 pub fn package_of_direct_caller_non_fungible_global_id_from_package_address(
