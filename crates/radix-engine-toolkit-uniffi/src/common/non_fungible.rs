@@ -121,7 +121,7 @@ impl NonFungibleGlobalId {
         package_address: Arc<Address>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+        derive_package_of_direct_caller_non_fungible_global_id_from_package_address(
             package_address, network_id,
         )
     }

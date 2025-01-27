@@ -95,7 +95,7 @@ pub fn derive_global_caller_non_fungible_global_id_from_blueprint_id(
 }
 
 #[uniffi::export]
-pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+pub fn derive_package_of_direct_caller_non_fungible_global_id_from_package_address(
     package_address: Arc<Address>,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {

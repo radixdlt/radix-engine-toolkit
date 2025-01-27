@@ -65,11 +65,17 @@ pub fn statically_validate(
         .map(|_| ())
 }
 
+/// This function extracts the set of signer public keys from a
+/// [`NotarizedTransactionV1`]. The transaction must be valid according to the
+/// babylon set of validation rules for the extraction to succeed. If it is not
+/// valid then a [`TransactionValidationError`] error is returned.
 pub fn extract_signer_public_keys(
     notarized_transaction: &NotarizedTransactionV1,
 ) -> Result<IndexSet<PublicKey>, TransactionValidationError> {
     let validator =
-        TransactionValidator::new_with_latest_config_network_agnostic();
+        TransactionValidator::new_with_static_config_network_agnostic(
+            TransactionValidationConfigV1::babylon(),
+        );
     notarized_transaction
         .prepare(&PreparationSettings::latest())
         .map_err(TransactionValidationError::PrepareError)
