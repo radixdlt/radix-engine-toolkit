@@ -25,7 +25,7 @@ pub struct AccessRule(pub NativeAccessRule);
 #[uniffi::export]
 impl AccessRule {
     #[uniffi::constructor]
-    pub fn from_scrypto_sbor_payloda(payload: Vec<u8>) -> Result<Arc<Self>> {
+    pub fn from_scrypto_sbor_payload(payload: Vec<u8>) -> Result<Arc<Self>> {
         native_scrypto_decode(&payload)
             .map_err(RadixEngineToolkitError::from)
             .map(Self)
