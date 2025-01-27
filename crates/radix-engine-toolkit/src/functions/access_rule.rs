@@ -7,7 +7,7 @@ pub fn extract_entities(
     pub struct AccessRuleEntitiesVisitor(IndexSet<ResourceOrNonFungible>);
 
     impl AccessRuleEntitiesVisitor {
-        pub fn output(self) -> IndexSet<ResourceOrNonFungible> {
+        pub fn into_output(self) -> IndexSet<ResourceOrNonFungible> {
             self.0
         }
     }
@@ -30,10 +30,10 @@ pub fn extract_entities(
                             *resource_address,
                         ));
                     }
-                    BasicRequirement::CountOf(_, entities)
-                    | BasicRequirement::AllOf(entities)
-                    | BasicRequirement::AnyOf(entities) => {
-                        self.0.extend(entities.clone());
+                    BasicRequirement::CountOf(_, requirements)
+                    | BasicRequirement::AllOf(requirements)
+                    | BasicRequirement::AnyOf(requirements) => {
+                        self.0.extend(requirements.clone());
                     }
                 },
                 CompositeRequirement::AnyOf(_)
@@ -48,7 +48,7 @@ pub fn extract_entities(
     access_rule
         .dfs_traverse_nodes(&mut visitor)
         .expect("Visitor will not error");
-    visitor.output()
+    visitor.into_output()
 }
 
 #[cfg(test)]
