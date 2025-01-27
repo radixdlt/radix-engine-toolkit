@@ -30,10 +30,10 @@ pub fn extract_entities(
                             *resource_address,
                         ));
                     }
-                    BasicRequirement::CountOf(_, entities)
-                    | BasicRequirement::AllOf(entities)
-                    | BasicRequirement::AnyOf(entities) => {
-                        self.0.extend(entities.clone());
+                    BasicRequirement::CountOf(_, requirements)
+                    | BasicRequirement::AllOf(requirements)
+                    | BasicRequirement::AnyOf(requirements) => {
+                        self.0.extend(requirements.clone());
                     }
                 },
                 CompositeRequirement::AnyOf(_)
