@@ -55,23 +55,6 @@ impl ManifestStaticAnalyzer for ValidatorUnstakeAnalyzer {
 
 impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
     type Output = ValidatorUnstakingOutput;
-    type RequirementState = ValidatorUnstakeDynamicRequirementState;
-
-    fn new(
-        _: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    ) {
-        (
-            Default::default(),
-            CallbackPermissionState::new(is_instruction_permitted),
-            Default::default(),
-            Default::default(),
-        )
-    }
 
     fn output(
         self,
@@ -132,105 +115,6 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
                 claim_nft_address: *claim_nft_resource_address,
                 claim_nft_ids: (**claim_nft_ids).clone(),
             });
-        }
-    }
-}
-
-/// The requirement state that must be fulfilled in order for a manifest to get
-/// a validator unstake detailed classification. The primary difference between
-/// the static and dynamic requirement is that in the static requirement there
-/// is no way for us to check the source and destination of the LSUs.
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct ValidatorUnstakeDynamicRequirementState {
-    /// This accumulator is similar to the [`accumulator`] found in the
-    /// [`ValidatorStakeDynamicRequirementState`] type but this one works for
-    /// multiple resources whereas the other one works only for XRD.
-    ///
-    /// The purpose of this accumulator is the same as the other one: we wish to
-    /// verify that all of the liquid stake units sourced from the account are
-    /// sinked into validator unstake calls. Therefore, we track all withdraws
-    /// here and:
-    ///
-    /// * With every withdraw from an account we increase this accumulator by
-    ///   the amount withdrawn.
-    /// * With every unstake from a validator we decrease this accumulator by
-    ///   the amount of LSUs that were unstaked.
-    ///
-    /// In order for it to be classified as an unstaking transaction then all of
-    /// the accumulators must be equal to zero.
-    ///
-    /// [`accumulator`]: ValidatorStakeDynamicRequirementState::accumulator
-    accumulator: HashMap<ResourceAddress, Decimal>,
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorUnstakeDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.values().all(Decimal::is_zero) {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation: Some(typed_native_invocation),
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-
-        match typed_native_invocation {
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::Withdraw(
-                                AccountWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(
-                                            resource_address,
-                                        ),
-                                    amount,
-                                },
-                            )
-                            | AccountBlueprintMethod::LockFeeAndWithdraw(
-                                AccountLockFeeAndWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(
-                                            resource_address,
-                                        ),
-                                    amount,
-                                    ..
-                                },
-                            ),
-                        ),
-                    ),
-            } => {
-                *self.accumulator.entry(*resource_address).or_default() +=
-                    *amount;
-            }
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                        ValidatorBlueprintInvocation::Method(
-                            ValidatorBlueprintMethod::Unstake(..),
-                        ),
-                    ),
-            } => {
-                for lsu in dynamic_analysis_invocation_io.input.items_iter() {
-                    *self
-                        .accumulator
-                        .entry(*lsu.resource_address())
-                        .or_default() -= *lsu.amount();
-                }
-            }
-            _ => {}
         }
     }
 }

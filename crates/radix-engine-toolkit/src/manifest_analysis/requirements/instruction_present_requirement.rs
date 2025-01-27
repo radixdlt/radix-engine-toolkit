@@ -239,13 +239,11 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
                                 OneResourcePoolBlueprintInvocation::Method(
                                     OneResourcePoolBlueprintMethod::Contribute(..)
                                 )
-                            )
-                            | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                            ) | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
                                 TwoResourcePoolBlueprintInvocation::Method(
                                     TwoResourcePoolBlueprintMethod::Contribute(..)
                                 )
-                            )
-                            | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                            ) | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
                                 MultiResourcePoolBlueprintInvocation::Method(
                                     MultiResourcePoolBlueprintMethod::Contribute(..)
                                 )
@@ -269,13 +267,11 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
                                 OneResourcePoolBlueprintInvocation::Method(
                                     OneResourcePoolBlueprintMethod::Redeem(..)
                                 )
-                            )
-                            | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
+                            ) | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
                                 TwoResourcePoolBlueprintInvocation::Method(
                                     TwoResourcePoolBlueprintMethod::Redeem(..)
                                 )
-                            )
-                            | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
+                            ) | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
                                 MultiResourcePoolBlueprintInvocation::Method(
                                     MultiResourcePoolBlueprintMethod::Redeem(..)
                                 )

@@ -135,7 +135,6 @@ pub fn dynamically_analyze(
         analyzer,
         static_permission_state,
         static_requirement_state,
-        dynamic_requirement_state,
     } = dynamic_analyzer_traverse::<CompositeAnalyzer>(
         manifest,
         analysis_receipt.worktop_changes(),
@@ -145,7 +144,6 @@ pub fn dynamically_analyze(
         ManifestDynamicAnalyzer::output(analyzer),
         &static_permission_state,
         &static_requirement_state,
-        &dynamic_requirement_state,
     );
 
     // Getting the static invocation IOs from the static analyzer
@@ -178,87 +176,47 @@ pub fn dynamically_analyze(
     let CompositeResolvedDynamicOutput {
         /* Data Retrieval */
         account_interactions:
-            CombinedAnalysisOutput {
-                static_analyzer_output: Some(account_interactions_summary),
+            Some(CombinedAnalysisOutput {
+                static_analyzer_output: account_interactions_summary,
                 dynamic_analyzer_output: _,
-            },
+            }),
         encountered_entities:
-            CombinedAnalysisOutput {
-                static_analyzer_output: Some(entities_encountered_summary),
+            Some(CombinedAnalysisOutput {
+                static_analyzer_output: entities_encountered_summary,
                 dynamic_analyzer_output: _,
-            },
+            }),
         entities_requiring_auth:
-            CombinedAnalysisOutput {
-                static_analyzer_output: Some(entities_requiring_auth_summary),
+            Some(CombinedAnalysisOutput {
+                static_analyzer_output: entities_requiring_auth_summary,
                 dynamic_analyzer_output: _,
-            },
+            }),
         presented_proofs:
-            CombinedAnalysisOutput {
-                static_analyzer_output: Some(proofs_created_summary),
+            Some(CombinedAnalysisOutput {
+                static_analyzer_output: proofs_created_summary,
                 dynamic_analyzer_output: _,
-            },
+            }),
         reserved_instructions:
-            CombinedAnalysisOutput {
-                static_analyzer_output: Some(reserved_instructions_summary),
+            Some(CombinedAnalysisOutput {
+                static_analyzer_output: reserved_instructions_summary,
                 dynamic_analyzer_output: _,
-            },
+            }),
         account_dynamic_resource_movements:
-            CombinedAnalysisOutput {
+            Some(CombinedAnalysisOutput {
                 static_analyzer_output: _,
                 dynamic_analyzer_output:
-                    Some(account_dynamic_resource_movements_summary),
-            },
+                    account_dynamic_resource_movements_summary,
+            }),
         /* Manifest Classification */
-        general_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: general_classification,
-                dynamic_analyzer_output: _,
-            },
-        general_subintent_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: _,
-            },
-        transfer_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: transfer_classification,
-                dynamic_analyzer_output: _,
-            },
-        simple_transfer_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: simple_transfer_classification,
-                dynamic_analyzer_output: _,
-            },
-        validator_stake_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: validator_stake_classification,
-            },
-        validator_unstake_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: validator_unstake_classification,
-            },
-        validator_claim_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: validator_claim_classification,
-            },
-        pool_contribution_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: pool_contribution_classification,
-            },
-        pool_redemption_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: _,
-                dynamic_analyzer_output: pool_redemption_classification,
-            },
-        account_settings_update_classification:
-            CombinedAnalysisOutput {
-                static_analyzer_output: account_settings_update_classification,
-                dynamic_analyzer_output: _,
-            },
+        general_classification,
+        general_subintent_classification,
+        transfer_classification,
+        simple_transfer_classification,
+        validator_stake_classification,
+        validator_unstake_classification,
+        validator_claim_classification,
+        pool_contribution_classification,
+        pool_redemption_classification,
+        account_settings_update_classification,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -276,27 +234,30 @@ pub fn dynamically_analyze(
         fee_locks_summary: analysis_receipt.fee_locks(),
         fee_consumption_summary: analysis_receipt.fee_summary(),
         detailed_manifest_classification: vec![
-            general_classification
-                .map(|_| DetailedManifestClassification::General),
-            transfer_classification.map(|_| {
-                DetailedManifestClassification::Transfer {
-                    is_one_to_one_transfer: simple_transfer_classification
-                        .is_some(),
-                }
+            general_classification.map(|_| DetailedManifestClassification::General),
+            general_subintent_classification
+                .map(|_| DetailedManifestClassification::GeneralSubintent),
+            transfer_classification.map(|_| DetailedManifestClassification::Transfer {
+                is_one_to_one_transfer: simple_transfer_classification.is_some(),
             }),
             validator_stake_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::ValidatorStake),
             validator_unstake_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::ValidatorUnstake),
             validator_claim_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::ValidatorClaimXrd),
             pool_contribution_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::PoolContribution),
             pool_redemption_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::PoolRedemption),
-            account_settings_update_classification.map(
-                DetailedManifestClassification::AccountDepositSettingsUpdate,
-            ),
+            account_settings_update_classification
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccountDepositSettingsUpdate),
         ]
         .into_iter()
         .flatten()

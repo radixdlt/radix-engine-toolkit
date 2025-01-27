@@ -55,23 +55,6 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
 
 impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
     type Output = PoolContributionOutput;
-    type RequirementState = PoolContributionDynamicRequirementState;
-
-    fn new(
-        _: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    ) {
-        (
-            Default::default(),
-            CallbackPermissionState::new(is_instruction_permitted),
-            Default::default(),
-            Default::default(),
-        )
-    }
 
     fn output(
         self,
@@ -135,89 +118,6 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
                         pool_units_amount: *pool_units_output.amount(),
                     })
             }
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct PoolContributionDynamicRequirementState {
-    /// When resources are withdrawn from the account this accumulator increases
-    /// and when they're contributed they decrease. When we finish, all values
-    /// must be equal to zero.
-    accumulator: HashMap<ResourceAddress, Decimal>,
-}
-
-impl ManifestAnalyzerRequirementState
-    for PoolContributionDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.values().all(Decimal::is_zero) {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation: Some(typed_native_invocation),
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-        match typed_native_invocation {
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::Withdraw(
-                                AccountWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(resource_address),
-                                    amount,
-                                },
-                            )
-                            | AccountBlueprintMethod::LockFeeAndWithdraw(
-                                AccountLockFeeAndWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(resource_address),
-                                    amount,
-                                    ..
-                                },
-                            ),
-                        ),
-                    ),
-            } => {
-                *self.accumulator.entry(*resource_address).or_default() += *amount;
-            }
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                        OneResourcePoolBlueprintInvocation::Method(
-                            OneResourcePoolBlueprintMethod::Contribute(..),
-                        ),
-                    )
-                    | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                        TwoResourcePoolBlueprintInvocation::Method(
-                            TwoResourcePoolBlueprintMethod::Contribute(..),
-                        ),
-                    )
-                    | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                        MultiResourcePoolBlueprintInvocation::Method(
-                            MultiResourcePoolBlueprintMethod::Contribute(..),
-                        ),
-                    ),
-            } => {
-                for item in dynamic_analysis_invocation_io.input.items_iter() {
-                    let resource_address = item.resource_address();
-                    let amount = item.amount();
-                    *self.accumulator.entry(*resource_address).or_default() -= *amount;
-                }
-            }
-            _ => {}
         }
     }
 }

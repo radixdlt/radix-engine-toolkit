@@ -24,27 +24,6 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
     /// The output type of the dynamic analyzer.
     type Output;
 
-    /// The type that the visitor uses to describe if it's requirements for
-    /// instructions is permitted or not.
-    type RequirementState: ManifestAnalyzerRequirementState + Sized;
-
-    /// A function used to construct the manifest analysis static visitor as
-    /// well as its permission state and requirement state and return them back
-    /// to the caller. The function takes in the [`Initializer`] as an argument
-    /// which is an associated type on this trait. Through this, we are able to
-    /// pass "arbitrary" arguments to these constructors. This function takes in
-    /// the same initializer that's used in the static analyzer.
-    ///
-    /// [`Initializer`]: ManifestStaticAnalyzer::Initializer
-    fn new(
-        initializer: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    );
-
     /// A method that consumes the visitor and returns the output of the static
     /// and dynamic analyzers.
     fn output(
@@ -62,4 +41,14 @@ pub trait ManifestDynamicAnalyzer: ManifestStaticAnalyzer {
 pub struct CombinedAnalysisOutput<A, B> {
     pub static_analyzer_output: A,
     pub dynamic_analyzer_output: B,
+}
+
+impl<A, B> CombinedAnalysisOutput<A, B> {
+    pub fn into_static_analyzer_output(self) -> A {
+        self.static_analyzer_output
+    }
+
+    pub fn into_dynamic_analyzer_output(self) -> B {
+        self.dynamic_analyzer_output
+    }
 }

@@ -723,6 +723,7 @@ impl FromNative for ManifestClassification {
 #[derive(Clone, Debug, Enum)]
 pub enum DetailedManifestClassification {
     General,
+    GeneralSubintent,
     Transfer { is_one_to_one_transfer: bool },
     ValidatorStake { value: ValidatorStakingOutput },
     ValidatorUnstake { value: ValidatorUnstakingOutput },
@@ -738,6 +739,7 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         match native {
             Self::Native::General => Self::General {},
+            Self::Native::GeneralSubintent => Self::GeneralSubintent {},
             Self::Native::Transfer {
                 is_one_to_one_transfer,
             } => Self::Transfer {

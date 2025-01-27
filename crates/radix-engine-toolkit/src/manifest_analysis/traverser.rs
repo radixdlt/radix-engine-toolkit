@@ -250,9 +250,6 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             &mut analyzer_state.analyzer,
             context,
         );
-        analyzer_state
-            .dynamic_requirement_state
-            .process_instruction(context);
         ManifestDynamicAnalyzer::process_instruction(
             &mut analyzer_state.analyzer,
             context,
@@ -286,23 +283,16 @@ pub struct DynamicAnalyzerState<A: ManifestDynamicAnalyzer> {
     pub static_permission_state: <A as ManifestStaticAnalyzer>::PermissionState,
     pub static_requirement_state:
         <A as ManifestStaticAnalyzer>::RequirementState,
-    pub dynamic_requirement_state:
-        <A as ManifestDynamicAnalyzer>::RequirementState,
 }
 
 impl<A: ManifestDynamicAnalyzer> DynamicAnalyzerState<A> {
     fn new(initializer: A::Initializer) -> Self {
-        let (
-            analyzer,
-            static_permission_state,
-            static_requirement_state,
-            dynamic_requirement_state,
-        ) = <A as ManifestDynamicAnalyzer>::new(initializer);
+        let (analyzer, static_permission_state, static_requirement_state) =
+            <A as ManifestStaticAnalyzer>::new(initializer);
         Self {
             analyzer,
             static_permission_state,
             static_requirement_state,
-            dynamic_requirement_state,
         }
     }
 }

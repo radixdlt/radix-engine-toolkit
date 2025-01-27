@@ -41,18 +41,6 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
 
 impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
     type Output = AccountDynamicResourceMovementsOutput;
-    type RequirementState = ConstState<true>;
-
-    fn new(
-        _: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    ) {
-        Default::default()
-    }
 
     fn output(
         self,

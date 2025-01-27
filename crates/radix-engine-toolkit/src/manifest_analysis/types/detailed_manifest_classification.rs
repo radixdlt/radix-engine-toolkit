@@ -26,6 +26,10 @@ pub enum DetailedManifestClassification {
     /// A general manifest that has a number of arbitrary package and component
     /// invocations.
     General,
+    /// A general subintent manifest that has a number of arbitrary package and
+    /// component invocations. This manifest is guaranteed to be subintent since
+    /// we require that a yield to child is present in the manifest.
+    GeneralSubintent,
     /// A manifest containing transfers between accounts only where resources
     /// are withdrawn from one or more account(s) and deposited into one or more
     /// account(s) without any calls to any other components.

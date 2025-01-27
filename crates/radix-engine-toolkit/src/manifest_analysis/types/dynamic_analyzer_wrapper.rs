@@ -61,25 +61,6 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
     for DynamicAnalyzerWrapper<A>
 {
     type Output = ();
-    type RequirementState = ConstState<true>;
-
-    fn new(
-        initializer: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    ) {
-        let (analyzer, permission_state, requirement_state) =
-            <Self as ManifestStaticAnalyzer>::new(initializer);
-        (
-            analyzer,
-            permission_state,
-            requirement_state,
-            ConstState::<true>,
-        )
-    }
 
     fn output(
         self,

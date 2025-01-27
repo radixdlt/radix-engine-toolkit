@@ -107,54 +107,6 @@ macro_rules! define_composite_analyzer {
                 for [< $type_ident Analyzer >]
             {
                 type Output = [< $type_ident DynamicOutput >];
-                type RequirementState = [< $type_ident DynamicRequirementState >];
-
-                fn new(
-                    initializer: Self::Initializer,
-                ) -> (
-                    Self,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::PermissionState,
-                    <Self as $crate::internal_prelude::ManifestStaticAnalyzer>::RequirementState,
-                    <Self as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
-                )
-                {
-                    $(
-                        let (
-                            [< $analyzer_ident _analyzer >],
-                            [< $analyzer_ident _static_permission_state >],
-                            [< $analyzer_ident _static_requirement_state >],
-                            [< $analyzer_ident _dynamic_requirement_state >],
-                        ) = <$analyzer_type as $crate::internal_prelude::ManifestDynamicAnalyzer>::new(initializer.$analyzer_ident);
-                    )*
-
-                    let analyzers = [< $type_ident Analyzer >] {
-                        $(
-                            $analyzer_ident: ([< $analyzer_ident _analyzer >], true),
-                        )*
-                    };
-                    let static_permission_states = [< $type_ident StaticPermissionState >] {
-                        $(
-                            $analyzer_ident: [< $analyzer_ident _static_permission_state >],
-                        )*
-                    };
-                    let static_requirement_states = [< $type_ident StaticRequirementState >] {
-                        $(
-                            $analyzer_ident: [< $analyzer_ident _static_requirement_state >],
-                        )*
-                    };
-                    let dynamic_requirement_states = [< $type_ident DynamicRequirementState >] {
-                        $(
-                            $analyzer_ident: [< $analyzer_ident _dynamic_requirement_state >],
-                        )*
-                    };
-
-                    (
-                        analyzers,
-                        static_permission_states,
-                        static_requirement_states,
-                        dynamic_requirement_states
-                    )
-                }
 
                 fn output(self) -> $crate::internal_prelude::CombinedAnalysisOutput<
                     [< $type_ident StaticOutput >],
@@ -226,10 +178,10 @@ macro_rules! define_composite_analyzer {
             #[derive(Debug)]
             pub struct [< $type_ident ResolvedDynamicOutput >] {
                 $(
-                    pub $analyzer_ident: $crate::internal_prelude::CombinedAnalysisOutput<
-                        Option< <$analyzer_type as $crate::internal_prelude::ManifestStaticAnalyzer>::Output >,
-                        Option< <$analyzer_type as $crate::internal_prelude::ManifestDynamicAnalyzer>::Output >,
-                    >,
+                    pub $analyzer_ident: Option<$crate::internal_prelude::CombinedAnalysisOutput<
+                        <$analyzer_type as $crate::internal_prelude::ManifestStaticAnalyzer>::Output,
+                        <$analyzer_type as $crate::internal_prelude::ManifestDynamicAnalyzer>::Output,
+                    >>,
                 )*
             }
 
@@ -275,22 +227,22 @@ macro_rules! define_composite_analyzer {
                     >,
                     static_permission_state: &[< $type_ident StaticPermissionState >],
                     static_requirement_state: &[< $type_ident StaticRequirementState >],
-                    dynamic_requirement_state: &[< $type_ident DynamicRequirementState >],
                 ) -> Self {
                     [< $type_ident ResolvedDynamicOutput >] {
                         $(
-                            $analyzer_ident: $crate::internal_prelude::CombinedAnalysisOutput {
-                                static_analyzer_output: (
-                                    $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&static_permission_state.$analyzer_ident)
-                                    && $crate::internal_prelude::ManifestAnalyzerRequirementState::requirement_state(&static_requirement_state.$analyzer_ident).is_fulfilled()
-                                )
-                                .then_some(output.static_analyzer_output.$analyzer_ident),
-                                dynamic_analyzer_output: (
-                                    $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&static_permission_state.$analyzer_ident)
-                                    && $crate::internal_prelude::ManifestAnalyzerRequirementState::requirement_state(&static_requirement_state.$analyzer_ident).is_fulfilled()
-                                    && $crate::internal_prelude::ManifestAnalyzerRequirementState::requirement_state(&dynamic_requirement_state.$analyzer_ident).is_fulfilled()
-                                )
-                                .then_some(output.dynamic_analyzer_output.$analyzer_ident)
+                            $analyzer_ident: {
+                                let is_fulfilled = $crate::internal_prelude::ManifestAnalyzerPermissionState::all_instructions_permitted(&static_permission_state.$analyzer_ident)
+                                && $crate::internal_prelude::ManifestAnalyzerRequirementState::requirement_state(&static_requirement_state.$analyzer_ident).is_fulfilled();
+                                if is_fulfilled {
+                                    Some(
+                                        $crate::internal_prelude::CombinedAnalysisOutput {
+                                            static_analyzer_output: output.static_analyzer_output.$analyzer_ident,
+                                            dynamic_analyzer_output: output.dynamic_analyzer_output.$analyzer_ident,
+                                        }
+                                    )
+                                } else {
+                                    None
+                                }
                             },
                         )*
                     }
@@ -320,26 +272,6 @@ macro_rules! define_composite_analyzer {
 
             impl $crate::internal_prelude::ManifestAnalyzerRequirementState
                 for [< $type_ident StaticRequirementState >]
-            {
-                fn requirement_state(&self) -> RequirementState {
-                    RequirementState::Fulfilled
-                }
-
-                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-                    $(
-                        $crate::internal_prelude::ManifestAnalyzerRequirementState::process_instruction(&mut self.$analyzer_ident, context);
-                    )*
-                }
-            }
-
-            pub struct [< $type_ident DynamicRequirementState >] {
-                $(
-                    $analyzer_ident: <$analyzer_type as $crate::internal_prelude::ManifestDynamicAnalyzer>::RequirementState,
-                )*
-            }
-
-            impl $crate::internal_prelude::ManifestAnalyzerRequirementState
-                for [< $type_ident DynamicRequirementState >]
             {
                 fn requirement_state(&self) -> RequirementState {
                     RequirementState::Fulfilled

@@ -55,23 +55,6 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
 
 impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
     type Output = ValidatorStakingOutput;
-    type RequirementState = ValidatorStakeDynamicRequirementState;
-
-    fn new(
-        _: Self::Initializer,
-    ) -> (
-        Self,
-        <Self as ManifestStaticAnalyzer>::PermissionState,
-        <Self as ManifestStaticAnalyzer>::RequirementState,
-        <Self as ManifestDynamicAnalyzer>::RequirementState,
-    ) {
-        (
-            Default::default(),
-            CallbackPermissionState::new(is_instruction_permitted),
-            Default::default(),
-            Default::default(),
-        )
-    }
 
     fn output(
         self,
@@ -197,95 +180,6 @@ impl ManifestAnalyzerRequirementState for ValidatorStakeStaticRequirementState {
                         ),
                     ),
             } => self.is_validator_stake_seen = true,
-            _ => {}
-        }
-    }
-}
-
-/// The requirement state that must be fulfilled in order for a manifest to get
-/// a validator stake detailed classification. The primary difference between
-/// the static and dynamic requirement is that in the static requirement there
-/// is no way for us to check the source and destination of the XRD.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct ValidatorStakeDynamicRequirementState {
-    /// This accumulator is used to track the source and destination of the XRD.
-    /// A requirement that we have is that all of the XRD withdrawn from any
-    /// account in the manifest must be staked and that all LSUs must be
-    /// deposited into one or more account(s). Essentially, we want to ensure
-    /// that in a stake transaction no transfers can take place.
-    ///
-    /// This accumulator performs this check in the following way:
-    ///
-    /// * When resources (XRD) is withdrawn from the account this accumulator
-    ///   increases by the amount of XRD that was withdrawn.
-    /// * When resources (XRD) are staked to a validator this accumulator
-    ///   decreases by the amount of XRD that was staked to them.
-    ///
-    /// For a manifest to be considered a valid staking manifest then this
-    /// accumulator must be zero by the end of it. So, this validates that all
-    /// XRD sourced from an account are sinked into a validator stake call.
-    accumulator: Decimal,
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorStakeDynamicRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.accumulator.is_zero() {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation: Some(typed_native_invocation),
-            dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
-            ..
-        } = context
-        else {
-            return;
-        };
-
-        match typed_native_invocation {
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::Withdraw(
-                                AccountWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(XRD),
-                                    amount,
-                                },
-                            )
-                            | AccountBlueprintMethod::LockFeeAndWithdraw(
-                                AccountLockFeeAndWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(XRD),
-                                    amount,
-                                    ..
-                                },
-                            ),
-                        ),
-                    ),
-            } => {
-                self.accumulator += *amount;
-            }
-            TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                        ValidatorBlueprintInvocation::Method(
-                            ValidatorBlueprintMethod::Stake(..),
-                        ),
-                    ),
-            } => {
-                let staked_xrd =
-                    dynamic_analysis_invocation_io.input.resource_amount(&XRD);
-                self.accumulator -= staked_xrd;
-            }
             _ => {}
         }
     }
