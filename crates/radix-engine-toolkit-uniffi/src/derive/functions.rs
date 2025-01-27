@@ -166,3 +166,12 @@ pub fn derive_olympia_account_address_from_public_key(
     );
     Ok(Arc::new(OlympiaAddress(address)))
 }
+
+#[uniffi::export]
+pub fn public_key_hash_from_public_key(
+    public_key: PublicKey,
+) -> Result<PublicKeyHash> {
+    let public_key = NativePublicKey::try_from(public_key)?;
+    let public_key_hash = core_public_key_hash_from_public_key(&public_key);
+    Ok(public_key_hash.into())
+}

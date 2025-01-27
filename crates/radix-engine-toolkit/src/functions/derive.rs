@@ -219,6 +219,12 @@ pub fn node_address_from_public_key(
         .expect("Should not panic since all data is trusted.")
 }
 
+pub fn public_key_hash_from_public_key<P: HasPublicKeyHash>(
+    public_key: &P,
+) -> <P as HasPublicKeyHash>::TypedPublicKeyHash {
+    public_key.get_hash()
+}
+
 pub enum OlympiaNetwork {
     Mainnet,
     Stokenet,

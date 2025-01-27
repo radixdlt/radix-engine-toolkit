@@ -42,6 +42,7 @@ mod core {
         preallocated_signature_non_fungible_global_id_from_public_key as core_preallocated_signature_non_fungible_global_id_from_public_key,
         global_caller_non_fungible_global_id_from_global_address as core_global_caller_non_fungible_global_id_from_global_address,
         global_caller_non_fungible_global_id_from_blueprint_id as core_global_caller_non_fungible_global_id_from_blueprint_id,
+        public_key_hash_from_public_key as core_public_key_hash_from_public_key,
         package_of_direct_caller_non_fungible_global_id_from_package_address as core_package_of_direct_caller_non_fungible_global_id_from_package_address,
         preallocated_account_address_from_olympia_account_address as core_preallocated_account_address_from_olympia_account_address,
         resource_address_from_olympia_resource_address as core_resource_address_from_olympia_resource_address,
@@ -87,6 +88,7 @@ mod core {
         to_payload_bytes as core_transaction_v1_notarized_transaction_to_payload_bytes,
         from_payload_bytes as core_transaction_v1_notarized_transaction_from_payload_bytes,
         statically_validate as core_transaction_v1_notarized_transaction_statically_validate,
+        extract_signer_public_keys as core_transaction_v1_notarized_transaction_extract_signer_public_keys,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::instructions::{
         extract_addresses as core_transaction_v2_instructions_extract_addresses,
@@ -127,6 +129,7 @@ mod core {
         to_payload_bytes as core_transaction_v2_notarized_transaction_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_notarized_transaction_from_payload_bytes,
         statically_validate as core_transaction_v2_notarized_transaction_statically_validate,
+        extract_signer_public_keys as core_transaction_v2_notarized_transaction_extract_signer_public_keys,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::partial_transaction::{
         hash as core_transaction_v2_partial_transaction_hash,
