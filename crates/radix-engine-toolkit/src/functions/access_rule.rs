@@ -46,7 +46,7 @@ pub fn extract_entities(
 
     let mut visitor = AccessRuleEntitiesVisitor::default();
     access_rule.dfs_traverse_nodes(&mut visitor).expect("Visitor will not error");
-    visitor.output()
+    visitor.into_output()
 }
 
 #[cfg(test)]
