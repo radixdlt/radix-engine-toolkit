@@ -15,15 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// ---------------------------- IMPLEMENTATION NOTE ----------------------------
-// The rules for the static and dynamic classifier differ for this type. Where
-// the static classifier has weaker requirements for manifests to be classified
-// as claiming transactions. The static classifier only checks if the required
-// set of invocations are there and that no disallowed instructions are present.
-// The dynamic analyzer on the other hand does a few more checks to ensure that
-// the source and sink of the resources is what we want it to be .
-// -----------------------------------------------------------------------------
-
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -34,7 +25,14 @@ impl ManifestStaticAnalyzer for ValidatorClaimAnalyzer {
     type Output = ();
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = ValidatorClaimStaticRequirementState;
+    type RequirementState = AllOfRequirement<(
+        AccountOnlyNonFungibleWithdrawsRequirement,
+        AccountWithdrawInstructionPresentRequirement,
+        AccountDepositInstructionPresentRequirement,
+        AccountsDepositedIntoSubsetOfWithdrawnFromRequirement,
+        AccountResourcesWithdrawnAreNotDepositedBackRequirement,
+        ValidatorClaimXrdInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,
@@ -133,42 +131,6 @@ impl ManifestDynamicAnalyzer for ValidatorClaimAnalyzer {
                 claim_nft_ids: (**claim_nft_ids).clone(),
                 xrd_amount: **xrd_amount,
             });
-        }
-    }
-}
-
-/// The requirement state that is required in order for us to get a validator
-/// claim classification. This is not the same as the requirements needed to
-/// get a validator claim detailed classification.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct ValidatorClaimStaticRequirementState {
-    is_validator_claim_seen: bool,
-}
-
-impl ManifestAnalyzerRequirementState for ValidatorClaimStaticRequirementState {
-    fn requirement_state(&self) -> RequirementState {
-        match self.is_validator_claim_seen {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                    invocation:
-                        TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                            ValidatorBlueprintInvocation::Method(
-                                ValidatorBlueprintMethod::ClaimXrd(..),
-                            ),
-                        ),
-                }),
-            ..
-        } = context
-        {
-            self.is_validator_claim_seen = true
         }
     }
 }

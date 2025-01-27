@@ -15,15 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// ---------------------------- IMPLEMENTATION NOTE ----------------------------
-// The rules for the static and dynamic classifier differ for this type. Where
-// the static classifier has weaker requirements for manifests to be classified
-// as unstaking transactions. The static classifier only checks if the required
-// set of invocations are there and that no disallowed instructions are present.
-// The dynamic analyzer on the other hand does a few more checks to ensure that
-// the source and sink of the resources is what we want it to be .
-// -----------------------------------------------------------------------------
-
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -34,7 +25,14 @@ impl ManifestStaticAnalyzer for ValidatorUnstakeAnalyzer {
     type Output = ();
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = ValidatorUnstakeStaticRequirementState;
+    type RequirementState = AllOfRequirement<(
+        AccountOnlyFungibleWithdrawsRequirement,
+        AccountWithdrawInstructionPresentRequirement,
+        AccountDepositInstructionPresentRequirement,
+        AccountsDepositedIntoSubsetOfWithdrawnFromRequirement,
+        AccountResourcesWithdrawnAreNotDepositedBackRequirement,
+        ValidatorUnstakeInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,
@@ -134,44 +132,6 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
                 claim_nft_address: *claim_nft_resource_address,
                 claim_nft_ids: (**claim_nft_ids).clone(),
             });
-        }
-    }
-}
-
-/// The requirement state that is required in order for us to get a validator
-/// unstake classification. This is not the same as the requirements needed to
-/// get a validator unstake detailed classification.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct ValidatorUnstakeStaticRequirementState {
-    is_validator_unstake_seen: bool,
-}
-
-impl ManifestAnalyzerRequirementState
-    for ValidatorUnstakeStaticRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.is_validator_unstake_seen {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                    invocation:
-                        TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
-                            ValidatorBlueprintInvocation::Method(
-                                ValidatorBlueprintMethod::Unstake(..),
-                            ),
-                        ),
-                }),
-            ..
-        } = context
-        {
-            self.is_validator_unstake_seen = true
         }
     }
 }

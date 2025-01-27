@@ -15,15 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// ---------------------------- IMPLEMENTATION NOTE ----------------------------
-// The rules for the static and dynamic classifier differ for this type. Where
-// the static classifier has weaker requirements for manifests to be classified
-// as staking transactions. The static classifier only checks if the required
-// set of invocations are there and that no disallowed instructions are present.
-// The dynamic analyzer on the other hand does a few more checks to ensure that
-// the source and sink of the resources is what we want it to be .
-// -----------------------------------------------------------------------------
-
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -34,7 +25,14 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
     type Output = ();
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = ValidatorStakeStaticRequirementState;
+    type RequirementState = AllOfRequirement<(
+        AccountOnlyXrdWithdrawsRequirement,
+        AccountWithdrawInstructionPresentRequirement,
+        AccountDepositInstructionPresentRequirement,
+        AccountsDepositedIntoSubsetOfWithdrawnFromRequirement,
+        AccountResourcesWithdrawnAreNotDepositedBackRequirement,
+        ValidatorStakeInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,

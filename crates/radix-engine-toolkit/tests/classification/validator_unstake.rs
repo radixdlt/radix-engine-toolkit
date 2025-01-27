@@ -204,8 +204,7 @@ fn multiple_validator_unstake_classifies_as_validator_unstake_transaction() {
 }
 
 #[test]
-fn transfer_in_unstake_transaction_qualifies_for_classification_but_not_detailed_classification(
-) {
+fn transfer_in_unstake_transaction_disqualifies_classification() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -248,7 +247,7 @@ fn transfer_in_unstake_transaction_qualifies_for_classification_but_not_detailed
     ) = ledger.analyze(manifest);
 
     // Assert
-    assert!(manifest_classification
+    assert!(!manifest_classification
         .contains(&ManifestClassification::ValidatorUnstake));
     assert!(!detailed_manifest_classification.iter().any(
         |classification| matches!(

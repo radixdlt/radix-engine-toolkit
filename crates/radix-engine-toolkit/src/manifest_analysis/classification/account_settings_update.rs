@@ -25,7 +25,13 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
     type Output = AccountSettingsUpdateOutput;
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = AccountSettingsUpdateRequirementState;
+    type RequirementState = AnyOfRequirement<(
+        AccountSetDefaultDepositRuleInstructionPresentRequirement,
+        AccountSetResourcePreferenceInstructionPresentRequirement,
+        AccountRemoveResourcePreferenceInstructionPresentRequirement,
+        AccountAddAuthorizedDepositorInstructionPresentRequirement,
+        AccountRemoveAuthorizedDepositorInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,
@@ -123,45 +129,6 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
             | AccountBlueprintMethod::Balance(..)
             | AccountBlueprintMethod::NonFungibleLocalIds(..)
             | AccountBlueprintMethod::HasNonFungible(..) => {}
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccountSettingsUpdateRequirementState {
-    is_any_account_settings_update_seen: bool,
-}
-
-impl ManifestAnalyzerRequirementState
-    for AccountSettingsUpdateRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.is_any_account_settings_update_seen {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver: ManifestInvocationReceiver::GlobalMethod(_),
-                    invocation:
-                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                            AccountBlueprintInvocation::Method(
-                                AccountBlueprintMethod::SetDefaultDepositRule(..)
-                                | AccountBlueprintMethod::SetResourcePreference(..)
-                                | AccountBlueprintMethod::RemoveResourcePreference(..)
-                                | AccountBlueprintMethod::AddAuthorizedDepositor(..)
-                                | AccountBlueprintMethod::RemoveAuthorizedDepositor(..),
-                            ),
-                        ),
-                }),
-            ..
-        } = context
-        {
-            self.is_any_account_settings_update_seen = true
         }
     }
 }

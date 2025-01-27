@@ -25,7 +25,10 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
     type Output = ();
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = TransferRequirementState;
+    type RequirementState = AllOfRequirement<(
+        AccountWithdrawInstructionPresentRequirement,
+        AccountDepositInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,
@@ -40,88 +43,6 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
     fn output(self) -> Self::Output {}
 
     fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct TransferRequirementState {
-    is_withdraw_seen: bool,
-    is_deposit_seen: bool,
-}
-
-impl ManifestAnalyzerRequirementState for TransferRequirementState {
-    fn requirement_state(&self) -> RequirementState {
-        match self.is_withdraw_seen && self.is_deposit_seen {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    invocation: typed_native_invocation,
-                    ..
-                }),
-            ..
-        } = context
-        else {
-            return;
-        };
-
-        match typed_native_invocation {
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(
-                    AccountBlueprintMethod::Withdraw(..)
-                    | AccountBlueprintMethod::WithdrawNonFungibles(..)
-                    | AccountBlueprintMethod::LockFeeAndWithdraw(..)
-                    | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
-                ),
-            ) => self.is_withdraw_seen = true,
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(
-                    AccountBlueprintMethod::Deposit(..)
-                    | AccountBlueprintMethod::DepositBatch(..)
-                    | AccountBlueprintMethod::TryDepositOrAbort(..)
-                    | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
-                ),
-            ) => self.is_deposit_seen = true,
-            _ => {}
-        }
-    }
-}
-
-impl TransferRequirementState {
-    pub fn handle_invocation(
-        &mut self,
-        typed_invocation: Option<&TypedManifestNativeInvocation>,
-    ) {
-        match typed_invocation {
-            Some(
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Withdraw(..)
-                        | AccountBlueprintMethod::WithdrawNonFungibles(..)
-                        | AccountBlueprintMethod::LockFeeAndWithdraw(..)
-                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(
-                            ..,
-                        ),
-                    ),
-                ),
-            ) => self.is_withdraw_seen = true,
-            Some(
-                TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                    AccountBlueprintInvocation::Method(
-                        AccountBlueprintMethod::Deposit(..)
-                        | AccountBlueprintMethod::DepositBatch(..)
-                        | AccountBlueprintMethod::TryDepositOrAbort(..)
-                        | AccountBlueprintMethod::TryDepositBatchOrAbort(..),
-                    ),
-                ),
-            ) => self.is_deposit_seen = true,
-            _ => {}
-        }
-    }
 }
 
 fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {

@@ -1,7 +1,7 @@
 use crate::internal_prelude::*;
 
 /// Context given by the traverser to the visitors when calling them.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum AnalysisContext<'a> {
     /// The instruction is an invocation instruction and therefore it has
     /// additional context compared to other instructions.

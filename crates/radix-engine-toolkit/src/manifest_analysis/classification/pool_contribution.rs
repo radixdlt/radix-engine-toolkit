@@ -15,15 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// ---------------------------- IMPLEMENTATION NOTE ----------------------------
-// The rules for the static and dynamic classifier differ for this type. Where
-// the static classifier has weaker requirements for manifests to be classified
-// as contribute transactions. The static classifier only checks if the required
-// set of invocations are there and that no disallowed instructions are present.
-// The dynamic analyzer on the other hand does a few more checks to ensure that
-// the source and sink of the resources is what we want it to be .
-// -----------------------------------------------------------------------------
-
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -34,7 +25,14 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
     type Output = ();
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
-    type RequirementState = PoolContributionStaticRequirementState;
+    type RequirementState = AllOfRequirement<(
+        AccountOnlyFungibleWithdrawsRequirement,
+        AccountWithdrawInstructionPresentRequirement,
+        AccountDepositInstructionPresentRequirement,
+        AccountsDepositedIntoSubsetOfWithdrawnFromRequirement,
+        AccountResourcesWithdrawnAreNotDepositedBackRequirement,
+        PoolContributeInstructionPresentRequirement,
+    )>;
 
     fn new(
         _: Self::Initializer,
@@ -137,51 +135,6 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
                         pool_units_amount: *pool_units_output.amount(),
                     })
             }
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct PoolContributionStaticRequirementState {
-    is_pool_contribution_seen: bool,
-}
-
-impl ManifestAnalyzerRequirementState
-    for PoolContributionStaticRequirementState
-{
-    fn requirement_state(&self) -> RequirementState {
-        match self.is_pool_contribution_seen {
-            true => RequirementState::Fulfilled,
-            false => RequirementState::CurrentlyUnfulfilled,
-        }
-    }
-
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                    invocation:
-                        TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
-                            OneResourcePoolBlueprintInvocation::Method(
-                                OneResourcePoolBlueprintMethod::Contribute(..),
-                            ),
-                        )
-                        | TypedManifestNativeInvocation::TwoResourcePoolBlueprintInvocation(
-                            TwoResourcePoolBlueprintInvocation::Method(
-                                TwoResourcePoolBlueprintMethod::Contribute(..),
-                            ),
-                        )
-                        | TypedManifestNativeInvocation::MultiResourcePoolBlueprintInvocation(
-                            MultiResourcePoolBlueprintInvocation::Method(
-                                MultiResourcePoolBlueprintMethod::Contribute(..),
-                            ),
-                        ),
-                }),
-            ..
-        } = context
-        {
-            self.is_pool_contribution_seen = true
         }
     }
 }

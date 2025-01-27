@@ -172,8 +172,7 @@ fn single_validator_claim_with_withdraw_of_non_fungibles_classifies_as_validator
 }
 
 #[test]
-fn transfer_in_claim_transaction_qualifies_for_classification_but_not_detailed_classification(
-) {
+fn transfer_in_claim_transaction_disqualifies_classification() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -229,7 +228,7 @@ fn transfer_in_claim_transaction_qualifies_for_classification_but_not_detailed_c
     ) = ledger.analyze(manifest);
 
     // Assert
-    assert!(manifest_classification
+    assert!(!manifest_classification
         .contains(&ManifestClassification::ValidatorClaimXrd));
     assert!(!detailed_manifest_classification.iter().any(
         |classification| matches!(

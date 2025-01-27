@@ -149,8 +149,7 @@ fn withdraw_of_non_xrd_non_fungible_resource_kicks_manifest_out_of_validator_sta
 }
 
 #[test]
-fn transfer_in_stake_transaction_qualifies_for_classification_but_not_detailed_classification(
-) {
+fn transfer_in_stake_transaction_disqualifies_classification() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -178,7 +177,7 @@ fn transfer_in_stake_transaction_qualifies_for_classification_but_not_detailed_c
     ) = ledger.analyze(manifest);
 
     // Assert
-    assert!(manifest_classification
+    assert!(!manifest_classification
         .contains(&ManifestClassification::ValidatorStake));
     assert!(!detailed_manifest_classification.iter().any(
         |detailed_classification| matches!(
