@@ -58,6 +58,9 @@ mod core {
     pub use radix_engine_toolkit::functions::utils::{
         decode_transaction_id as core_decode_transaction_id
     };
+    pub use radix_engine_toolkit::functions::access_rule::{
+        extract_entities as core_extract_entities
+    };
     pub use radix_engine_toolkit::functions::transaction_v1::manifest::{
         to_payload_bytes as core_transaction_v1_manifest_to_payload_bytes,
         from_payload_bytes as core_transaction_v1_manifest_from_payload_bytes,
