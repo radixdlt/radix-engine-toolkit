@@ -1,28 +1,18 @@
-use crate::internal_prelude::*;
+use scrypto::prelude::*;
 
-pub fn extract_addresses(
+pub fn extract_entities(
     access_rule: &AccessRule,
-) -> (IndexSet<ResourceAddress>, IndexSet<NonFungibleGlobalId>) {
-    #[derive(Clone, Debug, Default)]
-    pub struct Visitor {
-        pub resource_addresses: IndexSet<ResourceAddress>,
-        pub non_fungible_global_ids: IndexSet<NonFungibleGlobalId>,
-    }
+) -> IndexSet<ResourceOrNonFungible> {
+    #[derive(Default)]
+    pub struct AccessRuleEntitiesVisitor(IndexSet<ResourceOrNonFungible>);
 
-    impl Visitor {
-        pub fn add(&mut self, value: impl Into<ResourceOrNonFungible>) {
-            match value.into() {
-                ResourceOrNonFungible::Resource(resource_address) => {
-                    self.resource_addresses.insert(resource_address);
-                }
-                ResourceOrNonFungible::NonFungible(non_fungible) => {
-                    self.non_fungible_global_ids.insert(non_fungible);
-                }
-            }
+    impl AccessRuleEntitiesVisitor {
+        pub fn into_output(self) -> IndexSet<ResourceOrNonFungible> {
+            self.0
         }
     }
 
-    impl AccessRuleVisitor for Visitor {
+    impl AccessRuleVisitor for AccessRuleEntitiesVisitor {
         type Error = ();
 
         fn visit(
@@ -31,32 +21,34 @@ pub fn extract_addresses(
             _: usize,
         ) -> Result<(), Self::Error> {
             match node {
-                CompositeRequirement::BasicRequirement(
-                    BasicRequirement::Require(address),
-                ) => self.add(address.clone()),
-                CompositeRequirement::BasicRequirement(
-                    BasicRequirement::AmountOf(_, address),
-                ) => self.add(*address),
-                CompositeRequirement::BasicRequirement(
-                    BasicRequirement::CountOf(_, addresses)
-                    | BasicRequirement::AllOf(addresses)
-                    | BasicRequirement::AnyOf(addresses),
-                ) => {
-                    addresses.iter().cloned().for_each(|value| self.add(value))
-                }
-                CompositeRequirement::AllOf(_)
-                | CompositeRequirement::AnyOf(_) => {}
+                CompositeRequirement::BasicRequirement(basic) => match basic {
+                    BasicRequirement::Require(requirement) => {
+                        self.0.insert(requirement.clone());
+                    }
+                    BasicRequirement::AmountOf(_, resource_address) => {
+                        self.0.insert(ResourceOrNonFungible::Resource(
+                            *resource_address,
+                        ));
+                    }
+                    BasicRequirement::CountOf(_, requirements)
+                    | BasicRequirement::AllOf(requirements)
+                    | BasicRequirement::AnyOf(requirements) => {
+                        self.0.extend(requirements.clone());
+                    }
+                },
+                CompositeRequirement::AnyOf(_)
+                | CompositeRequirement::AllOf(_) => {}
             }
 
             Ok(())
         }
     }
 
-    let mut visitor = Visitor::default();
+    let mut visitor = AccessRuleEntitiesVisitor::default();
     access_rule
         .dfs_traverse_nodes(&mut visitor)
-        .expect("Can't fail");
-    (visitor.resource_addresses, visitor.non_fungible_global_ids)
+        .expect("Visitor will not error");
+    visitor.into_output()
 }
 
 #[cfg(test)]
@@ -64,30 +56,25 @@ mod test {
     use super::*;
 
     #[test]
-    fn addresses_can_be_extracted_from_require_xrd() {
+    fn addresses_can_be_found_in_access_rules() {
         // Arrange
-        let rule = rule!(require(XRD));
+        let required_resource = XRD;
+        let required_non_fungible =
+            NonFungibleGlobalId::from_public_key(&Secp256k1PublicKey([1; 33]));
+        let rule = rule!(
+            require(required_resource)
+                && require(required_non_fungible.clone())
+        );
 
         // Act
-        let (resource_addresses, non_fungibles) = extract_addresses(&rule);
+        let entities = extract_entities(&rule);
 
         // Assert
-        assert_eq!(non_fungibles, indexset![]);
-        assert_eq!(resource_addresses, indexset![XRD]);
-    }
-
-    #[test]
-    fn addresses_can_be_extracted_from_require_signature() {
-        // Arrange
-        let public_key = Secp256k1PublicKey([1; 33]);
-        let signature = NonFungibleGlobalId::from_public_key(&public_key);
-        let rule = rule!(require(signature.clone()));
-
-        // Act
-        let (resource_addresses, non_fungibles) = extract_addresses(&rule);
-
-        // Assert
-        assert_eq!(non_fungibles, indexset![signature]);
-        assert_eq!(resource_addresses, indexset![]);
+        assert_eq!(entities.len(), 2);
+        assert!(entities
+            .contains(&ResourceOrNonFungible::Resource(required_resource)));
+        assert!(entities.contains(&ResourceOrNonFungible::NonFungible(
+            required_non_fungible
+        )));
     }
 }

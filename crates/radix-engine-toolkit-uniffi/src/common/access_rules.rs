@@ -173,21 +173,16 @@ impl AccessRule {
         Arc::new(AccessRule(access_rule))
     }
 
-    pub fn extract_addresses(&self, network_id: u8) -> AccessRulesAddresses {
-        let (resource_addresses, global_ids) =
-            toolkit::functions::access_rule::extract_addresses(&self.0);
-        AccessRulesAddresses {
-            resource_addresses: resource_addresses
-                .into_iter()
-                .map(|value| Address::from_node_id(value, network_id))
-                .map(Arc::new)
-                .collect(),
-            non_fungible_global_ids: global_ids
-                .into_iter()
-                .map(|value| NonFungibleGlobalId(value, network_id))
-                .map(Arc::new)
-                .collect(),
-        }
+    pub fn extract_entities(
+        &self,
+        network_id: u8,
+    ) -> Vec<ResourceOrNonFungible> {
+        let extracted_entities =
+            toolkit::functions::access_rule::extract_entities(&self.0);
+        extracted_entities
+            .into_iter()
+            .map(|item| ResourceOrNonFungible::from_native(item, network_id))
+            .collect()
     }
 }
 
