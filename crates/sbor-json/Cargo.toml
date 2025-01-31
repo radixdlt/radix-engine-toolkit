@@ -1,6 +1,6 @@
 [package]
 name = "sbor-json"
-version = "2.2.2-dev1"
+version = "2.2.3"
 edition = "2021"
 description = "The implementation of the SBOR JSON representations"
 
@@ -12,9 +12,9 @@ radix-engine-interface = { workspace = true }
 
 # The serde dependencies used for the serialization and deserialization of the
 # JSON representations.
-serde = { workspace = true , features = ["derive"] }
-serde_json = { workspace = true , features = ["preserve_order"] }
-serde_with = { workspace = true , features = ["hex"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["preserve_order"] }
+serde_with = { workspace = true, features = ["hex"] }
 
 # Additional dependencies
 regex = { workspace = true }

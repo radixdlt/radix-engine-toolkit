@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit"
-version = "2.2.2-dev1"
+version = "2.2.3"
 edition = "2021"
 build = "build.rs"
 
@@ -27,7 +27,7 @@ paste = { workspace = true }
 
 # The serde-json dependency without the serde dependency. This is used for the
 # SBOR serialization in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and
-# ONLY there. 
+# ONLY there.
 serde_json = { workspace = true, features = ["preserve_order"] }
 serde_with = { workspace = true }
 
@@ -35,12 +35,12 @@ serde_with = { workspace = true }
 # address strings. Pretty much used to get the network specifier from the HRP.
 regex = { workspace = true }
 
-# A crate that implements the various sbor-json formats and is used in here 
+# A crate that implements the various sbor-json formats and is used in here
 # for the serialization of the payloads.
 sbor-json = { workspace = true }
 
 # A crate we use to extend types defined outside of this crate. We use this to
-# implement methods on types when we're supposed not to be able to due to the 
+# implement methods on types when we're supposed not to be able to due to the
 # same crate rules that Rust has.
 extend = { workspace = true }
 

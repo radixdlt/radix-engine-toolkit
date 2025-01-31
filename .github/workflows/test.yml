@@ -7,7 +7,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-
   phylum-analyze:
     if: ${{ github.event.pull_request }}
     uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/phylum-analyze.yml@main
@@ -29,70 +28,70 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: RDXWorks-actions/checkout@main
-    - name: Install Rust Toolchain
-      uses: RDXWorks-actions/toolchain@master
-      with:
-        toolchain: stable
-        default: true
-        components: rustfmt, clippy
-    - name: Install cargo nextest
-      uses: RDXWorks-actions/cargo-install@v1
-      with:
-        crate: cargo-nextest
-        locked: true
-    - name: Install JNA
-      run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
-    - name: Run sccache-cache
-      uses: RDXWorks-actions/sccache-action@main
-    - name: Install Golang & uniffi-bindgen-go
-      run: |
-        wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
-        sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
-        printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-        source $HOME/.profile
-        cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.2.1+v0.25.0
-    - name: Run tests
-      run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
-      env:
-        # Required env-var to increase the heapsize when using `kotlinc`.
-        JAVA_OPTS: "-Xmx8g"
-        # Enable sccache
-        SCCACHE_GHA_ENABLED: "true"
-        RUSTC_WRAPPER: "sccache"
+      - uses: RDXWorks-actions/checkout@main
+      - name: Install Rust Toolchain
+        uses: RDXWorks-actions/toolchain@master
+        with:
+          toolchain: stable
+          default: true
+          components: rustfmt, clippy
+      - name: Install cargo nextest
+        uses: RDXWorks-actions/cargo-install@v1
+        with:
+          crate: cargo-nextest
+          locked: true
+      - name: Install JNA
+        run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
+      - name: Run sccache-cache
+        uses: RDXWorks-actions/sccache-action@main
+      - name: Install Golang & uniffi-bindgen-go
+        run: |
+          wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+          printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+          source $HOME/.profile
+          cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.2.1+v0.25.0
+      - name: Run tests
+        run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
+        env:
+          # Required env-var to increase the heapsize when using `kotlinc`.
+          JAVA_OPTS: "-Xmx8g"
+          # Enable sccache
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
   check-formatting:
     runs-on: ubuntu-latest
     steps:
-    - uses: RDXWorks-actions/checkout@main
-    - name: Install Rust Toolchain
-      uses: RDXWorks-actions/toolchain@master
-      with:
-        toolchain: stable
-        default: true
-        components: rustfmt
-    - name: Check formatting
-      run: cargo fmt --check
+      - uses: RDXWorks-actions/checkout@main
+      - name: Install Rust Toolchain
+        uses: RDXWorks-actions/toolchain@master
+        with:
+          toolchain: stable
+          default: true
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt --check
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: RDXWorks-actions/checkout@main
-    - name: Install Rust Toolchain
-      uses: RDXWorks-actions/toolchain@master
-      with:
-        toolchain: stable
-        default: true
-        profile: minimal
-    - name: Cargo Check
-      run: cargo check --all
+      - uses: RDXWorks-actions/checkout@main
+      - name: Install Rust Toolchain
+        uses: RDXWorks-actions/toolchain@master
+        with:
+          toolchain: stable
+          default: true
+          profile: minimal
+      - name: Cargo Check
+        run: cargo check --all
   clippy-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: RDXWorks-actions/checkout@main
-    - name: Install Rust Toolchain
-      uses: RDXWorks-actions/toolchain@master
-      with:
-        toolchain: stable
-        default: true
-        components: rustfmt, clippy
-    - name: Clippy Check
-      run: cargo clippy --all
+      - uses: RDXWorks-actions/checkout@main
+      - name: Install Rust Toolchain
+        uses: RDXWorks-actions/toolchain@master
+        with:
+          toolchain: stable
+          default: true
+          components: rustfmt, clippy
+      - name: Clippy Check
+        run: cargo clippy --all
