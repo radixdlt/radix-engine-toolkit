@@ -102,7 +102,7 @@ impl ManifestDynamicAnalyzer for PoolRedemptionAnalyzer {
             let pool_address = ComponentAddress::try_from(*pool_address)
                 .expect("Must succeed since the typed invocation conversion succeeded");
 
-            let input = dynamic_analysis_invocation_io.input.items_iter().next();
+            let input = dynamic_analysis_invocation_io.input.first();
             if let Some(pool_units_input) = input {
                 self.0.redemption_operations.push(PoolRedemptionOperation {
                     pool_address,

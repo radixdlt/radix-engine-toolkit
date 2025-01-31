@@ -493,6 +493,10 @@ impl InvocationIoItems {
             .collect()
     }
 
+    pub fn first(&self) -> Option<&InvocationIoItem> {
+        self.0.first()
+    }
+
     pub fn as_slice(&self) -> &[InvocationIoItem] {
         &self.0
     }

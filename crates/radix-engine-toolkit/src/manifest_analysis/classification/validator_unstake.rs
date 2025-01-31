@@ -97,8 +97,8 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
                 "Must succeed since the typed invocation conversion succeeded",
             );
 
-        let input = dynamic_analysis_invocation_io.input.items_iter().next();
-        let output = dynamic_analysis_invocation_io.output.items_iter().next();
+        let input = dynamic_analysis_invocation_io.input.first();
+        let output = dynamic_analysis_invocation_io.output.first();
 
         if let Some((
             InvocationIoItem::Fungible(lsu_resource_address, lsu_amount),

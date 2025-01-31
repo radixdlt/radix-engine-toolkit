@@ -99,9 +99,7 @@ impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
 
         let staked_xrd =
             dynamic_analysis_invocation_io.input.resource_amount(&XRD);
-        if let Some(output) =
-            dynamic_analysis_invocation_io.output.items_iter().next()
-        {
+        if let Some(output) = dynamic_analysis_invocation_io.output.first() {
             self.0.stake_operations.push(ValidatorStakeOperation {
                 validator_address,
                 staked_xrd_amount: staked_xrd,

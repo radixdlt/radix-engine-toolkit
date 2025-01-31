@@ -102,7 +102,7 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
             let pool_address = ComponentAddress::try_from(*pool_address)
                 .expect("Must succeed since the typed invocation conversion succeeded");
 
-            let output = dynamic_analysis_invocation_io.output.items_iter().next();
+            let output = dynamic_analysis_invocation_io.output.first();
             if let Some(pool_units_output) = output {
                 self.0
                     .contribution_operations
