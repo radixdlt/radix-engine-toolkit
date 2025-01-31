@@ -56,4 +56,25 @@ impl RequirementState {
     pub fn is_fulfilled(&self) -> bool {
         matches!(self, Self::Fulfilled)
     }
+
+    pub fn or(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Fulfilled, _) | (_, Self::Fulfilled) => Self::Fulfilled,
+            (Self::CurrentlyUnfulfilled, _)
+            | (_, Self::CurrentlyUnfulfilled) => Self::CurrentlyUnfulfilled,
+            (Self::PermanentlyUnfulfilled, Self::PermanentlyUnfulfilled) => {
+                Self::PermanentlyUnfulfilled
+            }
+        }
+    }
+
+    pub fn and(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::PermanentlyUnfulfilled, _)
+            | (_, Self::PermanentlyUnfulfilled) => Self::PermanentlyUnfulfilled,
+            (Self::CurrentlyUnfulfilled, _)
+            | (_, Self::CurrentlyUnfulfilled) => Self::CurrentlyUnfulfilled,
+            (Self::Fulfilled, Self::Fulfilled) => Self::Fulfilled,
+        }
+    }
 }

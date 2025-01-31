@@ -57,17 +57,10 @@ macro_rules! define_all_of_requirement_internal {
                         $(ref [<$generic: snake>],)*
                     ) = self.0;
 
-                    let requirements = [$([<$generic: snake>].requirement_state()),*];
-
-                    if requirements.iter().any(|r| matches!(r, RequirementState::PermanentlyUnfulfilled)) {
-                        RequirementState::PermanentlyUnfulfilled
-                    } else if requirements.iter().any(|r| matches!(r, RequirementState::CurrentlyUnfulfilled)) {
-                        RequirementState::CurrentlyUnfulfilled
-                    } else if requirements.iter().all(|r| matches!(r, RequirementState::Fulfilled)) {
-                        RequirementState::Fulfilled
-                    } else {
-                        unreachable!()
-                    }
+                    [$([<$generic: snake>].requirement_state()),*]
+                        .into_iter()
+                        .reduce(RequirementState::and)
+                        .unwrap_or(RequirementState::CurrentlyUnfulfilled)
                 }
 
                 fn process_instruction(&mut self, context: InstructionContext<'_>) {
