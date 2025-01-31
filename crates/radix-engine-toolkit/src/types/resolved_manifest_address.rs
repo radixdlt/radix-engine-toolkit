@@ -53,6 +53,12 @@ where
         self.entity_type().map(Into::into)
     }
 
+    pub fn is_access_controller(&self) -> bool {
+        self.grouped_entity_type().as_ref().is_some_and(
+            GroupedEntityType::belongs_to_access_controller_entities,
+        )
+    }
+
     pub fn is_account(&self) -> bool {
         self.grouped_entity_type()
             .as_ref()

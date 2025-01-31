@@ -24,6 +24,31 @@ macro_rules! impl_conversions {
                         None
                     }
                 }
+
+                fn resolve_entity_type(
+                    &self,
+                    named_address_store: &NamedAddressStore
+                ) -> Option<EntityType> {
+                    match self {
+                        Self::Static(static_address) => {
+                            let node_id = NodeId::from(*static_address);
+                            node_id.entity_type()
+                        },
+                        Self::Named(named_address) => {
+                            named_address_store
+                                .get(&named_address)
+                                .and_then(BlueprintId::entity_type)
+                        }
+                    }
+                }
+
+                fn resolve_grouped_entity_type(
+                    &self,
+                    named_address_store: &NamedAddressStore
+                ) -> Option<GroupedEntityType> {
+                    self.resolve_entity_type(named_address_store)
+                        .map(Into::into)
+                }
             }
         )*
     };

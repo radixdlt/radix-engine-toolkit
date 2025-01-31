@@ -46,7 +46,7 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
     fn output(self) -> Self::Output {}
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        self.transition(context.instruction());
+        self.transition(context);
     }
 }
 
@@ -70,7 +70,7 @@ impl ManifestAnalyzerRequirementState for SimpleTransferStateMachine {
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        self.transition(context.instruction());
+        self.transition(context);
     }
 }
 
@@ -80,139 +80,133 @@ impl ManifestAnalyzerPermissionState for SimpleTransferStateMachine {
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        self.transition(context.instruction());
+        self.transition(context);
     }
 }
 
 impl SimpleTransferStateMachine {
-    pub fn transition(&mut self, instruction: &GroupedInstruction) {
-        let next_state = match (&self, instruction) {
+    pub fn transition(&mut self, context: InstructionContext<'_>) {
+        let next_state = match (&self, context) {
             // Initial State -> Access Controller Proof State transition.
             (
                 Self::InitialState,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccessControllerEntities(..))
-            ) && method_name == ACCESS_CONTROLLER_CREATE_PROOF_IDENT =>
-            {
-                Self::AccessControllerProofCreated
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                                    AccessControllerBlueprintInvocation::Method(
+                                        AccessControllerBlueprintMethod::CreateProof(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::AccessControllerProofCreated,
             // (Initial State | Access Controller Proof Created) -> Lock Fee
             // State transition.
             (
                 Self::InitialState | Self::AccessControllerProofCreated,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccountEntities(..))
-            ) && method_name == ACCOUNT_LOCK_FEE_IDENT =>
-            {
-                Self::FeeLockPerformed
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                                    AccountBlueprintInvocation::Method(
+                                        AccountBlueprintMethod::LockFee(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::FeeLockPerformed,
             // Access Controller Proof Created -> Resources on Worktop
             (
                 Self::AccessControllerProofCreated,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccountEntities(..))
-            ) && matches!(
-                method_name.as_str(),
-                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT
-                    | ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
-            ) =>
-            {
-                Self::ResourcesWithdrawn
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                                    AccountBlueprintInvocation::Method(
+                                        AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::ResourcesWithdrawn,
             // Initial State -> Resources on Worktop State transition.
             (
                 Self::InitialState,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccountEntities(..))
-            ) && matches!(
-                method_name.as_str(),
-                ACCOUNT_WITHDRAW_IDENT
-                    | ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT
-                    | ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT
-                    | ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
-            ) =>
-            {
-                Self::ResourcesWithdrawn
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                                    AccountBlueprintInvocation::Method(
+                                        AccountBlueprintMethod::Withdraw(..)
+                                        | AccountBlueprintMethod::WithdrawNonFungibles(..)
+                                        | AccountBlueprintMethod::LockFeeAndWithdraw(..)
+                                        | AccountBlueprintMethod::LockFeeAndWithdrawNonFungibles(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::ResourcesWithdrawn,
             // Fees Locked -> Resources on Worktop State transition.
             (
                 Self::FeeLockPerformed,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccountEntities(..))
-            ) && matches!(
-                method_name.as_str(),
-                ACCOUNT_WITHDRAW_IDENT | ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT
-            ) =>
-            {
-                Self::ResourcesWithdrawn
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                                    AccountBlueprintInvocation::Method(
+                                        AccountBlueprintMethod::Withdraw(..)
+                                        | AccountBlueprintMethod::WithdrawNonFungibles(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::ResourcesWithdrawn,
             // Resources on Worktop -> Resources in Bucket State transition.
             (
                 Self::ResourcesWithdrawn,
-                GroupedInstruction::TakeFromWorktopInstructions(
-                    TakeFromWorktopInstructions::TakeFromWorktop(..),
-                ),
+                InstructionContext::NonInvocationInstruction {
+                    instruction:
+                        GroupedInstruction::TakeFromWorktopInstructions(
+                            TakeFromWorktopInstructions::TakeFromWorktop(..),
+                        ),
+                    ..
+                },
             ) => Self::ResourcesInBucket,
             // Resources in Bucket -> Resources Deposited State transition.
             (
                 Self::ResourcesInBucket,
-                GroupedInstruction::InvocationInstructions(
-                    InvocationInstructions::CallMethod(CallMethod {
-                        address: ManifestGlobalAddress::Static(address),
-                        method_name,
-                        ..
-                    }),
-                ),
-            ) if matches!(
-                address.as_node_id().entity_type().map(Into::into),
-                Some(GroupedEntityType::AccountEntities(..))
-            ) && matches!(
-                method_name.as_str(),
-                ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
-            ) =>
-            {
-                Self::DepositPerformed
-            }
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation:
+                        Some(TypedNativeInvocation {
+                            invocation:
+                                TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                                    AccountBlueprintInvocation::Method(
+                                        AccountBlueprintMethod::Deposit(..)
+                                        | AccountBlueprintMethod::TryDepositOrAbort(..),
+                                    ),
+                                ),
+                            ..
+                        }),
+                    ..
+                },
+            ) => Self::DepositPerformed,
             _ => Self::InvalidState,
         };
         *self = next_state;
