@@ -207,19 +207,13 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                 ) => false,
             }
         }
-        GroupedInstruction::TakeFromWorktopInstructions(
-            TakeFromWorktopInstructions::TakeFromWorktop(..)
-            | TakeFromWorktopInstructions::TakeAllFromWorktop(..),
-        ) => true,
+        GroupedInstruction::TakeFromWorktopInstructions(..) => true,
         // Permitted Instructions
         GroupedInstruction::ReturnToWorktopInstructions(..)
         | GroupedInstruction::AssertionInstructions(..)
         | GroupedInstruction::ProofInstructions(..) => true,
         // Disallowed Instructions
-        GroupedInstruction::TakeFromWorktopInstructions(
-            TakeFromWorktopInstructions::TakeNonFungiblesFromWorktop(..),
-        )
-        | GroupedInstruction::SubintentInstructions(..)
+        GroupedInstruction::SubintentInstructions(..)
         | GroupedInstruction::BurnResourceInstructions(..)
         | GroupedInstruction::AddressAllocationInstructions(..)
         | GroupedInstruction::InvocationInstructions(
