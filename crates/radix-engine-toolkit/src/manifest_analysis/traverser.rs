@@ -114,6 +114,10 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
         if !analyzer_state
             .static_permission_state
             .all_instructions_permitted()
+            || matches!(
+                analyzer_state.static_requirement_state.requirement_state(),
+                RequirementState::PermanentlyUnfulfilled
+            )
         {
             break;
         }
@@ -240,6 +244,10 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
         if !analyzer_state
             .static_permission_state
             .all_instructions_permitted()
+            || matches!(
+                analyzer_state.static_requirement_state.requirement_state(),
+                RequirementState::PermanentlyUnfulfilled
+            )
         {
             break;
         }
