@@ -42,7 +42,7 @@ pub enum RequirementState {
     /// In this state the requirements of the visitor are unfulfilled but not
     /// violated and could certainly be fulfilled if more instructions are seen
     /// by the visitor. If the manifest were to end with a visitor in this state
-    /// then the visitor would not produce output since it's requirements were't
+    /// then the visitor would not produce output since it's requirements weren't
     /// fulfilled.
     CurrentlyUnfulfilled,
     /// In this case the requirements of the visitor are unfulfilled and the
