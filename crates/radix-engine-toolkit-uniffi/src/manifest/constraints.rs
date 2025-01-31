@@ -27,36 +27,33 @@ pub enum ManifestResourceConstraint {
     General { value: GeneralResourceConstraint },
 }
 
-impl From<NativeManifestResourceConstraint> for ManifestResourceConstraint {
-    fn from(value: NativeManifestResourceConstraint) -> Self {
+impl From<engine::ManifestResourceConstraint> for ManifestResourceConstraint {
+    fn from(value: engine::ManifestResourceConstraint) -> Self {
         match value {
-            NativeManifestResourceConstraint::NonZeroAmount => {
+            engine::ManifestResourceConstraint::NonZeroAmount => {
                 Self::NonZeroAmount
             }
-            NativeManifestResourceConstraint::ExactAmount(decimal) => {
+            engine::ManifestResourceConstraint::ExactAmount(decimal) => {
                 Self::ExactAmount {
                     value: Arc::new(Decimal(decimal)),
                 }
             }
-            NativeManifestResourceConstraint::AtLeastAmount(decimal) => {
+            engine::ManifestResourceConstraint::AtLeastAmount(decimal) => {
                 Self::AtLeastAmount {
                     value: Arc::new(Decimal(decimal)),
                 }
             }
-            NativeManifestResourceConstraint::ExactNonFungibles(index_set) => {
-                Self::ExactNonFungibles {
-                    value: index_set
-                        .into_iter()
-                        .map(|item| item.into())
-                        .collect(),
-                }
-            }
-            NativeManifestResourceConstraint::AtLeastNonFungibles(
+            engine::ManifestResourceConstraint::ExactNonFungibles(
+                index_set,
+            ) => Self::ExactNonFungibles {
+                value: index_set.into_iter().map(|item| item.into()).collect(),
+            },
+            engine::ManifestResourceConstraint::AtLeastNonFungibles(
                 index_set,
             ) => Self::AtLeastNonFungibles {
                 value: index_set.into_iter().map(|item| item.into()).collect(),
             },
-            NativeManifestResourceConstraint::General(
+            engine::ManifestResourceConstraint::General(
                 general_resource_constraint,
             ) => Self::General {
                 value: general_resource_constraint.into(),
@@ -65,7 +62,9 @@ impl From<NativeManifestResourceConstraint> for ManifestResourceConstraint {
     }
 }
 
-impl TryFrom<ManifestResourceConstraint> for NativeManifestResourceConstraint {
+impl TryFrom<ManifestResourceConstraint>
+    for engine::ManifestResourceConstraint
+{
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -106,14 +105,14 @@ pub struct GeneralResourceConstraint {
     allowed_ids: AllowedIds,
 }
 
-impl From<NativeGeneralResourceConstraint> for GeneralResourceConstraint {
+impl From<engine::GeneralResourceConstraint> for GeneralResourceConstraint {
     fn from(
-        NativeGeneralResourceConstraint {
+        engine::GeneralResourceConstraint {
             required_ids,
             lower_bound,
             upper_bound,
             allowed_ids,
-        }: NativeGeneralResourceConstraint,
+        }: engine::GeneralResourceConstraint,
     ) -> Self {
         Self {
             required_ids: required_ids
@@ -127,7 +126,7 @@ impl From<NativeGeneralResourceConstraint> for GeneralResourceConstraint {
     }
 }
 
-impl TryFrom<GeneralResourceConstraint> for NativeGeneralResourceConstraint {
+impl TryFrom<GeneralResourceConstraint> for engine::GeneralResourceConstraint {
     type Error = RadixEngineToolkitError;
 
     fn try_from(

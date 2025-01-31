@@ -21,7 +21,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone, Object, Hash, PartialEq, Eq)]
 pub struct NonFungibleGlobalId(
-    pub(crate) NativeNonFungibleGlobalId,
+    pub(crate) engine::NonFungibleGlobalId,
     pub(crate) u8,
 );
 
@@ -29,27 +29,28 @@ pub struct NonFungibleGlobalId(
 impl NonFungibleGlobalId {
     #[uniffi::constructor]
     pub fn new(non_fungible_global_id: String) -> Result<Arc<Self>> {
-        let network_id = non_fungible_global_id
+        let network_definition = non_fungible_global_id
             .split(':')
             .next()
-            .and_then(core_network_id_from_address_string)
+            .and_then(engine::NetworkDefinition::from_address_string)
             .ok_or(RadixEngineToolkitError::ParseError {
                 type_name: "scrypto::prelude::NonFungibleGlobalId".to_owned(),
                 error:
                     "Failed to obtain network id from non-fungible global id"
                         .to_owned(),
             })?;
-        let network_definition =
-            core_network_definition_from_network_id(network_id);
         let bech32_decoder =
-            NativeAddressBech32Decoder::new(&network_definition);
+            engine::AddressBech32Decoder::new(&network_definition);
 
         let non_fungible_global_id =
-            NativeNonFungibleGlobalId::try_from_canonical_string(
+            engine::NonFungibleGlobalId::try_from_canonical_string(
                 &bech32_decoder,
                 &non_fungible_global_id,
             )?;
-        Ok(Arc::new(Self(non_fungible_global_id, network_id)))
+        Ok(Arc::new(Self(
+            non_fungible_global_id,
+            network_definition.id,
+        )))
     }
 
     #[uniffi::constructor]
@@ -59,7 +60,7 @@ impl NonFungibleGlobalId {
     ) -> Result<Arc<Self>> {
         let network_id = resource_address.network_id();
         let resource_address =
-            match NativeResourceAddress::try_from(*resource_address) {
+            match engine::ResourceAddress::try_from(*resource_address) {
                 Ok(resource_address) if !resource_address.is_fungible() => {
                     Ok(resource_address)
                 }
@@ -71,10 +72,10 @@ impl NonFungibleGlobalId {
                 }),
             }?;
         let non_fungible_local_id =
-            NativeNonFungibleLocalId::try_from(non_fungible_local_id)?;
+            engine::NonFungibleLocalId::try_from(non_fungible_local_id)?;
 
         Ok(Arc::new(Self(
-            NativeNonFungibleGlobalId::new(
+            engine::NonFungibleGlobalId::new(
                 resource_address,
                 non_fungible_local_id,
             ),
@@ -116,7 +117,7 @@ impl NonFungibleGlobalId {
 
     pub fn resource_address(&self) -> Arc<Address> {
         let address = self.0.resource_address();
-        Arc::new(Address::from_typed_node_id(address, self.1))
+        Arc::new(Address::from_node_id(address, self.1))
     }
 
     pub fn local_id(&self) -> NonFungibleLocalId {
@@ -124,12 +125,19 @@ impl NonFungibleGlobalId {
     }
 
     pub fn as_str(&self) -> String {
-        let network_id = self.1;
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            engine::NetworkDefinition::from_network_id(self.1);
         let bech32_encoder =
-            NativeAddressBech32Encoder::new(&network_definition);
+            engine::AddressBech32Encoder::new(&network_definition);
         self.0.to_canonical_string(&bech32_encoder)
+    }
+}
+
+impl FromNativeWithNetworkContext for NonFungibleGlobalId {
+    type Native = engine::NonFungibleGlobalId;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self(native, network_id)
     }
 }
 
@@ -141,26 +149,34 @@ pub enum NonFungibleLocalId {
     Ruid { value: Vec<u8> },
 }
 
-impl From<NativeNonFungibleLocalId> for NonFungibleLocalId {
-    fn from(value: NativeNonFungibleLocalId) -> Self {
+impl FromNative for NonFungibleLocalId {
+    type Native = engine::NonFungibleLocalId;
+
+    fn from_native(native: Self::Native) -> Self {
+        native.into()
+    }
+}
+
+impl From<engine::NonFungibleLocalId> for NonFungibleLocalId {
+    fn from(value: engine::NonFungibleLocalId) -> Self {
         match value {
-            NativeNonFungibleLocalId::String(value) => Self::Str {
+            engine::NonFungibleLocalId::String(value) => Self::Str {
                 value: value.value().to_owned(),
             },
-            NativeNonFungibleLocalId::Integer(value) => Self::Integer {
+            engine::NonFungibleLocalId::Integer(value) => Self::Integer {
                 value: value.value(),
             },
-            NativeNonFungibleLocalId::Bytes(value) => Self::Bytes {
+            engine::NonFungibleLocalId::Bytes(value) => Self::Bytes {
                 value: value.value().to_vec(),
             },
-            NativeNonFungibleLocalId::RUID(value) => Self::Ruid {
+            engine::NonFungibleLocalId::RUID(value) => Self::Ruid {
                 value: value.value().to_vec(),
             },
         }
     }
 }
 
-impl TryFrom<NonFungibleLocalId> for NativeNonFungibleLocalId {
+impl TryFrom<NonFungibleLocalId> for engine::NonFungibleLocalId {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: NonFungibleLocalId) -> Result<Self> {
@@ -185,10 +201,10 @@ impl TryFrom<NonFungibleLocalId> for NativeNonFungibleLocalId {
 }
 
 impl std::str::FromStr for NonFungibleLocalId {
-    type Err = <NativeNonFungibleLocalId as std::str::FromStr>::Err;
+    type Err = <engine::NonFungibleLocalId as std::str::FromStr>::Err;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        NativeNonFungibleLocalId::from_str(s).map(Into::into)
+        engine::NonFungibleLocalId::from_str(s).map(Into::into)
     }
 }
 
@@ -201,12 +217,12 @@ pub fn non_fungible_local_id_sbor_decode(
     bytes: Vec<u8>,
 ) -> Result<NonFungibleLocalId> {
     let native = match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-            native_scrypto_decode::<NativeNonFungibleLocalId>(&bytes)
+        Some(engine::SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            engine::scrypto_decode::<engine::NonFungibleLocalId>(&bytes)
                 .map_err(Into::into)
         }
-        Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-            native_manifest_decode::<NativeNonFungibleLocalId>(&bytes)
+        Some(engine::MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+            engine::manifest_decode::<engine::NonFungibleLocalId>(&bytes)
                 .map_err(Into::into)
         }
         v => Err(RadixEngineToolkitError::DecodeError {
@@ -220,22 +236,22 @@ pub fn non_fungible_local_id_sbor_decode(
 pub fn non_fungible_local_id_sbor_encode(
     value: NonFungibleLocalId,
 ) -> Result<Vec<u8>> {
-    let native = NativeNonFungibleLocalId::try_from(value)?;
-    Ok(native_scrypto_encode(&native).expect("Can't fail"))
+    let native = engine::NonFungibleLocalId::try_from(value)?;
+    Ok(engine::scrypto_encode(&native).expect("Can't fail"))
 }
 
 #[uniffi::export]
 pub fn non_fungible_local_id_as_str(
     value: NonFungibleLocalId,
 ) -> Result<String> {
-    NativeNonFungibleLocalId::try_from(value).map(|value| value.to_string())
+    engine::NonFungibleLocalId::try_from(value).map(|value| value.to_string())
 }
 
 #[uniffi::export]
 pub fn non_fungible_local_id_from_str(
     string: String,
 ) -> Result<NonFungibleLocalId> {
-    NativeNonFungibleLocalId::from_str(&string)
+    engine::NonFungibleLocalId::from_str(&string)
         .map_err(Into::into)
         .map(Into::into)
 }

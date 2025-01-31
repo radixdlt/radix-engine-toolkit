@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::internal_prelude::*;
+
 pub fn information() -> BuildInformation {
     let version = env!("CARGO_PKG_VERSION").into();
     let scrypto_dependency = DependencyInformation::from_environment_variable();
@@ -22,40 +24,5 @@ pub fn information() -> BuildInformation {
     BuildInformation {
         version,
         scrypto_dependency,
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct BuildInformation {
-    pub version: String,
-    pub scrypto_dependency: DependencyInformation,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum DependencyInformation {
-    // Crates.io
-    Version(String),
-
-    // Github
-    Tag(String),
-    Branch(String),
-    Rev(String),
-}
-
-impl DependencyInformation {
-    fn from_environment_variable() -> Self {
-        let version = env!("SCRYPTO_DEPENDENCY");
-
-        let mut splitted = version.split('=');
-        let identifier = splitted.next().expect("Should never fail");
-        let value = splitted.next().expect("Should never fail");
-
-        match identifier {
-            "version" => Self::Version(value.into()),
-            "tag" => Self::Tag(value.into()),
-            "branch" => Self::Branch(value.into()),
-            "rev" => Self::Rev(value.into()),
-            _ => panic!("Unknown identifier encountered: {}", identifier),
-        }
     }
 }

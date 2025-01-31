@@ -35,8 +35,6 @@ pub mod utils;
 
 pub(crate) mod internal_prelude;
 
-// Everything is imported at the root of the crate. This is to support some of
-// the needs of the UniFFI toolkit.
 pub mod prelude {
     /* Common */
     pub use crate::common::access_rules::*;
@@ -95,6 +93,7 @@ pub mod prelude {
 
     /* Transaction */
     pub use crate::transaction_common::hash::*;
+    pub use crate::transaction_common::manifest_analysis::*;
 
     pub use crate::transaction_v1::header::*;
     pub use crate::transaction_v1::instruction::*;

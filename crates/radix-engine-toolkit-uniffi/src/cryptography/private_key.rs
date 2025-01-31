@@ -24,7 +24,7 @@ use crate::prelude::*;
 // put into whether this is public within the crate alone or public in general.
 
 #[derive(Object)]
-pub struct PrivateKey(pub NativePrivateKey);
+pub struct PrivateKey(pub engine::PrivateKey);
 
 #[uniffi::export]
 impl PrivateKey {
@@ -38,29 +38,31 @@ impl PrivateKey {
 
     #[uniffi::constructor]
     pub fn new_secp256k1(bytes: Vec<u8>) -> Result<Arc<Self>> {
-        NativeSecp256k1PrivateKey::from_bytes(&bytes)
+        engine::Secp256k1PrivateKey::from_bytes(&bytes)
             .map_err(|_| RadixEngineToolkitError::InvalidLength {
-                expected: NativeEd25519PublicKey::LENGTH as u64,
+                expected: engine::Ed25519PublicKey::LENGTH as u64,
                 actual: bytes.len() as u64,
                 data: bytes,
             })
-            .map(|value| Arc::new(Self(NativePrivateKey::Secp256k1(value))))
+            .map(|value| Arc::new(Self(engine::PrivateKey::Secp256k1(value))))
     }
     #[uniffi::constructor]
     pub fn new_ed25519(bytes: Vec<u8>) -> Result<Arc<Self>> {
-        NativeEd25519PrivateKey::from_bytes(&bytes)
+        engine::Ed25519PrivateKey::from_bytes(&bytes)
             .map_err(|_| RadixEngineToolkitError::InvalidLength {
-                expected: NativeEd25519PublicKey::LENGTH as u64,
+                expected: engine::Ed25519PublicKey::LENGTH as u64,
                 actual: bytes.len() as u64,
                 data: bytes,
             })
-            .map(|value| Arc::new(Self(NativePrivateKey::Ed25519(value))))
+            .map(|value| Arc::new(Self(engine::PrivateKey::Ed25519(value))))
     }
 
     pub fn raw(&self) -> Vec<u8> {
         match &self.0 {
-            NativePrivateKey::Ed25519(private_key) => private_key.to_bytes(),
-            NativePrivateKey::Secp256k1(private_key) => private_key.to_bytes(),
+            engine::PrivateKey::Ed25519(private_key) => private_key.to_bytes(),
+            engine::PrivateKey::Secp256k1(private_key) => {
+                private_key.to_bytes()
+            }
         }
     }
 
@@ -70,8 +72,8 @@ impl PrivateKey {
 
     pub fn curve(&self) -> Curve {
         match &self.0 {
-            NativePrivateKey::Ed25519(..) => Curve::Ed25519,
-            NativePrivateKey::Secp256k1(..) => Curve::Secp256k1,
+            engine::PrivateKey::Ed25519(..) => Curve::Ed25519,
+            engine::PrivateKey::Secp256k1(..) => Curve::Secp256k1,
         }
     }
 

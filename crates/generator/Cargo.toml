@@ -1,6 +1,6 @@
 [package]
 name = "generator"
-version = "2.2.0-dev2"
+version = "2.2.3"
 edition = "2021"
 
 [dependencies]
@@ -25,7 +25,9 @@ serde_yaml = { version = "0.9.21" }
 serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = { version = "3.0.0", features = ["hex"] }
 schemars = { version = "0.8.12", features = ["preserve_order"] }
-rocket_okapi = { git = "https://github.com/0xOmarA/okapi", tag = "0.8.0-rc.4", features = ["preserve_order"] }
+rocket_okapi = { git = "https://github.com/0xOmarA/okapi", tag = "0.8.0-rc.4", features = [
+    "preserve_order",
+] }
 
 # Used to change the casing of strings
 heck = { version = "0.4.1" }

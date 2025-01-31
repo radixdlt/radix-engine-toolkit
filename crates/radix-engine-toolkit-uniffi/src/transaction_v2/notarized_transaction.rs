@@ -40,7 +40,7 @@ impl NotarizedTransactionV2 {
     pub fn from_payload_bytes(
         compiled_notarized_transaction: Vec<u8>,
     ) -> Result<Arc<Self>> {
-        core_transaction_v2_notarized_transaction_from_payload_bytes(
+        toolkit::functions::transaction_v2::notarized_transaction::from_payload_bytes(
             compiled_notarized_transaction,
         )
         .map_err(RadixEngineToolkitError::from)
@@ -56,15 +56,15 @@ impl NotarizedTransactionV2 {
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeNotarizedTransactionV2::try_from(self.clone()).and_then(
+        engine::NotarizedTransactionV2::try_from(self.clone()).and_then(
             |notarized_transaction| {
-                core_transaction_v2_notarized_transaction_hash(
+                toolkit::functions::transaction_v2::notarized_transaction::hash(
                     &notarized_transaction,
                 )
                 .map_err(Into::into)
                 .map(|hash| {
                     let notarized_transaction_hash =
-                        NativeNotarizedTransactionHash(hash.hash);
+                        engine::NotarizedTransactionHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &notarized_transaction_hash,
                         self.signed_transaction_intent
@@ -93,33 +93,31 @@ impl NotarizedTransactionV2 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeNotarizedTransactionV2::try_from(self.clone()).and_then(
-            |notarized_transaction| {
-                core_transaction_v2_notarized_transaction_to_payload_bytes(
-                    &notarized_transaction,
-                )
-                .map_err(Into::into)
-            },
-        )
+        engine::NotarizedTransactionV2::try_from(self.clone()).and_then(|notarized_transaction| {
+            toolkit::functions::transaction_v2::notarized_transaction::to_payload_bytes(
+                &notarized_transaction,
+            )
+            .map_err(Into::into)
+        })
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {
-        core_transaction_v2_notarized_transaction_statically_validate(
+        toolkit::functions::transaction_v2::notarized_transaction::statically_validate(
             &self.clone().try_into()?,
-            &core_network_definition_from_network_id(network_id),
+            &engine::NetworkDefinition::from_network_id(network_id),
         )
         .map_err(Into::into)
     }
 }
 
-impl TryFrom<NativeNotarizedTransactionV2> for NotarizedTransactionV2 {
+impl TryFrom<engine::NotarizedTransactionV2> for NotarizedTransactionV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeNotarizedTransactionV2 {
+        engine::NotarizedTransactionV2 {
             notary_signature,
             signed_transaction_intent,
-        }: NativeNotarizedTransactionV2,
+        }: engine::NotarizedTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
             signed_transaction_intent: Arc::new(
@@ -130,7 +128,7 @@ impl TryFrom<NativeNotarizedTransactionV2> for NotarizedTransactionV2 {
     }
 }
 
-impl TryFrom<NotarizedTransactionV2> for NativeNotarizedTransactionV2 {
+impl TryFrom<NotarizedTransactionV2> for engine::NotarizedTransactionV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: NotarizedTransactionV2) -> Result<Self> {
@@ -140,7 +138,7 @@ impl TryFrom<NotarizedTransactionV2> for NativeNotarizedTransactionV2 {
                 .as_ref()
                 .clone()
                 .try_into()?,
-            notary_signature: NativeNotarySignatureV2(
+            notary_signature: engine::NotarySignatureV2(
                 value.notary_signature.try_into()?,
             ),
         })

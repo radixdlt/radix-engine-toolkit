@@ -27,7 +27,7 @@ pub fn sbor_decode_to_string_representation(
     schema: Option<Schema>,
 ) -> Result<String> {
     match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+        Some(engine::SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
             scrypto_sbor_decode_to_string_representation(
                 bytes,
                 representation,
@@ -35,7 +35,7 @@ pub fn sbor_decode_to_string_representation(
                 schema,
             )
         }
-        Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+        Some(engine::MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
             manifest_sbor_decode_to_string_representation(
                 bytes,
                 ManifestSborStringRepresentation::JSON {
@@ -59,18 +59,19 @@ pub fn scrypto_sbor_decode_to_string_representation(
     schema: Option<Schema>,
 ) -> Result<String> {
     let network_definition =
-        core_network_definition_from_network_id(network_id);
-    let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
-    let string = core_scrypto_decode_to_string_representation(
-        bytes,
-        representation.into(),
-        &bech32_encoder,
-        if let Some(schema) = schema {
-            Some(schema.try_into()?)
-        } else {
-            None
-        },
-    )?;
+        engine::NetworkDefinition::from_network_id(network_id);
+    let bech32_encoder = engine::AddressBech32Encoder::new(&network_definition);
+    let string =
+        toolkit::functions::scrypto_sbor::decode_to_string_representation(
+            bytes,
+            representation.into(),
+            &bech32_encoder,
+            if let Some(schema) = schema {
+                Some(schema.try_into()?)
+            } else {
+                None
+            },
+        )?;
     Ok(string)
 }
 
@@ -78,8 +79,10 @@ pub fn scrypto_sbor_decode_to_string_representation(
 pub fn scrypto_sbor_encode_string_representation(
     representation: ScryptoSborString,
 ) -> Result<Vec<u8>> {
-    core_scrypto_encode_string_representation(representation.into())
-        .map_err(Into::into)
+    toolkit::functions::scrypto_sbor::encode_string_representation(
+        representation.into(),
+    )
+    .map_err(Into::into)
 }
 
 #[uniffi::export]
@@ -90,18 +93,19 @@ pub fn manifest_sbor_decode_to_string_representation(
     schema: Option<Schema>,
 ) -> Result<String> {
     let network_definition =
-        core_network_definition_from_network_id(network_id);
-    let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
-    let string = core_manifest_decode_to_string_representation(
-        bytes,
-        representation.into(),
-        &bech32_encoder,
-        if let Some(schema) = schema {
-            Some(schema.try_into()?)
-        } else {
-            None
-        },
-    )?;
+        engine::NetworkDefinition::from_network_id(network_id);
+    let bech32_encoder = engine::AddressBech32Encoder::new(&network_definition);
+    let string =
+        toolkit::functions::manifest_sbor::decode_to_string_representation(
+            bytes,
+            representation.into(),
+            &bech32_encoder,
+            if let Some(schema) = schema {
+                Some(schema.try_into()?)
+            } else {
+                None
+            },
+        )?;
     Ok(string)
 }
 
@@ -135,7 +139,7 @@ pub enum ScryptoSborString {
 }
 
 impl From<ManifestSborStringRepresentation>
-    for CoreManifestSborStringRepresentation
+    for toolkit::ManifestSborStringRepresentation
 {
     fn from(value: ManifestSborStringRepresentation) -> Self {
         match value {
@@ -149,7 +153,7 @@ impl From<ManifestSborStringRepresentation>
     }
 }
 
-impl From<SerializationMode> for NativeSerializationMode {
+impl From<SerializationMode> for engine::SerializationMode {
     fn from(value: SerializationMode) -> Self {
         match value {
             SerializationMode::Natural => Self::Natural,
@@ -158,7 +162,7 @@ impl From<SerializationMode> for NativeSerializationMode {
     }
 }
 
-impl From<LocalTypeId> for NativeLocalTypeId {
+impl From<LocalTypeId> for engine::LocalTypeId {
     fn from(value: LocalTypeId) -> Self {
         match value {
             LocalTypeId::WellKnown { value } => {
@@ -172,7 +176,10 @@ impl From<LocalTypeId> for NativeLocalTypeId {
 }
 
 impl TryFrom<Schema>
-    for (NativeLocalTypeId, NativeSchema<NativeScryptoCustomSchema>)
+    for (
+        engine::LocalTypeId,
+        engine::Schema<engine::ScryptoCustomSchema>,
+    )
 {
     type Error = RadixEngineToolkitError;
 
@@ -183,16 +190,18 @@ impl TryFrom<Schema>
         }: Schema,
     ) -> Result<Self> {
         let local_type_id = local_type_id.into();
-        let schema = native_scrypto_decode(&schema)?;
+        let schema = engine::scrypto_decode(&schema)?;
         Ok((local_type_id, schema))
     }
 }
 
-impl From<ScryptoSborString> for CoreScryptoStringRepresentation {
+impl From<ScryptoSborString> for toolkit::ScryptoSborStringRepresentation {
     fn from(value: ScryptoSborString) -> Self {
         match value {
             ScryptoSborString::ProgrammaticJson { value } => {
-                CoreScryptoStringRepresentation::ProgrammaticJson(value)
+                toolkit::ScryptoSborStringRepresentation::ProgrammaticJson(
+                    value,
+                )
             }
         }
     }

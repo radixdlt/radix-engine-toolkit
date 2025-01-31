@@ -91,7 +91,7 @@ pub trait NameRecordConvertible {
 }
 
 impl NameRecordConvertible for ManifestBuilderIntent {
-    type Native = NativeManifestNamedIntent;
+    type Native = engine::ManifestNamedIntent;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_intent(&self.name).copied()
@@ -99,7 +99,7 @@ impl NameRecordConvertible for ManifestBuilderIntent {
 }
 
 impl NameRecordConvertible for ManifestBuilderBucket {
-    type Native = NativeManifestBucket;
+    type Native = engine::ManifestBucket;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_bucket(&self.name).copied()
@@ -107,7 +107,7 @@ impl NameRecordConvertible for ManifestBuilderBucket {
 }
 
 impl NameRecordConvertible for ManifestBuilderProof {
-    type Native = NativeManifestProof;
+    type Native = engine::ManifestProof;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_proof(&self.name).copied()
@@ -115,7 +115,7 @@ impl NameRecordConvertible for ManifestBuilderProof {
 }
 
 impl NameRecordConvertible for ManifestBuilderAddressReservation {
-    type Native = NativeManifestAddressReservation;
+    type Native = engine::ManifestAddressReservation;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_address_reservation(&self.name).copied()
@@ -123,7 +123,7 @@ impl NameRecordConvertible for ManifestBuilderAddressReservation {
 }
 
 impl NameRecordConvertible for ManifestBuilderNamedAddress {
-    type Native = NativeManifestNamedAddress;
+    type Native = engine::ManifestNamedAddress;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_named_address(&self.name).copied()
@@ -131,7 +131,7 @@ impl NameRecordConvertible for ManifestBuilderNamedAddress {
 }
 
 impl NameRecordConvertible for ManifestBuilderAddress {
-    type Native = NativeManifestAddress;
+    type Native = engine::ManifestAddress;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         match self {

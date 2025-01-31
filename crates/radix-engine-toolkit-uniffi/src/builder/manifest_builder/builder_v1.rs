@@ -23,7 +23,7 @@ use radix_common::prelude::{to_manifest_value, FromPublicKey};
 #[derive(Debug, Clone, Object, Default)]
 pub struct ManifestV1Builder {
     name_record: NameRecord,
-    instructions: Vec<NativeInstructionV1>,
+    instructions: Vec<engine::InstructionV1>,
     blobs: Vec<Vec<u8>>,
 }
 
@@ -45,11 +45,11 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction = NativeInstructionV1::TakeAllFromWorktop(
-                NativeTakeAllFromWorktop { resource_address },
+            let instruction = engine::InstructionV1::TakeAllFromWorktop(
+                engine::TakeAllFromWorktop { resource_address },
             );
             builder.instructions.push(instruction);
             Ok(())
@@ -64,15 +64,16 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction =
-                NativeInstructionV1::TakeFromWorktop(NativeTakeFromWorktop {
+            let instruction = engine::InstructionV1::TakeFromWorktop(
+                engine::TakeFromWorktop {
                     resource_address,
                     amount,
-                });
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -86,19 +87,20 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let ids = ids
                 .into_iter()
-                .map(NativeNonFungibleLocalId::try_from)
+                .map(engine::NonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction = NativeInstructionV1::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
-                    resource_address,
-                    ids,
-                },
-            );
+            let instruction =
+                engine::InstructionV1::TakeNonFungiblesFromWorktop(
+                    engine::TakeNonFungiblesFromWorktop {
+                        resource_address,
+                        ids,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -111,10 +113,9 @@ impl ManifestV1Builder {
         builder_arc_map(self, |builder| {
             let bucket = bucket.to_native(&builder.name_record)?;
 
-            let instruction =
-                NativeInstructionV1::ReturnToWorktop(NativeReturnToWorktop {
-                    bucket_id: bucket,
-                });
+            let instruction = engine::InstructionV1::ReturnToWorktop(
+                engine::ReturnToWorktop { bucket_id: bucket },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -126,10 +127,10 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
 
-            let instruction = NativeInstructionV1::AssertWorktopContainsAny(
-                NativeAssertWorktopContainsAny { resource_address },
+            let instruction = engine::InstructionV1::AssertWorktopContainsAny(
+                engine::AssertWorktopContainsAny { resource_address },
             );
             builder.instructions.push(instruction);
             Ok(())
@@ -143,11 +144,11 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
 
-            let instruction = NativeInstructionV1::AssertWorktopContains(
-                NativeAssertWorktopContains {
+            let instruction = engine::InstructionV1::AssertWorktopContains(
+                engine::AssertWorktopContains {
                     resource_address,
                     amount,
                 },
@@ -164,18 +165,19 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let ids = ids
                 .into_iter()
-                .map(NativeNonFungibleLocalId::try_from)
+                .map(engine::NonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
 
-            let instruction = NativeInstructionV1::TakeNonFungiblesFromWorktop(
-                NativeTakeNonFungiblesFromWorktop {
-                    resource_address,
-                    ids,
-                },
-            );
+            let instruction =
+                engine::InstructionV1::TakeNonFungiblesFromWorktop(
+                    engine::TakeNonFungiblesFromWorktop {
+                        resource_address,
+                        ids,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -189,7 +191,7 @@ impl ManifestV1Builder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstructionV1::PopFromAuthZone(NativePopFromAuthZone);
+                engine::InstructionV1::PopFromAuthZone(engine::PopFromAuthZone);
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -203,7 +205,7 @@ impl ManifestV1Builder {
             let proof = proof.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstructionV1::PushToAuthZone(NativePushToAuthZone {
+                engine::InstructionV1::PushToAuthZone(engine::PushToAuthZone {
                     proof_id: proof,
                 });
             builder.instructions.push(instruction);
@@ -213,8 +215,8 @@ impl ManifestV1Builder {
 
     pub fn drop_auth_zone_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstructionV1::DropAuthZoneProofs(
-                NativeDropAuthZoneProofs,
+            let instruction = engine::InstructionV1::DropAuthZoneProofs(
+                engine::DropAuthZoneProofs,
             );
             builder.instructions.push(instruction);
             Ok(())
@@ -225,9 +227,10 @@ impl ManifestV1Builder {
         self: Arc<Self>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstructionV1::DropAuthZoneSignatureProofs(
-                NativeDropAuthZoneSignatureProofs,
-            );
+            let instruction =
+                engine::InstructionV1::DropAuthZoneSignatureProofs(
+                    engine::DropAuthZoneSignatureProofs,
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -236,7 +239,7 @@ impl ManifestV1Builder {
     pub fn drop_all_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let instruction =
-                NativeInstructionV1::DropAllProofs(NativeDropAllProofs);
+                engine::InstructionV1::DropAllProofs(engine::DropAllProofs);
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -249,12 +252,13 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             builder.name_record.new_proof(&into_proof.name)?;
 
-            let instruction = NativeInstructionV1::CreateProofFromAuthZoneOfAll(
-                NativeCreateProofFromAuthZoneOfAll { resource_address },
-            );
+            let instruction =
+                engine::InstructionV1::CreateProofFromAuthZoneOfAll(
+                    engine::CreateProofFromAuthZoneOfAll { resource_address },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -268,13 +272,13 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstructionV1::CreateProofFromAuthZoneOfAmount(
-                    NativeCreateProofFromAuthZoneOfAmount {
+                engine::InstructionV1::CreateProofFromAuthZoneOfAmount(
+                    engine::CreateProofFromAuthZoneOfAmount {
                         resource_address,
                         amount,
                     },
@@ -292,16 +296,16 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let ids = ids
                 .into_iter()
-                .map(NativeNonFungibleLocalId::try_from)
+                .map(engine::NonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstructionV1::CreateProofFromAuthZoneOfNonFungibles(
-                    NativeCreateProofFromAuthZoneOfNonFungibles {
+                engine::InstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                    engine::CreateProofFromAuthZoneOfNonFungibles {
                         resource_address,
                         ids,
                     },
@@ -320,8 +324,8 @@ impl ManifestV1Builder {
             let bucket = bucket.to_native(&builder.name_record)?;
             builder.name_record.new_proof(&into_proof.name)?;
 
-            let instruction = NativeInstructionV1::CreateProofFromBucketOfAll(
-                NativeCreateProofFromBucketOfAll { bucket_id: bucket },
+            let instruction = engine::InstructionV1::CreateProofFromBucketOfAll(
+                engine::CreateProofFromBucketOfAll { bucket_id: bucket },
             );
             builder.instructions.push(instruction);
             Ok(())
@@ -340,8 +344,8 @@ impl ManifestV1Builder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstructionV1::CreateProofFromBucketOfAmount(
-                    NativeCreateProofFromBucketOfAmount {
+                engine::InstructionV1::CreateProofFromBucketOfAmount(
+                    engine::CreateProofFromBucketOfAmount {
                         bucket_id: bucket,
                         amount,
                     },
@@ -360,14 +364,14 @@ impl ManifestV1Builder {
         builder_arc_map(self, |builder| {
             let ids = ids
                 .into_iter()
-                .map(NativeNonFungibleLocalId::try_from)
+                .map(engine::NonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
             let bucket = bucket.to_native(&builder.name_record)?;
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstructionV1::CreateProofFromBucketOfNonFungibles(
-                    NativeCreateProofFromBucketOfNonFungibles {
+                engine::InstructionV1::CreateProofFromBucketOfNonFungibles(
+                    engine::CreateProofFromBucketOfNonFungibles {
                         bucket_id: bucket,
                         ids,
                     },
@@ -385,7 +389,7 @@ impl ManifestV1Builder {
             let bucket = bucket.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstructionV1::BurnResource(NativeBurnResource {
+                engine::InstructionV1::BurnResource(engine::BurnResource {
                     bucket_id: bucket,
                 });
             builder.instructions.push(instruction);
@@ -403,7 +407,7 @@ impl ManifestV1Builder {
             let proof = proof.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstructionV1::CloneProof(NativeCloneProof {
+                engine::InstructionV1::CloneProof(engine::CloneProof {
                     proof_id: proof,
                 });
             builder.instructions.push(instruction);
@@ -418,9 +422,10 @@ impl ManifestV1Builder {
         builder_arc_map(self, |builder| {
             let proof = proof.to_native(&builder.name_record)?;
 
-            let instruction = NativeInstructionV1::DropProof(NativeDropProof {
-                proof_id: proof,
-            });
+            let instruction =
+                engine::InstructionV1::DropProof(engine::DropProof {
+                    proof_id: proof,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -435,15 +440,15 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = match address.to_native(&builder.name_record)? {
-                NativeManifestAddress::Static(value) => value
+                engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(NativeDynamicPackageAddress::Static)?,
-                NativeManifestAddress::Named(value) => {
-                    NativeDynamicPackageAddress::Named(value)
+                    .map(engine::DynamicPackageAddress::Static)?,
+                engine::ManifestAddress::Named(value) => {
+                    engine::DynamicPackageAddress::Named(value)
                 }
             };
-            let args = NativeManifestValue::Tuple {
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
@@ -451,7 +456,7 @@ impl ManifestV1Builder {
             };
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
+                engine::InstructionV1::CallFunction(engine::CallFunction {
                     package_address: address,
                     blueprint_name,
                     function_name,
@@ -470,15 +475,15 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = match address.to_native(&builder.name_record)? {
-                NativeManifestAddress::Static(value) => value
+                engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(NativeDynamicGlobalAddress::Static)?,
-                NativeManifestAddress::Named(value) => {
-                    NativeDynamicGlobalAddress::Named(value)
+                    .map(engine::DynamicGlobalAddress::Static)?,
+                engine::ManifestAddress::Named(value) => {
+                    engine::DynamicGlobalAddress::Named(value)
                 }
             };
-            let args = NativeManifestValue::Tuple {
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
@@ -486,7 +491,7 @@ impl ManifestV1Builder {
             };
 
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
+                engine::InstructionV1::CallMethod(engine::CallMethod {
                     address,
                     method_name,
                     args,
@@ -504,23 +509,23 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = match address.to_native(&builder.name_record)? {
-                NativeManifestAddress::Static(value) => value
+                engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(NativeDynamicGlobalAddress::Static)?,
-                NativeManifestAddress::Named(value) => {
-                    NativeDynamicGlobalAddress::Named(value)
+                    .map(engine::DynamicGlobalAddress::Static)?,
+                engine::ManifestAddress::Named(value) => {
+                    engine::DynamicGlobalAddress::Named(value)
                 }
             };
-            let args = NativeManifestValue::Tuple {
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstructionV1::CallRoyaltyMethod(
-                NativeCallRoyaltyMethod {
+            let instruction = engine::InstructionV1::CallRoyaltyMethod(
+                engine::CallRoyaltyMethod {
                     address,
                     method_name,
                     args,
@@ -539,23 +544,23 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = match address.to_native(&builder.name_record)? {
-                NativeManifestAddress::Static(value) => value
+                engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(NativeDynamicGlobalAddress::Static)?,
-                NativeManifestAddress::Named(value) => {
-                    NativeDynamicGlobalAddress::Named(value)
+                    .map(engine::DynamicGlobalAddress::Static)?,
+                engine::ManifestAddress::Named(value) => {
+                    engine::DynamicGlobalAddress::Named(value)
                 }
             };
-            let args = NativeManifestValue::Tuple {
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstructionV1::CallMetadataMethod(
-                NativeCallMetadataMethod {
+            let instruction = engine::InstructionV1::CallMetadataMethod(
+                engine::CallMetadataMethod {
                     address,
                     method_name,
                     args,
@@ -574,23 +579,23 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = match address.to_native(&builder.name_record)? {
-                NativeManifestAddress::Static(value) => value
+                engine::ManifestAddress::Static(value) => value
                     .0
                     .try_into()
-                    .map(NativeDynamicGlobalAddress::Static)?,
-                NativeManifestAddress::Named(value) => {
-                    NativeDynamicGlobalAddress::Named(value)
+                    .map(engine::DynamicGlobalAddress::Static)?,
+                engine::ManifestAddress::Named(value) => {
+                    engine::DynamicGlobalAddress::Named(value)
                 }
             };
-            let args = NativeManifestValue::Tuple {
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstructionV1::CallRoleAssignmentMethod(
-                NativeCallRoleAssignmentMethod {
+            let instruction = engine::InstructionV1::CallRoleAssignmentMethod(
+                engine::CallRoleAssignmentMethod {
                     address,
                     method_name,
                     args,
@@ -608,16 +613,16 @@ impl ManifestV1Builder {
         args: Vec<ManifestBuilderValue>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeInternalAddress::try_from(*address)?;
-            let args = NativeManifestValue::Tuple {
+            let address = engine::InternalAddress::try_from(*address)?;
+            let args = engine::ManifestValue::Tuple {
                 fields: args
                     .into_iter()
                     .map(|x| x.to_native(&builder.name_record))
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstructionV1::CallDirectVaultMethod(
-                NativeCallDirectVaultMethod {
+            let instruction = engine::InstructionV1::CallDirectVaultMethod(
+                engine::CallDirectVaultMethod {
                     address,
                     method_name,
                     args,
@@ -637,7 +642,7 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let package_address =
-                NativePackageAddress::try_from(*package_address)?;
+                engine::PackageAddress::try_from(*package_address)?;
             builder
                 .name_record
                 .new_address_reservation(&into_address_reservation.name)?;
@@ -645,8 +650,8 @@ impl ManifestV1Builder {
                 .name_record
                 .new_named_address(&into_named_address.name)?;
 
-            let instruction = NativeInstructionV1::AllocateGlobalAddress(
-                NativeAllocateGlobalAddress {
+            let instruction = engine::InstructionV1::AllocateGlobalAddress(
+                engine::AllocateGlobalAddress {
                     package_address,
                     blueprint_name,
                 },
@@ -665,14 +670,14 @@ impl ManifestV1Builder {
         account_address: Arc<Address>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let address = engine::GlobalAddress::try_from(*account_address)?;
 
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(address),
-                    method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(address),
+                    method_name: engine::ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
                     args: manifest_args!(
-                        NativeManifestExpression::EntireWorktop
+                        engine::ManifestExpression::EntireWorktop
                     )
                     .into(),
                 });
@@ -687,7 +692,7 @@ impl ManifestV1Builder {
         authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let address = engine::GlobalAddress::try_from(*account_address)?;
             let authorized_depositor_badge =
                 if let Some(badge) = authorized_depositor_badge {
                     Some(badge.to_native()?)
@@ -696,13 +701,13 @@ impl ManifestV1Builder {
                 };
 
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(address),
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(address),
                     method_name:
-                        NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT
+                        engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT
                             .to_owned(),
                     args: manifest_args!(
-                        NativeManifestExpression::EntireWorktop,
+                        engine::ManifestExpression::EntireWorktop,
                         authorized_depositor_badge
                     )
                     .into(),
@@ -718,7 +723,7 @@ impl ManifestV1Builder {
         authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let address = engine::GlobalAddress::try_from(*account_address)?;
             let authorized_depositor_badge =
                 if let Some(badge) = authorized_depositor_badge {
                     Some(badge.to_native()?)
@@ -727,13 +732,13 @@ impl ManifestV1Builder {
                 };
 
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(address),
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(address),
                     method_name:
-                        NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
+                        engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
                             .to_owned(),
                     args: manifest_args!(
-                        NativeManifestExpression::EntireWorktop,
+                        engine::ManifestExpression::EntireWorktop,
                         authorized_depositor_badge
                     )
                     .into(),
@@ -750,20 +755,21 @@ impl ManifestV1Builder {
         metadata: MetadataInit,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let code_blob = NativeManifestBlobRef(native_hash(&code).0);
+            let code_blob = engine::ManifestBlobRef(engine::hash(&code).0);
             builder.blobs.push(code);
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_PACKAGE_PACKAGE,
+                engine::InstructionV1::CallFunction(engine::CallFunction {
+                    package_address: engine::DynamicPackageAddress::Static(
+                        engine::PACKAGE_PACKAGE,
                     ),
-                    blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
-                    function_name: NATIVE_PACKAGE_PUBLISH_WASM_IDENT.to_owned(),
-                    args: native_to_manifest_value_and_unwrap!(
-                        &NativePackagePublishWasmManifestInput {
+                    blueprint_name: engine::PACKAGE_BLUEPRINT.to_owned(),
+                    function_name: engine::PACKAGE_PUBLISH_WASM_IDENT
+                        .to_owned(),
+                    args: engine::to_manifest_value_and_unwrap!(
+                        &engine::PackagePublishWasmManifestInput {
                             code: code_blob,
-                            definition: native_manifest_decode(&definition)?,
+                            definition: engine::manifest_decode(&definition)?,
                             metadata: metadata.to_native()?,
                         }
                     ),
@@ -782,7 +788,7 @@ impl ManifestV1Builder {
         package_address: Option<ManifestBuilderAddressReservation>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let code_blob = NativeManifestBlobRef(native_hash(&code).0);
+            let code_blob = engine::ManifestBlobRef(engine::hash(&code).0);
             builder.blobs.push(code);
             let address_reservation = match package_address {
                 Some(reservation) => Some(
@@ -794,17 +800,17 @@ impl ManifestV1Builder {
             };
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_PACKAGE_PACKAGE,
+                engine::InstructionV1::CallFunction(engine::CallFunction {
+                    package_address: engine::DynamicPackageAddress::Static(
+                        engine::PACKAGE_PACKAGE,
                     ),
-                    blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
-                    function_name: NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
+                    blueprint_name: engine::PACKAGE_BLUEPRINT.to_owned(),
+                    function_name: engine::PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
                         .to_owned(),
-                    args: native_to_manifest_value_and_unwrap!(
-                        &NativePackagePublishWasmAdvancedManifestInput {
+                    args: engine::to_manifest_value_and_unwrap!(
+                        &engine::PackagePublishWasmAdvancedManifestInput {
                             code: code_blob,
-                            definition: native_manifest_decode(&definition)?,
+                            definition: engine::manifest_decode(&definition)?,
                             metadata: metadata.to_native()?,
                             owner_role: owner_role.to_native()?,
                             package_address: address_reservation
@@ -819,9 +825,9 @@ impl ManifestV1Builder {
     pub fn faucet_free_xrd(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(
-                        NATIVE_FAUCET.into(),
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(
+                        engine::FAUCET.into(),
                     ),
                     method_name: "free".to_owned(),
                     args: manifest_args!().into(),
@@ -834,12 +840,12 @@ impl ManifestV1Builder {
     pub fn faucet_lock_fee(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(
-                        NATIVE_FAUCET.into(),
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(
+                        engine::FAUCET.into(),
                     ),
                     method_name: "lock_fee".to_owned(),
-                    args: manifest_args!(native_dec!("100")).into(),
+                    args: manifest_args!(engine::dec!("100")).into(),
                 });
             builder.instructions.push(instruction);
             Ok(())
@@ -867,32 +873,32 @@ impl ManifestV1Builder {
                 None => None,
             };
 
-            let rule_set = NativeRuleSet {
-                primary_role: native_rule!(native_require(
-                    NativeNonFungibleGlobalId::from_public_key(
-                        &NativePublicKey::try_from(primary_role)?
+            let rule_set = engine::RuleSet {
+                primary_role: engine::rule!(require(
+                    engine::NonFungibleGlobalId::from_public_key(
+                        &engine::PublicKey::try_from(primary_role)?
                     )
                 )),
-                recovery_role: native_rule!(native_require(
-                    NativeNonFungibleGlobalId::from_public_key(
-                        &NativePublicKey::try_from(recovery_role)?
+                recovery_role: engine::rule!(require(
+                    engine::NonFungibleGlobalId::from_public_key(
+                        &engine::PublicKey::try_from(recovery_role)?
                     )
                 )),
-                confirmation_role: native_rule!(native_require(
-                    NativeNonFungibleGlobalId::from_public_key(
-                        &NativePublicKey::try_from(confirmation_role)?
+                confirmation_role: engine::rule!(require(
+                    engine::NonFungibleGlobalId::from_public_key(
+                        &engine::PublicKey::try_from(confirmation_role)?
                     )
                 )),
             };
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_ACCESS_CONTROLLER_PACKAGE,
+                engine::InstructionV1::CallFunction(engine::CallFunction {
+                    package_address: engine::DynamicPackageAddress::Static(
+                        engine::ACCESS_CONTROLLER_PACKAGE,
                     ),
-                    blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT
+                    blueprint_name: engine::ACCESS_CONTROLLER_BLUEPRINT
                         .to_owned(),
-                    function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT
+                    function_name: engine::ACCESS_CONTROLLER_CREATE_IDENT
                         .to_owned(),
                     args: manifest_args!(
                         bucket,
@@ -928,22 +934,22 @@ impl ManifestV1Builder {
                 None => None,
             };
 
-            let rule_set = NativeRuleSet {
-                primary_role: NativeAccessRule::try_from(primary_role)?,
-                recovery_role: NativeAccessRule::try_from(recovery_role)?,
-                confirmation_role: NativeAccessRule::try_from(
+            let rule_set = engine::RuleSet {
+                primary_role: engine::AccessRule::try_from(primary_role)?,
+                recovery_role: engine::AccessRule::try_from(recovery_role)?,
+                confirmation_role: engine::AccessRule::try_from(
                     confirmation_role,
                 )?,
             };
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_ACCESS_CONTROLLER_PACKAGE,
+                engine::InstructionV1::CallFunction(engine::CallFunction {
+                    package_address: engine::DynamicPackageAddress::Static(
+                        engine::ACCESS_CONTROLLER_PACKAGE,
                     ),
-                    blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT
+                    blueprint_name: engine::ACCESS_CONTROLLER_BLUEPRINT
                         .to_owned(),
-                    function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT
+                    function_name: engine::ACCESS_CONTROLLER_CREATE_IDENT
                         .to_owned(),
                     args: manifest_args!(
                         bucket,
@@ -984,9 +990,9 @@ impl ManifestV1Builder {
                 initial_supply
             {
                 (
-                    NATIVE_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeFungibleResourceManagerCreateWithInitialSupplyManifestInput {
+                    engine::FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT,
+                    engine::to_manifest_value_and_unwrap!(
+                        &engine::FungibleResourceManagerCreateWithInitialSupplyManifestInput {
                             owner_role,
                             track_total_supply,
                             divisibility,
@@ -999,9 +1005,9 @@ impl ManifestV1Builder {
                 )
             } else {
                 (
-                    NATIVE_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeFungibleResourceManagerCreateManifestInput {
+                    engine::FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT,
+                    engine::to_manifest_value_and_unwrap!(
+                        &engine::FungibleResourceManagerCreateManifestInput {
                             owner_role,
                             track_total_supply,
                             divisibility,
@@ -1014,11 +1020,11 @@ impl ManifestV1Builder {
             };
 
             let instruction =
-                NativeInstructionV1::CallFunction(NativeCallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_RESOURCE_PACKAGE,
+                engine::InstructionV1::CallFunction(engine::CallFunction {
+                    package_address: engine::DynamicPackageAddress::Static(
+                        engine::RESOURCE_PACKAGE,
                     ),
-                    blueprint_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
+                    blueprint_name: engine::FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
                         .to_owned(),
                     function_name: function_name.to_owned(),
                     args,
@@ -1035,18 +1041,18 @@ impl ManifestV1Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let resource_address =
-                NativeResourceAddress::try_from(*resource_address)?;
+                engine::ResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
 
             let instruction =
-                NativeInstructionV1::CallMethod(NativeCallMethod {
-                    address: NativeDynamicGlobalAddress::Static(
+                engine::InstructionV1::CallMethod(engine::CallMethod {
+                    address: engine::DynamicGlobalAddress::Static(
                         resource_address.into(),
                     ),
-                    method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
+                    method_name: engine::FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
                         .to_owned(),
-                    args: native_to_manifest_value_and_unwrap!(
-                        &NativeFungibleResourceManagerMintManifestInput {
+                    args: engine::to_manifest_value_and_unwrap!(
+                        &engine::FungibleResourceManagerMintManifestInput {
                             amount
                         }
                     ),
@@ -1081,7 +1087,7 @@ pub struct SecurityStructureRole {
     pub threshold: u8,
 }
 
-impl TryFrom<SecurityStructureRole> for NativeAccessRule {
+impl TryFrom<SecurityStructureRole> for engine::AccessRule {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -1091,31 +1097,31 @@ impl TryFrom<SecurityStructureRole> for NativeAccessRule {
             .super_admin_factors
             .into_iter()
             .map(|pk| {
-                NativePublicKey::try_from(pk)
-                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
-                    .map(NativeResourceOrNonFungible::NonFungible)
+                engine::PublicKey::try_from(pk)
+                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(&pk))
+                    .map(engine::ResourceOrNonFungible::NonFungible)
             })
-            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
+            .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
         let threshold_factors = value
             .threshold_factors
             .into_iter()
             .map(|pk| {
-                NativePublicKey::try_from(pk)
-                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
-                    .map(NativeResourceOrNonFungible::NonFungible)
+                engine::PublicKey::try_from(pk)
+                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(&pk))
+                    .map(engine::ResourceOrNonFungible::NonFungible)
             })
-            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
+            .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
 
-        Ok(NativeAccessRule::Protected(
-            NativeCompositeRequirement::AnyOf(vec![
-                NativeCompositeRequirement::BasicRequirement(
-                    NativeBasicRequirement::CountOf(
+        Ok(engine::AccessRule::Protected(
+            engine::CompositeRequirement::AnyOf(vec![
+                engine::CompositeRequirement::BasicRequirement(
+                    engine::BasicRequirement::CountOf(
                         value.threshold,
                         threshold_factors,
                     ),
                 ),
-                NativeCompositeRequirement::BasicRequirement(
-                    NativeBasicRequirement::AnyOf(super_admin_factors),
+                engine::CompositeRequirement::BasicRequirement(
+                    engine::BasicRequirement::AnyOf(super_admin_factors),
                 ),
             ]),
         ))
@@ -1303,11 +1309,11 @@ macro_rules! builder_alias_internal {
                     ),*
                 ) -> $crate::prelude::Result<Arc<Self>> {
                     $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
-                        let instruction = $crate::prelude::NativeInstructionV1::$instruction( [< Native $instruction >]{
-                            address: $crate::prelude::NativeDynamicGlobalAddress::Static((*address).try_into()?),
+                        let instruction = $crate::prelude::engine::InstructionV1::$instruction( engine::[< $instruction >]{
+                            address: $crate::prelude::engine::DynamicGlobalAddress::Static((*address).try_into()?),
                             method_name: $method_ident.to_owned(),
-                            args: $crate::prelude::native_to_manifest_value_and_unwrap! {
-                                &$input_type {
+                            args: $crate::prelude::engine::to_manifest_value_and_unwrap! {
+                                &engine::$input_type {
                                     $(
                                         $input_arg_name: <
                                             $input_arg_type
@@ -1352,12 +1358,12 @@ macro_rules! builder_alias_internal {
                 ),*
             ) -> $crate::prelude::Result<Arc<Self>> {
                 $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
-                    let instruction = $crate::prelude::NativeInstructionV1::CallFunction(NativeCallFunction {
-                        package_address: $crate::prelude::NativeDynamicPackageAddress::Static($package_address),
+                    let instruction = $crate::prelude::engine::InstructionV1::CallFunction(engine::CallFunction {
+                        package_address: $crate::prelude::engine::DynamicPackageAddress::Static($package_address),
                         blueprint_name: $blueprint_ident.to_owned(),
                         function_name: $function_ident.to_owned(),
-                        args: $crate::prelude::native_to_manifest_value_and_unwrap! {
-                            &$input_type {
+                        args: $crate::prelude::engine::to_manifest_value_and_unwrap! {
+                            &engine::$input_type {
                                 $(
                                     $input_arg_name: <
                                         $input_arg_type
@@ -1381,211 +1387,211 @@ builder_alias! {
     // ========
     {
         builder_method: account_create_advanced,
-        package_address: NATIVE_ACCOUNT_PACKAGE,
-        blueprint_ident: NATIVE_ACCOUNT_BLUEPRINT,
-        function_ident: NATIVE_ACCOUNT_CREATE_ADVANCED_IDENT,
-        args: NativeAccountCreateAdvancedManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
+        package_address: engine::ACCOUNT_PACKAGE,
+        blueprint_ident: engine::ACCOUNT_BLUEPRINT,
+        function_ident: engine::ACCOUNT_CREATE_ADVANCED_IDENT,
+        args: AccountCreateAdvancedManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
             address_reservation: (
                 Option<ManifestBuilderAddressReservation>
-                    => Option<NativeManifestAddressReservation>
+                    => Option<engine::ManifestAddressReservation>
             )
         }
     },
     {
         builder_method: account_create,
-        package_address: NATIVE_ACCOUNT_PACKAGE,
-        blueprint_ident: NATIVE_ACCOUNT_BLUEPRINT,
-        function_ident: NATIVE_ACCOUNT_CREATE_IDENT,
-        args: NativeAccountCreateManifestInput {}
+        package_address: engine::ACCOUNT_PACKAGE,
+        blueprint_ident: engine::ACCOUNT_BLUEPRINT,
+        function_ident: engine::ACCOUNT_CREATE_IDENT,
+        args: AccountCreateManifestInput {}
     },
     {
         builder_method: account_securify,
-        method_ident: NATIVE_ACCOUNT_SECURIFY_IDENT,
+        method_ident: engine::ACCOUNT_SECURIFY_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSecurifyManifestInput {}
+        args: AccountSecurifyManifestInput {}
     },
     {
         builder_method: account_lock_fee,
-        method_ident: NATIVE_ACCOUNT_LOCK_FEE_IDENT,
+        method_ident: engine::ACCOUNT_LOCK_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeManifestInput {
-            amount: (Arc<Decimal> => NativeDecimal)
+        args: AccountLockFeeManifestInput {
+            amount: (Arc<Decimal> => engine::Decimal)
         }
     },
     {
         builder_method: account_lock_contingent_fee,
-        method_ident: NATIVE_ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+        method_ident: engine::ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockContingentFeeManifestInput {
-            amount: (Arc<Decimal> => NativeDecimal)
+        args: AccountLockContingentFeeManifestInput {
+            amount: (Arc<Decimal> => engine::Decimal)
         }
     },
     {
         builder_method: account_deposit,
-        method_ident: NATIVE_ACCOUNT_DEPOSIT_IDENT,
+        method_ident: engine::ACCOUNT_DEPOSIT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountDepositManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: AccountDepositManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: account_try_deposit_or_abort,
-        method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+        method_ident: engine::ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountTryDepositOrAbortManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
+        args: AccountTryDepositOrAbortManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<engine::ManifestResourceOrNonFungible>),
         }
     },
     {
         builder_method: account_try_deposit_or_refund,
-        method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
+        method_ident: engine::ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
         instruction: CallMethod,
-        args: NativeAccountTryDepositOrRefundManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
+        args: AccountTryDepositOrRefundManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<engine::ManifestResourceOrNonFungible>),
         }
     },
     {
         builder_method: account_deposit_batch,
-        method_ident: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT,
+        method_ident: engine::ACCOUNT_DEPOSIT_BATCH_IDENT,
         instruction: CallMethod,
-        args: NativeAccountDepositBatchManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch)
+        args: AccountDepositBatchManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => engine::ManifestBucketBatch)
         }
     },
     {
         builder_method: account_try_deposit_batch_or_abort,
-        method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+        method_ident: engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountTryDepositBatchOrAbortManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
+        args: AccountTryDepositBatchOrAbortManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => engine::ManifestBucketBatch),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<engine::ManifestResourceOrNonFungible>),
         }
     },
     {
         builder_method: account_try_deposit_batch_or_refund,
-        method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
+        method_ident: engine::ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
         instruction: CallMethod,
-        args: NativeAccountTryDepositBatchOrRefundManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch),
-            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeManifestResourceOrNonFungible>),
+        args: AccountTryDepositBatchOrRefundManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => engine::ManifestBucketBatch),
+            authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<engine::ManifestResourceOrNonFungible>),
         }
     },
     {
         builder_method: account_withdraw,
-        method_ident: NATIVE_ACCOUNT_WITHDRAW_IDENT,
+        method_ident: engine::ACCOUNT_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeAccountWithdrawManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountWithdrawManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_withdraw_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountWithdrawNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountWithdrawNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_lock_fee_and_withdraw,
-        method_ident: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+        method_ident: engine::ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeAndWithdrawManifestInput {
-            amount_to_lock: (Arc<Decimal> => NativeDecimal),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountLockFeeAndWithdrawManifestInput {
+            amount_to_lock: (Arc<Decimal> => engine::Decimal),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_lock_fee_and_withdraw_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockFeeAndWithdrawNonFungiblesManifestInput {
-            amount_to_lock: (Arc<Decimal> => NativeDecimal),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountLockFeeAndWithdrawNonFungiblesManifestInput {
+            amount_to_lock: (Arc<Decimal> => engine::Decimal),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_create_proof_of_amount,
-        method_ident: NATIVE_ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
+        method_ident: engine::ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountCreateProofOfAmountManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountCreateProofOfAmountManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_create_proof_of_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountCreateProofOfNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountCreateProofOfNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_set_default_deposit_rule,
-        method_ident: NATIVE_ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+        method_ident: engine::ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSetDefaultDepositRuleManifestInput {
-            default as default_deposit_rule: (AccountDefaultDepositRule => NativeDefaultDepositRule),
+        args: AccountSetDefaultDepositRuleManifestInput {
+            default as default_deposit_rule: (AccountDefaultDepositRule => engine::DefaultDepositRule),
         }
     },
     {
         builder_method: account_set_resource_preference,
-        method_ident: NATIVE_ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+        method_ident: engine::ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountSetResourcePreferenceManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            resource_preference: (ResourcePreference => NativeResourcePreference),
+        args: AccountSetResourcePreferenceManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            resource_preference: (ResourcePreference => engine::ResourcePreference),
         }
     },
     {
         builder_method: account_remove_resource_preference,
-        method_ident: NATIVE_ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+        method_ident: engine::ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountRemoveResourcePreferenceManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
+        args: AccountRemoveResourcePreferenceManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
         }
     },
     {
         builder_method: account_burn,
-        method_ident: NATIVE_ACCOUNT_BURN_IDENT,
+        method_ident: engine::ACCOUNT_BURN_IDENT,
         instruction: CallMethod,
-        args: NativeAccountBurnManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountBurnManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_burn_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountBurnNonFungiblesManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountBurnNonFungiblesManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_add_authorized_depositor,
-        method_ident: NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
+        method_ident: engine::ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
-        args: NativeAccountAddAuthorizedDepositorManifestInput {
-            badge: (ResourceOrNonFungible => NativeManifestResourceOrNonFungible),
+        args: AccountAddAuthorizedDepositorManifestInput {
+            badge: (ResourceOrNonFungible => engine::ManifestResourceOrNonFungible),
         }
     },
     {
         builder_method: account_remove_authorized_depositor,
-        method_ident: NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
+        method_ident: engine::ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
-        args: NativeAccountRemoveAuthorizedDepositorManifestInput {
-            badge: (ResourceOrNonFungible => NativeManifestResourceOrNonFungible),
+        args: AccountRemoveAuthorizedDepositorManifestInput {
+            badge: (ResourceOrNonFungible => engine::ManifestResourceOrNonFungible),
         }
     },
     // ==========
@@ -1593,275 +1599,275 @@ builder_alias! {
     // ==========
     {
         builder_method: validator_register,
-        method_ident: NATIVE_VALIDATOR_REGISTER_IDENT,
+        method_ident: engine::VALIDATOR_REGISTER_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorRegisterManifestInput {}
+        args: ValidatorRegisterManifestInput {}
     },
     {
         builder_method: validator_unregister,
-        method_ident: NATIVE_VALIDATOR_UNREGISTER_IDENT,
+        method_ident: engine::VALIDATOR_UNREGISTER_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUnregisterManifestInput {}
+        args: ValidatorUnregisterManifestInput {}
     },
     {
         builder_method: validator_stake_as_owner,
-        method_ident: NATIVE_VALIDATOR_STAKE_AS_OWNER_IDENT,
+        method_ident: engine::VALIDATOR_STAKE_AS_OWNER_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorStakeAsOwnerManifestInput {
-            stake: (ManifestBuilderBucket => NativeManifestBucket)
+        args: ValidatorStakeAsOwnerManifestInput {
+            stake: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: validator_stake,
-        method_ident: NATIVE_VALIDATOR_STAKE_IDENT,
+        method_ident: engine::VALIDATOR_STAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorStakeManifestInput {
-            stake: (ManifestBuilderBucket => NativeManifestBucket)
+        args: ValidatorStakeManifestInput {
+            stake: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: validator_unstake,
-        method_ident: NATIVE_VALIDATOR_UNSTAKE_IDENT,
+        method_ident: engine::VALIDATOR_UNSTAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUnstakeManifestInput {
-            stake_unit_bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: ValidatorUnstakeManifestInput {
+            stake_unit_bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: validator_claim_xrd,
-        method_ident: NATIVE_VALIDATOR_CLAIM_XRD_IDENT,
+        method_ident: engine::VALIDATOR_CLAIM_XRD_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorClaimXrdManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: ValidatorClaimXrdManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: validator_update_key,
-        method_ident: NATIVE_VALIDATOR_UPDATE_KEY_IDENT,
+        method_ident: engine::VALIDATOR_UPDATE_KEY_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateKeyManifestInput {
-            key: (PublicKey => NativeSecp256k1PublicKey)
+        args: ValidatorUpdateKeyManifestInput {
+            key: (PublicKey => engine::Secp256k1PublicKey)
         }
     },
     {
         builder_method: validator_update_fee,
-        method_ident: NATIVE_VALIDATOR_UPDATE_FEE_IDENT,
+        method_ident: engine::VALIDATOR_UPDATE_FEE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateFeeManifestInput {
-            new_fee_factor: (Arc<Decimal> => NativeDecimal)
+        args: ValidatorUpdateFeeManifestInput {
+            new_fee_factor: (Arc<Decimal> => engine::Decimal)
         }
     },
     {
         builder_method: validator_update_accept_delegated_stake,
-        method_ident: NATIVE_VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
+        method_ident: engine::VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorUpdateAcceptDelegatedStakeManifestInput {
+        args: ValidatorUpdateAcceptDelegatedStakeManifestInput {
             accept_delegated_stake: (bool => bool)
         }
     },
     {
         builder_method: validator_accepts_delegated_stake,
-        method_ident: NATIVE_VALIDATOR_ACCEPTS_DELEGATED_STAKE_IDENT,
+        method_ident: engine::VALIDATOR_ACCEPTS_DELEGATED_STAKE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorAcceptsDelegatedStakeManifestInput {}
+        args: ValidatorAcceptsDelegatedStakeManifestInput {}
     },
     {
         builder_method: validator_total_stake_xrd_amount,
-        method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT,
+        method_ident: engine::VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorTotalStakeXrdAmountManifestInput {}
+        args: ValidatorTotalStakeXrdAmountManifestInput {}
     },
     {
         builder_method: validator_total_stake_unit_supply,
-        method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT,
+        method_ident: engine::VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorTotalStakeUnitSupplyManifestInput {}
+        args: ValidatorTotalStakeUnitSupplyManifestInput {}
     },
     {
         builder_method: validator_get_redemption_value,
-        method_ident: NATIVE_VALIDATOR_GET_REDEMPTION_VALUE_IDENT,
+        method_ident: engine::VALIDATOR_GET_REDEMPTION_VALUE_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorGetRedemptionValueManifestInput {
-            amount_of_stake_units: (Arc<Decimal> => NativeDecimal)
+        args: ValidatorGetRedemptionValueManifestInput {
+            amount_of_stake_units: (Arc<Decimal> => engine::Decimal)
         }
     },
     {
         builder_method: validator_signal_protocol_update_readiness,
-        method_ident: NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT,
+        method_ident: engine::VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorSignalProtocolUpdateReadinessManifestInput {
+        args: ValidatorSignalProtocolUpdateReadinessManifestInput {
             vote: (String => String)
         }
     },
     {
         builder_method: validator_get_protocol_update_readiness,
-        method_ident: NATIVE_VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT,
+        method_ident: engine::VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorGetProtocolUpdateReadinessManifestInput {}
+        args: ValidatorGetProtocolUpdateReadinessManifestInput {}
     },
     {
         builder_method: validator_lock_owner_stake_units,
-        method_ident: NATIVE_VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT,
+        method_ident: engine::VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorLockOwnerStakeUnitsManifestInput {
-            stake_unit_bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: ValidatorLockOwnerStakeUnitsManifestInput {
+            stake_unit_bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: validator_start_unlock_owner_stake_units,
-        method_ident: NATIVE_VALIDATOR_START_UNLOCK_OWNER_STAKE_UNITS_IDENT,
+        method_ident: engine::VALIDATOR_START_UNLOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorStartUnlockOwnerStakeUnitsManifestInput {
-            requested_stake_unit_amount: (Arc<Decimal> => NativeDecimal)
+        args: ValidatorStartUnlockOwnerStakeUnitsManifestInput {
+            requested_stake_unit_amount: (Arc<Decimal> => engine::Decimal)
         }
     },
     {
         builder_method: validator_finish_unlock_owner_stake_units,
-        method_ident: NATIVE_VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT,
+        method_ident: engine::VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
-        args: NativeValidatorFinishUnlockOwnerStakeUnitsManifestInput {}
+        args: ValidatorFinishUnlockOwnerStakeUnitsManifestInput {}
     },
     // ==================
     // Access Controller
     // ==================
     {
         builder_method: access_controller_create,
-        package_address: NATIVE_ACCESS_CONTROLLER_PACKAGE,
-        blueprint_ident: NATIVE_ACCESS_CONTROLLER_BLUEPRINT,
-        function_ident: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
-        args: NativeAccessControllerCreateManifestInput {
-            controlled_asset: (ManifestBuilderBucket => NativeManifestBucket),
-            rule_set: (RuleSet => NativeRuleSet),
+        package_address: engine::ACCESS_CONTROLLER_PACKAGE,
+        blueprint_ident: engine::ACCESS_CONTROLLER_BLUEPRINT,
+        function_ident: engine::ACCESS_CONTROLLER_CREATE_IDENT,
+        args: AccessControllerCreateManifestInput {
+            controlled_asset: (ManifestBuilderBucket => engine::ManifestBucket),
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
-            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
     {
         builder_method: access_controller_create_proof,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCreateProofManifestInput {}
+        args: AccessControllerCreateProofManifestInput {}
     },
     {
         builder_method: access_controller_initiate_recovery_as_primary,
-        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateRecoveryAsPrimaryManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerInitiateRecoveryAsPrimaryManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_initiate_recovery_as_recovery,
-        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateRecoveryAsRecoveryManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerInitiateRecoveryAsRecoveryManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_initiate_badge_withdraw_as_primary,
-        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsPrimaryManifestInput {}
+        args: AccessControllerInitiateBadgeWithdrawAttemptAsPrimaryManifestInput {}
     },
     {
         builder_method: access_controller_initiate_badge_withdraw_as_recovery,
-        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsRecoveryManifestInput {}
+        args: AccessControllerInitiateBadgeWithdrawAttemptAsRecoveryManifestInput {}
     },
     {
         builder_method: access_controller_quick_confirm_primary_role_recovery_proposal,
-        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_quick_confirm_recovery_role_recovery_proposal,
-        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_quick_confirm_primary_role_badge_withdraw_attempt,
-        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptManifestInput {}
+        args: AccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_quick_confirm_recovery_role_badge_withdraw_attempt,
-        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptManifestInput {}
+        args: AccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_timed_confirm_recovery,
-        method_ident: NATIVE_ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerTimedConfirmRecoveryManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerTimedConfirmRecoveryManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_cancel_primary_role_recovery_proposal,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelPrimaryRoleRecoveryProposalManifestInput {}
+        args: AccessControllerCancelPrimaryRoleRecoveryProposalManifestInput {}
     },
     {
         builder_method: access_controller_cancel_recovery_role_recovery_proposal,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelRecoveryRoleRecoveryProposalManifestInput {}
+        args: AccessControllerCancelRecoveryRoleRecoveryProposalManifestInput {}
     },
     {
         builder_method: access_controller_cancel_primary_role_badge_withdraw_attempt,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelPrimaryRoleBadgeWithdrawAttemptManifestInput {}
+        args: AccessControllerCancelPrimaryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_cancel_recovery_role_badge_withdraw_attempt,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerCancelRecoveryRoleBadgeWithdrawAttemptManifestInput {}
+        args: AccessControllerCancelRecoveryRoleBadgeWithdrawAttemptManifestInput {}
     },
     {
         builder_method: access_controller_lock_primary_role,
-        method_ident: NATIVE_ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerLockPrimaryRoleManifestInput {}
+        args: AccessControllerLockPrimaryRoleManifestInput {}
     },
     {
         builder_method: access_controller_unlock_primary_role,
-        method_ident: NATIVE_ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerUnlockPrimaryRoleManifestInput {}
+        args: AccessControllerUnlockPrimaryRoleManifestInput {}
     },
     {
         builder_method: access_controller_stop_timed_recovery,
-        method_ident: NATIVE_ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerStopTimedRecoveryManifestInput {
-            rule_set: (RuleSet => NativeRuleSet),
+        args: AccessControllerStopTimedRecoveryManifestInput {
+            rule_set: (RuleSet => engine::RuleSet),
             timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
         }
     },
     {
         builder_method: access_controller_mint_recovery_badges,
-        method_ident: NATIVE_ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
+        method_ident: engine::ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
         instruction: CallMethod,
-        args: NativeAccessControllerMintRecoveryBadgesManifestInput {
-            non_fungible_local_ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccessControllerMintRecoveryBadgesManifestInput {
+            non_fungible_local_ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     // =========
@@ -1869,256 +1875,256 @@ builder_alias! {
     // =========
     {
         builder_method: identity_create_advanced,
-        package_address: NATIVE_IDENTITY_PACKAGE,
-        blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
-        function_ident: NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
-        args: NativeIdentityCreateAdvancedManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
+        package_address: engine::IDENTITY_PACKAGE,
+        blueprint_ident: engine::IDENTITY_BLUEPRINT,
+        function_ident: engine::IDENTITY_CREATE_ADVANCED_IDENT,
+        args: IdentityCreateAdvancedManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
         }
     },
     {
         builder_method: identity_create,
-        package_address: NATIVE_IDENTITY_PACKAGE,
-        blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
-        function_ident: NATIVE_IDENTITY_CREATE_IDENT,
-        args: NativeIdentityCreateManifestInput {}
+        package_address: engine::IDENTITY_PACKAGE,
+        blueprint_ident: engine::IDENTITY_BLUEPRINT,
+        function_ident: engine::IDENTITY_CREATE_IDENT,
+        args: IdentityCreateManifestInput {}
     },
     {
         builder_method: identity_securify,
-        method_ident: NATIVE_IDENTITY_SECURIFY_IDENT,
+        method_ident: engine::IDENTITY_SECURIFY_IDENT,
         instruction: CallMethod,
-        args: NativeIdentitySecurifyToSingleBadgeManifestInput {}
+        args: IdentitySecurifyToSingleBadgeManifestInput {}
     },
     // ========
     // Package
     // ========
     {
         builder_method: package_claim_royalty,
-        method_ident: NATIVE_PACKAGE_CLAIM_ROYALTIES_IDENT,
+        method_ident: engine::PACKAGE_CLAIM_ROYALTIES_IDENT,
         instruction: CallMethod,
-        args: NativePackageClaimRoyaltiesManifestInput {}
+        args: PackageClaimRoyaltiesManifestInput {}
     },
     // ==================
     // One Resource Pool
     // ==================
     {
         builder_method: one_resource_pool_instantiate,
-        package_address: NATIVE_POOL_PACKAGE,
+        package_address: engine::POOL_PACKAGE,
         blueprint_ident: "OneResourcePool",
-        function_ident: NATIVE_ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
-        args: NativeOneResourcePoolInstantiateManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
-            pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        function_ident: engine::ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
+        args: OneResourcePoolInstantiateManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
+            pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
     {
         builder_method: one_resource_pool_contribute,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolContributeManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: OneResourcePoolContributeManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: one_resource_pool_redeem,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_REDEEM_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_REDEEM_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolRedeemManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: OneResourcePoolRedeemManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: one_resource_pool_protected_deposit,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolProtectedDepositManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: OneResourcePoolProtectedDepositManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: one_resource_pool_protected_withdraw,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolProtectedWithdrawManifestInput {
-            amount: (Arc<Decimal> => NativeDecimal),
-            withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
+        args: OneResourcePoolProtectedWithdrawManifestInput {
+            amount: (Arc<Decimal> => engine::Decimal),
+            withdraw_strategy: (WithdrawStrategy => engine::WithdrawStrategy)
         }
     },
     {
         builder_method: one_resource_pool_get_redemption_value,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolGetRedemptionValueManifestInput {
-            amount_of_pool_units: (Arc<Decimal> => NativeDecimal),
+        args: OneResourcePoolGetRedemptionValueManifestInput {
+            amount_of_pool_units: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: one_resource_pool_get_vault_amount,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_GET_VAULT_AMOUNT_IDENT,
+        method_ident: engine::ONE_RESOURCE_POOL_GET_VAULT_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeOneResourcePoolGetVaultAmountManifestInput {}
+        args: OneResourcePoolGetVaultAmountManifestInput {}
     },
     // ==================
     // Two Resource Pool
     // ==================
     {
         builder_method: two_resource_pool_instantiate,
-        package_address: NATIVE_POOL_PACKAGE,
+        package_address: engine::POOL_PACKAGE,
         blueprint_ident: "TwoResourcePool",
-        function_ident: NATIVE_TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
-        args: NativeTwoResourcePoolInstantiateManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
-            pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_addresses: (Vec<Arc<Address>> => (NativeDynamicResourceAddress, NativeDynamicResourceAddress)),
-            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        function_ident: engine::TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
+        args: TwoResourcePoolInstantiateManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
+            pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
+            resource_addresses: (Vec<Arc<Address>> => (engine::ManifestResourceAddress, engine::ManifestResourceAddress)),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
     {
         builder_method: two_resource_pool_contribute,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_CONTRIBUTE_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolContributeManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => (NativeManifestBucket, NativeManifestBucket))
+        args: TwoResourcePoolContributeManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => (engine::ManifestBucket, engine::ManifestBucket))
         }
     },
     {
         builder_method: two_resource_pool_redeem,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_REDEEM_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_REDEEM_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolRedeemManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: TwoResourcePoolRedeemManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: two_resource_pool_protected_deposit,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolProtectedDepositManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: TwoResourcePoolProtectedDepositManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: two_resource_pool_protected_withdraw,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
-            withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
+        args: TwoResourcePoolProtectedWithdrawManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
+            withdraw_strategy: (WithdrawStrategy => engine::WithdrawStrategy)
         }
     },
     {
         builder_method: two_resource_pool_get_redemption_value,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolGetRedemptionValueManifestInput {
-            amount_of_pool_units: (Arc<Decimal> => NativeDecimal),
+        args: TwoResourcePoolGetRedemptionValueManifestInput {
+            amount_of_pool_units: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: two_resource_pool_get_vault_amount,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
+        method_ident: engine::TWO_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
         instruction: CallMethod,
-        args: NativeTwoResourcePoolGetVaultAmountsManifestInput {}
+        args: TwoResourcePoolGetVaultAmountsManifestInput {}
     },
     // ====================
     // Multi Resource Pool
     // ====================
     {
         builder_method: multi_resource_pool_instantiate,
-        package_address: NATIVE_POOL_PACKAGE,
+        package_address: engine::POOL_PACKAGE,
         blueprint_ident: "MultiResourcePool",
-        function_ident: NATIVE_MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
-        args: NativeMultiResourcePoolInstantiateManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
-            pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
-            resource_addresses: (Vec<Arc<Address>> => IndexSet<NativeDynamicResourceAddress>),
-            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        function_ident: engine::MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
+        args: MultiResourcePoolInstantiateManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
+            pool_manager_rule: (Arc<AccessRule> => engine::AccessRule),
+            resource_addresses: (Vec<Arc<Address>> => engine::IndexSet<engine::ManifestResourceAddress>),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
     {
         builder_method: multi_resource_pool_contribute,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolContributeManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => NativeManifestBucketBatch)
+        args: MultiResourcePoolContributeManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => engine::ManifestBucketBatch)
         }
     },
     {
         builder_method: multi_resource_pool_redeem,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_REDEEM_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_REDEEM_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolRedeemManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: MultiResourcePoolRedeemManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: multi_resource_pool_protected_deposit,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolProtectedDepositManifestInput {
-            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        args: MultiResourcePoolProtectedDepositManifestInput {
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket)
         }
     },
     {
         builder_method: multi_resource_pool_protected_withdraw,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolProtectedWithdrawManifestInput {
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
-            withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
+        args: MultiResourcePoolProtectedWithdrawManifestInput {
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
+            withdraw_strategy: (WithdrawStrategy => engine::WithdrawStrategy)
         }
     },
     {
         builder_method: multi_resource_pool_get_redemption_value,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolGetRedemptionValueManifestInput {
-            amount_of_pool_units: (Arc<Decimal> => NativeDecimal),
+        args: MultiResourcePoolGetRedemptionValueManifestInput {
+            amount_of_pool_units: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: multi_resource_pool_get_vault_amount,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
+        method_ident: engine::MULTI_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
         instruction: CallMethod,
-        args: NativeMultiResourcePoolGetVaultAmountsManifestInput {}
+        args: MultiResourcePoolGetVaultAmountsManifestInput {}
     },
     // ================
     // Metadata Module
     // ================
     {
         builder_method: metadata_set,
-        method_ident: NATIVE_METADATA_SET_IDENT,
+        method_ident: engine::METADATA_SET_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataSetManifestInput {
+        args: MetadataSetManifestInput {
             key: (String => String),
-            value: (MetadataValue => NativeMetadataValue)
+            value: (MetadataValue => engine::MetadataValue)
         }
     },
     {
         builder_method: metadata_lock,
-        method_ident: NATIVE_METADATA_LOCK_IDENT,
+        method_ident: engine::METADATA_LOCK_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataLockManifestInput {
+        args: MetadataLockManifestInput {
             key: (String => String),
         }
     },
     {
         builder_method: metadata_get,
-        method_ident: NATIVE_METADATA_GET_IDENT,
+        method_ident: engine::METADATA_GET_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataGetManifestInput {
+        args: MetadataGetManifestInput {
             key: (String => String),
         }
     },
     {
         builder_method: metadata_remove,
-        method_ident: NATIVE_METADATA_REMOVE_IDENT,
+        method_ident: engine::METADATA_REMOVE_IDENT,
         instruction: CallMetadataMethod,
-        args: NativeMetadataRemoveManifestInput {
+        args: MetadataRemoveManifestInput {
             key: (String => String),
         }
     },
@@ -2127,165 +2133,168 @@ builder_alias! {
     // =======================
     {
         builder_method: role_assignment_get,
-        method_ident: NATIVE_ROLE_ASSIGNMENT_GET_IDENT,
+        method_ident: engine::ROLE_ASSIGNMENT_GET_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentGetManifestInput {
-            module: (ModuleId => NativeObjectModuleId),
-            role_key: (String => NativeRoleKey),
+        args: RoleAssignmentGetManifestInput {
+            module: (ModuleId => engine::ObjectModuleId),
+            role_key: (String => engine::RoleKey),
         }
     },
     {
         builder_method: role_assignment_set,
-        method_ident: NATIVE_ROLE_ASSIGNMENT_SET_IDENT,
+        method_ident: engine::ROLE_ASSIGNMENT_SET_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentSetManifestInput {
-            module: (ModuleId => NativeObjectModuleId),
-            role_key: (String => NativeRoleKey),
-            rule: (Arc<AccessRule> => NativeAccessRule),
+        args: RoleAssignmentSetManifestInput {
+            module: (ModuleId => engine::ObjectModuleId),
+            role_key: (String => engine::RoleKey),
+            rule: (Arc<AccessRule> => engine::AccessRule),
         }
     },
     {
         builder_method: role_assignment_set_owner,
-        method_ident: NATIVE_ROLE_ASSIGNMENT_SET_OWNER_IDENT,
+        method_ident: engine::ROLE_ASSIGNMENT_SET_OWNER_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentSetOwnerManifestInput {
-            rule: (Arc<AccessRule> => NativeAccessRule),
+        args: RoleAssignmentSetOwnerManifestInput {
+            rule: (Arc<AccessRule> => engine::AccessRule),
         }
     },
     {
         builder_method: role_assignment_lock_owner,
-        method_ident: NATIVE_ROLE_ASSIGNMENT_LOCK_OWNER_IDENT,
+        method_ident: engine::ROLE_ASSIGNMENT_LOCK_OWNER_IDENT,
         instruction: CallRoleAssignmentMethod,
-        args: NativeRoleAssignmentLockOwnerManifestInput {}
+        args: RoleAssignmentLockOwnerManifestInput {}
     },
     // ===============
     // Royalty Module
     // ===============
     {
         builder_method: royalty_set,
-        method_ident: NATIVE_COMPONENT_ROYALTY_SET_ROYALTY_IDENT,
+        method_ident: engine::COMPONENT_ROYALTY_SET_ROYALTY_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentRoyaltySetManifestInput {
+        args: ComponentRoyaltySetManifestInput {
             method: (String => String),
-            amount: (RoyaltyAmount => NativeRoyaltyAmount),
+            amount: (RoyaltyAmount => engine::RoyaltyAmount),
         }
     },
     {
         builder_method: royalty_lock,
-        method_ident: NATIVE_COMPONENT_ROYALTY_LOCK_ROYALTY_IDENT,
+        method_ident: engine::COMPONENT_ROYALTY_LOCK_ROYALTY_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentRoyaltyLockManifestInput {
+        args: ComponentRoyaltyLockManifestInput {
             method: (String => String),
         }
     },
     {
         builder_method: royalty_claim,
-        method_ident: NATIVE_COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT,
+        method_ident: engine::COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT,
         instruction: CallRoyaltyMethod,
-        args: NativeComponentClaimRoyaltiesManifestInput {}
+        args: ComponentClaimRoyaltiesManifestInput {}
     },
     // ===============
     // Account Locker
     // ===============
     {
         builder_method: account_locker_instantiate,
-        package_address: NATIVE_LOCKER_PACKAGE,
-        blueprint_ident: NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
-        function_ident: NATIVE_ACCOUNT_LOCKER_INSTANTIATE_IDENT,
-        args: NativeAccountLockerInstantiateManifestInput {
-            owner_role: (OwnerRole => NativeOwnerRole),
-            storer_role: (Arc<AccessRule> => NativeAccessRule),
-            storer_updater_role: (Arc<AccessRule> => NativeAccessRule),
-            recoverer_role: (Arc<AccessRule> => NativeAccessRule),
-            recoverer_updater_role: (Arc<AccessRule> => NativeAccessRule),
-            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        package_address: engine::LOCKER_PACKAGE,
+        blueprint_ident: engine::ACCOUNT_LOCKER_BLUEPRINT,
+        function_ident: engine::ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+        args: AccountLockerInstantiateManifestInput {
+            owner_role: (OwnerRole => engine::OwnerRole),
+            storer_role: (Arc<AccessRule> => engine::AccessRule),
+            storer_updater_role: (Arc<AccessRule> => engine::AccessRule),
+            recoverer_role: (Arc<AccessRule> => engine::AccessRule),
+            recoverer_updater_role: (Arc<AccessRule> => engine::AccessRule),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<engine::ManifestAddressReservation>)
         }
     },
     {
         builder_method: account_locker_instantiate_simple,
-        package_address: NATIVE_LOCKER_PACKAGE,
-        blueprint_ident: NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
-        function_ident: NATIVE_ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT,
-        args: NativeAccountLockerInstantiateSimpleManifestInput {
+        package_address: engine::LOCKER_PACKAGE,
+        blueprint_ident: engine::ACCOUNT_LOCKER_BLUEPRINT,
+        function_ident: engine::ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT,
+        args: AccountLockerInstantiateSimpleManifestInput {
             allow_recover: (bool => bool),
         }
     },
     {
         builder_method: account_locker_store,
-        method_ident: NATIVE_ACCOUNT_LOCKER_STORE_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_STORE_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerStoreManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            bucket: (ManifestBuilderBucket => NativeManifestBucket),
+        args: AccountLockerStoreManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket),
             try_direct_send: (bool => bool),
         }
     },
     {
         builder_method: account_locker_airdrop,
-        method_ident: NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_AIRDROP_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerAirdropManifestInput {
-            claimants: (HashMap<String, ResourceSpecifier> => IndexMap<NativeDynamicComponentAddress, NativeLockerResourceSpecifier>),
-            bucket: (ManifestBuilderBucket => NativeManifestBucket),
+        args: AccountLockerAirdropManifestInput {
+            claimants: (
+                HashMap<String, ResourceSpecifier> =>
+                IndexMap<engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>, radix_engine_interface::blueprints::locker::ResourceSpecifier>
+            ),
+            bucket: (ManifestBuilderBucket => engine::ManifestBucket),
             try_direct_send: (bool => bool),
         }
     },
     {
         builder_method: account_locker_recover,
-        method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_RECOVER_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerRecoverManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountLockerRecoverManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_locker_recover_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerRecoverNonFungiblesManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountLockerRecoverNonFungiblesManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_locker_claim,
-        method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_CLAIM_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerClaimManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            amount: (Arc<Decimal> => NativeDecimal),
+        args: AccountLockerClaimManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            amount: (Arc<Decimal> => engine::Decimal),
         }
     },
     {
         builder_method: account_locker_claim_non_fungibles,
-        method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerClaimNonFungiblesManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
-            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        args: AccountLockerClaimNonFungiblesManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => engine::IndexSet<engine::NonFungibleLocalId>),
         }
     },
     {
         builder_method: account_locker_get_amount,
-        method_ident: NATIVE_ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerGetAmountManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
+        args: AccountLockerGetAmountManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
         }
     },
     {
         builder_method: account_locker_get_non_fungible_local_ids,
-        method_ident: NATIVE_ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
+        method_ident: engine::ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
         instruction: CallMethod,
-        args: NativeAccountLockerGetNonFungibleLocalIdsManifestInput {
-            claimant: (Arc<Address> => NativeDynamicComponentAddress),
-            resource_address: (Arc<Address> => NativeDynamicResourceAddress),
+        args: AccountLockerGetNonFungibleLocalIdsManifestInput {
+            claimant: (Arc<Address> => engine::GenericGlobal<engine::ManifestComponentAddress, engine::AccountMarker>),
+            resource_address: (Arc<Address> => engine::ManifestResourceAddress),
             limit: (u32 => u32)
         }
     },

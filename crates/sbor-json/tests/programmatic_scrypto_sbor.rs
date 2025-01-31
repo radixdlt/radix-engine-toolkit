@@ -76,8 +76,8 @@ serialization_tests! {
 }
 
 #[test]
-pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model()
- {
+pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model(
+) {
     // Arrange
     let value = MyEnum::VariantWithFieldNames { field: 1 };
     let payload = scrypto_encode(&value).unwrap();
@@ -211,7 +211,7 @@ pub fn enum_with_string_variant_id_can_be_deserialized() {
     "#;
 
     // Act
-    let value = serde_json::from_str::<ProgrammaticScryptoValue>(&value);
+    let value = serde_json::from_str::<ProgrammaticScryptoValue>(value);
 
     // Assert
     assert!(matches!(
@@ -235,7 +235,7 @@ pub fn enum_with_numeric_variant_id_can_be_deserialized() {
     "#;
 
     // Act
-    let value = serde_json::from_str::<ProgrammaticScryptoValue>(&value);
+    let value = serde_json::from_str::<ProgrammaticScryptoValue>(value);
 
     // Assert
     assert!(matches!(

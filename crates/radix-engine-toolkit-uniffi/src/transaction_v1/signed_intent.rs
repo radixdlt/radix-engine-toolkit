@@ -40,7 +40,7 @@ impl SignedTransactionIntentV1 {
     pub fn from_payload_bytes(
         compiled_signed_intent: Vec<u8>,
     ) -> Result<Arc<Self>> {
-        core_transaction_v1_signed_intent_from_payload_bytes(
+        toolkit::functions::transaction_v1::signed_intent::from_payload_bytes(
             compiled_signed_intent,
         )
         .map(|signed_intent| Arc::new(signed_intent.into()))
@@ -56,18 +56,22 @@ impl SignedTransactionIntentV1 {
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeSignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
-            core_transaction_v1_signed_intent_hash(&signed_intent)
+        engine::SignedIntentV1::try_from(self.clone()).and_then(
+            |signed_intent| {
+                toolkit::functions::transaction_v1::signed_intent::hash(
+                    &signed_intent,
+                )
                 .map_err(Into::into)
                 .map(|hash| {
                     let signed_intent_hash =
-                        NativeSignedTransactionIntentHash(hash.hash);
+                        engine::SignedTransactionIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
                         self.intent.header.network_id,
                     ))
                 })
-        })
+            },
+        )
     }
 
     pub fn signed_intent_hash(&self) -> Result<Arc<TransactionHash>> {
@@ -79,27 +83,29 @@ impl SignedTransactionIntentV1 {
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
-        NativeSignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
-            core_transaction_v1_signed_intent_to_payload_bytes(&signed_intent)
-                .map_err(Into::into)
+        engine::SignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
+            toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(
+                &signed_intent,
+            )
+            .map_err(Into::into)
         })
     }
 
     pub fn statically_validate(&self, network_id: u8) -> Result<()> {
-        core_transaction_v1_signed_intent_statically_validate(
+        toolkit::functions::transaction_v1::signed_intent::statically_validate(
             &self.clone().try_into()?,
-            &core_network_definition_from_network_id(network_id),
+            &engine::NetworkDefinition::from_network_id(network_id),
         )
         .map_err(Into::into)
     }
 }
 
-impl From<NativeSignedIntentV1> for SignedTransactionIntentV1 {
+impl From<engine::SignedIntentV1> for SignedTransactionIntentV1 {
     fn from(
-        NativeSignedIntentV1 {
+        engine::SignedIntentV1 {
             intent,
             intent_signatures,
-        }: NativeSignedIntentV1,
+        }: engine::SignedIntentV1,
     ) -> Self {
         let intent = IntentV1::from(intent);
         let intent_signatures = intent_signatures
@@ -115,20 +121,22 @@ impl From<NativeSignedIntentV1> for SignedTransactionIntentV1 {
     }
 }
 
-impl TryFrom<SignedTransactionIntentV1> for NativeSignedIntentV1 {
+impl TryFrom<SignedTransactionIntentV1> for engine::SignedIntentV1 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: SignedTransactionIntentV1) -> Result<Self> {
-        let intent = NativeIntentV1::try_from(value.intent.as_ref().clone())?;
+        let intent = engine::IntentV1::try_from(value.intent.as_ref().clone())?;
         let intent_signatures = value
             .intent_signatures
             .into_iter()
-            .map(|signature| signature.try_into().map(NativeIntentSignature))
+            .map(|signature| {
+                signature.try_into().map(engine::IntentSignatureV1)
+            })
             .collect::<Result<Vec<_>>>()?;
 
         Ok(Self {
             intent,
-            intent_signatures: NativeIntentSignatures {
+            intent_signatures: engine::IntentSignaturesV1 {
                 signatures: intent_signatures,
             },
         })

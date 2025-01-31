@@ -15,11 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::model::*;
-use sbor::*;
-use scrypto::prelude::*;
-
-use crate::models::transaction_hash::TransactionHash;
+use crate::internal_prelude::*;
 
 pub fn hash(
     partial_transaction: &PartialTransactionV2,

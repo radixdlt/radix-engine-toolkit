@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use bech32::{FromBase32, ToBase32};
-use scrypto::prelude::*;
-
-use crate::utils;
+use crate::internal_prelude::*;
 
 pub fn preallocated_account_address_from_public_key<P>(
     public_key: &P,
@@ -202,40 +199,12 @@ pub fn node_address_from_public_key(
     public_key: &Secp256k1PublicKey,
     network_id: u8,
 ) -> String {
-    let hrp = {
-        let network_identifier =
-            utils::network_definition_from_network_id(network_id).hrp_suffix;
-        format!("node_{network_identifier}")
-    };
+    let network_definition = NetworkDefinition::from_network_id(network_id);
+    let network_identifier = network_definition.hrp_suffix;
+    let hrp = format!("node_{network_identifier}");
 
     bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m)
         .expect("Should not panic since all data is trusted.")
-}
-
-pub enum OlympiaNetwork {
-    Mainnet,
-    Stokenet,
-    Releasenet,
-    RCNet,
-    Milestonenet,
-    Devopsnet,
-    Sandpitnet,
-    Localnet,
-}
-
-impl OlympiaNetwork {
-    pub const fn hrp(&self) -> &str {
-        match self {
-            Self::Mainnet => "rdx",
-            Self::Stokenet => "tdx",
-            Self::Releasenet => "tdx3",
-            Self::RCNet => "tdx4",
-            Self::Milestonenet => "tdx5",
-            Self::Devopsnet => "tdx6",
-            Self::Sandpitnet => "tdx7",
-            Self::Localnet => "ddx",
-        }
-    }
 }
 
 #[derive(Debug)]

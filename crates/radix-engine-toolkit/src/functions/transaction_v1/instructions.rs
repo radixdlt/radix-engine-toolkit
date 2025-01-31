@@ -15,14 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::utils::*;
-use radix_transactions::errors::*;
-use radix_transactions::prelude::*;
-use radix_transactions::validation::*;
-use scrypto::prelude::*;
-
-use crate::models::node_id::TypedNodeId;
-use crate::sbor::indexed_manifest_value::*;
+use crate::internal_prelude::*;
 
 pub fn statically_validate(
     instructions: &[InstructionV1],
@@ -47,11 +40,12 @@ pub fn statically_validate(
 
 pub fn extract_addresses(
     instructions: &[InstructionV1],
-) -> (HashSet<TypedNodeId>, HashSet<ManifestNamedAddress>) {
+) -> (HashSet<NodeId>, HashSet<ManifestNamedAddress>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
     let static_addresses = indexed_manifest_value
         .static_addresses()
-        .into_iter()
+        .iter()
+        .copied()
         .collect();
     let named_addresses = indexed_manifest_value
         .named_addresses()

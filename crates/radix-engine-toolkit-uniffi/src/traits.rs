@@ -23,6 +23,20 @@ pub trait FromNative {
     fn from_native(native: Self::Native) -> Self;
 }
 
+impl<T> FromNative for Option<T>
+where
+    T: FromNative,
+{
+    type Native = Option<T::Native>;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            Some(value) => Some(FromNative::from_native(value)),
+            None => None,
+        }
+    }
+}
+
 pub trait FromNativeWithNetworkContext {
     type Native;
 

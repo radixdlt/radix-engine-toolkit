@@ -18,16 +18,16 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct InstructionsV2(pub(crate) Vec<NativeInstructionV2>, pub(crate) u8);
+pub struct InstructionsV2(pub(crate) Vec<engine::InstructionV2>, pub(crate) u8);
 
 #[uniffi::export]
 impl InstructionsV2 {
     #[uniffi::constructor]
     pub fn from_string(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition =
-            core_network_definition_from_network_id(network_id);
-        let blob_provider = NativeMockBlobProvider::new();
-        native_compile_manifest::<NativeTransactionManifestV2>(
+            engine::NetworkDefinition::from_network_id(network_id);
+        let blob_provider = engine::MockBlobProvider::new();
+        engine::compile_manifest::<engine::TransactionManifestV2>(
             &string,
             &network_definition,
             blob_provider,
@@ -50,9 +50,9 @@ impl InstructionsV2 {
 
     pub fn as_str(&self) -> Result<String> {
         let network_definition =
-            core_network_definition_from_network_id(self.1);
-        native_decompile(
-            &NativeTransactionManifestV2 {
+            engine::NetworkDefinition::from_network_id(self.1);
+        engine::decompile(
+            &engine::TransactionManifestV2 {
                 instructions: self.0.clone(),
                 blobs: Default::default(),
                 object_names: Default::default(),

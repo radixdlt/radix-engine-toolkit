@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit-uniffi"
-version = "2.2.0-dev2"
+version = "2.2.3"
 edition = "2021"
 build = "build.rs"
 
@@ -16,22 +16,24 @@ radix-transactions = { workspace = true }
 radix-engine-toolkit-common = { workspace = true }
 
 # Core Radix Engine Toolkit
-radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit = { workspace = true }
 
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = ["cli"] }
-hex = "0.4.3"
-thiserror = "1.0.50"
-paste = "1.0.12"
-serde_json = "1.0.127"
+uniffi = { workspace = true, features = ["cli"] }
+
+# Other dependencies
+hex = { workspace = true }
+thiserror = { workspace = true }
+paste = { workspace = true }
+serde_json = { workspace = true }
 
 [build-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = ["build"] }
+uniffi = { workspace = true, features = ["build"] }
 
 [dev-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = ["bindgen-tests"] }
+uniffi = { workspace = true, features = ["bindgen-tests"] }
 scrypto-test = { workspace = true }
 radix-substate-store-impls = { workspace = true }
 radix-transaction-scenarios = { workspace = true }

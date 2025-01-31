@@ -18,21 +18,20 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy, Object, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Address(CoreTypedNodeId, u8);
+pub struct Address(engine::NodeId, u8);
 
 #[uniffi::export]
 impl Address {
     #[uniffi::constructor]
     pub fn new(address: String) -> Result<Arc<Self>> {
-        let network_id = core_network_id_from_address_string(&address).ok_or(
-            RadixEngineToolkitError::FailedToExtractNetwork {
-                address: address.clone(),
-            },
-        )?;
         let network_definition =
-            core_network_definition_from_network_id(network_id);
+            engine::NetworkDefinition::from_address_string(&address).ok_or(
+                RadixEngineToolkitError::FailedToExtractNetwork {
+                    address: address.clone(),
+                },
+            )?;
         let bech32_decoder =
-            NativeAddressBech32Decoder::new(&network_definition);
+            engine::AddressBech32Decoder::new(&network_definition);
 
         let (_, bytes) =
             bech32_decoder
@@ -43,7 +42,7 @@ impl Address {
                     }
                 })?;
 
-        Self::from_raw(bytes, network_id)
+        Self::from_raw(bytes, network_definition.id)
     }
 
     #[uniffi::constructor]
@@ -54,15 +53,14 @@ impl Address {
         let node_id =
             node_id_bytes
                 .try_into()
-                .map(NativeNodeId)
+                .map(engine::NodeId)
                 .map_err(|bytes| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeNodeId::LENGTH as u64,
+                    expected: engine::NodeId::LENGTH as u64,
                     actual: bytes.len() as u64,
                     data: bytes,
                 })?;
-        let typed_node_id = CoreTypedNodeId::new(node_id)?;
 
-        Ok(Arc::new(Self(typed_node_id, network_id)))
+        Ok(Arc::new(Self(node_id, network_id)))
     }
 
     #[uniffi::constructor]
@@ -117,9 +115,9 @@ impl Address {
 
     pub fn address_string(&self) -> String {
         let network_definition =
-            core_network_definition_from_network_id(self.1);
+            engine::NetworkDefinition::from_network_id(self.1);
         let bech32_encoder =
-            NativeAddressBech32Encoder::new(&network_definition);
+            engine::AddressBech32Encoder::new(&network_definition);
         bech32_encoder.encode(self.0.as_bytes()).expect(
             "Safe to unwrap here. Node id has a valid entity type byte.",
         )
@@ -129,57 +127,81 @@ impl Address {
         self.address_string()
     }
 
-    pub fn entity_type(&self) -> EntityType {
-        self.0.entity_type().into()
+    pub fn entity_type(&self) -> Option<EntityType> {
+        self.0.entity_type().map(Into::into)
     }
 
     pub fn is_global(&self) -> bool {
-        self.0.entity_type().is_global()
-    }
-    pub fn is_internal(&self) -> bool {
-        self.0.entity_type().is_internal()
-    }
-    pub fn is_global_component(&self) -> bool {
-        self.0.entity_type().is_global_component()
-    }
-    pub fn is_global_package(&self) -> bool {
-        self.0.entity_type().is_global_package()
-    }
-    pub fn is_global_consensus_manager(&self) -> bool {
-        self.0.entity_type().is_global_consensus_manager()
-    }
-    pub fn is_global_resource_manager(&self) -> bool {
-        self.0.entity_type().is_global_resource_manager()
-    }
-    pub fn is_global_fungible_resource_manager(&self) -> bool {
-        self.0.entity_type().is_global_fungible_resource_manager()
-    }
-    pub fn is_global_non_fungible_resource_manager(&self) -> bool {
         self.0
             .entity_type()
-            .is_global_non_fungible_resource_manager()
+            .is_some_and(|entity_type| entity_type.is_global())
+    }
+    pub fn is_internal(&self) -> bool {
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_internal())
+    }
+    pub fn is_global_component(&self) -> bool {
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_global_component())
+    }
+    pub fn is_global_package(&self) -> bool {
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_global_package())
+    }
+    pub fn is_global_consensus_manager(&self) -> bool {
+        self.0.entity_type().is_some_and(|entity_type| {
+            entity_type.is_global_consensus_manager()
+        })
+    }
+    pub fn is_global_resource_manager(&self) -> bool {
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_global_resource_manager())
+    }
+    pub fn is_global_fungible_resource_manager(&self) -> bool {
+        self.0.entity_type().is_some_and(|entity_type| {
+            entity_type.is_global_fungible_resource_manager()
+        })
+    }
+    pub fn is_global_non_fungible_resource_manager(&self) -> bool {
+        self.0.entity_type().is_some_and(|entity_type| {
+            entity_type.is_global_non_fungible_resource_manager()
+        })
     }
     pub fn is_global_preallocated(&self) -> bool {
-        self.0.entity_type().is_global_preallocated()
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_global_preallocated())
     }
     pub fn is_internal_kv_store(&self) -> bool {
-        self.0.entity_type().is_internal_kv_store()
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_internal_kv_store())
     }
     pub fn is_internal_fungible_vault(&self) -> bool {
-        self.0.entity_type().is_internal_fungible_vault()
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_internal_fungible_vault())
     }
     pub fn is_internal_non_fungible_vault(&self) -> bool {
-        self.0.entity_type().is_internal_non_fungible_vault()
+        self.0.entity_type().is_some_and(|entity_type| {
+            entity_type.is_internal_non_fungible_vault()
+        })
     }
     pub fn is_internal_vault(&self) -> bool {
-        self.0.entity_type().is_internal_vault()
+        self.0
+            .entity_type()
+            .is_some_and(|entity_type| entity_type.is_internal_vault())
     }
 }
 
 impl Address {
-    pub fn from_typed_node_id<T>(node_id: T, network_id: u8) -> Self
+    pub fn from_node_id<T>(node_id: T, network_id: u8) -> Self
     where
-        T: Into<CoreTypedNodeId>,
+        T: Into<engine::NodeId>,
     {
         Self(node_id.into(), network_id)
     }
@@ -187,22 +209,15 @@ impl Address {
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
     }
-
-    pub(crate) fn unsafe_from_raw(
-        node_id: NativeNodeId,
-        network_id: u8,
-    ) -> Self {
-        Self(CoreTypedNodeId::new(node_id).unwrap(), network_id)
-    }
 }
 
-impl From<Address> for NativeNodeId {
+impl From<Address> for engine::NodeId {
     fn from(value: Address) -> Self {
-        *value.0.as_node_id()
+        value.0
     }
 }
 
-impl TryFrom<Address> for NativeResourceAddress {
+impl TryFrom<Address> for engine::ResourceAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -210,7 +225,7 @@ impl TryFrom<Address> for NativeResourceAddress {
     }
 }
 
-impl TryFrom<Address> for NativeComponentAddress {
+impl TryFrom<Address> for engine::ComponentAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -218,7 +233,7 @@ impl TryFrom<Address> for NativeComponentAddress {
     }
 }
 
-impl TryFrom<Address> for NativePackageAddress {
+impl TryFrom<Address> for engine::PackageAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -226,7 +241,7 @@ impl TryFrom<Address> for NativePackageAddress {
     }
 }
 
-impl TryFrom<Address> for NativeInternalAddress {
+impl TryFrom<Address> for engine::InternalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -234,7 +249,7 @@ impl TryFrom<Address> for NativeInternalAddress {
     }
 }
 
-impl TryFrom<Address> for NativeGlobalAddress {
+impl TryFrom<Address> for engine::GlobalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -242,7 +257,7 @@ impl TryFrom<Address> for NativeGlobalAddress {
     }
 }
 
-impl TryFrom<Address> for NativeDynamicResourceAddress {
+impl TryFrom<Address> for engine::DynamicResourceAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -250,7 +265,7 @@ impl TryFrom<Address> for NativeDynamicResourceAddress {
     }
 }
 
-impl TryFrom<Address> for NativeDynamicComponentAddress {
+impl TryFrom<Address> for engine::DynamicComponentAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -258,7 +273,7 @@ impl TryFrom<Address> for NativeDynamicComponentAddress {
     }
 }
 
-impl TryFrom<Address> for NativeDynamicPackageAddress {
+impl TryFrom<Address> for engine::DynamicPackageAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
@@ -266,7 +281,7 @@ impl TryFrom<Address> for NativeDynamicPackageAddress {
     }
 }
 
-impl TryFrom<Address> for NativeDynamicGlobalAddress {
+impl TryFrom<Address> for engine::DynamicGlobalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {

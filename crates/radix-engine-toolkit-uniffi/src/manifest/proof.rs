@@ -22,13 +22,13 @@ pub struct ManifestProof {
     pub value: u32,
 }
 
-impl From<NativeManifestProof> for ManifestProof {
-    fn from(value: NativeManifestProof) -> Self {
+impl From<engine::ManifestProof> for ManifestProof {
+    fn from(value: engine::ManifestProof) -> Self {
         Self { value: value.0 }
     }
 }
 
-impl From<ManifestProof> for NativeManifestProof {
+impl From<ManifestProof> for engine::ManifestProof {
     fn from(value: ManifestProof) -> Self {
         Self(value.value)
     }

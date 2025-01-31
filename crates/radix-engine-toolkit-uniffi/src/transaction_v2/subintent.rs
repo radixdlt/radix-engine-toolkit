@@ -31,14 +31,16 @@ impl SubintentV2 {
 
     #[uniffi::constructor]
     pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_transaction_v2_subintent_from_payload_bytes(compiled_intent)
-            .map_err(RadixEngineToolkitError::from)
-            .and_then(|intent| intent.try_into().map(Arc::new))
+        toolkit::functions::transaction_v2::subintent::from_payload_bytes(
+            compiled_intent,
+        )
+        .map_err(RadixEngineToolkitError::from)
+        .and_then(|intent| intent.try_into().map(Arc::new))
     }
 
     pub fn subintent_hash(&self) -> Result<Arc<TransactionHash>> {
-        let hash = NativeSubintentV2::try_from(self.clone())?
-            .prepare(&NativePreparationSettings::latest())?
+        let hash = engine::SubintentV2::try_from(self.clone())?
+            .prepare(&engine::PreparationSettings::latest())?
             .subintent_hash();
         Ok(Arc::new(TransactionHash::new(
             &hash,
@@ -47,11 +49,11 @@ impl SubintentV2 {
     }
 }
 
-impl TryFrom<NativeSubintentV2> for SubintentV2 {
+impl TryFrom<engine::SubintentV2> for SubintentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        NativeSubintentV2 { intent_core }: NativeSubintentV2,
+        engine::SubintentV2 { intent_core }: engine::SubintentV2,
     ) -> Result<Self> {
         Ok(Self {
             intent_core: Arc::new(intent_core.try_into()?),
@@ -59,7 +61,7 @@ impl TryFrom<NativeSubintentV2> for SubintentV2 {
     }
 }
 
-impl TryFrom<SubintentV2> for NativeSubintentV2 {
+impl TryFrom<SubintentV2> for engine::SubintentV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(SubintentV2 { intent_core }: SubintentV2) -> Result<Self> {

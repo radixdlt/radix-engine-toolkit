@@ -33,20 +33,15 @@ jobs:
         uses: RDXWorks-actions/checkout@main
       - name: Install Rust Target
         run: |
-          # Install nightly-2024-02-01 
-          rustup toolchain install nightly-2024-02-01
-
-          # Update both toolchains
-          rustup update nightly-2024-07-30
-          rustup update nightly-2024-02-01
+          # Install stable 
+          rustup toolchain install stable
 
           # Add target
-          rustup target install ${{ matrix.build-target.target-triple }}
-          rustup +nightly-2024-02-01 target install ${{ matrix.build-target.target-triple }}
+          rustup +stable target install ${{ matrix.build-target.target-triple }}
 
-          # Install the nightly-2024-02-01 toolchain of the target of this machine.
+          # Install the stable toolchain of the target of this machine.
           DEFAULT_TARGET=$(rustc -vV | sed -n 's|host: ||p')
-          rustup component add rust-src --toolchain nightly-2024-02-01-$DEFAULT_TARGET
+          rustup component add rust-src --toolchain stable-$DEFAULT_TARGET
       - name: Build dependencies (x86_64-pc-windows-gnu)
         if: ${{ matrix.build-target.target-triple == 'x86_64-pc-windows-gnu' }}
         run: |

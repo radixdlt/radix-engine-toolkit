@@ -15,13 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::prelude::*;
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-use static_resource_movements::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 pub fn to_payload_bytes(
     manifest: &SubintentManifestV2,
@@ -38,14 +32,10 @@ where
     SubintentManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(manifest: &SubintentManifestV2) -> StaticAnalysis {
-    crate::transaction_types::statically_analyze(manifest)
-}
-
-pub fn statically_analyze_and_validate(
+pub fn statically_analyze(
     manifest: &SubintentManifestV2,
-) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    crate::transaction_types::statically_analyze_and_validate(manifest)
+) -> Result<StaticAnalysis, ManifestAnalysisError> {
+    crate::internal_prelude::statically_analyze(manifest)
 }
 
 pub fn as_enclosed(
@@ -56,17 +46,14 @@ pub fn as_enclosed(
         object_names,
     }: &SubintentManifestV2,
 ) -> Option<TransactionManifestV2> {
-    let [
-        assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
-            AssertWorktopResourcesOnly { constraints },
-        ),
-        other_instructions @ ..,
-        InstructionV2::YieldToParent(..),
-    ] = instructions.as_slice()
+    let [assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
+        AssertWorktopResourcesOnly { constraints },
+    ), other_instructions @ .., InstructionV2::YieldToParent(..)] =
+        instructions.as_slice()
     else {
         return None;
     };
-    if !constraints.specified_resources().len().is_zero() {
+    if !constraints.specified_resources().len() == 0 {
         return None;
     }
 

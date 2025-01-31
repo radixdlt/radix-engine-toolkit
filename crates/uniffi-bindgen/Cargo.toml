@@ -1,7 +1,9 @@
 [package]
 name = "uniffi-bindgen"
-version = "2.2.0-dev2"
+version = "2.2.3"
 edition = "2021"
 
 [dependencies]
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = ["cli"] }
+uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = [
+    "cli",
+] }

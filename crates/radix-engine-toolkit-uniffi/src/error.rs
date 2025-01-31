@@ -47,7 +47,7 @@ pub enum RadixEngineToolkitError {
     #[error("Entity type {actual:?} did not match expected {expected:?}")]
     EntityTypeMismatchError {
         expected: Vec<EntityType>,
-        actual: EntityType,
+        actual: Option<EntityType>,
     },
 
     #[error("Failed to perform a derivation: {error}")]
@@ -95,14 +95,10 @@ pub enum RadixEngineToolkitError {
     )]
     TypedNativeEventError { error: String },
 
-    #[error(
-        "An error occurred when trying to decode the transaction hash: {error:?}"
-    )]
+    #[error("An error occurred when trying to decode the transaction hash: {error:?}")]
     FailedToDecodeTransactionHash { error: String },
 
-    #[error(
-        "An error ocurred when building the manifest due to the naming of objects: {error:?}"
-    )]
+    #[error("An error ocurred when building the manifest due to the naming of objects: {error:?}")]
     ManifestBuilderNameRecordError { error: NameRecordError },
 
     #[error("The node id has no valid entity type: {error}")]
@@ -129,6 +125,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("Validation of manifest failed: {error}")]
     ManifestValidationError { error: String },
+
+    #[error("Manifest analysis failed: {error}")]
+    ManifestAnalysisError { error: String },
 }
 
 macro_rules! dbg_str {
@@ -177,22 +176,23 @@ impl_parse_error! { scrypto::prelude::PackageAddress, scrypto::prelude::ParsePac
 impl_parse_error! { scrypto::prelude::GlobalAddress, scrypto::prelude::ParseGlobalAddressError }
 impl_parse_error! { scrypto::prelude::InternalAddress, scrypto::prelude::ParseInternalAddressError }
 
-impl_dbg_str_from! { NativeContentValidationError, NonFungibleContentValidationError }
-impl_dbg_str_from! { CoreDerivationError, DerivationError }
-impl_dbg_str_from! { NativeCompileError, CompileError }
-impl_dbg_str_from! { NativeDecompileError, DecompileError }
-impl_dbg_str_from! { NativePrepareError, PrepareError }
-impl_dbg_str_from! { NativeEncodeError, EncodeError }
-impl_dbg_str_from! { NativeDecodeError, DecodeError }
-impl_dbg_str_from! { NativeTransactionHashBech32DecodeError, FailedToDecodeTransactionHash }
-impl_dbg_str_from! { NativeTransactionValidationError, TransactionValidationFailed }
-impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed }
-impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
-impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
-impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
-impl_dbg_str_from! { CoreInvalidEntityTypeIdError, InvalidEntityTypeIdError }
-impl_dbg_str_from! { NativeManifestValidationError, ManifestValidationError }
-impl_dbg_str_from! { NativeStaticResourceMovementsError, StaticAnalysisFailed }
+impl_dbg_str_from! { engine::ContentValidationError, NonFungibleContentValidationError }
+impl_dbg_str_from! { toolkit::functions::derive::DerivationError, DerivationError }
+impl_dbg_str_from! { engine::CompileError, CompileError }
+impl_dbg_str_from! { engine::DecompileError, DecompileError }
+impl_dbg_str_from! { engine::PrepareError, PrepareError }
+impl_dbg_str_from! { engine::EncodeError, EncodeError }
+impl_dbg_str_from! { engine::DecodeError, DecodeError }
+impl_dbg_str_from! { engine::TransactionHashBech32DecodeError, FailedToDecodeTransactionHash }
+impl_dbg_str_from! { engine::TransactionValidationError, TransactionValidationFailed }
+impl_dbg_str_from! { toolkit::functions::transaction_v1::instructions::InstructionValidationError, TransactionValidationFailed }
+impl_dbg_str_from! { toolkit::functions::manifest_sbor::ManifestSborError, ManifestSborError }
+impl_dbg_str_from! { toolkit::functions::scrypto_sbor::ScryptoSborError, ScryptoSborError }
+impl_dbg_str_from! { engine::TypedNativeEventError, TypedNativeEventError }
+impl_dbg_str_from! { toolkit::InvalidEntityTypeIdError, InvalidEntityTypeIdError }
+impl_dbg_str_from! { engine::ManifestValidationError, ManifestValidationError }
+impl_dbg_str_from! { engine::StaticResourceMovementsError, StaticAnalysisFailed }
+impl_dbg_str_from! { toolkit::ManifestAnalysisError, ManifestAnalysisError }
 
 impl From<NameRecordError> for RadixEngineToolkitError {
     fn from(value: NameRecordError) -> Self {

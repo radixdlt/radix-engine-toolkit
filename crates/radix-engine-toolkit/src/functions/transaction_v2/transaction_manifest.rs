@@ -15,14 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_common::prelude::*;
-use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
-use radix_transactions::manifest::*;
-use radix_transactions::prelude::*;
-use scrypto::prelude::*;
-use static_resource_movements::*;
-
-use crate::transaction_types::*;
+use crate::internal_prelude::*;
 
 pub fn to_payload_bytes(
     manifest: &TransactionManifestV2,
@@ -39,21 +32,17 @@ where
     TransactionManifestV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
-pub fn statically_analyze(manifest: &TransactionManifestV2) -> StaticAnalysis {
-    crate::transaction_types::statically_analyze(manifest)
-}
-
-pub fn statically_analyze_and_validate(
+pub fn statically_analyze(
     manifest: &TransactionManifestV2,
-) -> Result<StaticAnalysisWithResourceMovements, StaticResourceMovementsError> {
-    crate::transaction_types::statically_analyze_and_validate(manifest)
+) -> Result<StaticAnalysis, ManifestAnalysisError> {
+    crate::internal_prelude::statically_analyze(manifest)
 }
 
 pub fn dynamically_analyze(
     manifest: &TransactionManifestV2,
-    receipt: &RuntimeToolkitTransactionReceipt,
-) -> Result<DynamicAnalysis, TransactionTypesError> {
-    crate::transaction_types::dynamically_analyze(manifest, receipt)
+    receipt: RuntimeToolkitTransactionReceipt,
+) -> Result<DynamicAnalysis, ManifestAnalysisError> {
+    crate::internal_prelude::dynamically_analyze(manifest, receipt)
 }
 
 pub fn statically_validate(

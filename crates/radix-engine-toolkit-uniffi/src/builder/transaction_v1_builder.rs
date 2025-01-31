@@ -177,16 +177,16 @@ impl TransactionV1BuilderIntentSignaturesStep {
             .4
             .clone()
             .into_iter()
-            .map(NativeSignatureWithPublicKeyV1::try_from)
-            .map(|signature| signature.map(NativeIntentSignature))
+            .map(engine::SignatureWithPublicKeyV1::try_from)
+            .map(|signature| signature.map(engine::IntentSignatureV1))
             .collect::<Result<Vec<_>>>()?;
 
         /* Preparing the signed intent */
-        let intent = NativeIntentV1::try_from(intent)
+        let intent = engine::IntentV1::try_from(intent)
             .expect("Everything about this is trusted at this point");
-        let signed_intent = NativeSignedIntentV1 {
+        let signed_intent = engine::SignedIntentV1 {
             intent,
-            intent_signatures: NativeIntentSignatures {
+            intent_signatures: engine::IntentSignaturesV1 {
                 signatures: intent_signatures,
             },
         };

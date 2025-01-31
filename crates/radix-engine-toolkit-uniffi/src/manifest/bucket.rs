@@ -22,13 +22,13 @@ pub struct ManifestBucket {
     pub value: u32,
 }
 
-impl From<NativeManifestBucket> for ManifestBucket {
-    fn from(value: NativeManifestBucket) -> Self {
+impl From<engine::ManifestBucket> for ManifestBucket {
+    fn from(value: engine::ManifestBucket) -> Self {
         Self { value: value.0 }
     }
 }
 
-impl From<ManifestBucket> for NativeManifestBucket {
+impl From<ManifestBucket> for engine::ManifestBucket {
     fn from(value: ManifestBucket) -> Self {
         Self(value.value)
     }

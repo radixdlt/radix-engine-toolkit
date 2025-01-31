@@ -22,13 +22,13 @@ pub struct ManifestAddressReservation {
     pub value: u32,
 }
 
-impl From<NativeManifestAddressReservation> for ManifestAddressReservation {
-    fn from(value: NativeManifestAddressReservation) -> Self {
+impl From<engine::ManifestAddressReservation> for ManifestAddressReservation {
+    fn from(value: engine::ManifestAddressReservation) -> Self {
         Self { value: value.0 }
     }
 }
 
-impl From<ManifestAddressReservation> for NativeManifestAddressReservation {
+impl From<ManifestAddressReservation> for engine::ManifestAddressReservation {
     fn from(value: ManifestAddressReservation) -> Self {
         Self(value.value)
     }

@@ -1,5 +1,1 @@
-version = "Two"
-max_width = 80
-comment_width = 80
-unstable_features = true
-imports_granularity = "Module"
+max_width=80

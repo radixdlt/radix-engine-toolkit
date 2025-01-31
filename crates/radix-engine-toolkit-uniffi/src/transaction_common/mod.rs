@@ -16,3 +16,4 @@
 // under the License.
 
 pub mod hash;
+pub mod manifest_analysis;

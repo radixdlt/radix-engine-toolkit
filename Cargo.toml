@@ -12,27 +12,45 @@ members = [
     "crates/uniffi-bindgen",
 ]
 
-# Shared dependencies that all of the crates need - for now this is just the 
-# `radixdlt-scrypto` dependencies
 [workspace.dependencies]
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030", features = [
-    "serde",
-] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030", features = [
-    "serde",
-] }
-scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030", features = [
-    "serde",
-] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
-radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "45bd94457e429ea65e954a7fab20dd4ddd987030" }
+# The Radix DLT Scrypto Dependencies - we're currently using a git tag or a git
+# dependency due to the `radix-engine-toolkit-common` crate is sadly not being
+# published to `crates.io`. Once it is published there we can make the switch to
+# use the `crates.io` version.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
+
+# UniFFI dependencies
+uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4" }
+
+# Internal Dependencies
+sbor-json = { path = "crates/sbor-json" }
+radix-engine-toolkit = { path = "crates/radix-engine-toolkit" }
+
+# External dependencies
+paste = { version = "1.0.14" }
+extend = { version = "1.2.0" }
+
+serde = { version = "1.0.185" }
+serde_json = { version = "1.0.96" }
+serde_with = { version = "3.6.1" }
+
+hex = { version = "0.4.3" }
+regex = { version = "1.8.4" }
+bech32 = { version = "0.9.1" }
+itertools = { version = "0.14.0" }
+thiserror = { version = "1.0.50" }
+cargo_toml = { version = "0.15.3" }
 
 [profile.release]
 incremental = false

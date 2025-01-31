@@ -54,9 +54,11 @@ impl SubintentManifestV2 {
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(core_transaction_v2_subintent_manifest_to_payload_bytes(
-            &native,
-        )?)
+        Ok(
+            toolkit::functions::transaction_v2::subintent_manifest::to_payload_bytes(
+                &native,
+            )?,
+        )
     }
 
     #[uniffi::constructor]
@@ -65,44 +67,34 @@ impl SubintentManifestV2 {
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let decompiled =
-            core_transaction_v2_subintent_manifest_from_payload_bytes(compiled)
-                .map_err(|error| {
-                    RadixEngineToolkitError::ManifestSborError { error }
-                })?;
+            toolkit::functions::transaction_v2::subintent_manifest::from_payload_bytes(
+                compiled,
+            )
+            .map_err(|error| RadixEngineToolkitError::ManifestSborError { error })?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 
     pub fn extract_addresses(&self) -> HashMap<EntityType, Vec<Arc<Address>>> {
         let network_id = self.instructions.1;
-        let (addresses, _) = core_transaction_v2_instructions_extract_addresses(
-            &self.instructions.0,
-        );
+        let (addresses, _) =
+            toolkit::functions::transaction_v2::instructions::extract_addresses(
+                &self.instructions.0,
+            );
 
-        let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
-        for address in addresses {
-            let entity_type = EntityType::from(address.entity_type());
-            let address =
-                Arc::new(Address::from_typed_node_id(address, network_id));
-            map.entry(entity_type).or_default().push(address);
-        }
-        map
-    }
-
-    pub fn static_analysis(
-        &self,
-        network_id: u8,
-    ) -> Result<StaticAnalysisWithResourceMovements> {
-        let native = self.clone().to_native();
-        core_transaction_v2_subintent_manifest_statically_analyze_and_validate(
-            &native,
+        addresses.into_iter().fold(
+            HashMap::<EntityType, Vec<Arc<Address>>>::new(),
+            |mut map, node_id| {
+                if let Some(entity_type) = node_id.entity_type() {
+                    let entity_type = EntityType::from(entity_type);
+                    map.entry(entity_type).or_default().push(Arc::new(
+                        Address::from_node_id(node_id, network_id),
+                    ));
+                    map
+                } else {
+                    map
+                }
+            },
         )
-        .map_err(RadixEngineToolkitError::from)
-        .map(|static_analysis| {
-            StaticAnalysisWithResourceMovements::from_native(
-                static_analysis,
-                network_id,
-            )
-        })
     }
 
     pub fn as_enclosed(
@@ -111,14 +103,16 @@ impl SubintentManifestV2 {
     ) -> Option<Arc<TransactionManifestV2>> {
         let native = self.clone().to_native();
         let enclosed_manifest =
-            core_transaction_v2_subintent_manifest_as_enclosed(&native);
+            toolkit::functions::transaction_v2::subintent_manifest::as_enclosed(
+                &native,
+            );
         enclosed_manifest.map(|manifest| {
             Arc::new(TransactionManifestV2::from_native(&manifest, network_id))
         })
     }
 
     pub fn statically_validate(&self) -> Result<()> {
-        core_transaction_v2_subintent_manifest_statically_validate(
+        toolkit::functions::transaction_v2::subintent_manifest::statically_validate(
             &self.clone().to_native(),
         )
         .map_err(Into::into)
@@ -127,12 +121,12 @@ impl SubintentManifestV2 {
 
 impl SubintentManifestV2 {
     pub fn from_native(
-        NativeSubintentManifestV2 {
+        engine::SubintentManifestV2 {
             instructions,
             blobs,
             children,
             ..
-        }: &NativeSubintentManifestV2,
+        }: &engine::SubintentManifestV2,
         network_id: u8,
     ) -> Self {
         let blobs = blobs.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>();
@@ -147,22 +141,22 @@ impl SubintentManifestV2 {
         }
     }
 
-    pub fn to_native(&self) -> NativeSubintentManifestV2 {
+    pub fn to_native(&self) -> engine::SubintentManifestV2 {
         let blobs = self
             .blobs
             .iter()
-            .map(|blob| (native_hash(blob), blob.clone()))
+            .map(|blob| (engine::hash(blob), blob.clone()))
             .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
-        NativeSubintentManifestV2 {
+        engine::SubintentManifestV2 {
             instructions,
             blobs,
             children: self
                 .children
                 .iter()
-                .map(|value| NativeSubintentHash(value.as_ref().0))
-                .map(|value| NativeChildSubintentSpecifier { hash: value })
+                .map(|value| engine::SubintentHash(value.as_ref().0))
+                .map(|value| engine::ChildSubintentSpecifier { hash: value })
                 .collect(),
             object_names: Default::default(),
         }

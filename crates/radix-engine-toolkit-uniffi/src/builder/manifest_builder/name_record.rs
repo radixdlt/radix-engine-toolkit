@@ -30,7 +30,7 @@ macro_rules! define_name_record {
         paste::paste! {
             #[derive(Clone, Debug, Default)]
             pub struct NameRecord {
-                id_allocator: crate::prelude::NativeManifestIdAllocator,
+                id_allocator: crate::prelude::engine::ManifestIdAllocator,
                 $(
                     $name: crate::prelude::HashMap<String, $ty>,
                 )*
@@ -69,27 +69,27 @@ macro_rules! define_name_record {
 define_name_record! {
     {
         name: bucket,
-        ty: crate::prelude::NativeManifestBucket,
+        ty: crate::prelude::engine::ManifestBucket,
         allocation_fn: new_bucket_id
     },
     {
         name: proof,
-        ty: crate::prelude::NativeManifestProof,
+        ty: crate::prelude::engine::ManifestProof,
         allocation_fn: new_proof_id
     },
     {
         name: address_reservation,
-        ty: crate::prelude::NativeManifestAddressReservation,
+        ty: crate::prelude::engine::ManifestAddressReservation,
         allocation_fn: new_address_reservation_id
     },
     {
         name: named_address,
-        ty: crate::prelude::NativeManifestNamedAddress,
+        ty: crate::prelude::engine::ManifestNamedAddress,
         allocation_fn: new_address_id
     },
     {
         name: intent,
-        ty: crate::prelude::NativeManifestNamedIntent,
+        ty: crate::prelude::engine::ManifestNamedIntent,
         allocation_fn: new_named_intent_id
     },
 }

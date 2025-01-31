@@ -22,16 +22,16 @@ pub struct ManifestBlobRef {
     pub value: Arc<Hash>,
 }
 
-impl From<NativeManifestBlobRef> for ManifestBlobRef {
-    fn from(value: NativeManifestBlobRef) -> Self {
+impl From<engine::ManifestBlobRef> for ManifestBlobRef {
+    fn from(value: engine::ManifestBlobRef) -> Self {
         Self {
-            value: Arc::new(NativeHash(value.0).into()),
+            value: Arc::new(engine::Hash(value.0).into()),
         }
     }
 }
 
-impl From<ManifestBlobRef> for NativeManifestBlobRef {
+impl From<ManifestBlobRef> for engine::ManifestBlobRef {
     fn from(value: ManifestBlobRef) -> Self {
-        Self(value.value.0.0)
+        Self(value.value.0 .0)
     }
 }
