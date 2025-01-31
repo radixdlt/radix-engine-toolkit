@@ -47,8 +47,8 @@ impl ManifestStaticAnalyzer for AccountSettingsUpdateAnalyzer {
         self.0
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
@@ -153,7 +153,7 @@ pub struct AccountSettingsUpdateOutput {
     >,
 }
 
-fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {
+fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     match context.instruction() {
         GroupedInstruction::InvocationInstructions(
             InvocationInstructions::CallMethod(CallMethod {

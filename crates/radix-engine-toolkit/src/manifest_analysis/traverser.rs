@@ -91,7 +91,7 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
             );
 
         let context = if instruction.belongs_to_invocation_instructions() {
-            AnalysisContext::InvocationInstruction {
+            InstructionContext::InvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,
@@ -100,7 +100,7 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
                 dynamic_analysis_invocation_io: None,
             }
         } else {
-            AnalysisContext::NonInvocationInstruction {
+            InstructionContext::NonInvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,
@@ -217,7 +217,7 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
             indexed_invocation_io.for_instruction(&instruction_index);
 
         let context = if instruction.belongs_to_invocation_instructions() {
-            AnalysisContext::InvocationInstruction {
+            InstructionContext::InvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,
@@ -226,7 +226,7 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
                 dynamic_analysis_invocation_io: Some(invocation_io),
             }
         } else {
-            AnalysisContext::NonInvocationInstruction {
+            InstructionContext::NonInvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,

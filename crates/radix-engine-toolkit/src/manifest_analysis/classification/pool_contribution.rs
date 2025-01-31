@@ -46,7 +46,7 @@ impl ManifestStaticAnalyzer for PoolContributionAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
         // requires us to monitor some invocations and resource movements.
@@ -68,8 +68,8 @@ impl ManifestDynamicAnalyzer for PoolContributionAnalyzer {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        if let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver:
@@ -137,7 +137,7 @@ pub struct PoolContributionOperation {
     pub pool_units_amount: Decimal,
 }
 
-fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {
+fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     match context.instruction() {
         // Selective Permissions
         GroupedInstruction::InvocationInstructions(

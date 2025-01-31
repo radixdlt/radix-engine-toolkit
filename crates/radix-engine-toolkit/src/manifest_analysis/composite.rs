@@ -90,7 +90,7 @@ macro_rules! define_composite_analyzer {
 
                 fn process_instruction(
                     &mut self,
-                    context: AnalysisContext<'_>
+                    context: InstructionContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -135,7 +135,7 @@ macro_rules! define_composite_analyzer {
 
                 fn process_instruction(
                     &mut self,
-                    context: AnalysisContext<'_>
+                    context: InstructionContext<'_>
                 ) {
                     $(
                         if self.$analyzer_ident.1 {
@@ -257,7 +257,7 @@ macro_rules! define_composite_analyzer {
                     true
                 }
 
-                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                fn process_instruction(&mut self, context: InstructionContext<'_>) {
                     $(
                         $crate::internal_prelude::ManifestAnalyzerPermissionState::process_instruction(&mut self.$analyzer_ident, context);
                     )*
@@ -277,7 +277,7 @@ macro_rules! define_composite_analyzer {
                     RequirementState::Fulfilled
                 }
 
-                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                fn process_instruction(&mut self, context: InstructionContext<'_>) {
                     $(
                         $crate::internal_prelude::ManifestAnalyzerRequirementState::process_instruction(&mut self.$analyzer_ident, context);
                     )*

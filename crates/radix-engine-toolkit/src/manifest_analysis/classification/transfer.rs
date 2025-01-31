@@ -42,10 +42,10 @@ impl ManifestStaticAnalyzer for TransferAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }
 
-fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {
+fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     match context.instruction() {
         // Selective Permissions
         GroupedInstruction::InvocationInstructions(

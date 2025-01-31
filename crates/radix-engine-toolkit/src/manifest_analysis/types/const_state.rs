@@ -28,7 +28,7 @@ impl<const STATE: bool> ManifestAnalyzerRequirementState for ConstState<STATE> {
         }
     }
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }
 
 impl<const STATE: bool> ManifestAnalyzerPermissionState for ConstState<STATE> {
@@ -36,5 +36,5 @@ impl<const STATE: bool> ManifestAnalyzerPermissionState for ConstState<STATE> {
         STATE
     }
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }

@@ -36,7 +36,7 @@ impl ManifestStaticAnalyzer for AccountDynamicResourceMovementsAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }
 
 impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
@@ -54,7 +54,7 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         // Note: it was deemed to not be worth it to support dynamic addresses
         // here as this information is not exactly useful to the user. What is
         // a user supposed to do with "a new resource was created and withdrawn
@@ -64,7 +64,7 @@ impl ManifestDynamicAnalyzer for AccountDynamicResourceMovementsAnalyzer {
         // all parts of the code base without offering something that Sargon, or
         // any other client will have a use of. If clients have a use for this,
         // maybe they can write their own analyzer that does this :).
-        let AnalysisContext::InvocationInstruction {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(typed_native_invocation),
             dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
             ..

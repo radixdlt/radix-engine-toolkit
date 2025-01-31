@@ -27,7 +27,7 @@ pub trait ManifestAnalyzerRequirementState {
 
     /// A method that's called when an instruction is encountered to be
     /// processed by the requirement state.
-    fn process_instruction(&mut self, context: AnalysisContext<'_>);
+    fn process_instruction(&mut self, context: InstructionContext<'_>);
 }
 
 /// An enum that captures the various states that the visitor's requirements

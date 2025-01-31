@@ -17,15 +17,15 @@
 
 use crate::internal_prelude::*;
 
-pub type PermissionStateStaticCallback = fn(AnalysisContext<'_>) -> bool;
+pub type PermissionStateStaticCallback = fn(InstructionContext<'_>) -> bool;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct CallbackPermissionState<F: FnMut(AnalysisContext<'_>) -> bool> {
+pub struct CallbackPermissionState<F: FnMut(InstructionContext<'_>) -> bool> {
     state: bool,
     callback: F,
 }
 
-impl<F: FnMut(AnalysisContext<'_>) -> bool> CallbackPermissionState<F> {
+impl<F: FnMut(InstructionContext<'_>) -> bool> CallbackPermissionState<F> {
     pub fn new(callback: F) -> Self {
         Self {
             state: true,
@@ -34,14 +34,14 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> CallbackPermissionState<F> {
     }
 }
 
-impl<F: FnMut(AnalysisContext<'_>) -> bool> ManifestAnalyzerPermissionState
+impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerPermissionState
     for CallbackPermissionState<F>
 {
     fn all_instructions_permitted(&self) -> bool {
         self.state
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.state &= (self.callback)(context);
     }
 }

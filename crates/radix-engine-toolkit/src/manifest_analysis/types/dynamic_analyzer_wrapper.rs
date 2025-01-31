@@ -52,7 +52,7 @@ impl<A: ManifestStaticAnalyzer> ManifestStaticAnalyzer
         self.0.output()
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.0.process_instruction(context);
     }
 }
@@ -74,5 +74,5 @@ impl<A: ManifestStaticAnalyzer> ManifestDynamicAnalyzer
         }
     }
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }

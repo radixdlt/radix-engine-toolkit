@@ -24,7 +24,7 @@ impl ManifestAnalyzerRequirementState for AnyOfRequirement<()> {
         RequirementState::Fulfilled
     }
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }
 
 macro_rules! define_any_of_requirement_internal {
@@ -53,7 +53,7 @@ macro_rules! define_any_of_requirement_internal {
                     }
                 }
 
-                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                fn process_instruction(&mut self, context: InstructionContext<'_>) {
                     let (
                         $(ref mut [<$generic: snake>],)*
                     ) = self.0;

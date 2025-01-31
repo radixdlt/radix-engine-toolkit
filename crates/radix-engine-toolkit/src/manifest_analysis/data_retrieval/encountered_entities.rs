@@ -36,7 +36,7 @@ impl ManifestStaticAnalyzer for EncounteredEntitiesAnalyzer {
         self.0
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         let indexed_value =
             IndexedManifestValue::from_typed(context.instruction());
 

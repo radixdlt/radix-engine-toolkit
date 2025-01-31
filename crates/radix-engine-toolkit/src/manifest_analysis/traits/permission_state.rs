@@ -28,5 +28,5 @@ pub trait ManifestAnalyzerPermissionState {
 
     /// A method that's called when an instruction is encountered to be
     /// processed by the permission state.
-    fn process_instruction(&mut self, context: AnalysisContext<'_>);
+    fn process_instruction(&mut self, context: InstructionContext<'_>);
 }

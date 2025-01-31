@@ -2,7 +2,7 @@ use crate::internal_prelude::*;
 
 /// Context given by the traverser to the visitors when calling them.
 #[derive(Clone, Copy, Debug)]
-pub enum AnalysisContext<'a> {
+pub enum InstructionContext<'a> {
     /// The instruction is an invocation instruction and therefore it has
     /// additional context compared to other instructions.
     InvocationInstruction {
@@ -48,7 +48,7 @@ pub enum AnalysisContext<'a> {
     },
 }
 
-impl<'a> AnalysisContext<'a> {
+impl<'a> InstructionContext<'a> {
     pub fn named_address_store(&self) -> &'a NamedAddressStore {
         match self {
             Self::InvocationInstruction {

@@ -69,5 +69,5 @@ pub trait ManifestStaticAnalyzer: Sized {
     fn output(self) -> Self::Output;
 
     /// A method used to process instructions and extract information from them.
-    fn process_instruction(&mut self, context: AnalysisContext<'_>);
+    fn process_instruction(&mut self, context: InstructionContext<'_>);
 }

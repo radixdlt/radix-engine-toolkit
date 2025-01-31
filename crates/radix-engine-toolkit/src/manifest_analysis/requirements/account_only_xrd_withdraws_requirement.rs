@@ -21,8 +21,8 @@ impl ManifestAnalyzerRequirementState for AccountOnlyXrdWithdrawsRequirement {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        if let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     invocation:

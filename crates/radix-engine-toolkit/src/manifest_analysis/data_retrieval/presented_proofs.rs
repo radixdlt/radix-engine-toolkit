@@ -36,10 +36,10 @@ impl ManifestStaticAnalyzer for PresentedProofsAnalyzer {
         self.0
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         // Interpreting the typed invocation and converting it into a resource
         // specifier of the created proof.
-        let AnalysisContext::InvocationInstruction {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(typed_native_invocation),
             ..
         } = context

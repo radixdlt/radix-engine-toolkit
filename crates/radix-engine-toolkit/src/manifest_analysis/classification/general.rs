@@ -31,7 +31,7 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
     type Initializer = GeneralInitializer;
     type Output = ();
     type PermissionState =
-        CallbackPermissionState<Box<dyn FnMut(AnalysisContext<'_>) -> bool>>;
+        CallbackPermissionState<Box<dyn FnMut(InstructionContext<'_>) -> bool>>;
     type RequirementState = GeneralRequirementState;
 
     fn new(
@@ -48,7 +48,7 @@ impl ManifestStaticAnalyzer for GeneralAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {}
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {}
 }
 
 pub struct GeneralInitializer {
@@ -78,7 +78,7 @@ impl ManifestAnalyzerRequirementState for GeneralRequirementState {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.is_any_instruction_seen = true;
         self.is_yield_to_parent_seen |=
             context.instruction().as_yield_to_parent().is_some()
@@ -97,7 +97,7 @@ impl GeneralRequirementState {
 
 fn construct_permission_processing_fn(
     for_subintent: bool,
-) -> impl FnMut(AnalysisContext<'_>) -> bool {
+) -> impl FnMut(InstructionContext<'_>) -> bool {
     move |context| match context.instruction() {
         // Selective Permissions
         GroupedInstruction::InvocationInstructions(

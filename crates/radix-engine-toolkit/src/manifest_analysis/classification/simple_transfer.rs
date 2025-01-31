@@ -45,7 +45,7 @@ impl ManifestStaticAnalyzer for SimpleTransferStateMachine {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.transition(context.instruction());
     }
 }
@@ -69,7 +69,7 @@ impl ManifestAnalyzerRequirementState for SimpleTransferStateMachine {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.transition(context.instruction());
     }
 }
@@ -79,7 +79,7 @@ impl ManifestAnalyzerPermissionState for SimpleTransferStateMachine {
         !matches!(self, Self::InvalidState)
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.transition(context.instruction());
     }
 }

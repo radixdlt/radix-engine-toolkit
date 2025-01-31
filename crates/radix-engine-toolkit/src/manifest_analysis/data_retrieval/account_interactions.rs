@@ -36,11 +36,11 @@ impl ManifestStaticAnalyzer for AccountInteractionsAnalyzer {
         self.0
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         // We just need to rely on the typed native invocation to extract all of
         // the account interactions that we can see in the manifest. For the
         // account addresses we will use the manifest invocation receiver.
-        let AnalysisContext::InvocationInstruction {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver: ManifestInvocationReceiver::GlobalMethod(receiver),

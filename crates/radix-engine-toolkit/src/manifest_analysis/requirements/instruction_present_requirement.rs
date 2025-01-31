@@ -1,14 +1,16 @@
 use crate::internal_prelude::*;
 
 type DefaultInstructionPresentRequirement =
-    InstructionPresentRequirement<fn(AnalysisContext<'_>) -> bool>;
+    InstructionPresentRequirement<fn(InstructionContext<'_>) -> bool>;
 
-struct InstructionPresentRequirement<F: FnMut(AnalysisContext<'_>) -> bool> {
+struct InstructionPresentRequirement<F: FnMut(InstructionContext<'_>) -> bool> {
     is_instruction_seen: bool,
     is_instruction_seen_callback: F,
 }
 
-impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
+impl<F: FnMut(InstructionContext<'_>) -> bool>
+    InstructionPresentRequirement<F>
+{
     pub fn new(callback: F) -> Self {
         Self {
             is_instruction_seen: false,
@@ -20,7 +22,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation: TypedManifestNativeInvocation::AccountBlueprintInvocation(
                             AccountBlueprintInvocation::Method(
@@ -42,7 +44,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -68,7 +70,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -89,7 +91,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -110,7 +112,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -131,7 +133,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -152,7 +154,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::AccountBlueprintInvocation(
@@ -172,7 +174,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -192,7 +194,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -212,7 +214,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::ValidatorBlueprintInvocation(
@@ -232,7 +234,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
@@ -260,7 +262,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
-                AnalysisContext::InvocationInstruction {
+                InstructionContext::InvocationInstruction {
                     typed_native_invocation: Some(TypedNativeInvocation {
                         invocation:
                             TypedManifestNativeInvocation::OneResourcePoolBlueprintInvocation(
@@ -285,7 +287,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> InstructionPresentRequirement<F> {
     }
 }
 
-impl<F: FnMut(AnalysisContext<'_>) -> bool> ManifestAnalyzerRequirementState
+impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
     for InstructionPresentRequirement<F>
 {
     fn requirement_state(&self) -> RequirementState {
@@ -295,7 +297,7 @@ impl<F: FnMut(AnalysisContext<'_>) -> bool> ManifestAnalyzerRequirementState
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
         self.is_instruction_seen |= (self.is_instruction_seen_callback)(context)
     }
 }
@@ -327,7 +329,7 @@ macro_rules! define_instruction_present_type {
                     self.0.requirement_state()
                 }
 
-                fn process_instruction(&mut self, context: AnalysisContext<'_>) {
+                fn process_instruction(&mut self, context: InstructionContext<'_>) {
                     self.0.process_instruction(context)
                 }
             }

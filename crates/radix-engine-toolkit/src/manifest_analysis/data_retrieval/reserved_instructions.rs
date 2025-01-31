@@ -36,8 +36,8 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
         self.0
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(typed_native_invocation),
             ..
         } = context

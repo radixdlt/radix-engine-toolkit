@@ -20,8 +20,8 @@ impl ManifestAnalyzerRequirementState
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        if let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        if let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     invocation:
@@ -60,7 +60,7 @@ impl ManifestAnalyzerRequirementState
             self.resources_withdrawn.insert(*resource_address);
         }
 
-        if let AnalysisContext::InvocationInstruction {
+        if let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     invocation:

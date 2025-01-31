@@ -19,8 +19,8 @@ impl ManifestAnalyzerRequirementState
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver: ManifestInvocationReceiver::GlobalMethod(account),

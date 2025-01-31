@@ -46,7 +46,7 @@ impl ManifestStaticAnalyzer for ValidatorStakeAnalyzer {
 
     fn output(self) -> Self::Output {}
 
-    fn process_instruction(&mut self, _: AnalysisContext<'_>) {
+    fn process_instruction(&mut self, _: InstructionContext<'_>) {
         // No processing is done in the static analyzer. All of the processing
         // for this transaction type is done in the dynamic analyzer since it
         // requires us to monitor some invocations and resource movements.
@@ -68,8 +68,8 @@ impl ManifestDynamicAnalyzer for ValidatorStakeAnalyzer {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver:
@@ -138,8 +138,8 @@ impl ManifestAnalyzerRequirementState for ValidatorStakeStaticRequirementState {
         }
     }
 
-    fn process_instruction(&mut self, context: AnalysisContext<'_>) {
-        let AnalysisContext::InvocationInstruction {
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(typed_native_invocation),
             ..
         } = context
@@ -202,7 +202,7 @@ pub struct ValidatorStakeOperation {
     pub liquid_stake_unit_amount: Decimal,
 }
 
-fn is_instruction_permitted(context: AnalysisContext<'_>) -> bool {
+fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     match context.instruction() {
         // Selective Permissions
         GroupedInstruction::InvocationInstructions(
