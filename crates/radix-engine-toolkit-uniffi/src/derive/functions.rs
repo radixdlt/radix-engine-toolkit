@@ -60,15 +60,14 @@ pub fn derive_signature_badge_non_fungible_global_id_from_public_key(
 }
 
 #[uniffi::export]
-pub fn derive_global_caller_non_fungible_global_id_from_component_address(
-    component_address: Arc<Address>,
+pub fn derive_global_caller_non_fungible_global_id_from_global_address(
+    global_address: Arc<Address>,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
-    let component_address =
-        engine::ComponentAddress::try_from(*component_address)?;
+    let global_address = engine::GlobalAddress::try_from(*global_address)?;
     let non_fungible_global_id =
-        toolkit::functions::derive::global_caller_non_fungible_global_id_from_component_address(
-            component_address,
+        toolkit::functions::derive::global_caller_non_fungible_global_id_from_global_address(
+            global_address,
         );
     Ok(Arc::new(NonFungibleGlobalId(
         non_fungible_global_id,
@@ -77,13 +76,34 @@ pub fn derive_global_caller_non_fungible_global_id_from_component_address(
 }
 
 #[uniffi::export]
-pub fn derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+pub fn derive_global_caller_non_fungible_global_id_from_blueprint_id(
+    package_address: Arc<Address>,
+    blueprint_name: String,
+    network_id: u8,
+) -> Result<Arc<NonFungibleGlobalId>> {
+    let package_address = engine::PackageAddress::try_from(*package_address)?;
+    let blueprint_id = engine::BlueprintId {
+        package_address,
+        blueprint_name,
+    };
+    let non_fungible_global_id =
+        toolkit::functions::derive::global_caller_non_fungible_global_id_from_blueprint_id(
+            blueprint_id,
+        );
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
+}
+
+#[uniffi::export]
+pub fn derive_package_of_direct_caller_non_fungible_global_id_from_package_address(
     package_address: Arc<Address>,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
     let package_address = engine::PackageAddress::try_from(*package_address)?;
     let non_fungible_global_id =
-        toolkit::functions::derive::package_of_direct_caller_non_fungible_global_id_from_component_address(
+        toolkit::functions::derive::package_of_direct_caller_non_fungible_global_id_from_package_address(
             package_address,
         );
     Ok(Arc::new(NonFungibleGlobalId(
@@ -154,4 +174,16 @@ pub fn derive_olympia_account_address_from_public_key(
             olympia_network.into(),
         );
     Ok(Arc::new(OlympiaAddress(address)))
+}
+
+#[uniffi::export]
+pub fn public_key_hash_from_public_key(
+    public_key: PublicKey,
+) -> Result<PublicKeyHash> {
+    let public_key = engine::PublicKey::try_from(public_key)?;
+    let public_key_hash =
+        toolkit::functions::derive::public_key_hash_from_public_key(
+            &public_key,
+        );
+    Ok(public_key_hash.into())
 }

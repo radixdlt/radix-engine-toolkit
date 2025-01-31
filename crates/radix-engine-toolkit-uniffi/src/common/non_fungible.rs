@@ -94,12 +94,25 @@ impl NonFungibleGlobalId {
     }
 
     #[uniffi::constructor]
-    pub fn global_caller_badge(
+    pub fn global_caller_badge_from_global_address(
         component_address: Arc<Address>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_global_caller_non_fungible_global_id_from_component_address(
+        derive_global_caller_non_fungible_global_id_from_global_address(
             component_address,
+            network_id,
+        )
+    }
+
+    #[uniffi::constructor]
+    pub fn global_caller_badge_from_blueprint_id(
+        package_address: Arc<Address>,
+        blueprint_name: String,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
+        derive_global_caller_non_fungible_global_id_from_blueprint_id(
+            package_address,
+            blueprint_name,
             network_id,
         )
     }
@@ -109,7 +122,7 @@ impl NonFungibleGlobalId {
         package_address: Arc<Address>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_package_of_direct_caller_non_fungible_global_id_from_component_address(
+        derive_package_of_direct_caller_non_fungible_global_id_from_package_address(
             package_address,
             network_id,
         )
@@ -130,6 +143,14 @@ impl NonFungibleGlobalId {
         let bech32_encoder =
             engine::AddressBech32Encoder::new(&network_definition);
         self.0.to_canonical_string(&bech32_encoder)
+    }
+
+    pub fn is_global_caller_badge(&self) -> bool {
+        self.0.resource_address() == engine::GLOBAL_CALLER_RESOURCE
+    }
+
+    pub fn is_package_of_direct_caller_badge(&self) -> bool {
+        self.0.resource_address() == engine::PACKAGE_OF_DIRECT_CALLER_RESOURCE
     }
 }
 

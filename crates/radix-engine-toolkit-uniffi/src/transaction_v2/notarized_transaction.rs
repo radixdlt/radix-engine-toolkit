@@ -108,6 +108,14 @@ impl NotarizedTransactionV2 {
         )
         .map_err(Into::into)
     }
+
+    pub fn signer_public_keys(&self) -> Result<Vec<PublicKey>> {
+        toolkit::functions::transaction_v2::notarized_transaction::extract_signer_public_keys(
+            &self.clone().try_into()?,
+        )
+        .map_err(Into::into)
+        .map(|value| value.into_iter().map(Into::into).collect())
+    }
 }
 
 impl TryFrom<engine::NotarizedTransactionV2> for NotarizedTransactionV2 {
