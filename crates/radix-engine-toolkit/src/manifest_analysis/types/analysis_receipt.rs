@@ -33,6 +33,7 @@ use core::hash::Hash;
 /// use for the receipt and it's to create an analysis transaction receipt. Thus
 /// the receipt will be converted into a manifest transaction receipt without
 /// the need for clones or references.
+#[derive(Clone, Debug)]
 pub struct AnalysisTransactionReceipt {
     /// The state updates summary from the transaction.
     state_updates_summary:

@@ -1421,7 +1421,7 @@ impl FromNativeWithNetworkContext for ValidatorUnstakeOperation {
             liquid_stake_unit_address,
             liquid_stake_unit_amount,
             claim_nft_address,
-            claim_nft_ids,
+            claim_nfts: claim_nft_ids,
         }: Self::Native,
         network_id: u8,
     ) -> Self {
@@ -1443,6 +1443,7 @@ impl FromNativeWithNetworkContext for ValidatorUnstakeOperation {
             )),
             claim_nft_ids: claim_nft_ids
                 .into_iter()
+                .map(|(k, _)| k)
                 .map(FromNative::from_native)
                 .collect(),
         }

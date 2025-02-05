@@ -48,6 +48,8 @@ pub enum InstructionContext<'a> {
         /// happened.
         dynamic_analysis_invocation_io:
             Option<&'a InvocationIo<InvocationIoItems>>,
+        /// The analysis receipt if it was provided as part of the analysis.
+        analysis_receipt: Option<&'a AnalysisTransactionReceipt>,
     },
     /// The instruction is an non-invocation instruction and therefore it has
     /// the base set of information we provide for instructions.
@@ -62,6 +64,8 @@ pub enum InstructionContext<'a> {
         /// instruction is given as a [`GroupedInstruction`] converted from the
         /// [`AnyInstruction`]s found in the manifest.
         instruction: &'a GroupedInstruction,
+        /// The analysis receipt if it was provided as part of the analysis.
+        analysis_receipt: Option<&'a AnalysisTransactionReceipt>,
     },
 }
 

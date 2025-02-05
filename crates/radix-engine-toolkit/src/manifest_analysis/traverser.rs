@@ -98,12 +98,14 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
                 typed_native_invocation: typed_native_invocation.as_ref(),
                 static_analysis_invocation_io: &static_analysis_invocation_io,
                 dynamic_analysis_invocation_io: None,
+                analysis_receipt: None,
             }
         } else {
             InstructionContext::NonInvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,
+                analysis_receipt: None,
             }
         };
 
@@ -135,7 +137,7 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
 
 pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
     manifest: &impl ReadableManifest,
-    worktop_changes: &WorktopChanges,
+    analysis_receipt: &AnalysisTransactionReceipt,
     analyzer_initializer: A::Initializer,
 ) -> Result<DynamicAnalyzerState<A>, TraverserError> {
     // Instantiating the analyzer based on the initializer passed to this
@@ -150,8 +152,10 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
     // If the worktop changes, which is information we get from dynamic analysis
     // is available for this manifest then we compute the invocation IO which is
     // the composition of static and dynamic analysis into a single object type.
-    let indexed_invocation_io =
-        IndexedInvocationIo::compute(manifest, worktop_changes)?;
+    let indexed_invocation_io = IndexedInvocationIo::compute(
+        manifest,
+        analysis_receipt.worktop_changes(),
+    )?;
 
     let invocation_static_information = {
         // The initial worktop state is only unknown if the manifest is a
@@ -228,12 +232,14 @@ pub fn dynamic_analyzer_traverse<A: ManifestDynamicAnalyzer>(
                 typed_native_invocation: typed_native_invocation.as_ref(),
                 static_analysis_invocation_io: &static_analysis_invocation_io,
                 dynamic_analysis_invocation_io: Some(invocation_io),
+                analysis_receipt: Some(analysis_receipt),
             }
         } else {
             InstructionContext::NonInvocationInstruction {
                 named_address_store: &named_address_store,
                 instruction_index: &instruction_index,
                 instruction: &instruction,
+                analysis_receipt: Some(analysis_receipt),
             }
         };
 

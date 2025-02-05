@@ -86,6 +86,7 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
                         ),
                 }),
             dynamic_analysis_invocation_io: Some(dynamic_analysis_invocation_io),
+            analysis_receipt: Some(analysis_receipt),
             ..
         } = context
         else {
@@ -108,13 +109,33 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
             ),
         )) = input.zip(output)
         {
-            self.0.unstake_operations.push(ValidatorUnstakeOperation {
-                validator_address,
-                liquid_stake_unit_address: *lsu_resource_address,
-                liquid_stake_unit_amount: **lsu_amount,
-                claim_nft_address: *claim_nft_resource_address,
-                claim_nft_ids: (**claim_nft_ids).clone(),
-            });
+            let claim_nfts = claim_nft_ids
+                .iter()
+                .map(|value| {
+                    NonFungibleGlobalId::new(
+                        *claim_nft_resource_address,
+                        value.clone(),
+                    )
+                })
+                .map(|global_id| {
+                    analysis_receipt.non_fungible_data(&global_id).map(|data| {
+                        (
+                            global_id.local_id().clone(),
+                            scrypto_decode(data).expect("Must succeed"),
+                        )
+                    })
+                })
+                .collect::<Option<IndexMap<_, _>>>();
+
+            if let Some(claim_nfts) = claim_nfts {
+                self.0.unstake_operations.push(ValidatorUnstakeOperation {
+                    validator_address,
+                    liquid_stake_unit_address: *lsu_resource_address,
+                    liquid_stake_unit_amount: **lsu_amount,
+                    claim_nft_address: *claim_nft_resource_address,
+                    claim_nfts: claim_nfts,
+                });
+            }
         }
     }
 }
@@ -133,7 +154,7 @@ pub struct ValidatorUnstakeOperation {
     pub liquid_stake_unit_amount: Decimal,
     /* Output */
     pub claim_nft_address: ResourceAddress,
-    pub claim_nft_ids: IndexSet<NonFungibleLocalId>,
+    pub claim_nfts: IndexMap<NonFungibleLocalId, UnstakeData>,
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {

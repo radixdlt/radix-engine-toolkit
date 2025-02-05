@@ -74,6 +74,7 @@ fn single_validator_unstake_classifies_as_validator_unstake_transaction() {
     assert_eq!(unstake_operation.liquid_stake_unit_address, lsu);
     assert_eq!(unstake_operation.validator_address, validator);
     assert_eq!(unstake_operation.claim_nft_address, claim_nft);
+    assert_eq!(unstake_operation.claim_nfts.len(), 1);
 }
 
 #[test]
@@ -133,6 +134,7 @@ fn single_validator_unstake_with_lock_fee_and_withdraw_classifies_as_validator_u
     assert_eq!(unstake_operation.liquid_stake_unit_address, lsu);
     assert_eq!(unstake_operation.validator_address, validator);
     assert_eq!(unstake_operation.claim_nft_address, claim_nft);
+    assert_eq!(unstake_operation.claim_nfts.len(), 1);
 }
 
 #[test]
@@ -195,12 +197,14 @@ fn multiple_validator_unstake_classifies_as_validator_unstake_transaction() {
     assert_eq!(unstake_operation.liquid_stake_unit_address, lsu);
     assert_eq!(unstake_operation.validator_address, validator);
     assert_eq!(unstake_operation.claim_nft_address, claim_nft);
+    assert_eq!(unstake_operation.claim_nfts.len(), 1);
 
     let unstake_operation = unstake_operations.get(1).unwrap();
     assert_eq!(unstake_operation.liquid_stake_unit_amount, dec!(5));
     assert_eq!(unstake_operation.liquid_stake_unit_address, lsu);
     assert_eq!(unstake_operation.validator_address, validator);
     assert_eq!(unstake_operation.claim_nft_address, claim_nft);
+    assert_eq!(unstake_operation.claim_nfts.len(), 1);
 }
 
 #[test]

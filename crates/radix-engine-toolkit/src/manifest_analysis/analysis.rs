@@ -137,7 +137,7 @@ pub fn dynamically_analyze(
         static_requirement_state,
     } = dynamic_analyzer_traverse::<CompositeAnalyzer>(
         manifest,
-        analysis_receipt.worktop_changes(),
+        &analysis_receipt,
         Default::default(),
     )?;
     let resolved_composite_output = CompositeResolvedDynamicOutput::new(
