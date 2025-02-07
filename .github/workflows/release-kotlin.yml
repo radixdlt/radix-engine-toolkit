@@ -177,12 +177,6 @@ jobs:
         run: |
           echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
           cp rdx-secring.gpg lib/rdx-secring.gpg
-      
-##      - name: Get GPG key to sign
-##        working-directory: interop/kotlin/ret-kotlin
-##        run: |
-##          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
-##          cp rdx-secring.gpg lib/rdx-secring.gpg
 
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
