@@ -420,19 +420,25 @@ jobs:
           ref: main
           token: ${{ github.token }}
           path: ./.github/actions/actions-oidc-debugger
-      - name: Configure AWS credentials to fetch secrets
-        uses: RDXWorks-actions/configure-aws-credentials@main
+
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
-          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
-          aws-region: eu-west-2
-          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Fetch AWS secrets
-        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'fetch-maven'
+          secret_prefix: 'MAVEN_CENTRAL'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/maven-wAbmDe'
+          parse_json: true
+
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
-          parse-json-secrets: true
-          secret-ids: |
-            MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
-            GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'gpg-passprhase'
+          secret_prefix: 'GPG_PASSPHRASE'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
+          parse_json: true
+
       - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
@@ -448,11 +454,27 @@ jobs:
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'gpg'
+          secret_prefix: 'GPG_BINARY'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
+          parse_json: true
+
       - name: Get GPG key to sign
         working-directory: interop/kotlin/ret-kotlin
         run: |
-          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
+          echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
           cp rdx-secring.gpg lib/rdx-secring.gpg
+      
+##      - name: Get GPG key to sign
+##        working-directory: interop/kotlin/ret-kotlin
+##        run: |
+##          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
+##          cp rdx-secring.gpg lib/rdx-secring.gpg
+
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
         with:
@@ -555,14 +577,13 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - name: Fetch secrets
-        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
-          role_name: ${{ secrets.PYPI_SECRET_ROLE_NAME }}
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
           app_name: 'radix-engine-toolkit'
           step_name: 'pypi-credentials'
           secret_prefix: 'PYPI'
-          secret_name: ${{ secrets.PYPI_SECRET_NAME }}
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/pypi-credentials-HnBL8C'
           parse_json: true
       - name: Print Env
         run: env
@@ -636,24 +657,22 @@ jobs:
       id-token: write
       packages: write
     steps:
-      - name: Configure AWS credentials to fetch secrets
-        uses: RDXWorks-actions/configure-aws-credentials@main
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
-          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
-          aws-region: eu-west-2
-          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Fetch AWS secrets for SSH
-        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'fetch-repo-ssh'
+          secret_prefix: 'RET_GO_REPO_SSH_KEY'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo-PoXb60'
+          parse_json: true
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
-          parse-json-secrets: false
-          secret-ids: |
-            RET_GO_REPO_SSH_KEY,github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo
-      - name: Fetch AWS secrets for GoReleaser
-        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
-        with:
-          parse-json-secrets: true
-          secret-ids:
-            GORELEASER,github-actions/radixdlt/radix-engine-toolkit/goreleaser
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'go-releaser'
+          secret_prefix: 'GORELEASER'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/goreleaser-TtLFrA'
+          parse_json: true
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
         with:
