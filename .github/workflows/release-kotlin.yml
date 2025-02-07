@@ -164,6 +164,14 @@ jobs:
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'gpg'
+          secret_prefix: 'GPG_BINARY'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
+          parse_json: true
       - name: Get GPG key to sign
         working-directory: interop/kotlin/ret-kotlin
         run: |
