@@ -32,6 +32,7 @@ pub(crate) mod internal_prelude {
 
     // Modules from the Radixdlt-Scrypto Crates.
     pub use radix_common::prelude::*;
+    pub use radix_engine::blueprints::consensus_manager::*;
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier, WorktopChange,
     };
