@@ -522,6 +522,15 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'nuget-org-api-key'
+          secret_prefix: 'NUGET'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/nuget-XrZrYj'
+          parse_json: true
+
       - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
@@ -558,7 +567,7 @@ jobs:
         run: dotnet pack --configuration Release --output .
       - name: Publish Packages
         working-directory: interop/csharp/
-        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
+        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
   publish-python-package:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
