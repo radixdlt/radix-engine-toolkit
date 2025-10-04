@@ -84,6 +84,7 @@ pub fn statically_analyze(
         pool_contribution_classification,
         pool_redemption_classification,
         account_settings_update_classification,
+        entity_securify_classification,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -113,6 +114,8 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::PoolRedemption),
             account_settings_update_classification
                 .map(|_| ManifestClassification::AccountDepositSettingsUpdate),
+            entity_securify_classification
+                .map(|_| ManifestClassification::EntitySecurify),
         ]
         .into_iter()
         .flatten()
@@ -217,6 +220,7 @@ pub fn dynamically_analyze(
         pool_contribution_classification,
         pool_redemption_classification,
         account_settings_update_classification,
+        entity_securify_classification,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -258,6 +262,9 @@ pub fn dynamically_analyze(
             account_settings_update_classification
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccountDepositSettingsUpdate),
+            entity_securify_classification
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::EntitySecurify),
         ]
         .into_iter()
         .flatten()
@@ -324,6 +331,10 @@ mod composite_analyzer {
             pool_redemption_classification: (PoolRedemptionAnalyzer, ()),
             account_settings_update_classification: (
                 DynamicAnalyzerWrapper<AccountSettingsUpdateAnalyzer>,
+                ()
+            ),
+            entity_securify_classification: (
+                DynamicAnalyzerWrapper<EntitySecurifyAnalyzer>,
                 ()
             ),
         }

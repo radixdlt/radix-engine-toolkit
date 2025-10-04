@@ -54,7 +54,7 @@ impl ManifestStaticAnalyzer for EntitySecurifyAnalyzer {
             typed_native_invocation:
                 Some(TypedNativeInvocation {
                     receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
-                    invocation: invocation,
+                    invocation,
                 }),
             ..
         } = context

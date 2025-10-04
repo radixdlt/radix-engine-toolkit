@@ -16,6 +16,7 @@
 // under the License.
 
 mod account_deposit_settings;
+mod entity_securify;
 mod general;
 mod general_subintent;
 mod pool_contribution;

@@ -65,4 +65,9 @@ pub enum DetailedManifestClassification {
     /// A manifest where account deposit settings get updated. In this manifest
     /// class one of the account deposit settings methods are called.
     AccountDepositSettingsUpdate(AccountSettingsUpdateOutput),
+    /// A manifest that securifies entities by moving their badge
+    /// to a newly created access controller. In this manifest class the entity
+    /// is securified, its owner_keys is updated and an access controller is
+    /// created.
+    EntitySecurify(EntitySecurifyOutput),
 }
