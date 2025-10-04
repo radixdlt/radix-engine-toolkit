@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -15,24 +16,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod account_settings_update;
-mod entity_securify;
-mod general;
-mod pool_contribution;
-mod pool_redemption;
-mod simple_transfer;
-mod transfer;
-mod validator_claim;
-mod validator_stake;
-mod validator_unstake;
+use crate::internal_prelude::*;
 
-pub use account_settings_update::*;
-pub use entity_securify::*;
-pub use general::*;
-pub use pool_contribution::*;
-pub use pool_redemption::*;
-pub use simple_transfer::*;
-pub use transfer::*;
-pub use validator_claim::*;
-pub use validator_stake::*;
-pub use validator_unstake::*;
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct EntitySecurifyAnalyzer(EntitySecurifyOutput);
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct EntitySecurifyOutput {
+    pub securified_accounts: Vec<ManifestGlobalAddress>,
+    pub securified_personas: Vec<ManifestGlobalAddress>
+}
