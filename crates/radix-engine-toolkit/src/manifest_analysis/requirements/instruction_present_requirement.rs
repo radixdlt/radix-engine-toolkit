@@ -324,7 +324,7 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
                     ..
                 }
             )
-        }) 
+        })
     }
 
     pub fn create_access_controller() -> DefaultInstructionPresentRequirement {
