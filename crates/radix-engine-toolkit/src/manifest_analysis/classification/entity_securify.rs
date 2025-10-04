@@ -23,7 +23,7 @@ pub struct EntitySecurifyAnalyzer(EntitySecurifyOutput);
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct EntitySecurifyOutput {
     pub securified_accounts: Vec<ManifestGlobalAddress>,
-    pub securified_personas: Vec<ManifestGlobalAddress>,
+    pub securified_identities: Vec<ManifestGlobalAddress>,
 }
 
 impl ManifestStaticAnalyzer for EntitySecurifyAnalyzer {
@@ -50,7 +50,36 @@ impl ManifestStaticAnalyzer for EntitySecurifyAnalyzer {
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        todo!()
+        let InstructionContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                    invocation: invocation,
+                }),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        match invocation {
+            TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                AccountBlueprintInvocation::Method(
+                    AccountBlueprintMethod::Securify(..),
+                ),
+            ) => {
+                self.0.securified_accounts.push(receiver.into());
+            }
+
+            TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                IdentityBlueprintInvocation::Method(
+                    IdentityBlueprintMethod::Securify(..),
+                ),
+            ) => {
+                self.0.securified_identities.push(receiver.into());
+            }
+            _ => return,
+        }
     }
 }
 
