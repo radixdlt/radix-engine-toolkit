@@ -715,6 +715,7 @@ pub enum ManifestClassification {
     PoolContribution,
     PoolRedemption,
     AccountDepositSettingsUpdate,
+    EntitySecurify,
 }
 
 impl FromNative for ManifestClassification {
@@ -733,6 +734,7 @@ impl FromNative for ManifestClassification {
             Self::Native::AccountDepositSettingsUpdate => {
                 Self::AccountDepositSettingsUpdate
             }
+            Self::Native::EntitySecurify => Self::EntitySecurify,
         }
     }
 }
@@ -748,6 +750,7 @@ pub enum DetailedManifestClassification {
     PoolContribution { value: PoolContributionOutput },
     PoolRedemption { value: PoolRedemptionOutput },
     AccountDepositSettingsUpdate { value: AccountSettingsUpdateOutput },
+    EntitySecurify { value: EntitySecurifyOutput },
 }
 
 impl FromNativeWithNetworkContext for DetailedManifestClassification {
@@ -796,6 +799,11 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
                     ),
                 }
             }
+            Self::Native::EntitySecurify(output) => Self::EntitySecurify {
+                value: FromNativeWithNetworkContext::from_native(
+                    output, network_id,
+                ),
+            },
         }
     }
 }
@@ -1872,6 +1880,42 @@ impl ToNative for AccountDefaultDepositRule {
             AccountDefaultDepositRule::AllowExisting => {
                 Ok(Self::Native::AllowExisting)
             }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct EntitySecurifyOutput {
+    pub securified_accounts: Vec<Arc<Address>>,
+    pub securified_identities: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext for EntitySecurifyOutput {
+    type Native = toolkit::EntitySecurifyOutput;
+
+    fn from_native(
+        Self::Native {
+            securified_accounts,
+            securified_identities,
+        }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            securified_accounts: securified_accounts
+                .into_iter()
+                .filter_map(|account| account.into_static())
+                .map(|account| {
+                    Arc::new(Address::from_node_id(account, network_id))
+                })
+                .collect(),
+
+            securified_identities: securified_identities
+                .into_iter()
+                .filter_map(|identity| identity.into_static())
+                .map(|identity| {
+                    Arc::new(Address::from_node_id(identity, network_id))
+                })
+                .collect(),
         }
     }
 }

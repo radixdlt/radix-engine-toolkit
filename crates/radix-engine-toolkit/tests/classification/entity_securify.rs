@@ -104,11 +104,7 @@ fn securify_identity_classifies_as_entity_securify() {
     let identity = ledger.new_identity(pk, true);
 
     let builder = ManifestBuilder::new()
-        .call_method(
-            identity,
-            IDENTITY_SECURIFY_IDENT,
-            (),
-        )
+        .call_method(identity, IDENTITY_SECURIFY_IDENT, ())
         .take_from_worktop(IDENTITY_OWNER_BADGE, 1, "bucket")
         .create_proof_from_bucket_of_all("bucket", "proof")
         .push_to_auth_zone("proof")
