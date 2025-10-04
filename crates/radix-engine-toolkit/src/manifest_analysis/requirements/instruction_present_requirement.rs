@@ -346,6 +346,48 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
             )
         })
     }
+
+    pub fn access_controller_iniate_recovery_as_primary(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn access_controller_iniate_recovery_as_recovery(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
 }
 
 impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
@@ -420,4 +462,6 @@ define_instruction_present_type! {
     PoolRedeemInstructionPresentRequirement => pool_redeem,
     EntitySecurify => entity_securify,
     CreateAccessController => create_access_controller,
+    AccessControllerInitiateRecoveryAsPrimary => access_controller_iniate_recovery_as_primary,
+    AccessControllerInitiateRecoveryAsRecovery => access_controller_iniate_recovery_as_recovery,
 }
