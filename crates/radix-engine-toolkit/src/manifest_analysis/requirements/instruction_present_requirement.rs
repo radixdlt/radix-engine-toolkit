@@ -302,6 +302,50 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
             )
         })
     }
+
+    pub fn entity_securify() -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::Securify(..)
+                            )
+                        ) | TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                            IdentityBlueprintInvocation::Method(
+                                IdentityBlueprintMethod::Securify(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        }) 
+    }
+
+    pub fn create_access_controller() -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Function(
+                                AccessControllerBlueprintFunction::Create(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
 }
 
 impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
@@ -374,4 +418,6 @@ define_instruction_present_type! {
     /* Pools */
     PoolContributeInstructionPresentRequirement => pool_contribute,
     PoolRedeemInstructionPresentRequirement => pool_redeem,
+    EntitySecurify => entity_securify,
+    CreateAccessController => create_access_controller,
 }

@@ -26,3 +26,29 @@ pub struct EntitySecurifyOutput {
     pub securified_accounts: Vec<ManifestGlobalAddress>,
     pub securified_personas: Vec<ManifestGlobalAddress>
 }
+
+impl ManifestStaticAnalyzer for EntitySecurifyAnalyzer {
+    type Initializer = ();
+    type Output = EntitySecurifyOutput;
+    type PermissionState = 
+        CallbackPermissionState<PermissionStateStaticCallback>;
+
+    type RequirementState = AllOfRequirement<(
+        EntitySecurify, 
+        CreateAccessController,
+    )>;
+
+    fn new(
+        initializer: Self::Initializer,
+    ) -> (Self, Self::PermissionState, Self::RequirementState) {
+        todo!()
+    }
+
+    fn output(self) -> Self::Output {
+        todo!()
+    }
+
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        todo!()
+    }
+}
