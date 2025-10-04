@@ -94,3 +94,82 @@ fn securify_account_classifies_as_entity_securify() {
         vec![ManifestGlobalAddress::Static(account.into())]
     );
 }
+
+#[test]
+fn securify_identity_classifies_as_entity_securify() {
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (pk, _, _) = ledger.new_account(true);
+    let identity = ledger.new_identity(pk, true);
+
+    let builder = ManifestBuilder::new()
+        .call_method(
+            identity,
+            IDENTITY_SECURIFY_IDENT,
+            (),
+        )
+        .take_from_worktop(IDENTITY_OWNER_BADGE, 1, "bucket")
+        .create_proof_from_bucket_of_all("bucket", "proof")
+        .push_to_auth_zone("proof")
+        .set_metadata(identity, "owner_keys", "not important")
+        .drop_auth_zone_proofs()
+        .allocate_global_address(
+            ACCESS_CONTROLLER_PACKAGE,
+            ACCESS_CONTROLLER_BLUEPRINT,
+            "ac_reservation",
+            "ac_address",
+        );
+
+    let reservation = builder.address_reservation("ac_reservation");
+    let bucket = builder.bucket("bucket");
+
+    let builder = builder.call_function(
+        ACCESS_CONTROLLER_PACKAGE,
+        ACCESS_CONTROLLER_BLUEPRINT,
+        ACCESS_CONTROLLER_CREATE_IDENT,
+        AccessControllerCreateManifestInput {
+            controlled_asset: bucket,
+            rule_set: RuleSet {
+                primary_role: rule!(allow_all),
+                recovery_role: rule!(allow_all),
+                confirmation_role: rule!(allow_all),
+            },
+            timed_recovery_delay_in_minutes: None,
+            address_reservation: Some(reservation),
+        },
+    );
+
+    let manifest = builder.build();
+
+    // Act
+    let (
+        StaticAnalysis {
+            manifest_classification,
+            ..
+        },
+        DynamicAnalysis {
+            detailed_manifest_classification,
+            ..
+        },
+    ) = ledger.analyze(manifest);
+
+    assert!(manifest_classification
+        .contains(&ManifestClassification::EntitySecurify));
+
+    let Some(DetailedManifestClassification::EntitySecurify(
+        EntitySecurifyOutput {
+            securified_accounts,
+            securified_identities,
+        },
+    )) = detailed_manifest_classification.last()
+    else {
+        panic!("Not an entity securify transaction")
+    };
+
+    assert!(securified_accounts.is_empty());
+    assert_eq!(
+        securified_identities.clone(),
+        vec![ManifestGlobalAddress::Static(identity.into())]
+    );
+}
