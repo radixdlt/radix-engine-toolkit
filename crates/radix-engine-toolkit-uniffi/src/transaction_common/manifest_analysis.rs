@@ -716,6 +716,7 @@ pub enum ManifestClassification {
     PoolRedemption,
     AccountDepositSettingsUpdate,
     EntitySecurify,
+    AccessControllerRecovery,
 }
 
 impl FromNative for ManifestClassification {
@@ -735,6 +736,7 @@ impl FromNative for ManifestClassification {
                 Self::AccountDepositSettingsUpdate
             }
             Self::Native::EntitySecurify => Self::EntitySecurify,
+            Self::Native::AccessControllerRecovery => Self::AccessControllerRecovery
         }
     }
 }
@@ -751,6 +753,7 @@ pub enum DetailedManifestClassification {
     PoolRedemption { value: PoolRedemptionOutput },
     AccountDepositSettingsUpdate { value: AccountSettingsUpdateOutput },
     EntitySecurify { value: EntitySecurifyOutput },
+    AccessControllerRecovery { value: AccessControllerRecoveryOutput },
 }
 
 impl FromNativeWithNetworkContext for DetailedManifestClassification {
@@ -800,6 +803,11 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
                 }
             }
             Self::Native::EntitySecurify(output) => Self::EntitySecurify {
+                value: FromNativeWithNetworkContext::from_native(
+                    output, network_id,
+                ),
+            },
+            Self::Native::AccessControllerRecovery(output) => Self::AccessControllerRecovery {
                 value: FromNativeWithNetworkContext::from_native(
                     output, network_id,
                 ),
@@ -1914,6 +1922,31 @@ impl FromNativeWithNetworkContext for EntitySecurifyOutput {
                 .filter_map(|identity| identity.into_static())
                 .map(|identity| {
                     Arc::new(Address::from_node_id(identity, network_id))
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryOutput {
+    pub access_controllers: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerRecoveryOutput {
+    type Native = toolkit::AccessControllerRecoveryOutput;
+
+    fn from_native(
+        Self::Native {
+            access_controllers,
+        }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            access_controllers: access_controllers
+                .into_iter()
+                .map(|ac_address| {
+                    Arc::new(Address::from_node_id(ac_address, network_id))
                 })
                 .collect(),
         }

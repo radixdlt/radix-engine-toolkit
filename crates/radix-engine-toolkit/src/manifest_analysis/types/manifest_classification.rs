@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::prelude::AccessControllerRecoveryOutput;
+
 /// The classification process classifies manifests into classes. The following
 /// are the classes that the Radix Engine Toolkit supports. The order seen below
 /// is the canonical order of specificity of the manifest transaction types.
@@ -61,4 +63,8 @@ pub enum ManifestClassification {
     /// is securified, its owner_keys is updated and an access controller is
     /// created.
     EntitySecurify,
+    /// A manifest that starts the access controller recovery, it is either
+    /// confirmed in the same transaction, or it is a timed recovery, currently
+    /// the difference is not important.
+    AccessControllerRecovery,
 }

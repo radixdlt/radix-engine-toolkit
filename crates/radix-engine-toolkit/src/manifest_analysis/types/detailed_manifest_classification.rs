@@ -70,4 +70,8 @@ pub enum DetailedManifestClassification {
     /// is securified, its owner_keys is updated and an access controller is
     /// created.
     EntitySecurify(EntitySecurifyOutput),
+    /// A manifest that starts the access controller recovery, it is either
+    /// confirmed in the same transaction, or it is a timed recovery, currently
+    /// the difference is not important.
+    AccessControllerRecovery(AccessControllerRecoveryOutput)
 }

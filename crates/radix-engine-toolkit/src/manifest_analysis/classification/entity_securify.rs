@@ -126,24 +126,7 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                     ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
                 )
                 => true,
-                // Disallowed Invocations
-                (
-                    Some(
-                        GroupedEntityType::IdentityEntities(..)
-                        | GroupedEntityType::PoolEntities(..)
-                        | GroupedEntityType::InternalEntities(..)
-                        | GroupedEntityType::SystemEntities(..)
-                        | GroupedEntityType::ResourceManagerEntities(..)
-                        | GroupedEntityType::PackageEntities(..)
-                        | GroupedEntityType::ValidatorEntities(..)
-                        | GroupedEntityType::AccountEntities(..)
-                        | GroupedEntityType::AccessControllerEntities(..)
-                        | GroupedEntityType::AccountLockerEntities(..)
-                        | GroupedEntityType::GenericComponentEntities(..),
-                    )
-                    | None,
-                    _,
-                ) => false,
+                _ => false,
             }
         }
 

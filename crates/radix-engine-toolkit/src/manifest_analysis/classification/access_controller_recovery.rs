@@ -52,10 +52,87 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        todo!()
+        let InstructionContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver:
+                     ManifestInvocationReceiver::GlobalMethod(
+                            ResolvedManifestAddress::Static {
+                                static_address: ac_address,
+                            },
+                    ),
+
+                    invocation:
+                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
+                        )
+                    ) | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
+                        )
+                    ),
+                }),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        let ac_address = ComponentAddress::try_from(*ac_address)
+                .expect("Must succeed since the typed invocation conversion succeeded");
+            
+        self.0.access_controllers.push(ac_address);
     }
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    todo!()
+    match context.instruction() {
+        GroupedInstruction::InvocationInstructions(
+            InvocationInstructions::CallMethod(CallMethod {
+                address,
+                method_name,
+                ..
+            }),
+        ) => {
+            let grouped_entity_type = match address {
+                ManifestGlobalAddress::Static(static_address) => {
+                    static_address.as_node_id().entity_type()
+                }
+                ManifestGlobalAddress::Named(named_address) => context
+                    .named_address_store()
+                    .get(named_address)
+                    .and_then(BlueprintId::entity_type),
+            }
+            .map(GroupedEntityType::from);
+
+            match (grouped_entity_type, method_name.as_str()) {
+                // Fee Payment
+                (
+                    Some(GroupedEntityType::AccountEntities(..)),
+                    ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
+                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
+                    | ACCOUNT_LOCK_FEE_IDENT,
+                )
+                | (
+                    Some(GroupedEntityType::AccessControllerEntities(..)),
+                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                ) => true,
+                // Recovery idents - starting and confirming
+                (
+                    Some(GroupedEntityType::AccessControllerEntities(..)),
+                    ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT
+                    | ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT
+                    | ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
+                    | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                ) => true,
+                _ => false,
+            }
+        }
+        // Metadata updates are allowed when performing recovery
+        GroupedInstruction::InvocationInstructions(
+            InvocationInstructions::CallMetadataMethod(..),
+        ) => true,
+        _ => false,
+    }
 }
