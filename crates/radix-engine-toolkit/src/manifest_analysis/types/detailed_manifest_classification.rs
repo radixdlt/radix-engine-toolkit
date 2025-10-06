@@ -74,4 +74,9 @@ pub enum DetailedManifestClassification {
     /// confirmed in the same transaction, or it is a timed recovery, currently
     /// the difference is not important.
     AccessControllerRecovery(AccessControllerRecoveryOutput),
+    /// A manifest that stops the timed recovery.
+    /// It can as well contain instructions to cancel the given recovery proposal.
+    AccessControllerStopTimedRecovery(
+        AccessControllerStopTimedRecoveryAnalyzerOutput,
+    ),
 }

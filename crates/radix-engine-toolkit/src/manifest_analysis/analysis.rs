@@ -86,6 +86,7 @@ pub fn statically_analyze(
         account_settings_update_classification,
         entity_securify_classification,
         access_controller_recovery,
+        access_controller_stop_timed_recovery,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -119,6 +120,9 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::EntitySecurify),
             access_controller_recovery
                 .map(|_| ManifestClassification::AccessControllerRecovery),
+            access_controller_stop_timed_recovery.map(|_| {
+                ManifestClassification::AccessControllerStopTimedRecovery
+            }),
         ]
         .into_iter()
         .flatten()
@@ -225,6 +229,7 @@ pub fn dynamically_analyze(
         account_settings_update_classification,
         entity_securify_classification,
         access_controller_recovery,
+        access_controller_stop_timed_recovery,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -272,6 +277,9 @@ pub fn dynamically_analyze(
             access_controller_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccessControllerRecovery),
+            access_controller_stop_timed_recovery
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerStopTimedRecovery),
         ]
         .into_iter()
         .flatten()
@@ -346,6 +354,10 @@ mod composite_analyzer {
             ),
             access_controller_recovery: (
                 DynamicAnalyzerWrapper<AccessControllerRecoveryAnalyzer>,
+                ()
+            ),
+            access_controller_stop_timed_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerStopTimedRecoveryAnalyzer>,
                 ()
             ),
         }

@@ -16,7 +16,7 @@
 // under the License.
 
 mod access_controller_recovery;
-mod access_controller_cancel_timed_recovery;
+mod access_controller_stop_timed_recovery;
 mod account_settings_update;
 mod entity_securify;
 mod general;
@@ -29,7 +29,7 @@ mod validator_stake;
 mod validator_unstake;
 
 pub use access_controller_recovery::*;
-pub use access_controller_cancel_timed_recovery::*;
+pub use access_controller_stop_timed_recovery::*;
 pub use account_settings_update::*;
 pub use entity_securify::*;
 pub use general::*;

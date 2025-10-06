@@ -18,24 +18,24 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccessControllerCancelTimedRecoveryAnalyzer(AccessControllerCancelTimedRecoveryOutput);
+pub struct AccessControllerStopTimedRecoveryAnalyzer(
+    AccessControllerStopTimedRecoveryAnalyzerOutput,
+);
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccessControllerCancelTimedRecoveryOutput {
+pub struct AccessControllerStopTimedRecoveryAnalyzerOutput {
     pub access_controllers: Vec<ComponentAddress>,
 }
 
-impl ManifestStaticAnalyzer for AccessControllerCancelTimedRecoveryAnalyzer {
+impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
     type Initializer = ();
-    type Output = AccessControllerCancelTimedRecoveryOutput;
+    type Output = AccessControllerStopTimedRecoveryAnalyzerOutput;
 
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
 
-    type RequirementState = AnyOfRequirement<(
-        AccessControllerStopTimeRecovery,
-    )>;
-
+    type RequirementState =
+        AnyOfRequirement<(AccessControllerStopTimeRecovery,)>;
 
     fn new(
         _: Self::Initializer,
@@ -80,7 +80,7 @@ impl ManifestStaticAnalyzer for AccessControllerCancelTimedRecoveryAnalyzer {
         );
 
         self.0.access_controllers.push(ac_address);
-     }
+    }
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
@@ -121,7 +121,7 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                     Some(GroupedEntityType::AccessControllerEntities(..)),
                     ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT
                     | ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT
+                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
                 ) => true,
                 _ => false,
             }

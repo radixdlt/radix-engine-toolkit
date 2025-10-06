@@ -389,7 +389,8 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
         })
     }
 
-    pub fn access_controller_stop_timed_recovery() -> DefaultInstructionPresentRequirement {
+    pub fn access_controller_stop_timed_recovery(
+    ) -> DefaultInstructionPresentRequirement {
         InstructionPresentRequirement::new(|context| {
             matches!(
                 context,
