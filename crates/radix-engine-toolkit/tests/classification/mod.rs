@@ -16,6 +16,7 @@
 // under the License.
 
 mod access_controller_recovery;
+mod access_controller_stop_timed_recovery;
 mod account_deposit_settings;
 mod entity_securify;
 mod general;

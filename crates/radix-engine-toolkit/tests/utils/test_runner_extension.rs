@@ -132,10 +132,12 @@ where
         self.set_current_epoch(current_epoch.after(by).unwrap());
     }
 
-    fn new_allow_all_access_controller(
+    fn new_allow_all_access_controller_for_account(
         &mut self,
-    ) -> (ComponentAddress, ComponentAddress) {
-        let (pk, _, account) = self.new_account(true);
+        account: (Secp256k1PublicKey, ComponentAddress),
+    ) -> ComponentAddress {
+        let (pk, account) = account;
+
         let manifest = ManifestBuilder::new()
             .lock_fee_from_faucet()
             .get_free_xrd_from_faucet()
@@ -170,7 +172,7 @@ where
                                 recovery_role: rule!(allow_all),
                                 confirmation_role: rule!(allow_all),
                             },
-                            timed_recovery_delay_in_minutes: None,
+                            timed_recovery_delay_in_minutes: Some(360),
                             address_reservation: Some(address_reservation),
                         },
                     )
@@ -189,12 +191,20 @@ where
             manifest,
             vec![NonFungibleGlobalId::from_public_key(&pk)],
         );
-        let access_controller = receipt
+        receipt
             .expect_commit_success()
             .new_component_addresses()
             .first()
             .copied()
-            .unwrap();
+            .unwrap()
+    }
+
+    fn new_allow_all_access_controller(
+        &mut self,
+    ) -> (ComponentAddress, ComponentAddress) {
+        let (pk, _, account) = self.new_account(true);
+        let access_controller =
+            self.new_allow_all_access_controller_for_account((pk, account));
 
         (account, access_controller)
     }
