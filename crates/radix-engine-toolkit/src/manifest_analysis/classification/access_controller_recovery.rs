@@ -79,9 +79,10 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
             return;
         };
 
-        let ac_address = ComponentAddress::try_from(*ac_address)
-                .expect("Must succeed since the typed invocation conversion succeeded");
-            
+        let ac_address = ComponentAddress::try_from(*ac_address).expect(
+            "Must succeed since the typed invocation conversion succeeded",
+        );
+
         self.0.access_controllers.push(ac_address);
     }
 }
@@ -116,7 +117,8 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                 )
                 | (
                     Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT
+                    | ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
                 ) => true,
                 // Recovery idents - starting and confirming
                 (

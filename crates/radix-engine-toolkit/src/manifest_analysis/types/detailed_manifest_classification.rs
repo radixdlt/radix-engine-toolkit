@@ -73,5 +73,5 @@ pub enum DetailedManifestClassification {
     /// A manifest that starts the access controller recovery, it is either
     /// confirmed in the same transaction, or it is a timed recovery, currently
     /// the difference is not important.
-    AccessControllerRecovery(AccessControllerRecoveryOutput)
+    AccessControllerRecovery(AccessControllerRecoveryOutput),
 }

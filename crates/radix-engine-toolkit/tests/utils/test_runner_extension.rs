@@ -138,30 +138,51 @@ where
         let (pk, _, account) = self.new_account(true);
         let manifest = ManifestBuilder::new()
             .lock_fee_from_faucet()
+            .get_free_xrd_from_faucet()
             .call_method(
                 account,
                 ACCOUNT_SECURIFY_IDENT,
                 AccountSecurifyManifestInput {},
             )
             .take_all_from_worktop(ACCOUNT_OWNER_BADGE, "bucket")
+            .take_all_from_worktop(XRD, "free_xrd")
+            .allocate_global_address(
+                ACCESS_CONTROLLER_PACKAGE,
+                ACCESS_CONTROLLER_BLUEPRINT,
+                "ac_reservation",
+                "ac_address",
+            )
             .then(|builder| {
                 let bucket = builder.bucket("bucket");
+                let address_reservation =
+                    builder.address_reservation("ac_reservation");
+                let xrd_bucket = builder.bucket("free_xrd");
 
-                builder.call_function(
-                    ACCESS_CONTROLLER_PACKAGE,
-                    ACCESS_CONTROLLER_BLUEPRINT,
-                    ACCESS_CONTROLLER_CREATE_IDENT,
-                    AccessControllerCreateManifestInput {
-                        controlled_asset: bucket,
-                        rule_set: RuleSet {
-                            primary_role: rule!(allow_all),
-                            recovery_role: rule!(allow_all),
-                            confirmation_role: rule!(allow_all),
+                builder
+                    .call_function(
+                        ACCESS_CONTROLLER_PACKAGE,
+                        ACCESS_CONTROLLER_BLUEPRINT,
+                        ACCESS_CONTROLLER_CREATE_IDENT,
+                        AccessControllerCreateManifestInput {
+                            controlled_asset: bucket,
+                            rule_set: RuleSet {
+                                primary_role: rule!(allow_all),
+                                recovery_role: rule!(allow_all),
+                                confirmation_role: rule!(allow_all),
+                            },
+                            timed_recovery_delay_in_minutes: None,
+                            address_reservation: Some(address_reservation),
                         },
-                        timed_recovery_delay_in_minutes: None,
-                        address_reservation: None,
-                    },
-                )
+                    )
+                    .call_method(
+                        ManifestGlobalAddress::Named(ManifestNamedAddress(
+                            address_reservation.0,
+                        )),
+                        ACCESS_CONTROLLER_CONTRIBUTE_RECOVERY_FEE_IDENT,
+                        AccessControllerContributeRecoveryFeeManifestInput {
+                            bucket: xrd_bucket,
+                        },
+                    )
             })
             .build();
         let receipt = self.execute_manifest(

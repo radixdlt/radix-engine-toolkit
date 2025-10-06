@@ -736,7 +736,9 @@ impl FromNative for ManifestClassification {
                 Self::AccountDepositSettingsUpdate
             }
             Self::Native::EntitySecurify => Self::EntitySecurify,
-            Self::Native::AccessControllerRecovery => Self::AccessControllerRecovery
+            Self::Native::AccessControllerRecovery => {
+                Self::AccessControllerRecovery
+            }
         }
     }
 }
@@ -745,15 +747,33 @@ impl FromNative for ManifestClassification {
 pub enum DetailedManifestClassification {
     General,
     GeneralSubintent,
-    Transfer { is_one_to_one_transfer: bool },
-    ValidatorStake { value: ValidatorStakingOutput },
-    ValidatorUnstake { value: ValidatorUnstakingOutput },
-    ValidatorClaimXrd { value: ValidatorClaimingXrdOutput },
-    PoolContribution { value: PoolContributionOutput },
-    PoolRedemption { value: PoolRedemptionOutput },
-    AccountDepositSettingsUpdate { value: AccountSettingsUpdateOutput },
-    EntitySecurify { value: EntitySecurifyOutput },
-    AccessControllerRecovery { value: AccessControllerRecoveryOutput },
+    Transfer {
+        is_one_to_one_transfer: bool,
+    },
+    ValidatorStake {
+        value: ValidatorStakingOutput,
+    },
+    ValidatorUnstake {
+        value: ValidatorUnstakingOutput,
+    },
+    ValidatorClaimXrd {
+        value: ValidatorClaimingXrdOutput,
+    },
+    PoolContribution {
+        value: PoolContributionOutput,
+    },
+    PoolRedemption {
+        value: PoolRedemptionOutput,
+    },
+    AccountDepositSettingsUpdate {
+        value: AccountSettingsUpdateOutput,
+    },
+    EntitySecurify {
+        value: EntitySecurifyOutput,
+    },
+    AccessControllerRecovery {
+        value: AccessControllerRecoveryOutput,
+    },
 }
 
 impl FromNativeWithNetworkContext for DetailedManifestClassification {
@@ -807,11 +827,13 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
                     output, network_id,
                 ),
             },
-            Self::Native::AccessControllerRecovery(output) => Self::AccessControllerRecovery {
-                value: FromNativeWithNetworkContext::from_native(
-                    output, network_id,
-                ),
-            },
+            Self::Native::AccessControllerRecovery(output) => {
+                Self::AccessControllerRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
         }
     }
 }
@@ -1937,9 +1959,7 @@ impl FromNativeWithNetworkContext for AccessControllerRecoveryOutput {
     type Native = toolkit::AccessControllerRecoveryOutput;
 
     fn from_native(
-        Self::Native {
-            access_controllers,
-        }: Self::Native,
+        Self::Native { access_controllers }: Self::Native,
         network_id: u8,
     ) -> Self {
         Self {

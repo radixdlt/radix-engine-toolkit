@@ -118,7 +118,7 @@ pub fn statically_analyze(
             entity_securify_classification
                 .map(|_| ManifestClassification::EntitySecurify),
             access_controller_recovery
-            .map(|_| ManifestClassification::AccessControllerRecovery),
+                .map(|_| ManifestClassification::AccessControllerRecovery),
         ]
         .into_iter()
         .flatten()
