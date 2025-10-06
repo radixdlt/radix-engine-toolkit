@@ -388,6 +388,26 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
             )
         })
     }
+
+    pub fn access_controller_stop_timed_recovery() -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::StopTimedRecovery(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
 }
 
 impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
@@ -464,4 +484,5 @@ define_instruction_present_type! {
     CreateAccessController => create_access_controller,
     AccessControllerInitiateRecoveryAsPrimary => access_controller_iniate_recovery_as_primary,
     AccessControllerInitiateRecoveryAsRecovery => access_controller_iniate_recovery_as_recovery,
+    AccessControllerStopTimeRecovery => access_controller_stop_timed_recovery,
 }
