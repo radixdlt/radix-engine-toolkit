@@ -18,24 +18,24 @@
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccessControllerStopTimedRecoveryAnalyzer(
-    AccessControllerStopTimedRecoveryAnalyzerOutput,
+pub struct AccessControllerConfirmTimedRecoveryAnalyzer(
+    AccessControllerConfirmTimedRecoveryOutput,
 );
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccessControllerStopTimedRecoveryAnalyzerOutput {
+pub struct AccessControllerConfirmTimedRecoveryOutput {
     pub access_controllers: Vec<ComponentAddress>,
 }
 
-impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
+impl ManifestStaticAnalyzer for AccessControllerConfirmTimedRecoveryAnalyzer {
     type Initializer = ();
-    type Output = AccessControllerStopTimedRecoveryAnalyzerOutput;
+    type Output = AccessControllerConfirmTimedRecoveryOutput;
 
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
 
     type RequirementState =
-        AnyOfRequirement<(AccessControllerStopTimedRecovery,)>;
+        AnyOfRequirement<(AccessControllerConfirmTimedRecovery,)>;
 
     fn new(
         _: Self::Initializer,
@@ -65,7 +65,7 @@ impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
                     invocation:
                     TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
                         AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::StopTimedRecovery(..)
+                            AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
                         )
                     )
                 }),
@@ -116,12 +116,10 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                     ACCESS_CONTROLLER_CREATE_PROOF_IDENT
                     | ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
                 ) => true,
-                // Stop timed recovery + cancellation of the proposal
+                // Confirm timed recovery
                 (
                     Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT
-                    | ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                    ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
                 ) => true,
                 _ => false,
             }

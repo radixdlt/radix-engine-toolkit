@@ -718,6 +718,7 @@ pub enum ManifestClassification {
     EntitySecurify,
     AccessControllerRecovery,
     AccessControllerStopTimedRecovery,
+    AccessControllerConfirmTimedRecovery,
 }
 
 impl FromNative for ManifestClassification {
@@ -742,6 +743,9 @@ impl FromNative for ManifestClassification {
             }
             Self::Native::AccessControllerStopTimedRecovery => {
                 Self::AccessControllerStopTimedRecovery
+            }
+            Self::Native::AccessControllerConfirmTimedRecovery => {
+                Self::AccessControllerConfirmTimedRecovery
             }
         }
     }
@@ -780,6 +784,9 @@ pub enum DetailedManifestClassification {
     },
     AccessControllerStopTimedRecovery {
         value: AccessControllerStopTimedRecoveryOutput,
+    },
+    AccessControllerConfirmTimedRecovery {
+        value: AccessControllerConfirmTimedRecoveryOutput,
     },
 }
 
@@ -843,6 +850,13 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
             }
             Self::Native::AccessControllerStopTimedRecovery(output) => {
                 Self::AccessControllerStopTimedRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerConfirmTimedRecovery(output) => {
+                Self::AccessControllerConfirmTimedRecovery {
                     value: FromNativeWithNetworkContext::from_native(
                         output, network_id,
                     ),
@@ -1994,6 +2008,31 @@ pub struct AccessControllerStopTimedRecoveryOutput {
 
 impl FromNativeWithNetworkContext for AccessControllerStopTimedRecoveryOutput {
     type Native = toolkit::AccessControllerStopTimedRecoveryAnalyzerOutput;
+
+    fn from_native(
+        Self::Native { access_controllers }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            access_controllers: access_controllers
+                .into_iter()
+                .map(|ac_address| {
+                    Arc::new(Address::from_node_id(ac_address, network_id))
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerConfirmTimedRecoveryOutput {
+    pub access_controllers: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext
+    for AccessControllerConfirmTimedRecoveryOutput
+{
+    type Native = toolkit::AccessControllerConfirmTimedRecoveryOutput;
 
     fn from_native(
         Self::Native { access_controllers }: Self::Native,

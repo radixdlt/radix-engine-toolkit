@@ -172,7 +172,7 @@ where
                                 recovery_role: rule!(allow_all),
                                 confirmation_role: rule!(allow_all),
                             },
-                            timed_recovery_delay_in_minutes: Some(360),
+                            timed_recovery_delay_in_minutes: Some(10),
                             address_reservation: Some(address_reservation),
                         },
                     )

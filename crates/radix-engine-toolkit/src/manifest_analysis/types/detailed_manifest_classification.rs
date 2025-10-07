@@ -79,4 +79,7 @@ pub enum DetailedManifestClassification {
     AccessControllerStopTimedRecovery(
         AccessControllerStopTimedRecoveryAnalyzerOutput,
     ),
+    AccessControllerConfirmTimedRecovery(
+        AccessControllerConfirmTimedRecoveryOutput,
+    ),
 }

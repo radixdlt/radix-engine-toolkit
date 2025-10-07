@@ -68,4 +68,6 @@ pub enum ManifestClassification {
     /// A manifest that stops the timed recovery.
     /// It can as well contain instructions to cancel the given recovery proposal.
     AccessControllerStopTimedRecovery,
+    /// A manifest that confirms the timed recovery.
+    AccessControllerConfirmTimedRecovery,
 }
