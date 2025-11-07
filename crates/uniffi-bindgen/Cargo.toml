@@ -4,6 +4,6 @@ version = "2.2.3"
 edition = "2021"
 
 [dependencies]
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = [
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", tag = "v0.30.0", features = [
     "cli",
 ] }

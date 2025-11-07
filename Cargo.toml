@@ -31,7 +31,7 @@ radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scry
 radix-engine-toolkit-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "53d068fa1b471a63d7b5fd25c91dfa6e4940ee9e" }
 
 # UniFFI dependencies
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4" }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", tag = "v0.28.3" }
 
 # Internal Dependencies
 sbor-json = { path = "crates/sbor-json" }
