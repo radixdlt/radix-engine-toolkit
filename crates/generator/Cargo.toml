@@ -36,4 +36,4 @@ heck = { version = "0.4.1" }
 walkdir = { version = "2.3.3" }
 
 # Misc
-indexmap = { version = "1.9.3" }
+indexmap = { version = "2.6.0" }
