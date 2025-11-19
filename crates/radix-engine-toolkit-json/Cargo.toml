@@ -31,7 +31,7 @@ jni = { version = "0.21.1" }
 # Used to allow for more powerful macros
 paste = { version = "1.0.12" }
 walkdir = "2.3.3"
-indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
+indexmap = { version = "2.12.0", features = ["serde", "serde-1"] }
 
 # 1password's library for codesharing.
 typeshare = "1.0.3"
