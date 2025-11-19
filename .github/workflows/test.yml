@@ -57,7 +57,7 @@ jobs:
           # Required env-var to increase the heapsize when using `kotlinc`.
           JAVA_OPTS: "-Xmx8g"
           # Enable sccache
-          SCCACHE_GHA_ENABLED: "true"
+          SCCACHE_GHA_ENABLED: "false"
           RUSTC_WRAPPER: "sccache"
   check-formatting:
     runs-on: ubuntu-latest
