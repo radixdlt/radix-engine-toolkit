@@ -715,6 +715,10 @@ pub enum ManifestClassification {
     PoolContribution,
     PoolRedemption,
     AccountDepositSettingsUpdate,
+    EntitySecurify,
+    AccessControllerRecovery,
+    AccessControllerStopTimedRecovery,
+    AccessControllerConfirmTimedRecovery,
 }
 
 impl FromNative for ManifestClassification {
@@ -733,6 +737,16 @@ impl FromNative for ManifestClassification {
             Self::Native::AccountDepositSettingsUpdate => {
                 Self::AccountDepositSettingsUpdate
             }
+            Self::Native::EntitySecurify => Self::EntitySecurify,
+            Self::Native::AccessControllerRecovery => {
+                Self::AccessControllerRecovery
+            }
+            Self::Native::AccessControllerStopTimedRecovery => {
+                Self::AccessControllerStopTimedRecovery
+            }
+            Self::Native::AccessControllerConfirmTimedRecovery => {
+                Self::AccessControllerConfirmTimedRecovery
+            }
         }
     }
 }
@@ -741,13 +755,39 @@ impl FromNative for ManifestClassification {
 pub enum DetailedManifestClassification {
     General,
     GeneralSubintent,
-    Transfer { is_one_to_one_transfer: bool },
-    ValidatorStake { value: ValidatorStakingOutput },
-    ValidatorUnstake { value: ValidatorUnstakingOutput },
-    ValidatorClaimXrd { value: ValidatorClaimingXrdOutput },
-    PoolContribution { value: PoolContributionOutput },
-    PoolRedemption { value: PoolRedemptionOutput },
-    AccountDepositSettingsUpdate { value: AccountSettingsUpdateOutput },
+    Transfer {
+        is_one_to_one_transfer: bool,
+    },
+    ValidatorStake {
+        value: ValidatorStakingOutput,
+    },
+    ValidatorUnstake {
+        value: ValidatorUnstakingOutput,
+    },
+    ValidatorClaimXrd {
+        value: ValidatorClaimingXrdOutput,
+    },
+    PoolContribution {
+        value: PoolContributionOutput,
+    },
+    PoolRedemption {
+        value: PoolRedemptionOutput,
+    },
+    AccountDepositSettingsUpdate {
+        value: AccountSettingsUpdateOutput,
+    },
+    EntitySecurify {
+        value: EntitySecurifyOutput,
+    },
+    AccessControllerRecovery {
+        value: AccessControllerRecoveryOutput,
+    },
+    AccessControllerStopTimedRecovery {
+        value: AccessControllerStopTimedRecoveryOutput,
+    },
+    AccessControllerConfirmTimedRecovery {
+        value: AccessControllerConfirmTimedRecoveryOutput,
+    },
 }
 
 impl FromNativeWithNetworkContext for DetailedManifestClassification {
@@ -791,6 +831,32 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
             },
             Self::Native::AccountDepositSettingsUpdate(output) => {
                 Self::AccountDepositSettingsUpdate {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::EntitySecurify(output) => Self::EntitySecurify {
+                value: FromNativeWithNetworkContext::from_native(
+                    output, network_id,
+                ),
+            },
+            Self::Native::AccessControllerRecovery(output) => {
+                Self::AccessControllerRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerStopTimedRecovery(output) => {
+                Self::AccessControllerStopTimedRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerConfirmTimedRecovery(output) => {
+                Self::AccessControllerConfirmTimedRecovery {
                     value: FromNativeWithNetworkContext::from_native(
                         output, network_id,
                     ),
@@ -1872,6 +1938,113 @@ impl ToNative for AccountDefaultDepositRule {
             AccountDefaultDepositRule::AllowExisting => {
                 Ok(Self::Native::AllowExisting)
             }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct EntitySecurifyOutput {
+    pub securified_accounts: Vec<Arc<Address>>,
+    pub securified_identities: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext for EntitySecurifyOutput {
+    type Native = toolkit::EntitySecurifyOutput;
+
+    fn from_native(
+        Self::Native {
+            securified_accounts,
+            securified_identities,
+        }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            securified_accounts: securified_accounts
+                .into_iter()
+                .filter_map(|account| account.into_static())
+                .map(|account| {
+                    Arc::new(Address::from_node_id(account, network_id))
+                })
+                .collect(),
+
+            securified_identities: securified_identities
+                .into_iter()
+                .filter_map(|identity| identity.into_static())
+                .map(|identity| {
+                    Arc::new(Address::from_node_id(identity, network_id))
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryOutput {
+    pub access_controllers: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerRecoveryOutput {
+    type Native = toolkit::AccessControllerRecoveryOutput;
+
+    fn from_native(
+        Self::Native { access_controllers }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            access_controllers: access_controllers
+                .into_iter()
+                .map(|ac_address| {
+                    Arc::new(Address::from_node_id(ac_address, network_id))
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerStopTimedRecoveryOutput {
+    pub access_controllers: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerStopTimedRecoveryOutput {
+    type Native = toolkit::AccessControllerStopTimedRecoveryAnalyzerOutput;
+
+    fn from_native(
+        Self::Native { access_controllers }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            access_controllers: access_controllers
+                .into_iter()
+                .map(|ac_address| {
+                    Arc::new(Address::from_node_id(ac_address, network_id))
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerConfirmTimedRecoveryOutput {
+    pub access_controllers: Vec<Arc<Address>>,
+}
+
+impl FromNativeWithNetworkContext
+    for AccessControllerConfirmTimedRecoveryOutput
+{
+    type Native = toolkit::AccessControllerConfirmTimedRecoveryOutput;
+
+    fn from_native(
+        Self::Native { access_controllers }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            access_controllers: access_controllers
+                .into_iter()
+                .map(|ac_address| {
+                    Arc::new(Address::from_node_id(ac_address, network_id))
+                })
+                .collect(),
         }
     }
 }

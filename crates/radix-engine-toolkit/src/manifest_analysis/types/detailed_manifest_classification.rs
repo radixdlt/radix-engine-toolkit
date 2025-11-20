@@ -65,4 +65,21 @@ pub enum DetailedManifestClassification {
     /// A manifest where account deposit settings get updated. In this manifest
     /// class one of the account deposit settings methods are called.
     AccountDepositSettingsUpdate(AccountSettingsUpdateOutput),
+    /// A manifest that securifies entities by moving their badge
+    /// to a newly created access controller. In this manifest class the entity
+    /// is securified, its owner_keys is updated and an access controller is
+    /// created.
+    EntitySecurify(EntitySecurifyOutput),
+    /// A manifest that starts the access controller recovery, it is either
+    /// confirmed in the same transaction, or it is a timed recovery, currently
+    /// the difference is not important.
+    AccessControllerRecovery(AccessControllerRecoveryOutput),
+    /// A manifest that stops the timed recovery.
+    /// It can as well contain instructions to cancel the given recovery proposal.
+    AccessControllerStopTimedRecovery(
+        AccessControllerStopTimedRecoveryAnalyzerOutput,
+    ),
+    AccessControllerConfirmTimedRecovery(
+        AccessControllerConfirmTimedRecoveryOutput,
+    ),
 }

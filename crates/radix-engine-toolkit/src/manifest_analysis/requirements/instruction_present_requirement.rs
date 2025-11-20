@@ -302,6 +302,134 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
             )
         })
     }
+
+    pub fn entity_securify() -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::Securify(..)
+                            )
+                        ) | TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                            IdentityBlueprintInvocation::Method(
+                                IdentityBlueprintMethod::Securify(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn create_access_controller() -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Function(
+                                AccessControllerBlueprintFunction::Create(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn access_controller_iniate_recovery_as_primary(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn access_controller_iniate_recovery_as_recovery(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn access_controller_stop_timed_recovery(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::StopTimedRecovery(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
+
+    pub fn access_controller_confirm_timed_recovery(
+    ) -> DefaultInstructionPresentRequirement {
+        InstructionPresentRequirement::new(|context| {
+            matches!(
+                context,
+                InstructionContext::InvocationInstruction {
+                    typed_native_invocation: Some(TypedNativeInvocation {
+                        invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
+                            )
+                        ),
+                        ..
+                    }),
+                    ..
+                }
+            )
+        })
+    }
 }
 
 impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
@@ -374,4 +502,10 @@ define_instruction_present_type! {
     /* Pools */
     PoolContributeInstructionPresentRequirement => pool_contribute,
     PoolRedeemInstructionPresentRequirement => pool_redeem,
+    EntitySecurify => entity_securify,
+    CreateAccessController => create_access_controller,
+    AccessControllerInitiateRecoveryAsPrimary => access_controller_iniate_recovery_as_primary,
+    AccessControllerInitiateRecoveryAsRecovery => access_controller_iniate_recovery_as_recovery,
+    AccessControllerStopTimedRecovery => access_controller_stop_timed_recovery,
+    AccessControllerConfirmTimedRecovery => access_controller_confirm_timed_recovery,
 }

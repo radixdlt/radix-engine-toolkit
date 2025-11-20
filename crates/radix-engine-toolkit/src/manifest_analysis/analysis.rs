@@ -84,6 +84,10 @@ pub fn statically_analyze(
         pool_contribution_classification,
         pool_redemption_classification,
         account_settings_update_classification,
+        entity_securify_classification,
+        access_controller_recovery,
+        access_controller_stop_timed_recovery,
+        access_controller_confirm_timed_recovery,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -113,6 +117,16 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::PoolRedemption),
             account_settings_update_classification
                 .map(|_| ManifestClassification::AccountDepositSettingsUpdate),
+            entity_securify_classification
+                .map(|_| ManifestClassification::EntitySecurify),
+            access_controller_recovery
+                .map(|_| ManifestClassification::AccessControllerRecovery),
+            access_controller_stop_timed_recovery.map(|_| {
+                ManifestClassification::AccessControllerStopTimedRecovery
+            }),
+            access_controller_confirm_timed_recovery.map(|_| {
+                ManifestClassification::AccessControllerConfirmTimedRecovery
+            }),
         ]
         .into_iter()
         .flatten()
@@ -217,6 +231,10 @@ pub fn dynamically_analyze(
         pool_contribution_classification,
         pool_redemption_classification,
         account_settings_update_classification,
+        entity_securify_classification,
+        access_controller_recovery,
+        access_controller_stop_timed_recovery,
+        access_controller_confirm_timed_recovery,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -258,6 +276,18 @@ pub fn dynamically_analyze(
             account_settings_update_classification
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccountDepositSettingsUpdate),
+            entity_securify_classification
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::EntitySecurify),
+            access_controller_recovery
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerRecovery),
+            access_controller_stop_timed_recovery
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerStopTimedRecovery),
+            access_controller_confirm_timed_recovery
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerConfirmTimedRecovery),
         ]
         .into_iter()
         .flatten()
@@ -324,6 +354,22 @@ mod composite_analyzer {
             pool_redemption_classification: (PoolRedemptionAnalyzer, ()),
             account_settings_update_classification: (
                 DynamicAnalyzerWrapper<AccountSettingsUpdateAnalyzer>,
+                ()
+            ),
+            entity_securify_classification: (
+                DynamicAnalyzerWrapper<EntitySecurifyAnalyzer>,
+                ()
+            ),
+            access_controller_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerRecoveryAnalyzer>,
+                ()
+            ),
+            access_controller_stop_timed_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerStopTimedRecoveryAnalyzer>,
+                ()
+            ),
+            access_controller_confirm_timed_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerConfirmTimedRecoveryAnalyzer>,
                 ()
             ),
         }
