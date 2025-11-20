@@ -248,3 +248,92 @@ fn initiate_recovery_with_lock_fee_on_access_controller() {
 
     assert_eq!(access_controllers.clone(), vec![access_controller]);
 }
+
+#[test]
+fn stop_timed_recovery_and_initiate_recovery_is_classified_as_recovery() {
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (pk, _, account) = ledger.new_account(true);
+    let access_controller =
+        ledger.new_allow_all_access_controller_for_account((pk, account));
+
+    // First initiate a timed recovery to have something to stop
+    let initiate_timed_recovery_manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
+                rule_set: RuleSet {
+                    primary_role: rule!(allow_all),
+                    recovery_role: rule!(allow_all),
+                    confirmation_role: rule!(allow_all),
+                },
+                timed_recovery_delay_in_minutes: Some(1),
+            },
+        )
+        .build();
+
+    ledger
+        .execute_manifest(
+            initiate_timed_recovery_manifest,
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        )
+        .expect_commit_success();
+
+    // Now build a manifest that stops timed recovery and initiates a new recovery
+    let builder = ManifestBuilder::new()
+        .lock_fee(account, 10)
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
+            AccessControllerStopTimedRecoveryManifestInput {
+                rule_set: RuleSet {
+                    primary_role: rule!(allow_all),
+                    recovery_role: rule!(allow_all),
+                    confirmation_role: rule!(allow_all),
+                },
+                timed_recovery_delay_in_minutes: Some(1),
+            },
+        )
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
+            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
+                rule_set: RuleSet {
+                    primary_role: rule!(allow_all),
+                    recovery_role: rule!(allow_all),
+                    confirmation_role: rule!(allow_all),
+                },
+                timed_recovery_delay_in_minutes: None,
+            },
+        );
+
+    let manifest = builder.build();
+
+    // Act
+    let (
+        StaticAnalysis {
+            manifest_classification,
+            ..
+        },
+        DynamicAnalysis {
+            detailed_manifest_classification,
+            ..
+        },
+    ) = ledger.analyze(manifest);
+
+    // Assert - should be classified as Recovery, not StopTimedRecovery
+    assert!(manifest_classification
+        .contains(&ManifestClassification::AccessControllerRecovery));
+
+    let Some(DetailedManifestClassification::AccessControllerRecovery(
+        AccessControllerRecoveryOutput { access_controllers },
+    )) = detailed_manifest_classification.last()
+    else {
+        panic!("Not an access controller recovery transaction")
+    };
+
+    assert_eq!(access_controllers.clone(), vec![access_controller]);
+}

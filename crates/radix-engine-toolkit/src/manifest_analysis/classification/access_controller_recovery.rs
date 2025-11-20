@@ -126,7 +126,10 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
                     ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT
                     | ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT
                     | ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                    | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT
+                    // Allow cancelling an existing recovery proposal
+                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT
+                    | ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
                 ) => true,
                 _ => false,
             }
