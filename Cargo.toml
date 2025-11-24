@@ -8,7 +8,7 @@ members = [
     # Auxiliary Crates
     "crates/sbor-json",
     # Bindings Crates
-    # "crates/generator",
+    "crates/generator",
     "crates/uniffi-bindgen",
 ]
 
