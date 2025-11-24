@@ -53,10 +53,11 @@ jobs:
         # RUSTC_WRAPPER: "sccache"
       working-directory: crates/generator
     - name: Upload Generated Artifacts
-      uses: RDXWorks-actions/upload-artifact@main
+      uses: RDXWorks-actions/upload-artifact-v4@main
       with:
         name: "schemas-and-test-kit"
         path: "crates/generator/output"
+
   build:
     runs-on: ${{ matrix.build-target.runner }}
     continue-on-error: true
@@ -180,11 +181,13 @@ jobs:
       - name: Clean Build Artifacts
         run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "target/${{ matrix.build-target.target-triple }}/release"
+
   generate-uniffi-bindings:
+    name: "Generate Uniffi bindings"
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -205,7 +208,7 @@ jobs:
           path: uniffi-bindgen-go
           submodules: 'recursive'
           ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Generate the Bindings
@@ -237,10 +240,11 @@ jobs:
             --lib-file $DYNAMIC_LIBRARY_PATH \
             --no-format
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: uniffi-bindings
           path: uniffi-bindings
+
   publish-swift-spm:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
@@ -255,7 +259,7 @@ jobs:
           repository: radixdlt/swift-engine-toolkit
           token: ${{ secrets.RADIX_BOT_PAT }}
           path: ./swift-engine-toolkit
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Build XCFramework
@@ -368,7 +372,7 @@ jobs:
           git push $SET_UPSTREAM_FLAG origin $BRANCH
           git push origin $SPM_VERSION
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
@@ -383,7 +387,7 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -442,7 +446,7 @@ jobs:
       - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -485,7 +489,7 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up JDK 1.8
@@ -531,7 +535,7 @@ jobs:
           secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/nuget-XrZrYj'
           parse_json: true
 
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Setup .NET SDK
@@ -590,7 +594,7 @@ jobs:
           parse_json: true
       - name: Print Env
         run: env
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up Python 3.11
@@ -682,7 +686,7 @@ jobs:
           repository: radixdlt/radix-engine-toolkit-go
           ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
           path: radix-engine-toolkit-go
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up Go
