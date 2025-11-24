@@ -66,7 +66,7 @@ jobs:
       - name: Clean Build Artifacts
         run: find "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release"
@@ -83,7 +83,7 @@ jobs:
           path: uniffi-bindgen-cs
           submodules: 'recursive'
           ref: f1a6ef67449b47028fd5c3d8e5c6d3b80ddefd2b
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Generate the Bindings
@@ -108,7 +108,7 @@ jobs:
             --out-dir $OUTPUT_DIRECTORY \
             --lib-file $DYNAMIC_LIBRARY_PATH
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: uniffi-bindings
           path: uniffi-bindings
@@ -152,7 +152,7 @@ jobs:
           secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
           parse_json: true
       - uses: RDXWorks-actions/checkout@main
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Create Kotlin Library
