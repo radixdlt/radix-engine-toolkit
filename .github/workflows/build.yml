@@ -180,11 +180,13 @@ jobs:
       - name: Clean Build Artifacts
         run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "target/${{ matrix.build-target.target-triple }}/release"
+
   generate-uniffi-bindings:
+    name: "Generate Uniffi bindings"
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -205,9 +207,9 @@ jobs:
           path: uniffi-bindgen-go
           submodules: 'recursive'
           ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
-      - uses: RDXWorks-actions/download-artifact@main
-        with:
-          path: artifacts
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        # with:
+        #   path: artifacts
       - name: Generate the Bindings
         run: |
           # Generating the path of the dynamic library
@@ -241,6 +243,7 @@ jobs:
         with:
           name: uniffi-bindings
           path: uniffi-bindings
+
   # publish-swift-spm:
   #   needs: [build, generate-uniffi-bindings]
   #   runs-on: macos-latest
