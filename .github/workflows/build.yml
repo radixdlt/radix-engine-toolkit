@@ -245,494 +245,494 @@ jobs:
           name: uniffi-bindings
           path: uniffi-bindings
 
-  # publish-swift-spm:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: macos-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - name: Checkout Swift Engine Toolkit
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         repository: radixdlt/swift-engine-toolkit
-  #         token: ${{ secrets.RADIX_BOT_PAT }}
-  #         path: ./swift-engine-toolkit
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Build XCFramework
-  #       working-directory: artifacts
-  #       run: |
-  #         PLISTBUDDY_EXEC="/usr/libexec/PlistBuddy"
-  #         # The name of the crate that we will be creating the XCFramework and the bindings for.
-  #         CRATE_NAME="radix-engine-toolkit-uniffi"
+  publish-swift-spm:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Checkout Swift Engine Toolkit
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: radixdlt/swift-engine-toolkit
+          token: ${{ secrets.RADIX_BOT_PAT }}
+          path: ./swift-engine-toolkit
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Build XCFramework
+        working-directory: artifacts
+        run: |
+          PLISTBUDDY_EXEC="/usr/libexec/PlistBuddy"
+          # The name of the crate that we will be creating the XCFramework and the bindings for.
+          CRATE_NAME="radix-engine-toolkit-uniffi"
           
-  #         # Creating the include directory - this will be used in the XCFramework build steps
-  #         mkdir include
-  #         cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.h include/radix_engine_toolkit_uniffiFFI.h
+          # Creating the include directory - this will be used in the XCFramework build steps
+          mkdir include
+          cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.h include/radix_engine_toolkit_uniffiFFI.h
   
-  #         # Replace the generated module map with the one we actually want.
-  #         echo "framework module RadixEngineToolkit {" > "./include/module.modulemap"
-  #         echo "  umbrella header \"radix_engine_toolkit_uniffiFFI.h\"" >> "./include/module.modulemap"
-  #         echo "  export *" >> "./include/module.modulemap"
-  #         echo "  module * { export * }" >> "./include/module.modulemap"
-  #         echo "}" >> "./include/module.modulemap"
+          # Replace the generated module map with the one we actually want.
+          echo "framework module RadixEngineToolkit {" > "./include/module.modulemap"
+          echo "  umbrella header \"radix_engine_toolkit_uniffiFFI.h\"" >> "./include/module.modulemap"
+          echo "  export *" >> "./include/module.modulemap"
+          echo "  module * { export * }" >> "./include/module.modulemap"
+          echo "}" >> "./include/module.modulemap"
           
-  #         # Using Lipo to combine some of the libraries into fat libraries.
-  #         mkdir ./macos-arm64_x86_64/
-  #         mkdir ./ios-simulator-arm64_x86_64
+          # Using Lipo to combine some of the libraries into fat libraries.
+          mkdir ./macos-arm64_x86_64/
+          mkdir ./ios-simulator-arm64_x86_64
   
-  #         lipo -create \
-  #             "./$CRATE_NAME-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
-  #             "./$CRATE_NAME-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
-  #             -o "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
-  #         lipo -create \
-  #             "./$CRATE_NAME-aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.dylib" \
-  #             "./$CRATE_NAME-x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
-  #             -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
+          lipo -create \
+              "./$CRATE_NAME-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
+              "./$CRATE_NAME-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
+              -o "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
+          lipo -create \
+              "./$CRATE_NAME-aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.dylib" \
+              "./$CRATE_NAME-x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
+              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
               
-  #         for TARGET_TRIPLE in "$CRATE_NAME-aarch64-apple-ios"  "macos-arm64_x86_64" "ios-simulator-arm64_x86_64"
-  #         do
-  #           FRAMEWORK_PATH="$TARGET_TRIPLE/RadixEngineToolkit.framework"
-  #           mkdir -p $FRAMEWORK_PATH/Headers
-  #           mkdir -p $FRAMEWORK_PATH/Modules
-  #             # Move the dylib into the framework, renaming it to match the framework name
-  #           mv $TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib $FRAMEWORK_PATH/RadixEngineToolkit
-  #           # Copy headers to Headers folder and modulemap to Modules folder
-  #           cp include/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
-  #           cp include/module.modulemap $FRAMEWORK_PATH/Modules/
-  #           "$PLISTBUDDY_EXEC" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
-  #                           -c "Add :CFBundleName string RadixEngineToolkit" \
-  #                           -c "Add :CFBundleDisplayName string RadixEngineToolkit" \
-  #                           -c "Add :CFBundleVersion string 1.0.0" \
-  #                           -c "Add :CFBundleShortVersionString string 1.0.0" \
-  #                           -c "Add :CFBundlePackageType string FMWK" \
-  #                           -c "Add :CFBundleExecutable string RadixEngineToolkit" \
-  #                           -c "Add :MinimumOSVersion string 11.0" \
-  #                           -c "Add :CFBundleSupportedPlatforms array" \
-  #                           $FRAMEWORK_PATH/Info.plist
-  #           case $TARGET_TRIPLE in
-  #             aarch64-apple-ios)
-  #                 "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" $FRAMEWORK_PATH/Info.plist
-  #             ;;
-  #             ios-simulator-arm64_x86_64)
-  #                 "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" \
-  #                                     -c "Add :CFBundleSupportedPlatforms:1 string iPhoneSimulator" \
-  #                                     $FRAMEWORK_PATH/Info.plist
-  #             ;;
-  #             macos-arm64_x86_64)
-  #                 "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string MacOSX" $FRAMEWORK_PATH/Info.plist
-  #             ;;
-  #             *)
-  #             ;;
-  #           esac
+          for TARGET_TRIPLE in "$CRATE_NAME-aarch64-apple-ios"  "macos-arm64_x86_64" "ios-simulator-arm64_x86_64"
+          do
+            FRAMEWORK_PATH="$TARGET_TRIPLE/RadixEngineToolkit.framework"
+            mkdir -p $FRAMEWORK_PATH/Headers
+            mkdir -p $FRAMEWORK_PATH/Modules
+              # Move the dylib into the framework, renaming it to match the framework name
+            mv $TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib $FRAMEWORK_PATH/RadixEngineToolkit
+            # Copy headers to Headers folder and modulemap to Modules folder
+            cp include/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
+            cp include/module.modulemap $FRAMEWORK_PATH/Modules/
+            "$PLISTBUDDY_EXEC" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
+                            -c "Add :CFBundleName string RadixEngineToolkit" \
+                            -c "Add :CFBundleDisplayName string RadixEngineToolkit" \
+                            -c "Add :CFBundleVersion string 1.0.0" \
+                            -c "Add :CFBundleShortVersionString string 1.0.0" \
+                            -c "Add :CFBundlePackageType string FMWK" \
+                            -c "Add :CFBundleExecutable string RadixEngineToolkit" \
+                            -c "Add :MinimumOSVersion string 11.0" \
+                            -c "Add :CFBundleSupportedPlatforms array" \
+                            $FRAMEWORK_PATH/Info.plist
+            case $TARGET_TRIPLE in
+              aarch64-apple-ios)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" $FRAMEWORK_PATH/Info.plist
+              ;;
+              ios-simulator-arm64_x86_64)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" \
+                                      -c "Add :CFBundleSupportedPlatforms:1 string iPhoneSimulator" \
+                                      $FRAMEWORK_PATH/Info.plist
+              ;;
+              macos-arm64_x86_64)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string MacOSX" $FRAMEWORK_PATH/Info.plist
+              ;;
+              *)
+              ;;
+            esac
             
-  #           install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/RadixEngineToolkit
-  #         done
+            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/RadixEngineToolkit
+          done
               
-  #         # Creating the XCFramework
-  #         xcodebuild -create-xcframework \
-  #             -framework "./$CRATE_NAME-aarch64-apple-ios/RadixEngineToolkit.framework" \
-  #             -framework "./macos-arm64_x86_64/RadixEngineToolkit.framework" \
-  #             -framework "./ios-simulator-arm64_x86_64/RadixEngineToolkit.framework" \
-  #             -output "RadixEngineToolkit.xcframework"
+          # Creating the XCFramework
+          xcodebuild -create-xcframework \
+              -framework "./$CRATE_NAME-aarch64-apple-ios/RadixEngineToolkit.framework" \
+              -framework "./macos-arm64_x86_64/RadixEngineToolkit.framework" \
+              -framework "./ios-simulator-arm64_x86_64/RadixEngineToolkit.framework" \
+              -output "RadixEngineToolkit.xcframework"
   
-  #     - name: Publish to Swift Engine Toolkit
-  #       run: |
-  #         BRANCH=${{ github.ref_name }}
-  #         SPM_VERSION="${{ inputs.swift-version }}"
-  #         SET_UPSTREAM_FLAG=""
+      - name: Publish to Swift Engine Toolkit
+        run: |
+          BRANCH=${{ github.ref_name }}
+          SPM_VERSION="${{ inputs.swift-version }}"
+          SET_UPSTREAM_FLAG=""
   
-  #         cd swift-engine-toolkit
-  #         REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH)
+          cd swift-engine-toolkit
+          REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH)
   
-  #         if [ -z "$REMOTE_BRANCH" ]
-  #         then
-  #           git checkout -b $BRANCH
-  #           # Allows creating branch on remote
-  #           SET_UPSTREAM_FLAG="-u"
-  #         else
-  #           git fetch origin $BRANCH
-  #           git checkout $BRANCH
-  #           git pull origin $BRANCH
-  #         fi
+          if [ -z "$REMOTE_BRANCH" ]
+          then
+            git checkout -b $BRANCH
+            # Allows creating branch on remote
+            SET_UPSTREAM_FLAG="-u"
+          else
+            git fetch origin $BRANCH
+            git checkout $BRANCH
+            git pull origin $BRANCH
+          fi
   
-  #         cp -R ../artifacts/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
-  #         cp -R ../artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
+          cp -R ../artifacts/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
+          cp -R ../artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
           
-  #         sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
+          sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
   
-  #         python3 add_license.py
+          python3 add_license.py
   
-  #         git add .
-  #         git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
-  #         git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
-  #         git push $SET_UPSTREAM_FLAG origin $BRANCH
-  #         git push origin $SPM_VERSION
-  #     - name: Upload Artifacts
-  #       uses: RDXWorks-actions/upload-artifact-v4@main
-  #       with:
-  #         name: "RadixEngineToolkit.xcframework"
-  #         path: "./artifacts/RadixEngineToolkit.xcframework"
-  # publish-kotlin-maven-github:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Create Kotlin Library
-  #       working-directory: interop/kotlin
-  #       run:
-  #         ./bootstrap.sh ${{ inputs.kotlin-version }}
-  #     - name: Setup Gradle
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         gradle-version: 8.4
-  #         arguments: wrapper -p interop/kotlin/ret-kotlin
-  #     - name: Build and publish Kotlin
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
-  #         build-root-directory: interop/kotlin/ret-kotlin
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # publish-kotlin-maven-central:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #   steps:
-  #     - name: Install AWS CLI
-  #       uses: RDXWorks-actions/install-aws-cli-action@master
-  #       with:
-  #         version: 2
-  #     - name: Checkout actions-oidc-debugger
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         repository: github/actions-oidc-debugger
-  #         ref: main
-  #         token: ${{ github.token }}
-  #         path: ./.github/actions/actions-oidc-debugger
+          git add .
+          git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
+          git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
+          git push $SET_UPSTREAM_FLAG origin $BRANCH
+          git push origin $SPM_VERSION
+      - name: Upload Artifacts
+        uses: RDXWorks-actions/upload-artifact-v4@main
+        with:
+          name: "RadixEngineToolkit.xcframework"
+          path: "./artifacts/RadixEngineToolkit.xcframework"
+  publish-kotlin-maven-github:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run:
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
+      - name: Setup Gradle
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          gradle-version: 8.4
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      - name: Build and publish Kotlin
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
+          build-root-directory: interop/kotlin/ret-kotlin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-kotlin-maven-central:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Install AWS CLI
+        uses: RDXWorks-actions/install-aws-cli-action@master
+        with:
+          version: 2
+      - name: Checkout actions-oidc-debugger
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: github/actions-oidc-debugger
+          ref: main
+          token: ${{ github.token }}
+          path: ./.github/actions/actions-oidc-debugger
 
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'fetch-maven'
-  #         secret_prefix: 'MAVEN_CENTRAL'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/maven-wAbmDe'
-  #         parse_json: true
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'fetch-maven'
+          secret_prefix: 'MAVEN_CENTRAL'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/maven-wAbmDe'
+          parse_json: true
 
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'gpg-passprhase'
-  #         secret_prefix: 'GPG_PASSPHRASE'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
-  #         parse_json: true
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'gpg-passprhase'
+          secret_prefix: 'GPG_PASSPHRASE'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
+          parse_json: true
 
-  #     - uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Create Kotlin Library
-  #       working-directory: interop/kotlin
-  #       run: |
-  #         ./bootstrap.sh ${{ inputs.kotlin-version }}
-  #     - name: Setup Gradle
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         gradle-version: 8.4
-  #         arguments: wrapper -p interop/kotlin/ret-kotlin
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'gpg'
-  #         secret_prefix: 'GPG_BINARY'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
-  #         parse_json: true
+      - uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run: |
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
+      - name: Setup Gradle
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          gradle-version: 8.4
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'gpg'
+          secret_prefix: 'GPG_BINARY'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
+          parse_json: true
 
-  #     - name: Get GPG key to sign
-  #       working-directory: interop/kotlin/ret-kotlin
-  #       run: |
-  #         echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
-  #         cp rdx-secring.gpg lib/rdx-secring.gpg
+      - name: Get GPG key to sign
+        working-directory: interop/kotlin/ret-kotlin
+        run: |
+          echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
+          cp rdx-secring.gpg lib/rdx-secring.gpg
 
-  #     - name: Build and publish Kotlin
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
-  #         build-root-directory: interop/kotlin/ret-kotlin
-  # publish-android-maven:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Set up JDK 1.8
-  #       uses: RDXWorks-actions/setup-java@v3
-  #       with:
-  #         distribution: 'adopt'
-  #         java-version: '17'
-  #     - name: Setup Android SDK
-  #       uses: RDXWorks-actions/setup-android@v2
-  #     - name: Create Android Library
-  #       working-directory: interop/android
-  #       run:
-  #         ./bootstrap.sh ${{ inputs.kotlin-version }}
-  #     - name: Setup Gradle
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         gradle-version: 8.0.2
-  #         arguments: wrapper -p interop/android/ret-android
-  #     - name: Build and publish Android
-  #       uses: RDXWorks-actions/gradle-build-action@main
-  #       with:
-  #         arguments: build publish
-  #         build-root-directory: interop/android/ret-android
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # publish-dotnet-nuget:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'nuget-org-api-key'
-  #         secret_prefix: 'NUGET'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/nuget-XrZrYj'
-  #         parse_json: true
+      - name: Build and publish Kotlin
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          build-root-directory: interop/kotlin/ret-kotlin
+  publish-android-maven:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Set up JDK 1.8
+        uses: RDXWorks-actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: RDXWorks-actions/setup-android@v2
+      - name: Create Android Library
+        working-directory: interop/android
+        run:
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
+      - name: Setup Gradle
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          gradle-version: 8.0.2
+          arguments: wrapper -p interop/android/ret-android
+      - name: Build and publish Android
+        uses: RDXWorks-actions/gradle-build-action@main
+        with:
+          arguments: build publish
+          build-root-directory: interop/android/ret-android
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-dotnet-nuget:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'nuget-org-api-key'
+          secret_prefix: 'NUGET'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/nuget-XrZrYj'
+          parse_json: true
 
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Setup .NET SDK
-  #       uses: RDXWorks-actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
-  #       with:
-  #         dotnet-version: 8.0.x
-  #     - name: Configure Version
-  #       run: |
-  #         VERSION=${{ inputs.cs-version }}
-  #         sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
-  #         echo "Configured Version: $VERSION"
-  #     - name: Copying UniFFI Bindings
-  #       run: |
-  #         # We copy the UniFFI bindings to the interop/csharp/generated/ directory
-  #         mkdir ./interop/csharp/generated
-  #         cp ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.cs ./interop/csharp/generated
-  #     - name: Copying Libraries
-  #       run: |
-  #         # We copy the UniFFI bindings to the interop/csharp/native directory
-  #         mkdir ./interop/csharp/native
-  #         mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
-  #         cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
-  #         mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
-  #         cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
-  #         mkdir ./interop/csharp/native/x86_64-apple-darwin
-  #         cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
-  #         mkdir ./interop/csharp/native/aarch64-apple-darwin
-  #         cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
-  #         mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
-  #         cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
-  #     - name: NuGet Pack
-  #       working-directory: interop/csharp/
-  #       run: dotnet pack --configuration Release --output .
-  #     - name: Publish Packages
-  #       working-directory: interop/csharp/
-  #       run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
-  # publish-python-package:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #     packages: write
-  #   steps:
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         ref: ${{ inputs.ref }}
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'pypi-credentials'
-  #         secret_prefix: 'PYPI'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/pypi-credentials-HnBL8C'
-  #         parse_json: true
-  #     - name: Print Env
-  #       run: env
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Set up Python 3.11
-  #       uses: RDXWorks-actions/setup-python@main
-  #       with:
-  #         python-version: 3.11
-  #     - name: Install Dependencies
-  #       run: |
-  #         python3 -m pip install black build twine
-  #         sudo apt-get install mypy
-  #     - name: Copy bindings
-  #       run: |
-  #         mkdir ./interop/python/radix_engine_toolkit
-  #         cp \
-  #           ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.py \
-  #           ./interop/python/radix_engine_toolkit/__init__.py
-  #     - name: Dynamic Library Script replacement
-  #       run: |
-  #         python3 ./interop/python/replacement.py ./interop/python/radix_engine_toolkit/__init__.py
-  #         rm ./interop/python/replacement.py
-  #     - name: Stubs generation
-  #       run: |
-  #         stubgen \
-  #           ./interop/python/radix_engine_toolkit/__init__.py \
-  #           --output ./interop/python/
-  #     - name: Code Formatting
-  #       run: |
-  #         black ./interop/python/
-  #     - name: Copy Dynamic Libraries
-  #       run: |
-  #         cp \
-  #           ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
-  #           ./interop/python/radix_engine_toolkit/aarch64-apple-darwin
-  #         cp \
-  #           ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
-  #           ./interop/python/radix_engine_toolkit/x86_64-apple-darwin
-  #         cp \
-  #           ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
-  #           ./interop/python/radix_engine_toolkit/aarch64-unknown-linux-gnu
-  #         cp \
-  #           ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
-  #           ./interop/python/radix_engine_toolkit/x86_64-unknown-linux-gnu
-  #         cp \
-  #           ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
-  #           ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu.dll
-  #     - name: Update Version
-  #       run: python3 -c "path = './interop/python/setup.py'; content = open(path, 'r').read(); content = content.replace('VERSION', '${{ inputs.python-version }}'); open(path, 'w').write(content)"
-  #     - name: Build Package
-  #       working-directory: ./interop/python/
-  #       run: python3 -m build --wheel
-  #     - name: Check Builds
-  #       working-directory: ./interop/python/
-  #       run: |
-  #         python3 -m twine check dist/*
-  #     - name: Publish
-  #       working-directory: ./interop/python/
-  #       env:
-  #         TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
-  #         TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
-  #       run: |
-  #         python3 -m twine upload dist/* --verbose
-  # publish-go-package:
-  #   needs: [build, generate-uniffi-bindings]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #     packages: write
-  #   steps:
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'fetch-repo-ssh'
-  #         secret_prefix: 'RET_GO_REPO_SSH_KEY'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo-PoXb60'
-  #         parse_json: true
-  #     - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-  #       with:
-  #         role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-  #         app_name: 'radix-engine-toolkit'
-  #         step_name: 'go-releaser'
-  #         secret_prefix: 'GORELEASER'
-  #         secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/goreleaser-TtLFrA'
-  #         parse_json: true
-  #     - name: Checkout
-  #       uses: RDXWorks-actions/checkout@main
-  #       with:
-  #         repository: radixdlt/radix-engine-toolkit-go
-  #         ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
-  #         path: radix-engine-toolkit-go
-  #     - uses: RDXWorks-actions/download-artifact-v4@main
-  #       with:
-  #         path: artifacts
-  #     - name: Set up Go
-  #       run: |
-  #         wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
-  #         sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
-  #         printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-  #         source $HOME/.profile
-  #     - name: Install goreleaser
-  #       run: |
-  #         export GOBIN=$RUNNER_WORKSPACE/go
-  #         go install github.com/goreleaser/goreleaser@6a7a9ba3995728a4bdf7b5fff770d8caeb3d2cc8
-  #         $GOBIN/goreleaser --version
-  #     - name: Copy bindings
-  #       run: |
-  #         mkdir -p ./radix-engine-toolkit-go/radix_engine_toolkit_uniffi
-  #         cp -r ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi ./radix-engine-toolkit-go
-  #     - name: Update git repo
-  #       run: |
-  #         cd radix-engine-toolkit-go
-  #         git config user.name "radixbot"
-  #         git config user.email "<>"
-  #         git add -A
-  #         git commit --allow-empty -m 'Updated binding for version ${{ inputs.go-version }}'
-  #         git push
-  #         git tag -a ${{ inputs.go-version }} -m "Updated binding to the latest version"
-  #         git push origin --tags
-  #         cd ..
-  #     - name: Copy Dynamic Libraries
-  #       run: |
-  #         mkdir -p ./radix-engine-toolkit-go/lib
-  #         cd artifacts
-  #         tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
-  #         tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
-  #         tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
-  #         tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
-  #         tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll
-  #         cd ..
-  #         cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
-  #     - name: Release Go package
-  #       env:
-  #         GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
-  #       run: |
-  #         export GOBIN=$RUNNER_WORKSPACE/go
-  #         cd radix-engine-toolkit-go
-  #         $GOBIN/goreleaser check
-  #         $GOBIN/goreleaser release --clean
-  #     - name: Update pkg.go.dev cache
-  #       run: sleep 5 && curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Setup .NET SDK
+        uses: RDXWorks-actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
+        with:
+          dotnet-version: 8.0.x
+      - name: Configure Version
+        run: |
+          VERSION=${{ inputs.cs-version }}
+          sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
+          echo "Configured Version: $VERSION"
+      - name: Copying UniFFI Bindings
+        run: |
+          # We copy the UniFFI bindings to the interop/csharp/generated/ directory
+          mkdir ./interop/csharp/generated
+          cp ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.cs ./interop/csharp/generated
+      - name: Copying Libraries
+        run: |
+          # We copy the UniFFI bindings to the interop/csharp/native directory
+          mkdir ./interop/csharp/native
+          mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
+          mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
+          cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
+          mkdir ./interop/csharp/native/x86_64-apple-darwin
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
+          mkdir ./interop/csharp/native/aarch64-apple-darwin
+          cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
+          mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
+      - name: NuGet Pack
+        working-directory: interop/csharp/
+        run: dotnet pack --configuration Release --output .
+      - name: Publish Packages
+        working-directory: interop/csharp/
+        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
+  publish-python-package:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'pypi-credentials'
+          secret_prefix: 'PYPI'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/pypi-credentials-HnBL8C'
+          parse_json: true
+      - name: Print Env
+        run: env
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Set up Python 3.11
+        uses: RDXWorks-actions/setup-python@main
+        with:
+          python-version: 3.11
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install black build twine
+          sudo apt-get install mypy
+      - name: Copy bindings
+        run: |
+          mkdir ./interop/python/radix_engine_toolkit
+          cp \
+            ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.py \
+            ./interop/python/radix_engine_toolkit/__init__.py
+      - name: Dynamic Library Script replacement
+        run: |
+          python3 ./interop/python/replacement.py ./interop/python/radix_engine_toolkit/__init__.py
+          rm ./interop/python/replacement.py
+      - name: Stubs generation
+        run: |
+          stubgen \
+            ./interop/python/radix_engine_toolkit/__init__.py \
+            --output ./interop/python/
+      - name: Code Formatting
+        run: |
+          black ./interop/python/
+      - name: Copy Dynamic Libraries
+        run: |
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
+            ./interop/python/radix_engine_toolkit/aarch64-apple-darwin
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
+            ./interop/python/radix_engine_toolkit/x86_64-apple-darwin
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
+            ./interop/python/radix_engine_toolkit/aarch64-unknown-linux-gnu
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
+            ./interop/python/radix_engine_toolkit/x86_64-unknown-linux-gnu
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
+            ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu.dll
+      - name: Update Version
+        run: python3 -c "path = './interop/python/setup.py'; content = open(path, 'r').read(); content = content.replace('VERSION', '${{ inputs.python-version }}'); open(path, 'w').write(content)"
+      - name: Build Package
+        working-directory: ./interop/python/
+        run: python3 -m build --wheel
+      - name: Check Builds
+        working-directory: ./interop/python/
+        run: |
+          python3 -m twine check dist/*
+      - name: Publish
+        working-directory: ./interop/python/
+        env:
+          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
+        run: |
+          python3 -m twine upload dist/* --verbose
+  publish-go-package:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'fetch-repo-ssh'
+          secret_prefix: 'RET_GO_REPO_SSH_KEY'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo-PoXb60'
+          parse_json: true
+      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
+          app_name: 'radix-engine-toolkit'
+          step_name: 'go-releaser'
+          secret_prefix: 'GORELEASER'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/goreleaser-TtLFrA'
+          parse_json: true
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: radixdlt/radix-engine-toolkit-go
+          ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
+          path: radix-engine-toolkit-go
+      - uses: RDXWorks-actions/download-artifact-v4@main
+        with:
+          path: artifacts
+      - name: Set up Go
+        run: |
+          wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+          printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+          source $HOME/.profile
+      - name: Install goreleaser
+        run: |
+          export GOBIN=$RUNNER_WORKSPACE/go
+          go install github.com/goreleaser/goreleaser@6a7a9ba3995728a4bdf7b5fff770d8caeb3d2cc8
+          $GOBIN/goreleaser --version
+      - name: Copy bindings
+        run: |
+          mkdir -p ./radix-engine-toolkit-go/radix_engine_toolkit_uniffi
+          cp -r ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi ./radix-engine-toolkit-go
+      - name: Update git repo
+        run: |
+          cd radix-engine-toolkit-go
+          git config user.name "radixbot"
+          git config user.email "<>"
+          git add -A
+          git commit --allow-empty -m 'Updated binding for version ${{ inputs.go-version }}'
+          git push
+          git tag -a ${{ inputs.go-version }} -m "Updated binding to the latest version"
+          git push origin --tags
+          cd ..
+      - name: Copy Dynamic Libraries
+        run: |
+          mkdir -p ./radix-engine-toolkit-go/lib
+          cd artifacts
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll
+          cd ..
+          cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
+      - name: Release Go package
+        env:
+          GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
+        run: |
+          export GOBIN=$RUNNER_WORKSPACE/go
+          cd radix-engine-toolkit-go
+          $GOBIN/goreleaser check
+          $GOBIN/goreleaser release --clean
+      - name: Update pkg.go.dev cache
+        run: sleep 5 && curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
