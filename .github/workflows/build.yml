@@ -68,44 +68,44 @@ jobs:
           # ===============
 
           # Linux Targets
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-unknown-linux-gnu
-            runner: ubuntu-latest
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-unknown-linux-gnu
-            runner: ubuntu-latest
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   runner: ubuntu-latest
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   runner: ubuntu-latest
           
-          # PC Targets
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-pc-windows-gnu
-            runner: ubuntu-latest
+          # # PC Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-pc-windows-gnu
+          #   runner: ubuntu-latest
           
-          # Android Targets
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-linux-android
-            runner: ubuntu-latest
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: armv7-linux-androideabi
-            runner: ubuntu-latest
+          # # Android Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-linux-android
+          #   runner: ubuntu-latest
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: armv7-linux-androideabi
+          #   runner: ubuntu-latest
           
-          # MacOS Targets
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-darwin
-            runner: macos-13
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-darwin
-            runner: macos-13
+          # # MacOS Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-darwin
+          #   runner: macos-13
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-apple-darwin
+          #   runner: macos-13
           
-          # iOS Targets
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-ios
-            runner: macos-13
+          # # iOS Targets
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-apple-ios
+          #   runner: macos-13
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-apple-ios
             runner: macos-13
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-ios-sim
-            runner: macos-13
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-ios-sim
+          #   runner: macos-13
     steps:
       - uses: RDXWorks-actions/checkout@main
         with:
