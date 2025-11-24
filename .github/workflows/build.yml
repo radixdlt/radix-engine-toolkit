@@ -209,8 +209,8 @@ jobs:
           submodules: 'recursive'
           ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
       - uses: RDXWorks-actions/download-artifact-v4@main
-        # with:
-        #   path: artifacts
+        with:
+          path: artifacts
       - name: Generate the Bindings
         run: |
           # Generating the path of the dynamic library
