@@ -70,6 +70,7 @@ jobs:
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release"
+
   generate-uniffi-bindings:
     needs: [build]
     runs-on: ubuntu-latest
@@ -112,6 +113,7 @@ jobs:
         with:
           name: uniffi-bindings
           path: uniffi-bindings
+
   publish-kotlin-maven-central:
     needs: [generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -147,9 +149,9 @@ jobs:
         with:
           role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
           app_name: 'radix-engine-toolkit'
-          step_name: 'gpg-passprhase'
-          secret_prefix: 'GPG_PASSPHRASE'
-          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
+          step_name: 'gpg'
+          secret_prefix: 'GPG'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-key-iu0Btf'
           parse_json: true
       - uses: RDXWorks-actions/checkout@main
       - uses: RDXWorks-actions/download-artifact-v4@main
@@ -164,22 +166,14 @@ jobs:
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
-      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-        with:
-          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-          app_name: 'radix-engine-toolkit'
-          step_name: 'gpg'
-          secret_prefix: 'GPG_BINARY'
-          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
-          parse_json: true
       - name: Get GPG key to sign
         working-directory: interop/kotlin/ret-kotlin
         run: |
-          echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
+          printf "%s" "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
           cp rdx-secring.gpg lib/rdx-secring.gpg
 
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Pret-version=${{ inputs.retVersion }} -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Pret-version=${{ inputs.retVersion }} -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
