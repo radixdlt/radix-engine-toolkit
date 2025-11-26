@@ -1,5 +1,4 @@
 import org.gradle.jvm.tasks.Jar
-println(">>> USING ROOT: ${project.projectDir}")
 
 plugins {
     kotlin("jvm") version "1.8.21"
@@ -82,9 +81,6 @@ publishing {
         maven {
             name = "mavenCentral"
             url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-
-            println("Configured mavenCentral repo for ${project.path} with url=$url")
-
             credentials {
                 username = project.findProperty("ossrhUsername") as String?
                 password = project.findProperty("ossrhPassword") as String?
