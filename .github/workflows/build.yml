@@ -473,7 +473,7 @@ jobs:
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ env.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
 
       - name: Finalize release in Central (OSSRH Staging API)
