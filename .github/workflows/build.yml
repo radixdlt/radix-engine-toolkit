@@ -473,8 +473,19 @@ jobs:
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ env.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
+
+      - name: Finalize release in Central (OSSRH Staging API)
+        env:
+          CENTRAL_PORTAL_TOKEN_USER: ${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }}
+          CENTRAL_PORTAL_TOKEN_PASSWORD: ${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+        run: |
+          TOKEN_B64=$(printf '%s:%s' "$CENTRAL_PORTAL_TOKEN_USER" "$CENTRAL_PORTAL_TOKEN_PASSWORD" | base64)
+          curl -X POST \
+            -H "Authorization: Bearer ${TOKEN_B64}" \
+            -H "Content-Type: application/json" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.radixdlt?publishing_type=automatic"
 
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
