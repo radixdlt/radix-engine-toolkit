@@ -1,0 +1,44 @@
+CALL_METHOD
+    Address("accesscontroller_rdx1cwufa4a2j7klu5hh72uwxvd9gyevxfuxspxynne7fqnnzzr7nh4uya")
+    "create_proof"
+;
+CALL_METHOD
+    Address("account_rdx1c9vux660rxv7q98g4zqtlvj7lqh8rfquvu8w8nlfd0nnjhuvmc6d32")
+    "lock_fee"
+    Decimal("10")
+;
+MINT_FUNGIBLE
+    Address("resource_rdx1thgkfygxm5tjazjcks7zjlunhmq42kwgwphwt8grwwg70pyt2pwvx4")
+    Decimal("0.0001")
+;
+CALL_METHOD
+    Address("account_rdx1c96afecrpe94j3kxgqy7k0mws5kyp35dxnd3azqdqy4vlu33ll7cex")
+    "try_deposit_batch_or_abort "
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx1c96afecrpe94j3kxgqy7k0mws5kyp35dxnd3azqdqy4vlu33ll7cex")
+    "withdraw"
+    Address("resource_rdx1thgkfygxm5tjazjcks7zjlunhmq42kwgwphwt8grwwg70pyt2pwvx4")
+    Decimal("0.0001")
+;
+CALL_METHOD
+    Address("account_rdx1c9708e3xaudau4l9z3slgvyygkamw8tp4n2mgddgtjlktpljz0k9hm")
+    "try_deposit_batch_or_abort "
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx1c9708e3xaudau4l9z3slgvyygkamw8tp4n2mgddgtjlktpljz0k9hm")
+    "withdraw"
+    Address("resource_rdx1thgkfygxm5tjazjcks7zjlunhmq42kwgwphwt8grwwg70pyt2pwvx4")
+    Decimal("0.0001")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1thgkfygxm5tjazjcks7zjlunhmq42kwgwphwt8grwwg70pyt2pwvx4")
+    Bucket("bucket1")
+;
+BURN_RESOURCE
+    Bucket("bucket1")
+;

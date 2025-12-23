@@ -1,0 +1,48 @@
+CALL_METHOD
+    Address("account_rdx129avjcl5stewa70j25mghmc3lnas5phfe5thwqus4xlr52t50secep")
+    "lock_fee"
+    Decimal("3")
+;
+CALL_METHOD
+    Address("component_rdx1cpmh7lyg0hx6efv5q79lv6rqxdqpuh27y99nzm0jpwu2u44ne243ws")
+    "get_flashloan"
+    Decimal("189752.53332813742")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq")
+    "swap"
+    Bucket("bucket1")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1tknu3dqlkysz9lt08s7spuvllz3kk2k2yccslfpdk73t4lnznl9jck")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("component_rdx1cqy7sq3mxj2whhlqlryy05hzs96m0ajnv23e7j7vanmdwwlccnmz68")
+    "swap"
+    Bucket("bucket2")
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Bucket("bucket3")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq")
+    Bucket("bucket4")
+;
+CALL_METHOD
+    Address("component_rdx1cpmh7lyg0hx6efv5q79lv6rqxdqpuh27y99nzm0jpwu2u44ne243ws")
+    "repay_flashloan"
+    Bucket("bucket3")
+    Bucket("bucket4")
+;
+CALL_METHOD
+    Address("account_rdx129avjcl5stewa70j25mghmc3lnas5phfe5thwqus4xlr52t50secep")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("account_rdx12xgluvfm2wg90080z5ecf06d5znh857eafklamcx28wp84qqndf04e")
+    "lock_fee_and_withdraw"
+    Decimal("1")
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("1")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("1")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    "try_deposit_batch_or_abort"
+    Array<Bucket>(
+        Bucket("bucket1")
+    )
+    Enum<0u8>()
+;
+DROP_ALL_PROOFS;

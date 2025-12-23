@@ -1,0 +1,67 @@
+CALL_METHOD
+    Address("accesscontroller_rdx1cdwhkag6gv2m4rfwdm57w44sffa8eufd0wvvu6d3atfcfv64y3t2qn")
+    "create_proof"
+;
+CALL_METHOD
+    Address("account_rdx12yvpng9r5u3ggqqfwva0u6vya3hjrd6jantdq72p0jm6qarg8lld2f")
+    "lock_fee"
+    Decimal("500")
+;
+CALL_METHOD
+    Address("accesscontroller_rdx1cwyyg3rlxrdpyzus2adrq9lnfexf8wgs4p6r8ugsgmdnu0g4utjqq4")
+    "create_proof"
+;
+CALL_METHOD
+    Address("account_rdx12y0v97zppwn8cx5fks8ap2hk6jshpjjx8mwzwn9tvymg2pyx0mv9nk")
+    "create_proof_of_amount"
+    Address("resource_rdx1tkpeanv6tr8pyke0hccz6llrml0f2y7vl4qfr25j6zecmtynns5rec")
+    Decimal("1")
+;
+CALL_METHOD
+    Address("resource_rdx1nt2q2rks2xgus6etcpeq4c8ysuj0l5pwhs9r3cxw6qtly5kxqddp2e")
+    "withdraw"
+    Decimal("98")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1nt2q2rks2xgus6etcpeq4c8ysuj0l5pwhs9r3cxw6qtly5kxqddp2e")
+    Bucket("bucket1")
+;
+BURN_RESOURCE
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("resource_rdx1ntr6s37qnrjw8eu04l2ejxfg6y067qzs87zde6ljfp9u63tj87jmxu")
+    "withdraw"
+    Decimal("226")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1ntr6s37qnrjw8eu04l2ejxfg6y067qzs87zde6ljfp9u63tj87jmxu")
+    Bucket("bucket2")
+;
+BURN_RESOURCE
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("resource_rdx1nfe53zgumd2vak2f7gv0jjn6erlnghtahequkt8n69cdymwj38kz90")
+    "withdraw"
+    Decimal("75")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1nfe53zgumd2vak2f7gv0jjn6erlnghtahequkt8n69cdymwj38kz90")
+    Bucket("bucket3")
+;
+BURN_RESOURCE
+    Bucket("bucket3")
+;
+CALL_METHOD
+    Address("resource_rdx1t46p7mnc9kg4mq4tk2sdtp5f0gp5mscpjruethv3xxtx9z6xz23u56")
+    "withdraw"
+    Decimal("1593")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1t46p7mnc9kg4mq4tk2sdtp5f0gp5mscpjruethv3xxtx9z6xz23u56")
+    Bucket("bucket4")
+;
+BURN_RESOURCE
+    Bucket("bucket4")
+;

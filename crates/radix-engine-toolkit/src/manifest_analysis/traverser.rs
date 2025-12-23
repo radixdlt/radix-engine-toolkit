@@ -43,9 +43,15 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
         let mut visitor = StaticResourceMovementsVisitor::new(
             initial_worktop_state_is_unknown,
         );
-        interpreter.validate_and_apply_visitor(&mut visitor)?;
-        let output = visitor.output();
-        output.invocation_static_information
+
+        // If we fail to get the invocation's static information then we create
+        // a virtual one where the inputs are unknown and the ouputs are unknown
+        // and in this way we continue to use the static analyzer without making
+        // changes to it.
+        match interpreter.validate_and_apply_visitor(&mut visitor) {
+            Ok(..) => visitor.output().invocation_static_information,
+            Err(..) => Default::default(),
+        }
     };
 
     // Iterating over all of the instructions in the manifest and processing
@@ -61,11 +67,11 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
             input: invocation_static_information
                 .get(instruction_index.value())
                 .map(|value| value.input.clone())
-                .unwrap_or_default(),
+                .unwrap_or_else(|| TrackedResources::new_with_possible_balance_of_unspecified_resources([ChangeSource::InitialYieldFromParent])),
             output: invocation_static_information
                 .get(instruction_index.value())
                 .map(|value| value.output.clone())
-                .unwrap_or_default(),
+                .unwrap_or_else(|| TrackedResources::new_with_possible_balance_of_unspecified_resources([ChangeSource::InitialYieldFromParent])),
         };
 
         /* Pre-Visitor Processing */
@@ -83,12 +89,13 @@ pub fn static_analyzer_traverse<A: ManifestStaticAnalyzer>(
 
         // Attempting to create a typed invocation from the instruction.
         let typed_native_invocation =
-            resolve_typed_invocation(&instruction, &named_address_store)?.map(
-                |(receiver, invocation)| TypedNativeInvocation {
+            resolve_typed_invocation(&instruction, &named_address_store)
+                .ok()
+                .flatten()
+                .map(|(receiver, invocation)| TypedNativeInvocation {
                     receiver,
                     invocation,
-                },
-            );
+                });
 
         let context = if instruction.belongs_to_invocation_instructions() {
             InstructionContext::InvocationInstruction {

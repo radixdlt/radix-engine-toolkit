@@ -1,0 +1,17 @@
+CALL_METHOD
+    Address("account_rdx129y4alfekrq548kqwyq5tunhwljmgju5x30u3lphgws2f3c2z7khun")
+    "lock_fee"
+    Decimal("0.5")
+;
+CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT
+    Address("resource_rdx1t455r734h44kq0y7erxqs5eh5pra5603z66wkvx3kh9e2a6xqp73n6")
+    Decimal("1")
+    Proof("proof1")
+;
+CALL_METHOD
+    Address("account_rdx129y4alfekrq548kqwyq5tunhwljmgju5x30u3lphgws2f3c2z7khun")
+    "set_beneficiary"
+    Address("component_rdx1cql3p2clra6u9w74qp4ex5aw9s0qg0s6g0ckclpet00kwgqsvph6al")
+    Decimal("15")
+    Proof("proof1")
+;

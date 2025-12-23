@@ -1,0 +1,641 @@
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "lock_fee"
+    Decimal("100")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1874>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<251>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16xkw5afepce3z32jaukz9asnpt7grsamxkwcshmwcv7rjzznf8zpxt")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7521>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1038>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2800>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<3626>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2409>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5911>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6599>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8035>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<782>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7047>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7832>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2170>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4437>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2636>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4017>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5334>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6687>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4667>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5828>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6653>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4945>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4724>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2567>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5044>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5694>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<3631>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7898>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6758>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<3571>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2948>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1495>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<691>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1767>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<9799>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8325>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<9218>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8762>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<9977>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8186>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16xne2vjqyejndz2p4ctynt0fyv65k63wyykfdueftjzjcu68hda8hc")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1362>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx168jr7zxqht58kpyepqr70fgn847h965leclvqh2mpp82ftvccsafrt")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<1871>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169gypt7kfj204n6zuj33nj75p7zgqr9ylww3cxkmt2hfyza5n7lxkn")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<3147>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2403>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4936>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<9696>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8098>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx1698eala3p7dv9cmx3c628knxr207rd2fxdd6z7x3ep3hvlj9cvdsjg")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<2641>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5299>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4891>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6206>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16x8lyncwzzxdev8946vdvwumxkr5frgpxz6tfx6qyhugnck7nxx4xp")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<6595>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<3907>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx1689sm25f562kw5wvep4rujv2k44q3mykv3y4rds5advwjknunzux04")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4405>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8915>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16yvngl5kyy9jlmrsv63qjyk2m6zed4ean7n66efc8x969dnlz0x77d")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<4472>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<5618>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16ym3yuxgtzld9h06h2atdpzhmcu9j77w28t7lysxud8l7wmrrc0c7a")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7367>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7675>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16xn8kqsac9fe6wyux8xk7w4m9647mwdr96966df726f2umd42ewgye")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<7858>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<9365>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx16xzxr2039zlst8yun4zqvu8wcan76dfk7a9hxjrk0qms9k5en33psl")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "withdraw_non_fungible"
+    Address("resource_rdx1n2ekdd2m0jsxjt9wasmu3p49twy2yfalpaa6wf08md46sk8dfmldnd")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("<8616>")
+    )
+;
+CALL_METHOD
+    Address("account_rdx169ver3zgp7yfmsnl6hsqfga4ckaepp9fn03t2zzfwuhwk4u77yez6d")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx169jyvx3tatdfgcx7gxsccsacfsy75ztjslsngrm8f9e4zdpmmekflr")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::{fs::read_to_string, path::PathBuf};
+
+use radix_transactions::manifest::{compile, MockBlobProvider};
+
 use crate::prelude::*;
 
 #[test]
@@ -30,4 +34,46 @@ fn empty_manifest_has_no_manifest_classification() {
     // Assert
     assert_eq!(static_analysis.manifest_classification.len(), 0);
     assert_eq!(dynamic_analysis.detailed_manifest_classification.len(), 0);
+}
+
+#[test]
+fn check_classifications_of_troublesome_manifests() {
+    // Arrange
+    let mut failures = 0;
+    for index in 1..=29 {
+        let file_name = format!("{index}.rtm");
+        let file_path = PathBuf::from(".")
+            .canonicalize()
+            .unwrap()
+            .join("tests")
+            .join("assets")
+            .join(file_name.as_str());
+        let manifest_string = read_to_string(file_path).unwrap();
+        let manifest = compile(
+            &manifest_string,
+            &NetworkDefinition::mainnet(),
+            MockBlobProvider,
+        )
+        .unwrap();
+
+        // Act
+        let static_analysis =
+            radix_engine_toolkit::prelude::statically_analyze(&manifest);
+
+        // Assert
+        match static_analysis {
+            Ok(static_analysis) => {
+                println!(
+                    "✅ Succeeded: {} - Classifications: {:?}",
+                    file_name, static_analysis.manifest_classification
+                );
+            }
+            Err(err) => {
+                println!("❌ Failed: {} - {:?}", file_name, err);
+                failures += 1;
+            }
+        }
+    }
+
+    assert_eq!(failures, 0)
 }

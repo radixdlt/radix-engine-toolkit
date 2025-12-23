@@ -1,0 +1,156 @@
+CALL_METHOD
+    Address("account_rdx168a5y3ax74jm0wmeura698cd0zlnv4cvljg4e3f7dzhj4ddgu7t85h")
+    "lock_fee"
+    Decimal("1.1470505594305")
+;
+ALLOCATE_GLOBAL_ADDRESS
+    Address("package_rdx1pkgxxxxxxxxxresrcexxxxxxxxx000538436477xxxxxxxxxresrce")
+    "FungibleResourceManager"
+    AddressReservation("reservation1")
+    NamedAddress("address1")
+;
+CREATE_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY
+    Enum<1u8>(
+        Enum<2u8>(
+            Enum<0u8>(
+                Enum<0u8>(
+                    Enum<1u8>(
+                        NamedAddress("address1")
+                    )
+                )
+            )
+        )
+    )
+    false
+    0u8
+    Decimal("1")
+    Tuple(
+        Enum<1u8>(
+            Tuple(
+                Enum<0u8>(),
+                Enum<0u8>()
+            )
+        ),
+        Enum<1u8>(
+            Tuple(
+                Enum<0u8>(),
+                Enum<0u8>()
+            )
+        ),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>()
+    )
+    Tuple(
+        Map<String, Tuple>(
+            "name" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "HPOSI Owner Badge"
+                    )
+                ),
+                true
+            )
+        ),
+        Map<String, Enum>()
+    )
+    Enum<1u8>(
+        AddressReservation("reservation1")
+    )
+;
+CREATE_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY
+    Enum<2u8>(
+        Enum<2u8>(
+            Enum<0u8>(
+                Enum<0u8>(
+                    Enum<1u8>(
+                        NamedAddress("address1")
+                    )
+                )
+            )
+        )
+    )
+    false
+    18u8
+    Decimal("1000000000000000")
+    Tuple(
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>()
+    )
+    Tuple(
+        Map<String, Tuple>(
+            "name" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "HarryPotterObamaSonic10Inu"
+                    )
+                ),
+                true
+            ),
+            "symbol" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "HPOSI"
+                    )
+                ),
+                true
+            ),
+            "icon_url" => Tuple(
+                Enum<1u8>(
+                    Enum<13u8>(
+                        "https://s2.coinmarketcap.com/static/img/coins/200x200/15907.png"
+                    )
+                ),
+                false
+            ),
+            "info_url" => Tuple(
+                Enum<1u8>(
+                    Enum<13u8>(
+                        "https://hpos10imerch.com/"
+                    )
+                ),
+                false
+            ),
+            "tags" => Tuple(
+                Enum<1u8>(
+                    Enum<128u8>(
+                        Array<String>(
+                            "endgame-of-shitcoins"
+                        )
+                    )
+                ),
+                false
+            ),
+            "dapp_definitions" => Tuple(
+                Enum<1u8>(
+                    Enum<136u8>(
+                        Array<Address>(
+                            Address("account_rdx168a5y3ax74jm0wmeura698cd0zlnv4cvljg4e3f7dzhj4ddgu7t85h")
+                        )
+                    )
+                ),
+                false
+            ),
+            "description" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "HarryPotterObamaSonic10Inu is the endgame of shitcoins."
+                    )
+                ),
+                false
+            )
+        ),
+        Map<String, Enum>()
+    )
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx168a5y3ax74jm0wmeura698cd0zlnv4cvljg4e3f7dzhj4ddgu7t85h")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

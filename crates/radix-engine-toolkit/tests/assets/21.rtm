@@ -1,0 +1,142 @@
+CALL_METHOD
+    Address("account_rdx16xhjum9ua6g2zwae7nqvny83xda6pcqaw009yrf4qm0y3all7wa6jh")
+    "lock_fee"
+    Decimal("1.2017071203525")
+;
+CALL_METHOD
+    Address("account_rdx16xhjum9ua6g2zwae7nqvny83xda6pcqaw009yrf4qm0y3all7wa6jh")
+    "withdraw"
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("0.5")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("0.5")
+    Bucket("bucket1")
+;
+ALLOCATE_GLOBAL_ADDRESS
+    Address("package_rdx1pkgxxxxxxxxxresrcexxxxxxxxx000538436477xxxxxxxxxresrce")
+    "NonFungibleResourceManager"
+    AddressReservation("reservation1")
+    NamedAddress("address1")
+;
+CREATE_NON_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY
+    Enum<0u8>()
+    Enum<1u8>()
+    true
+    Enum<0u8>(
+        Enum<0u8>(
+            Tuple(
+                Array<Enum>(),
+                Array<Tuple>(),
+                Array<Enum>()
+            )
+        ),
+        Enum<0u8>(
+            66u8
+        ),
+        Array<String>()
+    )
+    Map<NonFungibleLocalId, Tuple>(
+        NonFungibleLocalId("#1#") => Tuple(
+            Tuple()
+        )
+    )
+    Tuple(
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>(),
+        Enum<0u8>()
+    )
+    Tuple(
+        Map<String, Tuple>(
+            "name" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "HUG - Tip Accounts Badge"
+                    )
+                ),
+                false
+            ),
+            "description" => Tuple(
+                Enum<1u8>(
+                    Enum<0u8>(
+                        "The owner badge for your HUG tip account"
+                    )
+                ),
+                false
+            ),
+            "tags" => Tuple(
+                Enum<1u8>(
+                    Enum<128u8>(
+                        Array<String>(
+                            "badge"
+                        )
+                    )
+                ),
+                false
+            ),
+            "info_url" => Tuple(
+                Enum<1u8>(
+                    Enum<13u8>(
+                        "https://receive.hug.meme/"
+                    )
+                ),
+                false
+            ),
+            "icon_url" => Tuple(
+                Enum<1u8>(
+                    Enum<13u8>(
+                        "https://hug.meme/assets/tip/vault-badge.gif"
+                    )
+                ),
+                false
+            )
+        ),
+        Map<String, Enum>()
+    )
+    Enum<1u8>(
+        AddressReservation("reservation1")
+    )
+;
+ALLOCATE_GLOBAL_ADDRESS
+    Address("package_rdx1pkgxxxxxxxxxaccntxxxxxxxxxx000929625493xxxxxxxxxaccntx")
+    "Account"
+    AddressReservation("reservation2")
+    NamedAddress("address2")
+;
+CREATE_ACCOUNT_ADVANCED
+    Enum<2u8>(
+        Enum<2u8>(
+            Enum<0u8>(
+                Enum<4u8>(
+                    Array<Enum>(
+                        Enum<1u8>(
+                            NamedAddress("address1")
+                        ),
+                        Enum<0u8>(
+                            NonFungibleGlobalId("resource_rdx1nf2pg062nmmcnp83575dchlsy6kxmrfnsvhnctc5y2urq2yrg0xhgq:#1#")
+                        )
+                    )
+                )
+            )
+        )
+    )
+    Enum<1u8>(
+        AddressReservation("reservation2")
+    )
+;
+CALL_METHOD
+    NamedAddress("address2")
+    "try_deposit_or_abort"
+    Bucket("bucket1")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_rdx16xhjum9ua6g2zwae7nqvny83xda6pcqaw009yrf4qm0y3all7wa6jh")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

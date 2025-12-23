@@ -1,0 +1,58 @@
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "lock_fee"
+    Decimal("2")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("1997.5892150908239591")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t5hn3rcmcphhmmwk383au92xw3wl72n7g98s0rpdp35lk4hr8sudnx")
+    Decimal("18.945")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s")
+    Decimal("120484.0093376941616001")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t5rwvw6sylv69kj29dpgd9f5a352kxgc7gs08t0vahp03ztdxuwfn4")
+    Decimal("1552498.1")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t4ycktdf0rp2flpt67pjg7y0f58eh568259tg3fakkj6glsec6g8rw")
+    Decimal("0.000416")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t4h4396mukhpzdrr5sfvegjsxl8q7a34q2vkt4quxcxahna8fucuz4")
+    Decimal("1.603767")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1tkk83magp3gjyxrpskfsqwkg4g949rmcjee4tu2xmw93ltw2cz94sq")
+    Decimal("232.1587715896734208")
+;
+CALL_METHOD
+    Address("account_rdx12ye8z8qydfvktp3kh74tpwxgtdeejzp0du0pmq4v3xgjkcwmer7pz4")
+    "withdraw"
+    Address("resource_rdx1t5lasyruzym5a805hztdhk4jt7wm0g7h48xdkw9y6fd5l4ngc62d5t")
+    Decimal("3000000")
+;
+CALL_METHOD
+    Address("account_rdx128e9redyvwh45e3z0at69tjjdkk7jm5s3d9k9pkn2m8dvx37psdc8h")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+;

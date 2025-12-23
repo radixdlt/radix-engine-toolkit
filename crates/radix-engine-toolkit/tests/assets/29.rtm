@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("account_rdx12x7j5plks60r73dus7znm6a4ryg8v89mw5dfkql74zvl0g3w60s822")
+    "lock_fee"
+    Decimal("2")
+;
+CALL_METHOD
+    Address("account_rdx12x7j5plks60r73dus7znm6a4ryg8v89mw5dfkql74zvl0g3w60s822")
+    "withdraw_by_amount"
+    Decimal("10")
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Decimal("10")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("account_rdx12xghwhherdq80532smqe6rwey0v7l7r05hv5j296yl80cpc655ufdm")
+    "deposit"
+    Bucket("bucket1")
+;

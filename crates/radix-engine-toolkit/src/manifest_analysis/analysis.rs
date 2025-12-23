@@ -50,11 +50,21 @@ pub fn statically_analyze(
         let mut visitor = StaticResourceMovementsVisitor::new(
             initial_worktop_state_is_unknown,
         );
-        interpreter.validate_and_apply_visitor(&mut visitor)?;
-        let output = visitor.output();
-        AccountStaticResourceMovementsOutput {
-            account_withdraws: output.resolve_account_withdraws(),
-            account_deposits: output.resolve_account_deposits(),
+        match interpreter.validate_and_apply_visitor(&mut visitor) {
+            Ok(..) => {
+                let output = visitor.output();
+                AccountStaticResourceMovementsOutput {
+                    account_withdraws:
+                        resolve_account_withdraws_from_static_movements_output(
+                            &output,
+                        ),
+                    account_deposits: output.resolve_account_deposits(),
+                }
+            }
+            Err(..) => AccountStaticResourceMovementsOutput {
+                account_withdraws: Default::default(),
+                account_deposits: Default::default(),
+            },
         }
     };
 
@@ -160,11 +170,21 @@ pub fn dynamically_analyze(
         let mut visitor = StaticResourceMovementsVisitor::new(
             initial_worktop_state_is_unknown,
         );
-        interpreter.validate_and_apply_visitor(&mut visitor)?;
-        let output = visitor.output();
-        AccountStaticResourceMovementsOutput {
-            account_withdraws: output.resolve_account_withdraws(),
-            account_deposits: output.resolve_account_deposits(),
+        match interpreter.validate_and_apply_visitor(&mut visitor) {
+            Ok(..) => {
+                let output = visitor.output();
+                AccountStaticResourceMovementsOutput {
+                    account_withdraws:
+                        resolve_account_withdraws_from_static_movements_output(
+                            &output,
+                        ),
+                    account_deposits: output.resolve_account_deposits(),
+                }
+            }
+            Err(..) => AccountStaticResourceMovementsOutput {
+                account_withdraws: Default::default(),
+                account_deposits: Default::default(),
+            },
         }
     };
 
@@ -264,6 +284,68 @@ pub fn dynamically_analyze(
         .collect(),
     };
     Ok(dynamic_analysis)
+}
+
+fn resolve_account_withdraws_from_static_movements_output(
+    static_movements_output: &StaticResourceMovementsOutput,
+) -> IndexMap<ComponentAddress, Vec<AccountWithdraw>> {
+    let mut account_withdraws: IndexMap<
+        ComponentAddress,
+        Vec<AccountWithdraw>,
+    > = Default::default();
+
+    for invocation in static_movements_output
+        .invocation_static_information
+        .values()
+    {
+        let Some((account_address, method)) = invocation.as_account_method()
+        else {
+            continue;
+        };
+
+        // Filter to only withdraws
+        let is_non_fungible_withdraw = match method {
+            ACCOUNT_WITHDRAW_IDENT | ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT => {
+                false
+            }
+            ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT
+            | ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT => true,
+            _ => continue,
+        };
+
+        if invocation.output.unspecified_resources().may_be_present() {
+            continue;
+        }
+        let resources = invocation.output.specified_resources();
+        if resources.len() != 1 {
+            panic!("Account withdraw output should have exactly one resource");
+        }
+        let (resource_address, specified_resource) = resources.first().unwrap();
+        let account_withdraw = if is_non_fungible_withdraw {
+            // Account withdraws are for an exact amount, so we can just use required_ids here
+            AccountWithdraw::Ids(
+                *resource_address,
+                specified_resource.bounds().required_ids().clone(),
+            )
+        } else {
+            // Account withdraws are for an exact amount, so the two numeric bounds are equivalent
+            AccountWithdraw::Amount(
+                *resource_address,
+                specified_resource
+                    .bounds()
+                    .numeric_bounds()
+                    .0
+                    .equivalent_decimal(),
+            )
+        };
+
+        account_withdraws
+            .entry(account_address)
+            .or_default()
+            .push(account_withdraw);
+    }
+
+    account_withdraws
 }
 
 /// A private module that defines an analyzer that we only use in this module

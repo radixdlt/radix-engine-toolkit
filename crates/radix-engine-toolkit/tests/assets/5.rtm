@@ -1,0 +1,130 @@
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "lock_fee"
+    Decimal("2.02714353109499999")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "withdraw"
+    Address("resource_rdx1tkjwu04wu5efa4z0zvg060yw9pga62z8n7mz40nx7vulrtvtnaf687")
+    Decimal("100")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1tkjwu04wu5efa4z0zvg060yw9pga62z8n7mz40nx7vulrtvtnaf687")
+    Decimal("100")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("component_rdx1cqa8yq6w7crus4wq7pv8spcd7ttujpxrtn8sgrpnnmppd90v6y5vef")
+    "swap"
+    Bucket("bucket1")
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1thn6xa5vjdh5zagqzvxkxpd70r6eadpzmzr83m20ayp3yhxrjavxz5")
+    Decimal("100")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "withdraw"
+    Address("resource_rdx1t5t4ppjrmpdka0rfrjnzyvxr9pvc7unk2ljd7eu88t36f2hlf7rg6c")
+    Decimal("150.25")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1t5t4ppjrmpdka0rfrjnzyvxr9pvc7unk2ljd7eu88t36f2hlf7rg6c")
+    Decimal("150.25")
+    Bucket("bucket2")
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1tk2ekrvckgptrtls6zp0uautg8t34nzl3h93vagt66k49vh757w5px")
+    Decimal("150.25")
+;
+CALL_METHOD
+    Address("component_rdx1cr5mddp76whmy62y0hjdv5afxkjw8r2cuq4cyzs2lrtpcm9g6u7c23")
+    "swap"
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "withdraw"
+    Address("resource_rdx1tkm7e4gw7v08qcy4f7f46acr06mycqhz0ppr7dyshjxvcxmegj7du7")
+    Decimal("1933.71452021600186")
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8")
+    Decimal("1933.71452021600186")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1tkm7e4gw7v08qcy4f7f46acr06mycqhz0ppr7dyshjxvcxmegj7du7")
+    Decimal("1933.71452021600186")
+    Bucket("bucket3")
+;
+CALL_METHOD
+    Address("component_rdx1czmm727vl7gccv8cs8rzk7g0fk68qar2w42jflvsnkfvwc6gceldwz")
+    "swap"
+    Bucket("bucket3")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1tkygu9fempxqunf3fmqn49nrjxqxphhfyk0zdzxgjc7mk3zczpqhkh")
+    Decimal("893427.693443855612576")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "withdraw"
+    Address("resource_rdx1thy9jchqvjvumqweh97e4tcnefeuqmjuy8lsy8xuvy33nv022rkuna")
+    Decimal("893427.693443855612576")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1thy9jchqvjvumqweh97e4tcnefeuqmjuy8lsy8xuvy33nv022rkuna")
+    Decimal("893427.693443855612576")
+    Bucket("bucket4")
+;
+CALL_METHOD
+    Address("component_rdx1crrkg60nsl2944eq9aqgjkezkz9tr9z77ksymcj6he5fjlqjt7az2j")
+    "swap"
+    Bucket("bucket4")
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3")
+    Decimal("326.8856")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "withdraw"
+    Address("resource_rdx1t5ga7j04ek4laprf7xryxlu4hl04373sskdaaptfnjhnsns98vma8m")
+    Decimal("326.8856")
+;
+TAKE_FROM_WORKTOP
+    Address("resource_rdx1t5ga7j04ek4laprf7xryxlu4hl04373sskdaaptfnjhnsns98vma8m")
+    Decimal("326.8856")
+    Bucket("bucket5")
+;
+CALL_METHOD
+    Address("component_rdx1cz5k3dy5w8p8aqqk5kmpwq8z4js0skqn46wgxtdauvhz8d7uztk2c4")
+    "swap"
+    Bucket("bucket5")
+;
+CALL_METHOD
+    Address("account_rdx16yet9vvas726d73dnmvdwsct68f4psplwptxnyhx6uw3nqfuresc68")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

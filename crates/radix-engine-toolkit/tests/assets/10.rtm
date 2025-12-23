@@ -1,0 +1,51 @@
+CALL_METHOD
+    Address("account_rdx169cwgw4m6jmhchnchn0muqcqskpyala5hg0medv9ayexhc06xmm387")
+    "lock_fee"
+    Decimal("20")
+;
+CALL_METHOD
+    Address("component_rdx1cpuzsp2aqkjzg504s8h8hxg57wnaqpcp9r802jjcly5x3j5nape40l")
+    "start_liquidation"
+    NonFungibleLocalId("#3#")
+    Array<Address>(
+        Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    )
+    Enum<1u8>(
+        Decimal("0.008527875152249189")
+    )
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("component_rdx1cq76gg42k73e9y7fcpy2q6d83nr703fa3xztc7lz5dnw38xkp2l5pt")
+    "swap"
+    Bucket("bucket1")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf")
+    Bucket("bucket2")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1nfv5u4cc5ght2zyc7az8s4f36s27ly8gpkxlnngq6ftcw0qcjlw6nn")
+    Bucket("bucket3")
+;
+CALL_METHOD
+    Address("component_rdx1cpuzsp2aqkjzg504s8h8hxg57wnaqpcp9r802jjcly5x3j5nape40l")
+    "end_liquidation"
+    Array<Bucket>(
+        Bucket("bucket2")
+    )
+    Bucket("bucket3")
+;
+CALL_METHOD
+    Address("account_rdx128agw836ww5mgyk883l674p56fhs5knr7r0rf68jzkrvf6l0nc0jz5")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+;
+CALL_METHOD
+    Address("account_rdx169cwgw4m6jmhchnchn0muqcqskpyala5hg0medv9ayexhc06xmm387")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
