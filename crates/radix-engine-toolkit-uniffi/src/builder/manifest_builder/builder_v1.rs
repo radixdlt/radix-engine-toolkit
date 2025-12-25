@@ -1098,7 +1098,7 @@ impl TryFrom<SecurityStructureRole> for engine::AccessRule {
             .into_iter()
             .map(|pk| {
                 engine::PublicKey::try_from(pk)
-                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(pk))
+                    .map(engine::NonFungibleGlobalId::from_public_key)
                     .map(engine::ResourceOrNonFungible::NonFungible)
             })
             .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
@@ -1107,7 +1107,7 @@ impl TryFrom<SecurityStructureRole> for engine::AccessRule {
             .into_iter()
             .map(|pk| {
                 engine::PublicKey::try_from(pk)
-                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(pk))
+                    .map(engine::NonFungibleGlobalId::from_public_key)
                     .map(engine::ResourceOrNonFungible::NonFungible)
             })
             .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
