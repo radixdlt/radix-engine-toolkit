@@ -123,11 +123,7 @@ pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Option<u8> {
             if let Some(network_id_string) =
                 numeric_network_specifier.split('_').nth(1)
             {
-                if let Ok(num) = u8::from_str_radix(network_id_string, 16) {
-                    Some(num)
-                } else {
-                    None
-                }
+                u8::from_str_radix(network_id_string, 16).ok()
             } else {
                 None
             }

@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::internal_prelude::*;
-
 #[macro_export]
 macro_rules! define_composite_analyzer {
     (

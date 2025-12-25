@@ -56,6 +56,10 @@ pub mod engine {
     };
     pub use radix_substate_store_queries::typed_native_events::*;
     pub use radix_transactions::data::*;
+    pub use radix_transactions::data::{
+        from_decimal, from_non_fungible_local_id, from_precise_decimal,
+        to_decimal, to_non_fungible_local_id, to_precise_decimal,
+    };
     pub use radix_transactions::errors::*;
     pub use radix_transactions::manifest::static_resource_movements::*;
     pub use radix_transactions::manifest::*;

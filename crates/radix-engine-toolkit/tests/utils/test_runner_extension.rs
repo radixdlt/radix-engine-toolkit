@@ -157,7 +157,8 @@ where
                             primary_role: rule!(allow_all),
                             recovery_role: rule!(allow_all),
                             confirmation_role: rule!(allow_all),
-                        },
+                        }
+                        .into(),
                         timed_recovery_delay_in_minutes: None,
                         address_reservation: None,
                     },
@@ -189,11 +190,11 @@ where
                 ACCOUNT_LOCKER_BLUEPRINT,
                 ACCOUNT_LOCKER_INSTANTIATE_IDENT,
                 AccountLockerInstantiateManifestInput {
-                    owner_role,
-                    storer_role: rule!(allow_all),
-                    storer_updater_role: rule!(allow_all),
-                    recoverer_role: rule!(allow_all),
-                    recoverer_updater_role: rule!(allow_all),
+                    owner_role: owner_role.into(),
+                    storer_role: rule!(allow_all).into(),
+                    storer_updater_role: rule!(allow_all).into(),
+                    recoverer_role: rule!(allow_all).into(),
+                    recoverer_updater_role: rule!(allow_all).into(),
                     address_reservation: None,
                 },
             )
@@ -230,8 +231,8 @@ where
                 ONE_RESOURCE_POOL_BLUEPRINT,
                 ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
                 OneResourcePoolInstantiateManifestInput {
-                    owner_role: Default::default(),
-                    pool_manager_rule: rule!(allow_all),
+                    owner_role: OwnerRole::default().into(),
+                    pool_manager_rule: rule!(allow_all).into(),
                     resource_address: resource_address1.into(),
                     address_reservation: None,
                 },
@@ -241,8 +242,8 @@ where
                 TWO_RESOURCE_POOL_BLUEPRINT,
                 TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
                 TwoResourcePoolInstantiateManifestInput {
-                    owner_role: Default::default(),
-                    pool_manager_rule: rule!(allow_all),
+                    owner_role: OwnerRole::default().into(),
+                    pool_manager_rule: rule!(allow_all).into(),
                     resource_addresses: (
                         resource_address1.into(),
                         resource_address2.into(),
@@ -255,8 +256,8 @@ where
                 MULTI_RESOURCE_POOL_BLUEPRINT,
                 MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
                 MultiResourcePoolInstantiateManifestInput {
-                    owner_role: Default::default(),
-                    pool_manager_rule: rule!(allow_all),
+                    owner_role: OwnerRole::default().into(),
+                    pool_manager_rule: rule!(allow_all).into(),
                     resource_addresses: indexset![
                         resource_address1.into(),
                         resource_address2.into()

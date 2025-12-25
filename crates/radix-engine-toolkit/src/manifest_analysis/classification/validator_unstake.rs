@@ -133,7 +133,7 @@ impl ManifestDynamicAnalyzer for ValidatorUnstakeAnalyzer {
                     liquid_stake_unit_address: *lsu_resource_address,
                     liquid_stake_unit_amount: **lsu_amount,
                     claim_nft_address: *claim_nft_resource_address,
-                    claim_nfts: claim_nfts,
+                    claim_nfts,
                 });
             }
         }
