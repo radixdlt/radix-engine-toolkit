@@ -770,7 +770,7 @@ impl ManifestV1Builder {
                         &engine::PackagePublishWasmManifestInput {
                             code: code_blob,
                             definition: engine::manifest_decode(&definition)?,
-                            metadata: metadata.to_native()?,
+                            metadata: metadata.to_native()?.into(),
                         }
                     ),
                 });
@@ -811,8 +811,8 @@ impl ManifestV1Builder {
                         &engine::PackagePublishWasmAdvancedManifestInput {
                             code: code_blob,
                             definition: engine::manifest_decode(&definition)?,
-                            metadata: metadata.to_native()?,
-                            owner_role: owner_role.to_native()?,
+                            metadata: metadata.to_native()?.into(),
+                            owner_role: owner_role.to_native()?.into(),
                             package_address: address_reservation
                         }
                     ),
@@ -876,17 +876,17 @@ impl ManifestV1Builder {
             let rule_set = engine::RuleSet {
                 primary_role: engine::rule!(require(
                     engine::NonFungibleGlobalId::from_public_key(
-                        &engine::PublicKey::try_from(primary_role)?
+                        engine::PublicKey::try_from(primary_role)?
                     )
                 )),
                 recovery_role: engine::rule!(require(
                     engine::NonFungibleGlobalId::from_public_key(
-                        &engine::PublicKey::try_from(recovery_role)?
+                        engine::PublicKey::try_from(recovery_role)?
                     )
                 )),
                 confirmation_role: engine::rule!(require(
                     engine::NonFungibleGlobalId::from_public_key(
-                        &engine::PublicKey::try_from(confirmation_role)?
+                        engine::PublicKey::try_from(confirmation_role)?
                     )
                 )),
             };
@@ -993,12 +993,12 @@ impl ManifestV1Builder {
                     engine::FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT,
                     engine::to_manifest_value_and_unwrap!(
                         &engine::FungibleResourceManagerCreateWithInitialSupplyManifestInput {
-                            owner_role,
+                            owner_role: owner_role.into(),
                             track_total_supply,
                             divisibility,
                             initial_supply: initial_supply.0,
-                            resource_roles,
-                            metadata,
+                            resource_roles: resource_roles.into(),
+                            metadata: metadata.into(),
                             address_reservation
                         }
                     ),
@@ -1008,11 +1008,11 @@ impl ManifestV1Builder {
                     engine::FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT,
                     engine::to_manifest_value_and_unwrap!(
                         &engine::FungibleResourceManagerCreateManifestInput {
-                            owner_role,
+                            owner_role: owner_role.into(),
                             track_total_supply,
                             divisibility,
-                            resource_roles,
-                            metadata,
+                            resource_roles: resource_roles.into(),
+                            metadata: metadata.into(),
                             address_reservation
                         }
                     ),
@@ -1098,7 +1098,7 @@ impl TryFrom<SecurityStructureRole> for engine::AccessRule {
             .into_iter()
             .map(|pk| {
                 engine::PublicKey::try_from(pk)
-                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(&pk))
+                    .map(engine::NonFungibleGlobalId::from_public_key)
                     .map(engine::ResourceOrNonFungible::NonFungible)
             })
             .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
@@ -1107,7 +1107,7 @@ impl TryFrom<SecurityStructureRole> for engine::AccessRule {
             .into_iter()
             .map(|pk| {
                 engine::PublicKey::try_from(pk)
-                    .map(|pk| engine::NonFungibleGlobalId::from_public_key(&pk))
+                    .map(engine::NonFungibleGlobalId::from_public_key)
                     .map(engine::ResourceOrNonFungible::NonFungible)
             })
             .collect::<Result<Vec<engine::ResourceOrNonFungible>>>()?;
@@ -1318,7 +1318,7 @@ macro_rules! builder_alias_internal {
                                         $input_arg_name: <
                                             $input_arg_type
                                             as $crate::builder::manifest_builder::traits::FromWithNameRecordContext<$interface_arg_type>
-                                        >::from($interface_arg_name, &builder.name_record)?
+                                        >::from($interface_arg_name, &builder.name_record)?.into()
                                     ),*
                                 }
                             }
@@ -1368,7 +1368,7 @@ macro_rules! builder_alias_internal {
                                     $input_arg_name: <
                                         $input_arg_type
                                         as $crate::builder::manifest_builder::traits::FromWithNameRecordContext<$interface_arg_type>
-                                    >::from($interface_arg_name, &builder.name_record)?
+                                    >::from($interface_arg_name, &builder.name_record)?.into()
                                 ),*
                             }
                         }

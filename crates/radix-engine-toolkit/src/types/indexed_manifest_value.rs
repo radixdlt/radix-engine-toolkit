@@ -95,7 +95,7 @@ impl IndexedManifestValue {
         })
     }
 
-    fn get_manifest_value(&self) -> Ref<ManifestValue> {
+    fn get_manifest_value(&self) -> Ref<'_, ManifestValue> {
         let is_empty = { self.manifest_value.borrow().is_none() };
 
         if is_empty {
@@ -136,7 +136,7 @@ impl IndexedManifestValue {
         self.get_manifest_value().clone()
     }
 
-    pub fn as_manifest_value(&self) -> Ref<ManifestValue> {
+    pub fn as_manifest_value(&self) -> Ref<'_, ManifestValue> {
         self.get_manifest_value()
     }
 

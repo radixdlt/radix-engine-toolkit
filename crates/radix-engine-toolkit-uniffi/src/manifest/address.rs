@@ -95,7 +95,7 @@ impl TryFrom<ManifestAddress> for engine::DynamicPackageAddress {
             } => Ok(Self::Named(engine::ManifestNamedAddress(value))),
             ManifestAddress::Static {
                 static_address: value,
-            } => (*value).try_into().map(Self::Static).map_err(Into::into),
+            } => (*value).try_into().map(Self::Static),
         }
     }
 }
@@ -112,7 +112,7 @@ impl TryFrom<ManifestAddress> for engine::DynamicGlobalAddress {
             } => Ok(Self::Named(engine::ManifestNamedAddress(value))),
             ManifestAddress::Static {
                 static_address: value,
-            } => (*value).try_into().map(Self::Static).map_err(Into::into),
+            } => (*value).try_into().map(Self::Static),
         }
     }
 }

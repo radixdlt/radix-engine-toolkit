@@ -115,7 +115,7 @@ macro_rules! define_instruction_groups {
             }
 
             impl GroupedInstruction {
-                pub fn effect(&self) -> ManifestInstructionEffect {
+                pub fn effect(&self) -> ManifestInstructionEffect<'_> {
                     match self {
                         $(
                             Self::$group_ident(v) => v.effect(),
@@ -222,7 +222,7 @@ macro_rules! define_instruction_groups {
 
                 #[allow(irrefutable_let_patterns)]
                 impl $group_ident {
-                    pub fn effect(&self) -> ManifestInstructionEffect {
+                    pub fn effect(&self) -> ManifestInstructionEffect<'_> {
                         match self {
                             $(
                                 Self::$instruction_ident(v) => v.effect(),

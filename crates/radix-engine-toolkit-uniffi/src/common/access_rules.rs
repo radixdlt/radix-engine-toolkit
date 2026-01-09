@@ -102,7 +102,7 @@ impl AccessRule {
     pub fn require_signature(public_key: PublicKey) -> Result<Arc<Self>> {
         let public_key = engine::PublicKey::try_from(public_key)?;
         let non_fungible_global_id =
-            engine::NonFungibleGlobalId::from_public_key(&public_key);
+            engine::NonFungibleGlobalId::from_public_key(public_key);
         let access_rule = engine::rule!(require(non_fungible_global_id));
         Ok(Arc::new(Self(access_rule)))
     }
