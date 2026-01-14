@@ -302,8 +302,8 @@ fn pool_contributions_and_redemptions_are_permitted_in_general_subintent() {
             ONE_RESOURCE_POOL_BLUEPRINT,
             ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
             OneResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
+                owner_role: OwnerRole::default().into(),
+                pool_manager_rule: rule!(allow_all).into(),
                 resource_address: resource_address1.into(),
                 address_reservation: None,
             },
@@ -313,8 +313,8 @@ fn pool_contributions_and_redemptions_are_permitted_in_general_subintent() {
             TWO_RESOURCE_POOL_BLUEPRINT,
             TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
             TwoResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
+                owner_role: OwnerRole::default().into(),
+                pool_manager_rule: rule!(allow_all).into(),
                 resource_addresses: (
                     resource_address1.into(),
                     resource_address2.into(),
@@ -327,8 +327,8 @@ fn pool_contributions_and_redemptions_are_permitted_in_general_subintent() {
             MULTI_RESOURCE_POOL_BLUEPRINT,
             MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
             MultiResourcePoolInstantiateManifestInput {
-                owner_role: Default::default(),
-                pool_manager_rule: rule!(allow_all),
+                owner_role: OwnerRole::default().into(),
+                pool_manager_rule: rule!(allow_all).into(),
                 resource_addresses: indexset![
                     resource_address1.into(),
                     resource_address2.into()
@@ -463,11 +463,11 @@ fn account_locker_creation_storing_claiming_and_redeeming_are_permitted_in_gener
                     ACCOUNT_LOCKER_BLUEPRINT,
                     ACCOUNT_LOCKER_INSTANTIATE_IDENT,
                     AccountLockerInstantiateManifestInput {
-                        owner_role: Default::default(),
-                        storer_role: rule!(allow_all),
-                        storer_updater_role: rule!(allow_all),
-                        recoverer_role: rule!(allow_all),
-                        recoverer_updater_role: rule!(allow_all),
+                        owner_role: OwnerRole::default().into(),
+                        storer_role: rule!(allow_all).into(),
+                        storer_updater_role: rule!(allow_all).into(),
+                        recoverer_role: rule!(allow_all).into(),
+                        recoverer_updater_role: rule!(allow_all).into(),
                         address_reservation: Some(
                             lookup.address_reservation("locker_reservation"),
                         ),
@@ -568,7 +568,8 @@ fn creating_access_controller_initiate_recovery_as_primary_is_not_permitted_in_g
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )
@@ -603,7 +604,8 @@ fn creating_access_controller_initiate_recovery_as_recovery_is_not_permitted_in_
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )
@@ -639,7 +641,8 @@ fn creating_access_controller_confirm_primary_role_recovery_is_not_permitted_in_
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )
@@ -657,7 +660,7 @@ fn creating_access_controller_confirm_primary_role_recovery_is_not_permitted_in_
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }.into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )
@@ -693,7 +696,8 @@ fn creating_access_controller_confirm_recovery_role_recovery_is_not_permitted_in
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )
@@ -711,7 +715,8 @@ fn creating_access_controller_confirm_recovery_role_recovery_is_not_permitted_in
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         )

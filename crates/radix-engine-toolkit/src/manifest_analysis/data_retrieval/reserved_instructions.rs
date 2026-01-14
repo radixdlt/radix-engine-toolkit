@@ -76,7 +76,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
                 invocation:
                     TypedManifestNativeInvocation::MetadataBlueprintInvocation(
                         MetadataBlueprintInvocation::Method(
-                            MetadataBlueprintMethod::Set(MetadataSetInput {
+                            MetadataBlueprintMethod::Set(MetadataSetManifestInput {
                                 key, ..
                             }),
                         ),
@@ -118,7 +118,7 @@ impl ManifestStaticAnalyzer for ReservedInstructionsAnalyzer {
                 invocation:
                     TypedManifestNativeInvocation::MetadataBlueprintInvocation(
                         MetadataBlueprintInvocation::Method(
-                            MetadataBlueprintMethod::Set(MetadataSetInput {
+                            MetadataBlueprintMethod::Set(MetadataSetManifestInput {
                                 key, ..
                             }),
                         ),

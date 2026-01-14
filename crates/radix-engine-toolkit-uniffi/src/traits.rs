@@ -30,10 +30,7 @@ where
     type Native = Option<T::Native>;
 
     fn from_native(native: Self::Native) -> Self {
-        match native {
-            Some(value) => Some(FromNative::from_native(value)),
-            None => None,
-        }
+        native.map(FromNative::from_native)
     }
 }
 

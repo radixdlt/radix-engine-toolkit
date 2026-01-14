@@ -23,3 +23,4 @@ mod non_fungible_dynamic_analysis;
 mod presented_proofs;
 mod requiring_auth;
 mod reserved_instructions;
+mod troublesome_manifests;

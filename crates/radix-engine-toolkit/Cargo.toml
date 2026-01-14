@@ -51,6 +51,7 @@ itertools = { workspace = true }
 cargo_toml = { workspace = true }
 
 [dev-dependencies]
+serde = { workspace = true }
 scrypto-test = { workspace = true }
 
 [features]

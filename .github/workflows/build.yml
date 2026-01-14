@@ -1,6 +1,7 @@
 # Build CI - Runs on demand and requires some inputs
 
 name: Build
+
 on:
   workflow_dispatch:
     inputs:
@@ -28,8 +29,10 @@ on:
         type: string
         default: "main"
         description: The branch, tag, or sha to checkout - default to "main".
+
 env:
   CARGO_TERM_COLOR: always
+
 jobs:
   build-schemas-and-test-kit:
     runs-on: ubuntu-latest
@@ -53,10 +56,11 @@ jobs:
         # RUSTC_WRAPPER: "sccache"
       working-directory: crates/generator
     - name: Upload Generated Artifacts
-      uses: RDXWorks-actions/upload-artifact@main
+      uses: RDXWorks-actions/upload-artifact-v4@main
       with:
         name: "schemas-and-test-kit"
         path: "crates/generator/output"
+
   build:
     runs-on: ${{ matrix.build-target.runner }}
     continue-on-error: true
@@ -70,7 +74,7 @@ jobs:
           # Linux Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-unknown-linux-gnu
-            runner: ubuntu-20.04
+            runner: ubuntu-latest
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-unknown-linux-gnu
             runner: ubuntu-latest
@@ -91,21 +95,21 @@ jobs:
           # MacOS Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-apple-darwin
-            runner: macos-13
+            runner: macos-15
           - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-apple-darwin
-            runner: macos-13
+            runner: macos-15
           
           # iOS Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-apple-ios
-            runner: macos-13
+            runner: macos-15
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-apple-ios
-            runner: macos-13
+            runner: macos-15
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-apple-ios-sim
-            runner: macos-13
+            runner: macos-15
     steps:
       - uses: RDXWorks-actions/checkout@main
         with:
@@ -180,11 +184,13 @@ jobs:
       - name: Clean Build Artifacts
         run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "target/${{ matrix.build-target.target-triple }}/release"
+
   generate-uniffi-bindings:
+    name: "Generate Uniffi bindings"
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -205,7 +211,7 @@ jobs:
           path: uniffi-bindgen-go
           submodules: 'recursive'
           ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Generate the Bindings
@@ -237,10 +243,11 @@ jobs:
             --lib-file $DYNAMIC_LIBRARY_PATH \
             --no-format
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: uniffi-bindings
           path: uniffi-bindings
+
   publish-swift-spm:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
@@ -255,7 +262,7 @@ jobs:
           repository: radixdlt/swift-engine-toolkit
           token: ${{ secrets.RADIX_BOT_PAT }}
           path: ./swift-engine-toolkit
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Build XCFramework
@@ -368,10 +375,11 @@ jobs:
           git push $SET_UPSTREAM_FLAG origin $BRANCH
           git push origin $SPM_VERSION
       - name: Upload Artifacts
-        uses: RDXWorks-actions/upload-artifact@main
+        uses: RDXWorks-actions/upload-artifact-v4@main
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
+
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -383,7 +391,7 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -402,6 +410,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish-kotlin-maven-central:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -434,15 +443,15 @@ jobs:
         with:
           role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
           app_name: 'radix-engine-toolkit'
-          step_name: 'gpg-passprhase'
-          secret_prefix: 'GPG_PASSPHRASE'
-          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-passphrase-S59PVR'
+          step_name: 'gpg'
+          secret_prefix: 'GPG'
+          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-key-iu0Btf'
           parse_json: true
 
       - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -454,26 +463,19 @@ jobs:
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
-      - uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
-        with:
-          role_name: 'arn:aws:iam::${{ secrets.SECRETS_ACCOUNT_ID }}:role/gh-radix-engine-toolkit-secrets-read-access'
-          app_name: 'radix-engine-toolkit'
-          step_name: 'gpg'
-          secret_prefix: 'GPG_BINARY'
-          secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/gpg-UQP0tq'
-          parse_json: true
 
       - name: Get GPG key to sign
         working-directory: interop/kotlin/ret-kotlin
         run: |
-          echo "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
+          printf "%s" "${{ env.GPG_BINARY }}" | base64 --decode > rdx-secring.gpg
           cp rdx-secring.gpg lib/rdx-secring.gpg
 
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
+
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -485,7 +487,7 @@ jobs:
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up JDK 1.8
@@ -511,10 +513,12 @@ jobs:
           build-root-directory: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish-dotnet-nuget:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
       packages: write
     steps:
@@ -531,7 +535,7 @@ jobs:
           secret_name: 'arn:aws:secretsmanager:eu-west-2:${{ secrets.SECRETS_ACCOUNT_ID }}:secret:github-actions/radixdlt/radix-engine-toolkit/nuget-XrZrYj'
           parse_json: true
 
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Setup .NET SDK
@@ -568,6 +572,7 @@ jobs:
       - name: Publish Packages
         working-directory: interop/csharp/
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
+
   publish-python-package:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -590,7 +595,7 @@ jobs:
           parse_json: true
       - name: Print Env
         run: env
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up Python 3.11
@@ -648,10 +653,11 @@ jobs:
       - name: Publish
         working-directory: ./interop/python/
         env:
-          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
+          TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
         run: |
           python3 -m twine upload dist/* --verbose
+
   publish-go-package:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
@@ -682,7 +688,7 @@ jobs:
           repository: radixdlt/radix-engine-toolkit-go
           ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
           path: radix-engine-toolkit-go
-      - uses: RDXWorks-actions/download-artifact@main
+      - uses: RDXWorks-actions/download-artifact-v4@main
         with:
           path: artifacts
       - name: Set up Go
