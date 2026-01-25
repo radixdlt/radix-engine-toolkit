@@ -4,6 +4,7 @@ use radix_transactions::manifest::{compile_manifest, MockBlobProvider};
 use scrypto_test::prelude::*;
 use serde::Deserialize;
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct TroublesomeManifest {
     pub state_version: u64,
