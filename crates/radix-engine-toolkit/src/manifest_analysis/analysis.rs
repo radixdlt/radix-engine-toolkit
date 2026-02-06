@@ -97,10 +97,6 @@ pub fn statically_analyze(
         entities_requiring_auth_summary,
         reserved_instructions_summary,
         manifest_classification: [
-            general_classification.map(|_| ManifestClassification::General),
-            general_subintent_classification
-                .map(|_| ManifestClassification::GeneralSubintent),
-            transfer_classification.map(|_| ManifestClassification::Transfer),
             validator_stake_classification
                 .map(|_| ManifestClassification::ValidatorStake),
             validator_unstake_classification
@@ -113,6 +109,10 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::PoolRedemption),
             account_settings_update_classification
                 .map(|_| ManifestClassification::AccountDepositSettingsUpdate),
+            transfer_classification.map(|_| ManifestClassification::Transfer),
+            general_classification.map(|_| ManifestClassification::General),
+            general_subintent_classification
+                .map(|_| ManifestClassification::GeneralSubintent),
         ]
         .into_iter()
         .flatten()
@@ -234,12 +234,6 @@ pub fn dynamically_analyze(
         fee_locks_summary: analysis_receipt.fee_locks(),
         fee_consumption_summary: analysis_receipt.fee_summary(),
         detailed_manifest_classification: vec![
-            general_classification.map(|_| DetailedManifestClassification::General),
-            general_subintent_classification
-                .map(|_| DetailedManifestClassification::GeneralSubintent),
-            transfer_classification.map(|_| DetailedManifestClassification::Transfer {
-                is_one_to_one_transfer: simple_transfer_classification.is_some(),
-            }),
             validator_stake_classification
                 .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::ValidatorStake),
@@ -258,6 +252,12 @@ pub fn dynamically_analyze(
             account_settings_update_classification
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccountDepositSettingsUpdate),
+            transfer_classification.map(|_| DetailedManifestClassification::Transfer {
+                is_one_to_one_transfer: simple_transfer_classification.is_some(),
+            }),
+            general_classification.map(|_| DetailedManifestClassification::General),
+            general_subintent_classification
+                    .map(|_| DetailedManifestClassification::GeneralSubintent),
         ]
         .into_iter()
         .flatten()
