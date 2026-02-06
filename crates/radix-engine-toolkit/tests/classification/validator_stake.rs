@@ -49,7 +49,7 @@ fn single_validator_stake_classifies_as_validator_stake_transaction() {
         .contains(&ManifestClassification::ValidatorStake));
     let Some(DetailedManifestClassification::ValidatorStake(
         ValidatorStakingOutput { stake_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator stake transaction")
     };
@@ -225,7 +225,7 @@ fn multiple_validator_stakes_classifies_as_validator_stake_transaction() {
         ValidatorStakingOutput {
             mut stake_operations,
         },
-    )) = detailed_manifest_classification.last().cloned()
+    )) = detailed_manifest_classification.first().cloned()
     else {
         panic!("Not a validator stake transaction")
     };
