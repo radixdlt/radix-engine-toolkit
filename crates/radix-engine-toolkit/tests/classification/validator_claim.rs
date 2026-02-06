@@ -75,7 +75,7 @@ fn single_validator_claim_classifies_as_validator_claim_transaction() {
         .contains(&ManifestClassification::ValidatorClaimXrd));
     let Some(DetailedManifestClassification::ValidatorClaimXrd(
         ValidatorClaimingXrdOutput { claim_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator claim transaction")
     };
@@ -159,7 +159,7 @@ fn single_validator_claim_with_withdraw_of_non_fungibles_classifies_as_validator
         .contains(&ManifestClassification::ValidatorClaimXrd));
     let Some(DetailedManifestClassification::ValidatorClaimXrd(
         ValidatorClaimingXrdOutput { claim_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator claim transaction")
     };

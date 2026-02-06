@@ -63,7 +63,7 @@ fn single_validator_unstake_classifies_as_validator_unstake_transaction() {
         .contains(&ManifestClassification::ValidatorUnstake));
     let Some(DetailedManifestClassification::ValidatorUnstake(
         ValidatorUnstakingOutput { unstake_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator unstake transaction")
     };
@@ -123,7 +123,7 @@ fn single_validator_unstake_with_lock_fee_and_withdraw_classifies_as_validator_u
         .contains(&ManifestClassification::ValidatorUnstake));
     let Some(DetailedManifestClassification::ValidatorUnstake(
         ValidatorUnstakingOutput { unstake_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator unstake transaction")
     };
@@ -186,7 +186,7 @@ fn multiple_validator_unstake_classifies_as_validator_unstake_transaction() {
         .contains(&ManifestClassification::ValidatorUnstake));
     let Some(DetailedManifestClassification::ValidatorUnstake(
         ValidatorUnstakingOutput { unstake_operations },
-    )) = detailed_manifest_classification.last()
+    )) = detailed_manifest_classification.first()
     else {
         panic!("Not a validator unstake transaction")
     };
