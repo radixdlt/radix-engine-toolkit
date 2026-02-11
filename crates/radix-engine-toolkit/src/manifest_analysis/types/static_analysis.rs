@@ -64,5 +64,5 @@ pub struct StaticAnalysis {
 
     /// An ordered set of the classification(s) of the manifest based on the
     /// static analysis.
-    pub manifest_classification: BTreeSet<ManifestClassification>,
+    pub manifest_classification: Vec<ManifestClassification>,
 }
