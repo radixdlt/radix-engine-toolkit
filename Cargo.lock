@@ -1452,7 +1452,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit"
-version = "2.3.3"
+version = "2.3.4"
 dependencies = [
  "bech32",
  "cargo_toml 0.15.3",
@@ -1494,7 +1494,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-uniffi"
-version = "2.3.3"
+version = "2.3.4"
 dependencies = [
  "hex",
  "paste",
@@ -1807,7 +1807,7 @@ dependencies = [
 
 [[package]]
 name = "sbor-json"
-version = "2.3.3"
+version = "2.3.4"
 dependencies = [
  "bech32",
  "radix-common",
@@ -2492,7 +2492,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi-bindgen"
-version = "2.3.3"
+version = "2.3.4"
 dependencies = [
  "uniffi",
 ]
