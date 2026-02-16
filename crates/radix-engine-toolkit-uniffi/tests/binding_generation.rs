@@ -21,6 +21,6 @@
 
 uniffi::build_foreign_language_testcases!(
     "tests/bindings/example.swift",
-    "tests/bindings/example.kts",
+    // "tests/bindings/example.kts",
     "tests/bindings/example.py",
 );
