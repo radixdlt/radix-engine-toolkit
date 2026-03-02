@@ -21,8 +21,6 @@ use radix_engine_toolkit_json::prelude::*;
 use radix_transactions::prelude::{
     TransactionBuilder, TransactionHeaderV1, TransactionManifestV1,
 };
-use radix_transactions::validation::ValidationConfig;
-
 use super::manifest_provider::*;
 use super::traits::HasExamples;
 
@@ -61,7 +59,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE>
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         notarized_transactions().map(|transaction| Self::Input {
             notarized_transaction: transaction,
-            validation_config: ValidationConfig::default(0xf2).into(),
         })
     }
 }
@@ -81,6 +78,7 @@ fn build_transaction(
     let manifest = TransactionManifestV1 {
         instructions,
         blobs: Default::default(),
+        object_names: Default::default(),
     };
 
     let notary_private_key = Secp256k1PrivateKey::from_u64(1).unwrap();

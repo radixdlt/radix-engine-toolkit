@@ -31,3 +31,5 @@ bld/
 *.nupkg
 
 temp
+
+.envrc

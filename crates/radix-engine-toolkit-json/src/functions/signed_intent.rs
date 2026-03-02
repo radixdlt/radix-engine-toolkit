@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor_json::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -39,7 +40,7 @@ impl<'f> Function<'f> for SignedTransactionIntentHash {
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let signed_intent =
             signed_intent.to_native(*signed_intent.intent.header.network_id)?;
-        let hash = radix_engine_toolkit::functions::signed_intent::hash(
+        let hash = radix_engine_toolkit::functions::transaction_v1::signed_intent::hash(
             &signed_intent,
         )
         .map_err(|error| {
@@ -76,7 +77,7 @@ impl<'f> Function<'f> for SignedIntentCompile {
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let signed_intent =
             signed_intent.to_native(*signed_intent.intent.header.network_id)?;
-        let compile = radix_engine_toolkit::functions::signed_intent::compile(
+        let compile = radix_engine_toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(
             &signed_intent,
         )
         .map_err(|error| {
@@ -117,13 +118,13 @@ impl<'a> Function<'a> for SignedIntentDecompile {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let signed_intent =
-            radix_engine_toolkit::functions::signed_intent::decompile(
+            radix_engine_toolkit::functions::transaction_v1::signed_intent::from_payload_bytes(
                 &**compiled,
             )
             .map_err(|error| {
-                InvocationHandlingError::EncodeError(
+                InvocationHandlingError::DecodeError(
                     debug_string(error),
-                    debug_string(compiled),
+                    debug_string(&compiled),
                 )
             })?;
 
@@ -148,7 +149,6 @@ export_jni_function!(SignedIntentDecompile as signedIntentDecompile);
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SignedIntentStaticallyValidateInput {
     pub signed_intent: SerializableSignedIntent,
-    pub validation_config: SerializableValidationConfig,
 }
 
 #[typeshare::typeshare]
@@ -167,16 +167,16 @@ impl<'a> Function<'a> for SignedIntentStaticallyValidate {
     fn handle(
         SignedIntentStaticallyValidateInput {
             signed_intent,
-            validation_config,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
+        let network_id = *signed_intent.intent.header.network_id;
         let signed_intent =
-            signed_intent.to_native(*signed_intent.intent.header.network_id)?;
-        let validation_config = validation_config.into();
+            signed_intent.to_native(network_id)?;
+        let network_definition = network_definition_from_network_id(network_id);
 
-        match radix_engine_toolkit::functions::signed_intent::statically_validate(
+        match radix_engine_toolkit::functions::transaction_v1::signed_intent::statically_validate(
             &signed_intent,
-            validation_config,
+            &network_definition,
         ) {
             Ok(..) => Ok(Self::Output::Valid),
             Err(error) => Ok(Self::Output::Invalid(debug_string(error))),

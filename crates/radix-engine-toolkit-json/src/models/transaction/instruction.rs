@@ -20,7 +20,7 @@ use std::ops::Deref;
 use crate::prelude::*;
 
 use radix_common::prelude::*;
-use radix_transactions::prelude::manifest_instruction::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use schemars::*;
 use serde::*;
@@ -239,13 +239,13 @@ impl SerializableInstruction {
                     })
                     .collect(),
             },
-            InstructionV1::PopFromAuthZone => Self::PopFromAuthZone,
+            InstructionV1::PopFromAuthZone(..) => Self::PopFromAuthZone,
             InstructionV1::PushToAuthZone(PushToAuthZone { proof_id }) => {
                 Self::PushToAuthZone {
                     proof_id: SerializableU32::from(proof_id.0),
                 }
             }
-            InstructionV1::DropAuthZoneProofs => Self::DropAuthZoneProofs,
+            InstructionV1::DropAuthZoneProofs(..) => Self::DropAuthZoneProofs,
             InstructionV1::CreateProofFromAuthZoneOfAll(
                 CreateProofFromAuthZoneOfAll { resource_address },
             ) => Self::CreateProofFromAuthZoneOfAll {
@@ -283,11 +283,11 @@ impl SerializableInstruction {
                     })
                     .collect(),
             },
-            InstructionV1::DropNamedProofs => Self::DropNamedProofs,
-            InstructionV1::DropAuthZoneRegularProofs => {
+            InstructionV1::DropNamedProofs(..) => Self::DropNamedProofs,
+            InstructionV1::DropAuthZoneRegularProofs(..) => {
                 Self::DropAuthZoneRegularProofs
             }
-            InstructionV1::DropAuthZoneSignatureProofs => {
+            InstructionV1::DropAuthZoneSignatureProofs(..) => {
                 Self::DropAuthZoneSignatureProofs
             }
             InstructionV1::CreateProofFromBucketOfAll(
@@ -327,7 +327,7 @@ impl SerializableInstruction {
                     proof_id: SerializableU32::from(proof_id.0),
                 }
             }
-            InstructionV1::DropAllProofs => Self::DropAllProofs,
+            InstructionV1::DropAllProofs(..) => Self::DropAllProofs,
             InstructionV1::CallFunction(CallFunction {
                 package_address,
                 blueprint_name,
@@ -337,7 +337,7 @@ impl SerializableInstruction {
                 package_address: match package_address {
                     DynamicPackageAddress::Named(named) => {
                         SerializableManifestAddress::Named(
-                            SerializableU32::from(*named),
+                            SerializableU32::from(named.0),
                         )
                     }
                     DynamicPackageAddress::Static(global_address) => {
@@ -361,7 +361,7 @@ impl SerializableInstruction {
                 address: match address {
                     DynamicGlobalAddress::Named(named) => {
                         SerializableManifestAddress::Named(
-                            SerializableU32::from(*named),
+                            SerializableU32::from(named.0),
                         )
                     }
                     DynamicGlobalAddress::Static(global_address) => {
@@ -384,7 +384,7 @@ impl SerializableInstruction {
                 address: match address {
                     DynamicGlobalAddress::Named(named) => {
                         SerializableManifestAddress::Named(
-                            SerializableU32::from(*named),
+                            SerializableU32::from(named.0),
                         )
                     }
                     DynamicGlobalAddress::Static(global_address) => {
@@ -407,7 +407,7 @@ impl SerializableInstruction {
                 address: match address {
                     DynamicGlobalAddress::Named(named) => {
                         SerializableManifestAddress::Named(
-                            SerializableU32::from(*named),
+                            SerializableU32::from(named.0),
                         )
                     }
                     DynamicGlobalAddress::Static(global_address) => {
@@ -432,7 +432,7 @@ impl SerializableInstruction {
                 address: match address {
                     DynamicGlobalAddress::Named(named) => {
                         SerializableManifestAddress::Named(
-                            SerializableU32::from(*named),
+                            SerializableU32::from(named.0),
                         )
                     }
                     DynamicGlobalAddress::Static(global_address) => {
@@ -481,120 +481,158 @@ impl SerializableInstruction {
                 resource_address,
                 amount,
                 ..
-            } => InstructionV1::TakeFromWorktop {
+            } => InstructionV1::TakeFromWorktop(TakeFromWorktop {
                 resource_address: (*resource_address).try_into()?,
                 amount: *amount.deref(),
-            },
+            }),
             Self::TakeNonFungiblesFromWorktop {
                 ids,
                 resource_address,
                 ..
-            } => InstructionV1::TakeNonFungiblesFromWorktop {
-                resource_address: (*resource_address).try_into()?,
-                ids: ids.iter().map(|id| id.deref().clone()).collect(),
-            },
+            } => InstructionV1::TakeNonFungiblesFromWorktop(
+                TakeNonFungiblesFromWorktop {
+                    resource_address: (*resource_address).try_into()?,
+                    ids: ids.iter().map(|id| id.deref().clone()).collect(),
+                },
+            ),
             Self::TakeAllFromWorktop {
                 resource_address, ..
-            } => InstructionV1::TakeAllFromWorktop {
+            } => InstructionV1::TakeAllFromWorktop(TakeAllFromWorktop {
                 resource_address: (*resource_address).try_into()?,
-            },
+            }),
             Self::ReturnToWorktop { bucket_id } => {
-                InstructionV1::ReturnToWorktop {
+                InstructionV1::ReturnToWorktop(ReturnToWorktop {
                     bucket_id: ManifestBucket(**bucket_id),
-                }
+                })
             }
             Self::AssertWorktopContains {
                 resource_address,
                 amount,
-            } => InstructionV1::AssertWorktopContains {
-                resource_address: (*resource_address).try_into()?,
-                amount: *amount.deref(),
-            },
-            Self::AssertWorktopContainsAny { resource_address } => {
-                InstructionV1::AssertWorktopContainsAny {
+            } => InstructionV1::AssertWorktopContains(
+                AssertWorktopContains {
                     resource_address: (*resource_address).try_into()?,
-                }
+                    amount: *amount.deref(),
+                },
+            ),
+            Self::AssertWorktopContainsAny { resource_address } => {
+                InstructionV1::AssertWorktopContainsAny(
+                    AssertWorktopContainsAny {
+                        resource_address: (*resource_address).try_into()?,
+                    },
+                )
             }
             Self::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
-            } => InstructionV1::AssertWorktopContainsNonFungibles {
-                resource_address: (*resource_address).try_into()?,
-                ids: ids.iter().map(|id| id.deref().clone()).collect(),
-            },
-            Self::PopFromAuthZone { .. } => InstructionV1::PopFromAuthZone {},
-            Self::PushToAuthZone { proof_id } => {
-                InstructionV1::PushToAuthZone {
-                    proof_id: ManifestProof(**proof_id),
-                }
+            } => InstructionV1::AssertWorktopContainsNonFungibles(
+                AssertWorktopContainsNonFungibles {
+                    resource_address: (*resource_address).try_into()?,
+                    ids: ids.iter().map(|id| id.deref().clone()).collect(),
+                },
+            ),
+            Self::PopFromAuthZone { .. } => {
+                InstructionV1::PopFromAuthZone(PopFromAuthZone)
             }
-            Self::DropNamedProofs => InstructionV1::DropNamedProofs,
-            Self::DropAuthZoneProofs => InstructionV1::DropAuthZoneProofs,
+            Self::PushToAuthZone { proof_id } => {
+                InstructionV1::PushToAuthZone(PushToAuthZone {
+                    proof_id: ManifestProof(**proof_id),
+                })
+            }
+            Self::DropNamedProofs => {
+                InstructionV1::DropNamedProofs(DropNamedProofs)
+            }
+            Self::DropAuthZoneProofs => {
+                InstructionV1::DropAuthZoneProofs(DropAuthZoneProofs)
+            }
             Self::DropAuthZoneRegularProofs => {
-                InstructionV1::DropAuthZoneRegularProofs { .. }
+                InstructionV1::DropAuthZoneRegularProofs(
+                    DropAuthZoneRegularProofs,
+                )
             }
             Self::DropAuthZoneSignatureProofs => {
-                InstructionV1::DropAuthZoneSignatureProofs { .. }
+                InstructionV1::DropAuthZoneSignatureProofs(
+                    DropAuthZoneSignatureProofs,
+                )
             }
             Self::CreateProofFromAuthZoneOfAll {
                 resource_address, ..
-            } => InstructionV1::CreateProofFromAuthZoneOfAll {
-                resource_address: (*resource_address).try_into()?,
-            },
+            } => InstructionV1::CreateProofFromAuthZoneOfAll(
+                CreateProofFromAuthZoneOfAll {
+                    resource_address: (*resource_address).try_into()?,
+                },
+            ),
             Self::CreateProofFromAuthZoneOfAmount {
                 resource_address,
                 amount,
                 ..
-            } => InstructionV1::CreateProofFromAuthZoneOfAmount {
-                resource_address: (*resource_address).try_into()?,
-                amount: *amount.deref(),
-            },
+            } => InstructionV1::CreateProofFromAuthZoneOfAmount(
+                CreateProofFromAuthZoneOfAmount {
+                    resource_address: (*resource_address).try_into()?,
+                    amount: *amount.deref(),
+                },
+            ),
             Self::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address,
                 ids,
                 ..
-            } => InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
-                resource_address: (*resource_address).try_into()?,
-                ids: ids.iter().map(|id| id.deref().clone()).collect(),
-            },
+            } => InstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                CreateProofFromAuthZoneOfNonFungibles {
+                    resource_address: (*resource_address).try_into()?,
+                    ids: ids.iter().map(|id| id.deref().clone()).collect(),
+                },
+            ),
             Self::CreateProofFromBucketOfAll { bucket_id, .. } => {
-                InstructionV1::CreateProofFromBucketOfAll {
-                    bucket_id: ManifestBucket(**bucket_id),
-                }
+                InstructionV1::CreateProofFromBucketOfAll(
+                    CreateProofFromBucketOfAll {
+                        bucket_id: ManifestBucket(**bucket_id),
+                    },
+                )
             }
             Self::CreateProofFromBucketOfAmount {
                 bucket_id, amount, ..
-            } => InstructionV1::CreateProofFromBucketOfAmount {
-                bucket_id: ManifestBucket(**bucket_id),
-                amount: *amount.deref(),
-            },
+            } => InstructionV1::CreateProofFromBucketOfAmount(
+                CreateProofFromBucketOfAmount {
+                    bucket_id: ManifestBucket(**bucket_id),
+                    amount: *amount.deref(),
+                },
+            ),
             Self::CreateProofFromBucketOfNonFungibles {
                 bucket_id,
                 ids,
                 ..
-            } => InstructionV1::CreateProofFromBucketOfNonFungibles {
-                bucket_id: ManifestBucket(**bucket_id),
-                ids: ids.iter().map(|id| id.deref().clone()).collect(),
-            },
-            Self::BurnResource { bucket_id } => InstructionV1::BurnResource {
-                bucket_id: ManifestBucket(**bucket_id),
-            },
-            Self::CloneProof { proof_id, .. } => InstructionV1::CloneProof {
-                proof_id: ManifestProof(**proof_id),
-            },
-            Self::DropProof { proof_id, .. } => InstructionV1::DropProof {
-                proof_id: ManifestProof(**proof_id),
-            },
-            Self::DropAllProofs {} => InstructionV1::DropAllProofs {},
+            } => InstructionV1::CreateProofFromBucketOfNonFungibles(
+                CreateProofFromBucketOfNonFungibles {
+                    bucket_id: ManifestBucket(**bucket_id),
+                    ids: ids.iter().map(|id| id.deref().clone()).collect(),
+                },
+            ),
+            Self::BurnResource { bucket_id } => {
+                InstructionV1::BurnResource(BurnResource {
+                    bucket_id: ManifestBucket(**bucket_id),
+                })
+            }
+            Self::CloneProof { proof_id, .. } => {
+                InstructionV1::CloneProof(CloneProof {
+                    proof_id: ManifestProof(**proof_id),
+                })
+            }
+            Self::DropProof { proof_id, .. } => {
+                InstructionV1::DropProof(DropProof {
+                    proof_id: ManifestProof(**proof_id),
+                })
+            }
+            Self::DropAllProofs {} => {
+                InstructionV1::DropAllProofs(DropAllProofs)
+            }
             Self::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
                 args,
-            } => InstructionV1::CallFunction {
+            } => InstructionV1::CallFunction(CallFunction {
                 package_address: match package_address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicPackageAddress::Named(**named)
+                        DynamicPackageAddress::Named(ManifestNamedAddress(**named))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicPackageAddress::Static((*address).try_into()?)
@@ -603,15 +641,15 @@ impl SerializableInstruction {
                 blueprint_name: blueprint_name.to_owned(),
                 function_name: function_name.to_owned(),
                 args: args.to_typed()?,
-            },
+            }),
             Self::CallMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallMethod {
+            } => InstructionV1::CallMethod(CallMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(**named)
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -619,15 +657,15 @@ impl SerializableInstruction {
                 },
                 method_name: method_name.to_string(),
                 args: args.to_typed()?,
-            },
+            }),
             Self::CallRoyaltyMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallRoyaltyMethod {
+            } => InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(**named)
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -635,15 +673,15 @@ impl SerializableInstruction {
                 },
                 method_name: method_name.to_string(),
                 args: args.to_typed()?,
-            },
+            }),
             Self::CallMetadataMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallMetadataMethod {
+            } => InstructionV1::CallMetadataMethod(CallMetadataMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(**named)
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -651,40 +689,48 @@ impl SerializableInstruction {
                 },
                 method_name: method_name.to_string(),
                 args: args.to_typed()?,
-            },
+            }),
             Self::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallRoleAssignmentMethod {
-                address: match address {
-                    SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(**named)
-                    }
-                    SerializableManifestAddress::Static(address) => {
-                        DynamicGlobalAddress::Static((*address).try_into()?)
-                    }
+            } => InstructionV1::CallRoleAssignmentMethod(
+                CallRoleAssignmentMethod {
+                    address: match address {
+                        SerializableManifestAddress::Named(named) => {
+                            DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
+                        }
+                        SerializableManifestAddress::Static(address) => {
+                            DynamicGlobalAddress::Static(
+                                (*address).try_into()?,
+                            )
+                        }
+                    },
+                    method_name: method_name.to_string(),
+                    args: args.to_typed()?,
                 },
-                method_name: method_name.to_string(),
-                args: args.to_typed()?,
-            },
+            ),
             Self::CallDirectVaultMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallDirectVaultMethod {
-                address: (*address).try_into()?,
-                method_name: method_name.to_string(),
-                args: args.to_typed()?,
-            },
+            } => InstructionV1::CallDirectVaultMethod(
+                CallDirectVaultMethod {
+                    address: (*address).try_into()?,
+                    method_name: method_name.to_string(),
+                    args: args.to_typed()?,
+                },
+            ),
             Self::AllocateGlobalAddress {
                 package_address,
                 blueprint_name,
                 ..
-            } => InstructionV1::AllocateGlobalAddress {
-                package_address: (*package_address).try_into()?,
-                blueprint_name: blueprint_name.to_owned(),
-            },
+            } => InstructionV1::AllocateGlobalAddress(
+                AllocateGlobalAddress {
+                    package_address: (*package_address).try_into()?,
+                    blueprint_name: blueprint_name.to_owned(),
+                },
+            ),
         };
         Ok(instruction)
     }

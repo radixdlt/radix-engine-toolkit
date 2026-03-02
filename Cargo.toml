@@ -3,12 +3,12 @@ resolver = "2"
 members = [
     # Core RET crates
     "crates/radix-engine-toolkit",
-    # "crates/radix-engine-toolkit-json",
+    "crates/radix-engine-toolkit-json",
     "crates/radix-engine-toolkit-uniffi",
     # Auxiliary Crates
     "crates/sbor-json",
     # Bindings Crates
-    # "crates/generator",
+    "crates/generator",
     "crates/uniffi-bindgen",
 ]
 

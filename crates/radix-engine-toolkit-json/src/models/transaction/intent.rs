@@ -39,6 +39,7 @@ impl FromNative for SerializableIntent {
         let TransactionManifestV1 {
             instructions,
             blobs,
+            ..
         } = self.manifest.to_native(network_id)?;
         let message = self.message.clone().into();
 

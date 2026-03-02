@@ -17,7 +17,7 @@
 
 use super::macros::{export_function, export_jni_function};
 use super::traits::Function;
-use radix_engine_toolkit::functions::information::DependencyInformation;
+use radix_engine_toolkit::types::DependencyInformation;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

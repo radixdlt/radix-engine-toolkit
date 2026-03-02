@@ -20,7 +20,7 @@ use std::ops::Deref;
 use crate::prelude::*;
 
 use radix_common::prelude::*;
-use radix_engine_toolkit::utils::*;
+use sbor_json::utils::*;
 use sbor::{LocalTypeId, Schema};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -118,7 +118,7 @@ impl<'f> Function<'f> for ScryptoSborEncodeStringRepresentation {
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let input = match input {
             SerializableScryptoSborStringRepresentation::ProgrammaticJson(value) => {
-                radix_engine_toolkit::functions::scrypto_sbor::StringRepresentation::ProgrammaticJson(value)
+                radix_engine_toolkit::types::ScryptoSborStringRepresentation::ProgrammaticJson(value)
             }
         };
         let bytes =

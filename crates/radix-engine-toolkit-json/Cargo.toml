@@ -16,11 +16,14 @@ radix-transactions = { workspace = true }
 # Core Radix Engine Toolkit
 radix-engine-toolkit = { path = "../radix-engine-toolkit", default-features = false }
 
+# SBOR JSON utilities (network_definition_from_network_id)
+sbor-json = { workspace = true }
+
 # Serde for JSON serialization
 serde = { version = "1.0.163" }
 serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = { version = "3.0.0", features = ["hex"] }
-schemars = { version = "0.8.12", features = ["preserve_order"] }
+schemars = { version = "0.8.12", features = ["preserve_order", "indexmap2"] }
 
 # Bech32 for encoding and decoding addresses
 bech32 = { version = "0.9.1" }
@@ -31,13 +34,14 @@ jni = { version = "0.21.1" }
 # Used to allow for more powerful macros
 paste = { version = "1.0.12" }
 walkdir = "2.3.3"
-indexmap = { version = "2.12.0", features = ["serde", "serde-1"] }
+indexmap = { version = "2.12.0", features = ["serde"] }
 
 # 1password's library for codesharing.
 typeshare = "1.0.3"
 
 # This makes the WASM builds work
 getrandom = { version = "*", features = ["js"] }
+uuid = { version = "1", features = ["js"] }
 
 [dev-dependencies]
 walkdir = "2.3.3"

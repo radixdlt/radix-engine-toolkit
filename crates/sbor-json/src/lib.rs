@@ -18,4 +18,4 @@
 pub mod common;
 pub mod manifest;
 pub mod scrypto;
-mod utils;
+pub mod utils;

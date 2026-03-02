@@ -16,7 +16,10 @@
 // under the License.
 
 use radix_common::prelude::*;
-use radix_transactions::data::*;
+use radix_transactions::data::{
+    from_decimal, from_non_fungible_local_id, from_precise_decimal,
+    to_decimal, to_non_fungible_local_id, to_precise_decimal,
+};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -366,7 +369,7 @@ impl SerializableManifestValue {
                 ManifestAddress::Named(named) => {
                     SerializableManifestValue::Address {
                         value: SerializableManifestAddress::Named(into!(
-                            *named
+                            named.0
                         )),
                     }
                 }
@@ -530,7 +533,9 @@ impl SerializableManifestValue {
                 SerializableManifestAddress::Named(value) => {
                     ManifestValue::Custom {
                         value: ManifestCustomValue::Address(
-                            ManifestAddress::Named(**value),
+                            ManifestAddress::Named(ManifestNamedAddress(
+                                **value,
+                            )),
                         ),
                     }
                 }

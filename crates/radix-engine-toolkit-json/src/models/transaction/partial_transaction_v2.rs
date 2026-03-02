@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::ops::Deref;
-
-use radix_transactions::manifest::ManifestObjectNames;
-use radix_transactions::prelude::TransactionManifestV1;
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -26,48 +23,50 @@ use crate::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct SerializableTransactionManifest {
-    pub instructions: SerializableInstructions,
-    pub blobs: Vec<SerializableBytes>,
+pub struct SerializablePartialTransactionV2 {
+    pub root_subintent: SerializableSubintentV2,
+    pub non_root_subintents: Vec<SerializableSubintentV2>,
 }
 
-impl FromNative for SerializableTransactionManifest {
-    type Native = TransactionManifestV1;
+impl FromNative for SerializablePartialTransactionV2 {
+    type Native = PartialTransactionV2;
     type Error = SerializableInstructionsError;
-    type Context = SerializableInstructionsKind;
+    type Context = ();
 
     fn to_native(&self, network_id: u8) -> Result<Self::Native, Self::Error> {
-        let instructions = self.instructions.to_instructions(network_id)?;
-        let blobs = self
-            .blobs
+        let root_subintent = self.root_subintent.to_native(network_id)?;
+        let non_root_subintents = self
+            .non_root_subintents
             .iter()
-            .map(|value| {
-                (scrypto::prelude::hash(&**value), value.deref().clone())
-            })
-            .collect();
+            .map(|s| s.to_native(network_id))
+            .collect::<Result<Vec<_>, _>>()?;
 
-        Ok(TransactionManifestV1 {
-            instructions,
-            blobs,
-            object_names: ManifestObjectNames::Unknown,
+        Ok(PartialTransactionV2 {
+            root_subintent,
+            non_root_subintents: NonRootSubintentsV2(non_root_subintents),
         })
     }
 
     fn from_native(
         native: &Self::Native,
         network_id: u8,
-        instructions_kind: Self::Context,
+        _context: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let instructions = SerializableInstructions::from_native(
-            &native.instructions,
+        let root_subintent = SerializableSubintentV2::from_native(
+            &native.root_subintent,
             network_id,
-            instructions_kind,
+            (),
         )?;
-        let blobs = native.blobs.values().cloned().map(Into::into).collect();
+        let non_root_subintents = native
+            .non_root_subintents
+            .0
+            .iter()
+            .map(|s| SerializableSubintentV2::from_native(s, network_id, ()))
+            .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Self {
-            instructions,
-            blobs,
+            root_subintent,
+            non_root_subintents,
         })
     }
 }

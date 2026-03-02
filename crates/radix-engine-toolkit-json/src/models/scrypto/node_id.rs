@@ -76,7 +76,7 @@ pub struct SerializableNodeIdInternal {
 impl Display for SerializableNodeIdInternal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let network_definition =
-            radix_engine_toolkit::utils::network_definition_from_network_id(
+            sbor_json::utils::network_definition_from_network_id(
                 self.network_id,
             );
         let bech32_encoder = AddressBech32Encoder::new(&network_definition);
@@ -92,7 +92,7 @@ impl FromStr for SerializableNodeIdInternal {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let network_id =
-            radix_engine_toolkit::utils::network_id_from_address_string(s)
+            sbor_json::utils::network_id_from_address_string(s)
                 .ok_or(
                     SerializableNodeIdError::FailedToParseStringAsAddress(
                         s.to_owned(),
@@ -100,7 +100,7 @@ impl FromStr for SerializableNodeIdInternal {
                 )?;
 
         let network_definition =
-            radix_engine_toolkit::utils::network_definition_from_network_id(
+            sbor_json::utils::network_definition_from_network_id(
                 network_id,
             );
         let bech32_decoder = AddressBech32Decoder::new(&network_definition);

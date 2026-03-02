@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::functions::derive::OlympiaNetwork;
+use radix_engine_toolkit::types::OlympiaNetwork;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;

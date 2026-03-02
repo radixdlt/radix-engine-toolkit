@@ -17,9 +17,10 @@
 
 use crate::prelude::*;
 
+use radix_common::prelude::*;
 use radix_common::types::EntityType;
-use radix_engine_toolkit::models::node_id::TypedNodeId;
 use sbor::prelude::{HashMap, HashSet};
+use sbor_json::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -49,14 +50,14 @@ impl<'a> Function<'a> for InstructionsHash {
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
 
-        let hash =
-            radix_engine_toolkit::functions::instructions::hash(&instructions)
-                .map_err(|error| {
-                    InvocationHandlingError::EncodeError(
-                        debug_string(error),
-                        debug_string(instructions),
-                    )
-                })?;
+        let encoded = manifest_encode(&instructions)
+            .map_err(|error| {
+                InvocationHandlingError::EncodeError(
+                    debug_string(error),
+                    debug_string(&instructions),
+                )
+            })?;
+        let hash = radix_common::crypto::hash(&encoded);
 
         Ok(hash.into())
     }
@@ -128,15 +129,13 @@ impl<'a> Function<'a> for InstructionsCompile {
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
 
-        let compiled = radix_engine_toolkit::functions::instructions::compile(
-            &instructions,
-        )
-        .map_err(|error| {
-            InvocationHandlingError::EncodeError(
-                debug_string(error),
-                debug_string(instructions),
-            )
-        })?;
+        let compiled = manifest_encode(&instructions)
+            .map_err(|error| {
+                InvocationHandlingError::EncodeError(
+                    debug_string(error),
+                    debug_string(&instructions),
+                )
+            })?;
 
         Ok(compiled.into())
     }
@@ -171,16 +170,14 @@ impl<'a> Function<'a> for InstructionsDecompile {
             instructions_kind,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
-        let instructions =
-            radix_engine_toolkit::functions::instructions::decompile(
-                &**compiled,
-            )
-            .map_err(|error| {
-                InvocationHandlingError::EncodeError(
-                    debug_string(error),
-                    debug_string(compiled),
-                )
-            })?;
+        let instructions: Vec<radix_transactions::prelude::InstructionV1> =
+            manifest_decode(&**compiled)
+                .map_err(|error| {
+                    InvocationHandlingError::DecodeError(
+                        debug_string(error),
+                        debug_string(&compiled),
+                    )
+                })?;
 
         let instructions =
             SerializableInstructions::new(
@@ -227,9 +224,12 @@ impl<'a> Function<'a> for InstructionsStaticallyValidate {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
+        let network_definition = network_definition_from_network_id(*network_id);
 
-        match radix_engine_toolkit::functions::instructions::statically_validate(
+        match radix_engine_toolkit::functions::transaction_v1::instructions::statically_validate(
             &instructions,
+            &Default::default(),
+            &network_definition,
         ) {
             Ok(..) => Ok(Self::Output::Valid),
             Err(error) => Ok(Self::Output::Invalid(debug_string(error))),
@@ -277,7 +277,7 @@ impl<'a> Function<'a> for InstructionsExtractAddresses {
         let instructions = instructions.to_instructions(*network_id)?;
 
         let (addresses, named_addresses) =
-            radix_engine_toolkit::functions::instructions::extract_addresses(
+            radix_engine_toolkit::functions::transaction_v1::instructions::extract_addresses(
                 &instructions,
             );
 
@@ -287,7 +287,7 @@ impl<'a> Function<'a> for InstructionsExtractAddresses {
             addresses,
             named_addresses: named_addresses
                 .into_iter()
-                .map(Into::into)
+                .map(|a| a.0.into())
                 .collect(),
         })
     }
@@ -481,16 +481,18 @@ impl From<SerializableEntityType> for EntityType {
 }
 
 pub(crate) fn transform_addresses_set_to_map(
-    addresses: HashSet<TypedNodeId>,
+    addresses: HashSet<NodeId>,
     network_id: u8,
 ) -> HashMap<SerializableEntityType, Vec<SerializableNodeId>> {
     let mut addresses_map =
         HashMap::<SerializableEntityType, Vec<SerializableNodeId>>::new();
     for node_id in addresses.into_iter() {
-        addresses_map
-            .entry(node_id.entity_type().into())
-            .or_default()
-            .push(SerializableNodeId::new(*node_id.as_node_id(), network_id))
+        if let Some(entity_type) = node_id.entity_type() {
+            addresses_map
+                .entry(entity_type.into())
+                .or_default()
+                .push(SerializableNodeId::new(node_id, network_id))
+        }
     }
     for entity_type in SerializableEntityType::all() {
         addresses_map.entry(entity_type).or_default();

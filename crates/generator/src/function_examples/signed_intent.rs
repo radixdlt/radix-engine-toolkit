@@ -16,7 +16,6 @@
 // under the License.
 
 use radix_engine_toolkit_json::prelude::*;
-use radix_transactions::validation::ValidationConfig;
 
 use super::manifest_provider::*;
 use super::traits::HasExamples;
@@ -52,7 +51,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE>
             .map(|tx| tx.signed_intent)
             .map(|transaction| Self::Input {
                 signed_intent: transaction,
-                validation_config: ValidationConfig::default(0xf2).into(),
             })
     }
 }

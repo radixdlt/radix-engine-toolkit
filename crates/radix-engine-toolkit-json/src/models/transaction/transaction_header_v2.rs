@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::types::TransactionHash;
+use radix_transactions::prelude::TransactionHeaderV2;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -23,16 +23,28 @@ use crate::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct SerializableTransactionHash {
-    pub hash: SerializableHash,
-    pub id: String,
+pub struct SerializableTransactionHeaderV2 {
+    pub notary_public_key: SerializablePublicKey,
+    pub notary_is_signatory: bool,
+    pub tip_basis_points: SerializableU32,
 }
 
-impl From<TransactionHash> for SerializableTransactionHash {
-    fn from(TransactionHash { hash, id }: TransactionHash) -> Self {
+impl From<SerializableTransactionHeaderV2> for TransactionHeaderV2 {
+    fn from(value: SerializableTransactionHeaderV2) -> Self {
         Self {
-            hash: hash.into(),
-            id,
+            notary_public_key: value.notary_public_key.into(),
+            notary_is_signatory: value.notary_is_signatory,
+            tip_basis_points: *value.tip_basis_points,
+        }
+    }
+}
+
+impl From<TransactionHeaderV2> for SerializableTransactionHeaderV2 {
+    fn from(value: TransactionHeaderV2) -> Self {
+        Self {
+            notary_public_key: value.notary_public_key.into(),
+            notary_is_signatory: value.notary_is_signatory,
+            tip_basis_points: value.tip_basis_points.into(),
         }
     }
 }

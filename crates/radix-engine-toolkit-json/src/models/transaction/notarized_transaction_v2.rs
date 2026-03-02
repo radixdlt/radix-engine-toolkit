@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::ops::Deref;
-
-use radix_transactions::manifest::ManifestObjectNames;
-use radix_transactions::prelude::TransactionManifestV1;
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -26,48 +23,44 @@ use crate::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct SerializableTransactionManifest {
-    pub instructions: SerializableInstructions,
-    pub blobs: Vec<SerializableBytes>,
+pub struct SerializableNotarizedTransactionV2 {
+    pub signed_transaction_intent: SerializableSignedTransactionIntentV2,
+    pub notary_signature: SerializableSignature,
 }
 
-impl FromNative for SerializableTransactionManifest {
-    type Native = TransactionManifestV1;
+impl FromNative for SerializableNotarizedTransactionV2 {
+    type Native = NotarizedTransactionV2;
     type Error = SerializableInstructionsError;
-    type Context = SerializableInstructionsKind;
+    type Context = ();
 
     fn to_native(&self, network_id: u8) -> Result<Self::Native, Self::Error> {
-        let instructions = self.instructions.to_instructions(network_id)?;
-        let blobs = self
-            .blobs
-            .iter()
-            .map(|value| {
-                (scrypto::prelude::hash(&**value), value.deref().clone())
-            })
-            .collect();
+        let signed_transaction_intent =
+            self.signed_transaction_intent.to_native(network_id)?;
+        let notary_signature =
+            NotarySignatureV2(self.notary_signature.clone().into());
 
-        Ok(TransactionManifestV1 {
-            instructions,
-            blobs,
-            object_names: ManifestObjectNames::Unknown,
+        Ok(NotarizedTransactionV2 {
+            signed_transaction_intent,
+            notary_signature,
         })
     }
 
     fn from_native(
         native: &Self::Native,
         network_id: u8,
-        instructions_kind: Self::Context,
+        _context: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let instructions = SerializableInstructions::from_native(
-            &native.instructions,
-            network_id,
-            instructions_kind,
-        )?;
-        let blobs = native.blobs.values().cloned().map(Into::into).collect();
+        let signed_transaction_intent =
+            SerializableSignedTransactionIntentV2::from_native(
+                &native.signed_transaction_intent,
+                network_id,
+                (),
+            )?;
+        let notary_signature = native.notary_signature.0.into();
 
         Ok(Self {
-            instructions,
-            blobs,
+            signed_transaction_intent,
+            notary_signature,
         })
     }
 }

@@ -48,7 +48,7 @@ impl<'a> Function<'a> for DeriveVirtualAccountAddressFromPublicKey {
         } = input;
 
         let virtual_account_address =
-            radix_engine_toolkit::functions::derive::virtual_account_address_from_public_key(
+            radix_engine_toolkit::functions::derive::preallocated_account_address_from_public_key(
                 &public_key,
             );
 
@@ -95,7 +95,7 @@ impl<'a> Function<'a> for DeriveVirtualIdentityAddressFromPublicKey {
         } = input;
 
         let virtual_identity_address =
-            radix_engine_toolkit::functions::derive::virtual_identity_address_from_public_key(
+            radix_engine_toolkit::functions::derive::preallocated_identity_address_from_public_key(
                 &public_key,
             );
 
@@ -144,7 +144,7 @@ impl<'a> Function<'a>
         } = input;
 
         let non_fungible_global_id =
-            radix_engine_toolkit::functions::derive::virtual_signature_non_fungible_global_id_from_public_key(
+            radix_engine_toolkit::functions::derive::preallocated_signature_non_fungible_global_id_from_public_key(
                 &PublicKey::from(public_key),
             );
 
@@ -194,7 +194,7 @@ impl<'a> Function<'a> for DeriveVirtualAccountAddressFromOlympiaAccountAddress {
         } = input;
 
         let component_address =
-            radix_engine_toolkit::functions::derive::virtual_account_address_from_olympia_account_address(
+            radix_engine_toolkit::functions::derive::preallocated_account_address_from_olympia_account_address(
                 olympia_account_address,
             )
             .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
@@ -418,7 +418,7 @@ impl<'a> Function<'a> for DeriveBech32mTransactionIdentifierFromIntentHash {
             scrypto::prelude::Hash(hash.0),
         );
         let network_definition =
-            radix_engine_toolkit::utils::network_definition_from_network_id(
+            sbor_json::utils::network_definition_from_network_id(
                 *network_id,
             );
         let encoder = TransactionHashBech32Encoder::new(&network_definition);

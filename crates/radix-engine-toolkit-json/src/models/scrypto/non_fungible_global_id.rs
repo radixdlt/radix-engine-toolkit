@@ -20,7 +20,7 @@ use crate::prelude::*;
 use radix_common::prelude::{
     AddressBech32Decoder, AddressBech32Encoder, NonFungibleGlobalId,
 };
-use radix_engine_toolkit::utils::network_definition_from_network_id;
+use sbor_json::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -79,7 +79,7 @@ impl FromStr for SerializableNonFungibleGlobalIdInternal {
         )?;
 
         let network_id =
-            radix_engine_toolkit::utils::network_id_from_address_string(
+            sbor_json::utils::network_id_from_address_string(
                 resource_address_string,
             )
             .ok_or(

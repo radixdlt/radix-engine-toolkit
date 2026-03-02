@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor_json::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -45,13 +46,14 @@ impl<'f> Function<'f> for ManifestHash {
         }: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let manifest = manifest.to_native(*network_id)?;
-        let hash = radix_engine_toolkit::functions::manifest::hash(&manifest)
+        let compiled = radix_engine_toolkit::functions::transaction_v1::manifest::to_payload_bytes(&manifest)
             .map_err(|error| {
-            InvocationHandlingError::EncodeError(
-                debug_string(error),
-                debug_string(manifest),
-            )
-        })?;
+                InvocationHandlingError::EncodeError(
+                    debug_string(error),
+                    debug_string(&manifest),
+                )
+            })?;
+        let hash = radix_common::crypto::hash(&compiled);
         Ok(hash.into())
     }
 }
@@ -85,11 +87,11 @@ impl<'f> Function<'f> for ManifestCompile {
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let manifest = manifest.to_native(*network_id)?;
         let compile =
-            radix_engine_toolkit::functions::manifest::compile(&manifest)
+            radix_engine_toolkit::functions::transaction_v1::manifest::to_payload_bytes(&manifest)
                 .map_err(|error| {
                     InvocationHandlingError::EncodeError(
                         debug_string(error),
-                        debug_string(manifest),
+                        debug_string(&manifest),
                     )
                 })?;
         Ok(compile.into())
@@ -126,11 +128,11 @@ impl<'a> Function<'a> for ManifestDecompile {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let manifest =
-            radix_engine_toolkit::functions::manifest::decompile(&**compiled)
+            radix_engine_toolkit::functions::transaction_v1::manifest::from_payload_bytes(&**compiled)
                 .map_err(|error| {
-                InvocationHandlingError::EncodeError(
+                InvocationHandlingError::DecodeError(
                     debug_string(error),
-                    debug_string(compiled),
+                    debug_string(&compiled),
                 )
             })?;
 
@@ -178,9 +180,11 @@ impl<'a> Function<'a> for ManifestStaticallyValidate {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let manifest = manifest.to_native(*network_id)?;
+        let network_definition = network_definition_from_network_id(*network_id);
 
-        match radix_engine_toolkit::functions::manifest::statically_validate(
+        match radix_engine_toolkit::functions::transaction_v1::manifest::statically_validate(
             &manifest,
+            &network_definition,
         ) {
             Ok(..) => Ok(Self::Output::Valid),
             Err(error) => Ok(Self::Output::Invalid(debug_string(error))),

@@ -19,7 +19,7 @@
 #![allow(clippy::expect_fun_call)]
 
 use radix_common::prelude::*;
-use radix_engine_toolkit::functions::manifest::summary;
+use radix_engine_toolkit::functions::transaction_v1::manifest::statically_analyze;
 use radix_engine_toolkit_json::models::transaction::instruction::*;
 use radix_transactions::manifest::*;
 use walkdir::WalkDir;
@@ -151,5 +151,5 @@ fn manifest_with_invalid_invocation_can_be_summarized() {
             .unwrap();
 
     // Act & Assert
-    summary(&manifest);
+    let _ = statically_analyze(&manifest);
 }
