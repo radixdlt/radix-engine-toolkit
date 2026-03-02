@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_common::prelude::{ManifestAddress, ManifestGlobalAddress};
+use radix_transactions::prelude::TransactionManifestV2;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -37,10 +39,8 @@ impl<'f> Function<'f> for TransactionIntentV2Hash {
     fn handle(
         transaction_intent: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let network_id =
-            *transaction_intent.root_intent_core.header.network_id;
-        let transaction_intent =
-            transaction_intent.to_native(network_id)?;
+        let network_id = *transaction_intent.root_intent_core.header.network_id;
+        let transaction_intent = transaction_intent.to_native(network_id)?;
         let hash =
             radix_engine_toolkit::functions::transaction_v2::transaction_intent::hash(
                 &transaction_intent,
@@ -75,10 +75,8 @@ impl<'f> Function<'f> for TransactionIntentV2Compile {
     fn handle(
         transaction_intent: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let network_id =
-            *transaction_intent.root_intent_core.header.network_id;
-        let transaction_intent =
-            transaction_intent.to_native(network_id)?;
+        let network_id = *transaction_intent.root_intent_core.header.network_id;
+        let transaction_intent = transaction_intent.to_native(network_id)?;
         let compile =
             radix_engine_toolkit::functions::transaction_v2::transaction_intent::to_payload_bytes(
                 &transaction_intent,
@@ -93,12 +91,8 @@ impl<'f> Function<'f> for TransactionIntentV2Compile {
     }
 }
 
-export_function!(
-    TransactionIntentV2Compile as transaction_intent_v2_compile
-);
-export_jni_function!(
-    TransactionIntentV2Compile as transactionIntentV2Compile
-);
+export_function!(TransactionIntentV2Compile as transaction_intent_v2_compile);
+export_jni_function!(TransactionIntentV2Compile as transactionIntentV2Compile);
 
 //====================================
 // Transaction Intent V2 Decompile
@@ -135,12 +129,11 @@ impl<'a> Function<'a> for TransactionIntentV2Decompile {
                 )
             })?;
 
-        let transaction_intent =
-            SerializableTransactionIntentV2::from_native(
-                &transaction_intent,
-                *network_id,
-                (),
-            )?;
+        let transaction_intent = SerializableTransactionIntentV2::from_native(
+            &transaction_intent,
+            *network_id,
+            (),
+        )?;
 
         Ok(transaction_intent)
     }
@@ -151,4 +144,179 @@ export_function!(
 );
 export_jni_function!(
     TransactionIntentV2Decompile as transactionIntentV2Decompile
+);
+
+//==========================================
+// Transaction Intent V2 Statically Analyze
+//==========================================
+
+#[typeshare::typeshare]
+pub type TransactionIntentV2StaticallyAnalyzeInput =
+    SerializableTransactionIntentV2;
+#[typeshare::typeshare]
+pub type TransactionIntentV2StaticallyAnalyzeOutput =
+    ManifestStaticallyAnalyzeOutput;
+
+pub struct TransactionIntentV2StaticallyAnalyze;
+impl<'a> Function<'a> for TransactionIntentV2StaticallyAnalyze {
+    type Input = TransactionIntentV2StaticallyAnalyzeInput;
+    type Output = TransactionIntentV2StaticallyAnalyzeOutput;
+
+    fn handle(
+        transaction_intent: Self::Input,
+    ) -> Result<Self::Output, InvocationHandlingError> {
+        let network_id = *transaction_intent.root_intent_core.header.network_id;
+        let transaction_intent = transaction_intent.to_native(network_id)?;
+        let manifest = TransactionManifestV2 {
+            instructions: transaction_intent.root_intent_core.instructions.0,
+            blobs: transaction_intent.root_intent_core.blobs.into(),
+            object_names: Default::default(),
+            children: transaction_intent
+                .root_intent_core
+                .children
+                .children
+                .into_iter()
+                .collect(),
+        };
+        let analysis =
+            radix_engine_toolkit::functions::transaction_v2::transaction_manifest::statically_analyze(
+                &manifest,
+            )
+            .map_err(|error| {
+                InvocationHandlingError::DecodeError(
+                    debug_string(error),
+                    debug_string(&manifest),
+                )
+            })?;
+
+        let encountered_entities = analysis
+            .entities_encountered_summary
+            .entities
+            .into_iter()
+            .filter_map(|address| match address {
+                ManifestAddress::Static(node_id) => Some(
+                    SerializableNodeId::new(node_id, network_id).0.to_string(),
+                ),
+                ManifestAddress::Named(..) => None,
+            })
+            .collect();
+
+        let accounts_requiring_auth = analysis
+            .entities_requiring_auth_summary
+            .accounts
+            .into_iter()
+            .filter_map(|address| match address {
+                ManifestGlobalAddress::Static(global_address) => Some(
+                    SerializableNodeId::from_global_address(
+                        global_address,
+                        network_id,
+                    )
+                    .0
+                    .to_string(),
+                ),
+                ManifestGlobalAddress::Named(..) => None,
+            })
+            .collect();
+
+        let accounts_withdrawn_from = analysis
+            .account_interactions_summary
+            .accounts_withdrawn_from
+            .into_iter()
+            .filter_map(|address| match address {
+                ManifestGlobalAddress::Static(global_address) => Some(
+                    SerializableNodeId::from_global_address(
+                        global_address,
+                        network_id,
+                    )
+                    .0
+                    .to_string(),
+                ),
+                ManifestGlobalAddress::Named(..) => None,
+            })
+            .collect();
+
+        let accounts_deposited_into = analysis
+            .account_interactions_summary
+            .accounts_deposited_into
+            .into_iter()
+            .filter_map(|address| match address {
+                ManifestGlobalAddress::Static(global_address) => Some(
+                    SerializableNodeId::from_global_address(
+                        global_address,
+                        network_id,
+                    )
+                    .0
+                    .to_string(),
+                ),
+                ManifestGlobalAddress::Named(..) => None,
+            })
+            .collect();
+
+        let classification = analysis
+            .manifest_classification
+            .into_iter()
+            .map(|item| format!("{item:?}"))
+            .collect();
+
+        let reserved = analysis.reserved_instructions_summary;
+        let mut reserved_instructions = Vec::new();
+        if !reserved.account_lock_fee_invocations.is_empty() {
+            reserved_instructions.push("AccountLockFee".to_owned());
+        }
+        if !reserved.account_securify_invocations.is_empty() {
+            reserved_instructions.push("AccountSecurify".to_owned());
+        }
+        if !reserved
+            .account_lock_owner_keys_metadata_field_invocations
+            .is_empty()
+        {
+            reserved_instructions
+                .push("AccountLockOwnerKeysMetadataField".to_owned());
+        }
+        if !reserved
+            .account_update_owner_keys_metadata_field_invocations
+            .is_empty()
+        {
+            reserved_instructions
+                .push("AccountUpdateOwnerKeysMetadataField".to_owned());
+        }
+        if !reserved.identity_securify_invocations.is_empty() {
+            reserved_instructions.push("IdentitySecurify".to_owned());
+        }
+        if !reserved
+            .identity_lock_owner_keys_metadata_field_invocations
+            .is_empty()
+        {
+            reserved_instructions
+                .push("IdentityLockOwnerKeysMetadataField".to_owned());
+        }
+        if !reserved
+            .identity_update_owner_keys_metadata_field_invocations
+            .is_empty()
+        {
+            reserved_instructions
+                .push("IdentityUpdateOwnerKeysMetadataField".to_owned());
+        }
+        if !reserved.access_controller_invocations.is_empty() {
+            reserved_instructions.push("AccessControllerInvocation".to_owned());
+        }
+
+        Ok(Self::Output {
+            encountered_entities,
+            accounts_requiring_auth,
+            accounts_withdrawn_from,
+            accounts_deposited_into,
+            classification,
+            reserved_instructions,
+        })
+    }
+}
+
+export_function!(
+    TransactionIntentV2StaticallyAnalyze
+        as transaction_intent_v2_statically_analyze
+);
+export_jni_function!(
+    TransactionIntentV2StaticallyAnalyze
+        as transactionIntentV2StaticallyAnalyze
 );
