@@ -27,6 +27,7 @@ pub mod manifest_sbor;
 pub mod notarized_transaction;
 pub mod notarized_transaction_v2;
 pub mod partial_transaction_v2;
+pub mod preview_transaction_v2;
 pub mod scrypto_sbor;
 pub mod signed_intent;
 pub mod signed_partial_transaction_v2;

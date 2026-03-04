@@ -28,6 +28,7 @@ pub mod message_v2;
 pub mod notarized_transaction;
 pub mod notarized_transaction_v2;
 pub mod partial_transaction_v2;
+pub mod preview_transaction_v2;
 pub mod signed_intent;
 pub mod signed_partial_transaction_v2;
 pub mod signed_transaction_intent_v2;
