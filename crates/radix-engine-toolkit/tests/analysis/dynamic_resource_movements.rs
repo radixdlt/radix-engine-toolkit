@@ -36,7 +36,7 @@ fn tracked_invocation_io_item_has_instruction_index_of_its_creation() {
         .build();
 
     // Act
-    let (_, dynamic_analysis) = ledger.analyze(manifest);
+    let (_, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     let account_deposits = dynamic_analysis
@@ -83,6 +83,7 @@ fn transfer_of_fungibles_with_take_from_worktop_results_in_guaranteed_deposit()
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -136,6 +137,7 @@ fn transfer_of_fungibles_with_take_all_from_worktop_results_in_guaranteed_deposi
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -192,6 +194,7 @@ fn transfer_of_non_fungibles_by_amount_results_in_predicted_deposit() {
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -259,6 +262,7 @@ fn transfer_of_non_fungibles_by_amount_with_take_by_ids_results_in_guaranteed_de
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -320,6 +324,7 @@ fn transfer_of_non_fungibles_by_amount_assertion_results_in_guaranteed_deposit()
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -374,6 +379,7 @@ fn getting_xrd_from_faucet_results_in_predicted_deposit() {
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -540,6 +546,7 @@ fn test_transfer(
                 },
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

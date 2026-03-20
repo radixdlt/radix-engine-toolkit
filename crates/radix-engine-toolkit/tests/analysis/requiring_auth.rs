@@ -27,7 +27,7 @@ fn account_securify_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -50,7 +50,7 @@ fn account_lock_fee_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -73,7 +73,7 @@ fn account_lock_contingent_fee_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -96,7 +96,7 @@ fn account_deposit_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -119,7 +119,7 @@ fn account_deposit_batch_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -142,7 +142,7 @@ fn account_try_deposit_or_abort_doesnt_require_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -165,7 +165,7 @@ fn account_try_deposit_batch_or_abort_doesnt_require_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -188,7 +188,7 @@ fn account_try_deposit_or_refund_doesnt_require_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -211,7 +211,7 @@ fn account_try_deposit_batch_or_refund_doesnt_require_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -234,7 +234,7 @@ fn account_withdraw_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -262,7 +262,7 @@ fn account_withdraw_non_fungibles_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -285,7 +285,7 @@ fn account_lock_fee_and_withdraw_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -317,7 +317,7 @@ fn account_lock_fee_and_withdraw_non_fungibles_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -344,7 +344,7 @@ fn account_burn_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -372,7 +372,7 @@ fn account_burn_non_fungible_non_fungibles_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -395,7 +395,7 @@ fn account_create_proof_of_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -423,7 +423,7 @@ fn account_create_proof_of_non_fungibles_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -446,7 +446,7 @@ fn account_set_default_deposit_rule_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -469,7 +469,7 @@ fn account_set_resource_preference_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -492,7 +492,7 @@ fn account_remove_resource_preference_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -516,7 +516,7 @@ fn account_add_authorized_depositor_preference_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -540,7 +540,7 @@ fn account_remove_authorized_depositor_preference_requires_auth() {
     let account = ManifestGlobalAddress::Static(account.into());
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -601,7 +601,7 @@ fn account_locker_claim_requires_auth() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -634,7 +634,7 @@ fn identity_securify_requires_auth() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(

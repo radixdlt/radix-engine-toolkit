@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use scrypto::prelude::AnalyzerResourceAddress;
+
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Enum)]
@@ -441,15 +443,19 @@ impl InstructionV2 {
                 constraints: assert_worktop_resources_only
                     .constraints
                     .iter()
-                    .map(|(address, constraint)| {
-                        (
+                    .filter_map(|(address, constraint)| {
+                        let AnalyzerResourceAddress::Static(address) = address
+                        else {
+                            return None;
+                        };
+                        Some((
                             Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
                             .as_str(),
                             constraint.clone().into(),
-                        )
+                        ))
                     })
                     .collect(),
             },
@@ -459,15 +465,19 @@ impl InstructionV2 {
                 constraints: assert_worktop_resources_include
                     .constraints
                     .iter()
-                    .map(|(address, constraint)| {
-                        (
+                    .filter_map(|(address, constraint)| {
+                        let AnalyzerResourceAddress::Static(address) = address
+                        else {
+                            return None;
+                        };
+                        Some((
                             Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
                             .as_str(),
                             constraint.clone().into(),
-                        )
+                        ))
                     })
                     .collect(),
             },
@@ -477,15 +487,19 @@ impl InstructionV2 {
                 constraints: assert_next_call_returns_only
                     .constraints
                     .iter()
-                    .map(|(address, constraint)| {
-                        (
+                    .filter_map(|(address, constraint)| {
+                        let AnalyzerResourceAddress::Static(address) = address
+                        else {
+                            return None;
+                        };
+                        Some((
                             Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
                             .as_str(),
                             constraint.clone().into(),
-                        )
+                        ))
                     })
                     .collect(),
             },
@@ -495,15 +509,19 @@ impl InstructionV2 {
                 constraints: assert_next_call_returns_include
                     .constraints
                     .iter()
-                    .map(|(address, constraint)| {
-                        (
+                    .filter_map(|(address, constraint)| {
+                        let AnalyzerResourceAddress::Static(address) = address
+                        else {
+                            return None;
+                        };
+                        Some((
                             Address::from_node_id(
                                 address.into_node_id(),
                                 network_id,
                             )
                             .as_str(),
                             constraint.clone().into(),
-                        )
+                        ))
                     })
                     .collect(),
             },

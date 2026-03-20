@@ -45,6 +45,7 @@ fn setting_default_deposit_rule_classifies_as_account_deposit_settings_transacti
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -100,6 +101,7 @@ fn setting_resource_preference_classifies_as_account_deposit_settings_transactio
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -157,6 +159,7 @@ fn removing_resource_preference_classifies_as_account_deposit_settings_transacti
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -214,6 +217,7 @@ fn adding_authorized_depositor_classifies_as_account_deposit_settings_transactio
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -271,6 +275,7 @@ fn removing_authorized_depositor_classifies_as_account_deposit_settings_transact
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

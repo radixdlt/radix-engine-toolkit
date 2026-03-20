@@ -287,7 +287,7 @@ fn proof_analyzer_test(
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(

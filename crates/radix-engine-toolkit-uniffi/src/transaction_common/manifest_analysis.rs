@@ -17,6 +17,7 @@
 
 use crate::prelude::*;
 use sbor::prelude::{HashMap, Vec};
+use scrypto::prelude::AnalyzerResourceAddress;
 
 #[derive(Clone, Debug, Record)]
 pub struct StaticAnalysis {
@@ -311,10 +312,39 @@ impl FromNativeWithNetworkContext for AccountStaticResourceMovementsOutput {
                     let account = Address::from_node_id(account, network_id);
                     let withdraws = withdraws
                         .into_iter()
-                        .map(|value| {
-                            FromNativeWithNetworkContext::from_native(
-                                value, network_id,
-                            )
+                        .filter_map(|value| match value {
+                            engine::AccountWithdraw::Amount(
+                                AnalyzerResourceAddress::Static(
+                                    resource_address,
+                                ),
+                                decimal,
+                            ) => Some(AccountWithdraw::Amount {
+                                resource_address: Arc::new(
+                                    Address::from_node_id(
+                                        resource_address,
+                                        network_id,
+                                    ),
+                                ),
+                                amount: Arc::new(Decimal(decimal)),
+                            }),
+                            engine::AccountWithdraw::Ids(
+                                AnalyzerResourceAddress::Static(
+                                    resource_address,
+                                ),
+                                ids,
+                            ) => Some(AccountWithdraw::Ids {
+                                resource_address: Arc::new(
+                                    Address::from_node_id(
+                                        resource_address,
+                                        network_id,
+                                    ),
+                                ),
+                                ids: ids
+                                    .into_iter()
+                                    .map(FromNative::from_native)
+                                    .collect(),
+                            }),
+                            _ => None,
                         })
                         .collect();
 
@@ -334,6 +364,13 @@ impl FromNativeWithNetworkContext for AccountStaticResourceMovementsOutput {
                         for (resource_address, resource_bounds) in
                             account_deposit.specified_resources()
                         {
+                            let AnalyzerResourceAddress::Static(
+                                resource_address,
+                            ) = resource_address
+                            else {
+                                continue;
+                            };
+
                             let account_deposit = match resource_bounds {
                                 engine::SimpleResourceBounds::Fungible(
                                     simple_bounds,
@@ -874,31 +911,6 @@ pub enum AccountWithdraw {
         resource_address: Arc<Address>,
         ids: Vec<NonFungibleLocalId>,
     },
-}
-
-impl FromNativeWithNetworkContext for AccountWithdraw {
-    type Native = engine::AccountWithdraw;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self {
-        match native {
-            engine::AccountWithdraw::Amount(resource_address, decimal) => {
-                Self::Amount {
-                    resource_address: Arc::new(Address::from_node_id(
-                        resource_address,
-                        network_id,
-                    )),
-                    amount: Arc::new(Decimal(decimal)),
-                }
-            }
-            engine::AccountWithdraw::Ids(resource_address, ids) => Self::Ids {
-                resource_address: Arc::new(Address::from_node_id(
-                    resource_address,
-                    network_id,
-                )),
-                ids: ids.into_iter().map(FromNative::from_native).collect(),
-            },
-        }
-    }
 }
 
 #[derive(Clone, Debug, Enum)]

@@ -114,7 +114,7 @@ macro_rules! impl_conversions {
                     fn from(value: ResolvedManifestAddress<$scrypto_type>) -> Self {
                         match value {
                             ResolvedManifestAddress::Static { static_address } => ResolvedDynamicAddress::StaticAddress(static_address),
-                            ResolvedManifestAddress::Named { blueprint_id, .. } => ResolvedDynamicAddress::BlueprintResolvedFromNamedAddress(blueprint_id),
+                            ResolvedManifestAddress::Named { blueprint_id, named_address } => ResolvedDynamicAddress::BlueprintResolvedFromNamedAddress(blueprint_id, named_address),
                         }
                     }
                 }

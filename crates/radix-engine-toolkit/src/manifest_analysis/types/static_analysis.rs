@@ -32,6 +32,7 @@ use crate::internal_prelude::*;
 ///
 /// [`Named`]: ManifestGlobalAddress::Named
 /// [`Static`]: ManifestGlobalAddress::Static
+#[derive(Debug)]
 pub struct StaticAnalysis {
     /// A summary of all of the account interactions that could be observed in
     /// the manifest. This has the set of accounts withdrawn from, deposited

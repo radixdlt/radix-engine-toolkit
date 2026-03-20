@@ -38,7 +38,7 @@ fn non_fungibles_minted_with_initial_supply_show_up() {
                 .collect::<Vec<_>>(),
         ),
     );
-    let (_, dynamic_analysis) = ledger.analyze(manifest);
+    let (_, dynamic_analysis, ..) = ledger.analyze(manifest);
     let address = dynamic_analysis
         .entities_newly_created_summary
         .new_resource_entities
@@ -78,7 +78,7 @@ fn non_fungibles_minted_from_resource_manager_show_up() {
         .mint_non_fungible(address, [(id.clone(), ())])
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, dynamic_analysis) = ledger.analyze(manifest);
+    let (_, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     let new_non_fungibles = dynamic_analysis
@@ -111,7 +111,7 @@ fn non_fungibles_minted_and_burned_dont_show_up() {
         .mint_non_fungible(address, [(id.clone(), ())])
         .burn_all_from_worktop(address)
         .build();
-    let (_, dynamic_analysis) = ledger.analyze(manifest);
+    let (_, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -161,7 +161,7 @@ fn non_fungible_data_updates_dont_show_up_as_newly_minted_tokens() {
         .lock_fee_from_faucet()
         .update_non_fungible_data(address, id, "name", "new_data")
         .build();
-    let (_, dynamic_analysis) = ledger.analyze(manifest);
+    let (_, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(

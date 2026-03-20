@@ -37,7 +37,7 @@ fn withdraws_without_a_deposit_is_not_a_transfer_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -77,7 +77,7 @@ fn deposit_without_a_withdraw_is_not_a_transfer_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -112,7 +112,7 @@ fn transfer_manifest_classifies_as_transfer_and_general() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert!(!static_analysis
@@ -174,7 +174,7 @@ fn transfer_manifest_with_access_controller_proof_classifies_as_transfer() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -209,7 +209,7 @@ fn transfer_manifest_with_entire_worktop_expression_classifies_as_transfer() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -239,7 +239,7 @@ fn transfer_with_lock_fee_manifest_classifies_as_transfer_but_has_reserved_instr
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert!(static_analysis
@@ -279,7 +279,7 @@ fn multi_asset_transfer_manifest_classifies_as_transfer_and_general() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert!(!static_analysis
@@ -331,7 +331,7 @@ fn transfer_manifest_with_or_refund_doesnt_classify_as_transfer_and_general() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(static_analysis.manifest_classification.len(), 0);
@@ -483,7 +483,7 @@ fn assert_simple_transfer_path_is_valid(path: &[SimpleTransferAction]) {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert

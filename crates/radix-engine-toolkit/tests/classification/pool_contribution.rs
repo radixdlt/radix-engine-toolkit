@@ -114,7 +114,7 @@ fn transfer_in_pool_contribution_transaction_disqualifies_classification() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        },
+        }, ..
     ) = ledger.analyze(manifest);
 
     // Assert
