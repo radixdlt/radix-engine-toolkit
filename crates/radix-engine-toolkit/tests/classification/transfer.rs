@@ -37,7 +37,8 @@ fn withdraws_without_a_deposit_is_not_a_transfer_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -77,7 +78,8 @@ fn deposit_without_a_withdraw_is_not_a_transfer_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -174,7 +176,8 @@ fn transfer_manifest_with_access_controller_proof_classifies_as_transfer() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -209,7 +212,8 @@ fn transfer_manifest_with_entire_worktop_expression_classifies_as_transfer() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -483,7 +487,8 @@ fn assert_simple_transfer_path_is_valid(path: &[SimpleTransferAction]) {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

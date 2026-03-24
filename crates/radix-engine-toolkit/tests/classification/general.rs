@@ -40,7 +40,8 @@ fn faucet_free_xrd_manifest_classifies_as_general() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -84,7 +85,8 @@ fn staking_to_validator_is_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -132,7 +134,8 @@ fn unstaking_from_validator_is_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -192,7 +195,8 @@ fn claiming_xrd_from_validator_is_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -322,7 +326,8 @@ fn pool_contributions_and_redemptions_are_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -415,7 +420,8 @@ fn account_locker_creation_storing_claiming_and_redeeming_are_permitted_in_gener
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -445,7 +451,8 @@ fn creating_access_controller_create_proof_is_permitted_in_general_transaction()
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -487,7 +494,8 @@ fn creating_access_controller_initiate_recovery_as_primary_is_not_permitted_in_g
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -529,7 +537,8 @@ fn creating_access_controller_initiate_recovery_as_recovery_is_not_permitted_in_
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -591,7 +600,8 @@ fn creating_access_controller_confirm_primary_role_recovery_is_not_permitted_in_
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -653,7 +663,8 @@ fn creating_access_controller_confirm_recovery_role_recovery_is_not_permitted_in
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -688,7 +699,8 @@ fn address_allocation_and_function_calls_are_permitted_in_general_transaction()
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -715,7 +727,8 @@ fn locking_fee_is_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -750,7 +763,8 @@ fn a_metadata_method_is_not_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -786,7 +800,8 @@ fn a_role_assignment_method_is_not_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -827,7 +842,8 @@ fn a_royalty_method_is_not_permitted_in_general_transaction() {
         DynamicAnalysis {
             detailed_manifest_classification,
             ..
-        }, ..
+        },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
