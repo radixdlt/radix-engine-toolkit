@@ -26,8 +26,7 @@ use crate::prelude::*;
 //====================================
 
 #[typeshare::typeshare]
-pub type NotarizedTransactionV2HashInput =
-    SerializableNotarizedTransactionV2;
+pub type NotarizedTransactionV2HashInput = SerializableNotarizedTransactionV2;
 #[typeshare::typeshare]
 pub type NotarizedTransactionV2HashOutput = SerializableTransactionHash;
 
@@ -61,12 +60,8 @@ impl<'f> Function<'f> for NotarizedTransactionV2Hash {
     }
 }
 
-export_function!(
-    NotarizedTransactionV2Hash as notarized_transaction_v2_hash
-);
-export_jni_function!(
-    NotarizedTransactionV2Hash as notarizedTransactionV2Hash
-);
+export_function!(NotarizedTransactionV2Hash as notarized_transaction_v2_hash);
+export_jni_function!(NotarizedTransactionV2Hash as notarizedTransactionV2Hash);
 
 //=======================================
 // Notarized Transaction V2 Compile
@@ -163,8 +158,7 @@ impl<'a> Function<'a> for NotarizedTransactionV2Decompile {
 }
 
 export_function!(
-    NotarizedTransactionV2Decompile
-        as notarized_transaction_v2_decompile
+    NotarizedTransactionV2Decompile as notarized_transaction_v2_decompile
 );
 export_jni_function!(
     NotarizedTransactionV2Decompile as notarizedTransactionV2Decompile

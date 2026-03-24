@@ -26,9 +26,9 @@ where
     let result =
         crate::utils::read_and_deserialize_from_memory::<F::Input>(input)
             .map_err(crate::error::Error::from)
-            .and_then(
-                |input| F::handle(input).map_err(crate::error::Error::from)
-            )
+            .and_then(|input| {
+                F::handle(input).map_err(crate::error::Error::from)
+            })
             .and_then(|output| {
                 serialize_and_write_to_memory::<F::Output>(&output)
                     .map_err(crate::error::Error::from)
@@ -55,9 +55,9 @@ where
     let result =
         crate::utils::deserialize_from_jstring::<F::Input>(&mut env, &input)
             .map_err(crate::error::Error::from)
-            .and_then(
-                |input| F::handle(input).map_err(crate::error::Error::from)
-            )
+            .and_then(|input| {
+                F::handle(input).map_err(crate::error::Error::from)
+            })
             .and_then(|output| {
                 serialize_to_jstring::<F::Output>(&env, &output)
                     .map_err(crate::error::Error::from)

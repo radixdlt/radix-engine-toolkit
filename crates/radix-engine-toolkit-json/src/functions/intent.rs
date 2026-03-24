@@ -39,7 +39,10 @@ impl<'f> Function<'f> for TransactionIntentHash {
         intent: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let intent = intent.to_native(*intent.header.network_id)?;
-        let hash = radix_engine_toolkit::functions::transaction_v1::intent::hash(&intent)
+        let hash =
+            radix_engine_toolkit::functions::transaction_v1::intent::hash(
+                &intent,
+            )
             .map_err(|error| {
                 InvocationHandlingError::EncodeError(
                     debug_string(error),
@@ -155,9 +158,7 @@ impl<'a> Function<'a> for IntentStaticallyValidate {
     type Output = IntentStaticallyValidateOutput;
 
     fn handle(
-        IntentStaticallyValidateInput {
-            intent,
-        }: Self::Input,
+        IntentStaticallyValidateInput { intent }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let network_id = *intent.header.network_id;
         let intent = intent.to_native(network_id)?;

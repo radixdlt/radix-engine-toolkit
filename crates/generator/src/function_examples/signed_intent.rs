@@ -20,7 +20,9 @@ use radix_engine_toolkit_json::prelude::*;
 use super::manifest_provider::*;
 use super::traits::HasExamples;
 
-impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedTransactionIntentHash {
+impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE>
+    for SignedTransactionIntentHash
+{
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs().map(|tx| tx.signed_intent)
     }

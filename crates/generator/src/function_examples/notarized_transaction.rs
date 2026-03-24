@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::manifest_provider::*;
+use super::traits::HasExamples;
 use radix_common::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
 use radix_common::types::*;
 use radix_engine_toolkit_json::prelude::*;
 use radix_transactions::prelude::{
     TransactionBuilder, TransactionHeaderV1, TransactionManifestV1,
 };
-use super::manifest_provider::*;
-use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE>
     for NotarizedTransactionHash
@@ -85,16 +85,15 @@ fn build_transaction(
     let signer1_private_key = Secp256k1PrivateKey::from_u64(2).unwrap();
     let signer2_private_key = Ed25519PrivateKey::from_u64(2).unwrap();
 
-    let header =
-        TransactionHeaderV1 {
-            network_id: 0xf2,
-            nonce: 100,
-            end_epoch_exclusive: Epoch::of(100),
-            start_epoch_inclusive: Epoch::of(90),
-            notary_is_signatory: true,
-            notary_public_key: notary_private_key.public_key().into(),
-            tip_percentage: 0,
-        };
+    let header = TransactionHeaderV1 {
+        network_id: 0xf2,
+        nonce: 100,
+        end_epoch_exclusive: Epoch::of(100),
+        start_epoch_inclusive: Epoch::of(90),
+        notary_is_signatory: true,
+        notary_public_key: notary_private_key.public_key().into(),
+        tip_percentage: 0,
+    };
 
     let transaction = TransactionBuilder::new()
         .manifest(manifest)

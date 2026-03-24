@@ -25,8 +25,7 @@ use crate::prelude::*;
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableSignedTransactionIntentV2 {
     pub transaction_intent: SerializableTransactionIntentV2,
-    pub transaction_intent_signatures:
-        Vec<SerializableSignatureWithPublicKey>,
+    pub transaction_intent_signatures: Vec<SerializableSignatureWithPublicKey>,
     pub non_root_subintent_signatures:
         Vec<Vec<SerializableSignatureWithPublicKey>>,
 }
@@ -73,12 +72,11 @@ impl FromNative for SerializableSignedTransactionIntentV2 {
         network_id: u8,
         _context: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let transaction_intent =
-            SerializableTransactionIntentV2::from_native(
-                &native.transaction_intent,
-                network_id,
-                (),
-            )?;
+        let transaction_intent = SerializableTransactionIntentV2::from_native(
+            &native.transaction_intent,
+            network_id,
+            (),
+        )?;
 
         let transaction_intent_signatures = native
             .transaction_intent_signatures

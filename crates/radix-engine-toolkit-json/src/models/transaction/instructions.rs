@@ -17,9 +17,9 @@
 
 use crate::prelude::*;
 
-use sbor_json::utils::*;
 use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
+use sbor_json::utils::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -49,10 +49,11 @@ impl SerializableInstructions {
                 let network_definition =
                     network_definition_from_network_id(network_id);
                 let empty_blobs = Default::default();
-                let manifest = EphemeralManifest::new_childless_transaction_manifest(
-                    instructions,
-                    &empty_blobs,
-                );
+                let manifest =
+                    EphemeralManifest::new_childless_transaction_manifest(
+                        instructions,
+                        &empty_blobs,
+                    );
                 let string = radix_transactions::manifest::decompile(
                     &manifest,
                     &network_definition,
@@ -97,10 +98,11 @@ impl SerializableInstructions {
             (Self::Parsed(parsed), SerializableInstructionsKind::String) => {
                 let instructions = to_native_instructions(parsed)?;
                 let empty_blobs = Default::default();
-                let manifest = EphemeralManifest::new_childless_transaction_manifest(
-                    &instructions,
-                    &empty_blobs,
-                );
+                let manifest =
+                    EphemeralManifest::new_childless_transaction_manifest(
+                        &instructions,
+                        &empty_blobs,
+                    );
                 let string = decompile(
                     &manifest,
                     &network_definition_from_network_id(network_id),

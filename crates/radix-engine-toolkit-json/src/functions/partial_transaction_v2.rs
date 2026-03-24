@@ -37,10 +37,12 @@ impl<'f> Function<'f> for PartialTransactionV2Hash {
     fn handle(
         partial_transaction: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let network_id =
-            *partial_transaction.root_subintent.intent_core.header.network_id;
-        let partial_transaction =
-            partial_transaction.to_native(network_id)?;
+        let network_id = *partial_transaction
+            .root_subintent
+            .intent_core
+            .header
+            .network_id;
+        let partial_transaction = partial_transaction.to_native(network_id)?;
         let hash =
             radix_engine_toolkit::functions::transaction_v2::partial_transaction::hash(
                 &partial_transaction,
@@ -75,10 +77,12 @@ impl<'f> Function<'f> for PartialTransactionV2Compile {
     fn handle(
         partial_transaction: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let network_id =
-            *partial_transaction.root_subintent.intent_core.header.network_id;
-        let partial_transaction =
-            partial_transaction.to_native(network_id)?;
+        let network_id = *partial_transaction
+            .root_subintent
+            .intent_core
+            .header
+            .network_id;
+        let partial_transaction = partial_transaction.to_native(network_id)?;
         let compile =
             radix_engine_toolkit::functions::transaction_v2::partial_transaction::to_payload_bytes(
                 &partial_transaction,
@@ -109,8 +113,7 @@ pub struct PartialTransactionV2DecompileInput {
     pub network_id: SerializableU8,
 }
 #[typeshare::typeshare]
-pub type PartialTransactionV2DecompileOutput =
-    SerializablePartialTransactionV2;
+pub type PartialTransactionV2DecompileOutput = SerializablePartialTransactionV2;
 
 pub struct PartialTransactionV2Decompile;
 impl<'a> Function<'a> for PartialTransactionV2Decompile {

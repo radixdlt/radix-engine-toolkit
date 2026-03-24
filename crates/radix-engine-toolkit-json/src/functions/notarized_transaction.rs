@@ -178,8 +178,10 @@ impl<'a> Function<'a> for NotarizedTransactionStaticallyValidate {
             notarized_transaction,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
-        let network_id = *notarized_transaction.signed_intent.intent.header.network_id;
-        let notarized_transaction = notarized_transaction.to_native(network_id)?;
+        let network_id =
+            *notarized_transaction.signed_intent.intent.header.network_id;
+        let notarized_transaction =
+            notarized_transaction.to_native(network_id)?;
         let network_definition = network_definition_from_network_id(network_id);
 
         match radix_engine_toolkit::functions::transaction_v1::notarized_transaction::statically_validate(

@@ -259,9 +259,7 @@ impl From<InterpreterValidationRulesetSpecifier>
 impl From<SerializableInterpreterValidationRulesetSpecifier>
     for InterpreterValidationRulesetSpecifier
 {
-    fn from(
-        value: SerializableInterpreterValidationRulesetSpecifier,
-    ) -> Self {
+    fn from(value: SerializableInterpreterValidationRulesetSpecifier) -> Self {
         match value {
             SerializableInterpreterValidationRulesetSpecifier::AllValidations => {
                 Self::AllValidations

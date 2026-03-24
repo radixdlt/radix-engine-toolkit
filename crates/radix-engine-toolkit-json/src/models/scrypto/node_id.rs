@@ -91,18 +91,13 @@ impl FromStr for SerializableNodeIdInternal {
     type Err = SerializableNodeIdError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let network_id =
-            sbor_json::utils::network_id_from_address_string(s)
-                .ok_or(
-                    SerializableNodeIdError::FailedToParseStringAsAddress(
-                        s.to_owned(),
-                    ),
-                )?;
+        let network_id = sbor_json::utils::network_id_from_address_string(s)
+            .ok_or(SerializableNodeIdError::FailedToParseStringAsAddress(
+                s.to_owned(),
+            ))?;
 
         let network_definition =
-            sbor_json::utils::network_definition_from_network_id(
-                network_id,
-            );
+            sbor_json::utils::network_definition_from_network_id(network_id);
         let bech32_decoder = AddressBech32Decoder::new(&network_definition);
         let (_, data) = bech32_decoder.validate_and_decode(s)?;
 

@@ -107,8 +107,7 @@ impl<'f> Function<'f> for SignedPartialTransactionV2Compile {
 }
 
 export_function!(
-    SignedPartialTransactionV2Compile
-        as signed_partial_transaction_v2_compile
+    SignedPartialTransactionV2Compile as signed_partial_transaction_v2_compile
 );
 export_jni_function!(
     SignedPartialTransactionV2Compile as signedPartialTransactionV2Compile
@@ -166,8 +165,7 @@ export_function!(
         as signed_partial_transaction_v2_decompile
 );
 export_jni_function!(
-    SignedPartialTransactionV2Decompile
-        as signedPartialTransactionV2Decompile
+    SignedPartialTransactionV2Decompile as signedPartialTransactionV2Decompile
 );
 
 //====================================================

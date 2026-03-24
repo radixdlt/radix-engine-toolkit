@@ -78,13 +78,10 @@ impl FromStr for SerializableNonFungibleGlobalIdInternal {
             ),
         )?;
 
-        let network_id =
-            sbor_json::utils::network_id_from_address_string(
-                resource_address_string,
-            )
-            .ok_or(
-                SerializableNonFungibleGlobalIdError::InvalidResourceAddress,
-            )?;
+        let network_id = sbor_json::utils::network_id_from_address_string(
+            resource_address_string,
+        )
+        .ok_or(SerializableNonFungibleGlobalIdError::InvalidResourceAddress)?;
         let network_definition = network_definition_from_network_id(network_id);
         let bech32_decoder = AddressBech32Decoder::new(&network_definition);
 

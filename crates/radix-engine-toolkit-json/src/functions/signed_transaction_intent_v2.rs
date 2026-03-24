@@ -104,8 +104,7 @@ impl<'f> Function<'f> for SignedTransactionIntentV2Compile {
 }
 
 export_function!(
-    SignedTransactionIntentV2Compile
-        as signed_transaction_intent_v2_compile
+    SignedTransactionIntentV2Compile as signed_transaction_intent_v2_compile
 );
 export_jni_function!(
     SignedTransactionIntentV2Compile as signedTransactionIntentV2Compile
@@ -147,12 +146,11 @@ impl<'a> Function<'a> for SignedTransactionIntentV2Decompile {
                 )
             })?;
 
-        let signed_intent =
-            SerializableSignedTransactionIntentV2::from_native(
-                &signed_intent,
-                *network_id,
-                (),
-            )?;
+        let signed_intent = SerializableSignedTransactionIntentV2::from_native(
+            &signed_intent,
+            *network_id,
+            (),
+        )?;
 
         Ok(signed_intent)
     }
@@ -163,6 +161,5 @@ export_function!(
         as signed_transaction_intent_v2_decompile
 );
 export_jni_function!(
-    SignedTransactionIntentV2Decompile
-        as signedTransactionIntentV2Decompile
+    SignedTransactionIntentV2Decompile as signedTransactionIntentV2Decompile
 );

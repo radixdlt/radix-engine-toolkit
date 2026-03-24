@@ -50,13 +50,12 @@ impl<'a> Function<'a> for InstructionsHash {
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
 
-        let encoded = manifest_encode(&instructions)
-            .map_err(|error| {
-                InvocationHandlingError::EncodeError(
-                    debug_string(error),
-                    debug_string(&instructions),
-                )
-            })?;
+        let encoded = manifest_encode(&instructions).map_err(|error| {
+            InvocationHandlingError::EncodeError(
+                debug_string(error),
+                debug_string(&instructions),
+            )
+        })?;
         let hash = radix_common::crypto::hash(&encoded);
 
         Ok(hash.into())
@@ -129,13 +128,12 @@ impl<'a> Function<'a> for InstructionsCompile {
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
 
-        let compiled = manifest_encode(&instructions)
-            .map_err(|error| {
-                InvocationHandlingError::EncodeError(
-                    debug_string(error),
-                    debug_string(&instructions),
-                )
-            })?;
+        let compiled = manifest_encode(&instructions).map_err(|error| {
+            InvocationHandlingError::EncodeError(
+                debug_string(error),
+                debug_string(&instructions),
+            )
+        })?;
 
         Ok(compiled.into())
     }
@@ -171,20 +169,18 @@ impl<'a> Function<'a> for InstructionsDecompile {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions: Vec<radix_transactions::prelude::InstructionV1> =
-            manifest_decode(&**compiled)
-                .map_err(|error| {
-                    InvocationHandlingError::DecodeError(
-                        debug_string(error),
-                        debug_string(&compiled),
-                    )
-                })?;
+            manifest_decode(&**compiled).map_err(|error| {
+                InvocationHandlingError::DecodeError(
+                    debug_string(error),
+                    debug_string(&compiled),
+                )
+            })?;
 
-        let instructions =
-            SerializableInstructions::new(
-                &instructions,
-                instructions_kind,
-                *network_id,
-            )?;
+        let instructions = SerializableInstructions::new(
+            &instructions,
+            instructions_kind,
+            *network_id,
+        )?;
 
         Ok(instructions)
     }
@@ -224,7 +220,8 @@ impl<'a> Function<'a> for InstructionsStaticallyValidate {
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
-        let network_definition = network_definition_from_network_id(*network_id);
+        let network_definition =
+            network_definition_from_network_id(*network_id);
 
         match radix_engine_toolkit::functions::transaction_v1::instructions::statically_validate(
             &instructions,

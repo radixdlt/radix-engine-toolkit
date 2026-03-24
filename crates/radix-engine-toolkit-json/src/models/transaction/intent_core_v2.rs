@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor_json::utils::network_definition_from_network_id;
 use radix_transactions::manifest::{compile_manifest, MockBlobProvider};
 use radix_transactions::prelude::*;
+use sbor_json::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -40,8 +40,7 @@ impl FromNative for SerializableIntentCoreV2 {
 
     fn to_native(&self, network_id: u8) -> Result<Self::Native, Self::Error> {
         let header: IntentHeaderV2 = self.header.clone().into();
-        let network_definition =
-            network_definition_from_network_id(network_id);
+        let network_definition = network_definition_from_network_id(network_id);
 
         let manifest = compile_manifest::<TransactionManifestV2>(
             &self.instructions,
@@ -50,11 +49,7 @@ impl FromNative for SerializableIntentCoreV2 {
         )?;
 
         let blobs = BlobsV1 {
-            blobs: self
-                .blobs
-                .iter()
-                .map(|b| BlobV1((**b).clone()))
-                .collect(),
+            blobs: self.blobs.iter().map(|b| BlobV1((**b).clone())).collect(),
         };
 
         let children = ChildSubintentSpecifiersV2 {
@@ -83,11 +78,9 @@ impl FromNative for SerializableIntentCoreV2 {
         network_id: u8,
         _context: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let header: SerializableIntentHeaderV2 =
-            native.header.clone().into();
+        let header: SerializableIntentHeaderV2 = native.header.clone().into();
 
-        let network_definition =
-            network_definition_from_network_id(network_id);
+        let network_definition = network_definition_from_network_id(network_id);
         let instructions = radix_transactions::manifest::decompile(
             &TransactionManifestV2 {
                 instructions: native.instructions.0.clone(),

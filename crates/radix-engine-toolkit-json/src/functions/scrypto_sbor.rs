@@ -20,8 +20,8 @@ use std::ops::Deref;
 use crate::prelude::*;
 
 use radix_common::prelude::*;
-use sbor_json::utils::*;
 use sbor::{LocalTypeId, Schema};
+use sbor_json::utils::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -56,26 +56,24 @@ impl<'f> Function<'f> for ScryptoSborDecodeToString {
         let encoded_payload = encoded_payload.deref().clone();
         let network_id = *network_id;
         let representation = representation.into();
-        let schema =
-            if let Some(PayloadSchema {
-                local_type_id,
-                schema,
-            }) = schema
-            {
-                let local_type_id = LocalTypeId::from(local_type_id);
-                let schema =
-                    scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema)
-                        .map_err(|error| {
-                            InvocationHandlingError::DecodeError(
-                                debug_string(error),
-                                debug_string(schema),
-                            )
-                        })?;
+        let schema = if let Some(PayloadSchema {
+            local_type_id,
+            schema,
+        }) = schema
+        {
+            let local_type_id = LocalTypeId::from(local_type_id);
+            let schema = scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema)
+                .map_err(|error| {
+                    InvocationHandlingError::DecodeError(
+                        debug_string(error),
+                        debug_string(schema),
+                    )
+                })?;
 
-                Some((local_type_id, schema))
-            } else {
-                None
-            };
+            Some((local_type_id, schema))
+        } else {
+            None
+        };
         let network_definition = network_definition_from_network_id(network_id);
         let bech32_encoder = AddressBech32Encoder::new(&network_definition);
 

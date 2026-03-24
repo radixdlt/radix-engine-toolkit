@@ -508,12 +508,10 @@ impl SerializableInstruction {
             Self::AssertWorktopContains {
                 resource_address,
                 amount,
-            } => InstructionV1::AssertWorktopContains(
-                AssertWorktopContains {
-                    resource_address: (*resource_address).try_into()?,
-                    amount: *amount.deref(),
-                },
-            ),
+            } => InstructionV1::AssertWorktopContains(AssertWorktopContains {
+                resource_address: (*resource_address).try_into()?,
+                amount: *amount.deref(),
+            }),
             Self::AssertWorktopContainsAny { resource_address } => {
                 InstructionV1::AssertWorktopContainsAny(
                     AssertWorktopContainsAny {
@@ -632,7 +630,9 @@ impl SerializableInstruction {
             } => InstructionV1::CallFunction(CallFunction {
                 package_address: match package_address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicPackageAddress::Named(ManifestNamedAddress(**named))
+                        DynamicPackageAddress::Named(ManifestNamedAddress(
+                            **named,
+                        ))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicPackageAddress::Static((*address).try_into()?)
@@ -649,7 +649,9 @@ impl SerializableInstruction {
             } => InstructionV1::CallMethod(CallMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(
+                            **named,
+                        ))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -665,7 +667,9 @@ impl SerializableInstruction {
             } => InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(
+                            **named,
+                        ))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -681,7 +685,9 @@ impl SerializableInstruction {
             } => InstructionV1::CallMetadataMethod(CallMetadataMethod {
                 address: match address {
                     SerializableManifestAddress::Named(named) => {
-                        DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
+                        DynamicGlobalAddress::Named(ManifestNamedAddress(
+                            **named,
+                        ))
                     }
                     SerializableManifestAddress::Static(address) => {
                         DynamicGlobalAddress::Static((*address).try_into()?)
@@ -698,12 +704,12 @@ impl SerializableInstruction {
                 CallRoleAssignmentMethod {
                     address: match address {
                         SerializableManifestAddress::Named(named) => {
-                            DynamicGlobalAddress::Named(ManifestNamedAddress(**named))
+                            DynamicGlobalAddress::Named(ManifestNamedAddress(
+                                **named,
+                            ))
                         }
                         SerializableManifestAddress::Static(address) => {
-                            DynamicGlobalAddress::Static(
-                                (*address).try_into()?,
-                            )
+                            DynamicGlobalAddress::Static((*address).try_into()?)
                         }
                     },
                     method_name: method_name.to_string(),
@@ -714,23 +720,19 @@ impl SerializableInstruction {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallDirectVaultMethod(
-                CallDirectVaultMethod {
-                    address: (*address).try_into()?,
-                    method_name: method_name.to_string(),
-                    args: args.to_typed()?,
-                },
-            ),
+            } => InstructionV1::CallDirectVaultMethod(CallDirectVaultMethod {
+                address: (*address).try_into()?,
+                method_name: method_name.to_string(),
+                args: args.to_typed()?,
+            }),
             Self::AllocateGlobalAddress {
                 package_address,
                 blueprint_name,
                 ..
-            } => InstructionV1::AllocateGlobalAddress(
-                AllocateGlobalAddress {
-                    package_address: (*package_address).try_into()?,
-                    blueprint_name: blueprint_name.to_owned(),
-                },
-            ),
+            } => InstructionV1::AllocateGlobalAddress(AllocateGlobalAddress {
+                package_address: (*package_address).try_into()?,
+                blueprint_name: blueprint_name.to_owned(),
+            }),
         };
         Ok(instruction)
     }

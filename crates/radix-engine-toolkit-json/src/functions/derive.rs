@@ -418,9 +418,7 @@ impl<'a> Function<'a> for DeriveBech32mTransactionIdentifierFromIntentHash {
             scrypto::prelude::Hash(hash.0),
         );
         let network_definition =
-            sbor_json::utils::network_definition_from_network_id(
-                *network_id,
-            );
+            sbor_json::utils::network_definition_from_network_id(*network_id);
         let encoder = TransactionHashBech32Encoder::new(&network_definition);
         let encoded = encoder.encode(&intent_hash).unwrap();
 

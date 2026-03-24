@@ -165,13 +165,10 @@ impl<'a> Function<'a> for SignedIntentStaticallyValidate {
     type Output = SignedIntentStaticallyValidateOutput;
 
     fn handle(
-        SignedIntentStaticallyValidateInput {
-            signed_intent,
-        }: Self::Input,
+        SignedIntentStaticallyValidateInput { signed_intent }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
         let network_id = *signed_intent.intent.header.network_id;
-        let signed_intent =
-            signed_intent.to_native(network_id)?;
+        let signed_intent = signed_intent.to_native(network_id)?;
         let network_definition = network_definition_from_network_id(network_id);
 
         match radix_engine_toolkit::functions::transaction_v1::signed_intent::statically_validate(
