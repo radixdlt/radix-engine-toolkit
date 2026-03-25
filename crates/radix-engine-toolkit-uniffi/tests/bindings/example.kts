@@ -4,4 +4,4 @@ import com.radixdlt.ret.*;
 val information = getBuildInformation();
 
 // Assert
-assert(information.version == "2.3.4");
+assert(information.version == "2.3.5");
