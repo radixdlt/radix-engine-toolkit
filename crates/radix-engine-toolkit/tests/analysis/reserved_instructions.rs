@@ -31,7 +31,7 @@ fn regular_transfer_has_no_reserved_instructions() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -56,7 +56,7 @@ fn generic_component_calls_has_no_reserved_instructions() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -86,7 +86,7 @@ fn securifying_account_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -111,7 +111,7 @@ fn locking_fee_from_account_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -136,7 +136,7 @@ fn locking_contingent_fee_from_account_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -162,7 +162,7 @@ fn locking_fee_and_withdrawing_from_account_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -190,7 +190,7 @@ fn locking_fee_and_withdrawing_non_fungibles_from_account_is_a_reserved_instruct
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -216,7 +216,7 @@ fn locking_the_owner_keys_metadata_field_of_account_is_a_reserved_instruction()
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -242,7 +242,7 @@ fn locking_non_owner_keys_metadata_field_of_account_is_not_a_reserved_instructio
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -268,7 +268,7 @@ fn setting_the_owner_keys_metadata_field_of_account_is_a_reserved_instruction()
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -294,7 +294,7 @@ fn setting_non_owner_keys_metadata_field_of_account_is_not_a_reserved_instructio
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -325,7 +325,7 @@ fn securifying_identity_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -352,7 +352,7 @@ fn locking_the_owner_keys_metadata_field_of_identity_is_a_reserved_instruction()
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -379,7 +379,7 @@ fn locking_non_owner_keys_metadata_field_of_identity_is_not_a_reserved_instructi
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -406,7 +406,7 @@ fn setting_the_owner_keys_metadata_field_of_identity_is_a_reserved_instruction()
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -433,7 +433,7 @@ fn setting_non_owner_keys_metadata_field_of_identity_is_not_a_reserved_instructi
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -464,7 +464,7 @@ fn creating_access_controller_proof_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -495,7 +495,7 @@ fn locking_primary_role_on_access_controller_is_a_reserved_instruction() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -519,7 +519,7 @@ fn account_function_invocations_are_not_reserved_instructions() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -543,7 +543,7 @@ fn identity_function_invocations_are_not_reserved_instructions() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(
@@ -574,7 +574,7 @@ fn access_controller_function_invocations_are_not_reserved_instructions() {
         .build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(

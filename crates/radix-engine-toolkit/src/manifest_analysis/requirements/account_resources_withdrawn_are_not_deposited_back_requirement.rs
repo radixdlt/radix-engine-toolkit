@@ -120,10 +120,21 @@ impl ManifestAnalyzerRequirementState
                         if is_zero || is_completely_unknown {
                             None
                         } else {
-                            Some(*resource_address)
+                            match resource_address {
+                                AnalyzerResourceAddress::Static(
+                                    resource_address,
+                                ) => Some(ManifestResourceAddress::Static(
+                                    *resource_address,
+                                )),
+                                AnalyzerResourceAddress::Dynamic {
+                                    named_address,
+                                    ..
+                                } => Some(ManifestResourceAddress::Named(
+                                    ManifestNamedAddress(*named_address),
+                                )),
+                            }
                         }
-                    })
-                    .map(ManifestResourceAddress::Static),
+                    }),
             );
         }
     }

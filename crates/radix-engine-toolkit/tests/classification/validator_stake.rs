@@ -42,6 +42,7 @@ fn single_validator_stake_classifies_as_validator_stake_transaction() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -94,6 +95,7 @@ fn withdraw_of_non_xrd_fungible_resource_kicks_manifest_out_of_validator_stake()
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -135,6 +137,7 @@ fn withdraw_of_non_xrd_non_fungible_resource_kicks_manifest_out_of_validator_sta
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -174,6 +177,7 @@ fn transfer_in_stake_transaction_disqualifies_classification() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -216,6 +220,7 @@ fn multiple_validator_stakes_classifies_as_validator_stake_transaction() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

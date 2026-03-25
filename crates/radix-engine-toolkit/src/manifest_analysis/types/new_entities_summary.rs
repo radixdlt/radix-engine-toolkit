@@ -18,6 +18,7 @@
 use crate::internal_prelude::*;
 
 /// A summary of the newly created entities both global and local (internal).
+#[derive(Debug)]
 pub struct NewEntitiesOutput {
     /// The set of newly created global entities.
     pub new_global_entities: IndexSet<GlobalAddress>,

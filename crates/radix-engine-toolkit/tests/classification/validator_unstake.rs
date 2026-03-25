@@ -56,6 +56,7 @@ fn single_validator_unstake_classifies_as_validator_unstake_transaction() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -116,6 +117,7 @@ fn single_validator_unstake_with_lock_fee_and_withdraw_classifies_as_validator_u
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -179,6 +181,7 @@ fn multiple_validator_unstake_classifies_as_validator_unstake_transaction() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -248,6 +251,7 @@ fn transfer_in_unstake_transaction_disqualifies_classification() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

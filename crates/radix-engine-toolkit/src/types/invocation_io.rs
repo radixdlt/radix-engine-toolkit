@@ -91,7 +91,7 @@ impl IndexedInvocationIo {
 
             let invocation_io = match static_analysis {
                 Some(static_analysis) => static_analysis.zip(dynamic_analysis).map(
-                    |(static_analysis, dynamic_analysis)| {
+                    |(static_analysis, dynamic_analysis, ..)| {
                         let dynamic_analysis = dynamic_analysis
                             .into_iter()
                             .map(|value| value.map(Cow::into_owned))
@@ -215,14 +215,19 @@ impl InvocationIoItems {
         // addresses to iterate over all of the invocation inputs.
         let resource_addresses = dynamic_analysis
             .keys()
-            .chain(static_analysis.keys())
+            .chain(static_analysis.keys().filter_map(|address| match address {
+                AnalyzerResourceAddress::Static(resource_address) => {
+                    Some(resource_address)
+                }
+                AnalyzerResourceAddress::Dynamic { .. } => None,
+            }))
             .copied()
             .collect::<HashSet<_>>();
 
         let mut this = Self::default();
         for resource_address in resource_addresses.into_iter() {
             let static_information = static_analysis
-                .swap_remove(&resource_address)
+                .swap_remove(&AnalyzerResourceAddress::Static(resource_address))
                 .map(|tracked_resource| {
                     SimpleResourceBounds::from_bound(
                         resource_address,

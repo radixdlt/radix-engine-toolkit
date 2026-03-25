@@ -68,6 +68,7 @@ fn single_validator_claim_classifies_as_validator_claim_transaction() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -152,6 +153,7 @@ fn single_validator_claim_with_withdraw_of_non_fungibles_classifies_as_validator
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
@@ -225,6 +227,7 @@ fn transfer_in_claim_transaction_disqualifies_classification() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert

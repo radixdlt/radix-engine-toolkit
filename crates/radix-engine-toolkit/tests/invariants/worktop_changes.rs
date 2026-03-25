@@ -134,7 +134,7 @@ fn take_and_return_to_worktop_of_zero_have_invocation_information_in_static_anal
             invocation_information
                 .output
                 .specified_resources()
-                .get(&XRD)
+                .get(&AnalyzerResourceAddress::Static(XRD))
                 .is_some_and(|xrd| xrd.is_zero())
         },
     ));
@@ -145,7 +145,7 @@ fn take_and_return_to_worktop_of_zero_have_invocation_information_in_static_anal
             invocation_information
                 .input
                 .specified_resources()
-                .get(&XRD)
+                .get(&AnalyzerResourceAddress::Static(XRD))
                 .is_some_and(|xrd| xrd.is_zero())
         },
     ));

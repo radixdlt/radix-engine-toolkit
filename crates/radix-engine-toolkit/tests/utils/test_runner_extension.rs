@@ -49,7 +49,7 @@ where
     fn analyze(
         &mut self,
         manifest: TransactionManifestV1,
-    ) -> (StaticAnalysis, DynamicAnalysis) {
+    ) -> (StaticAnalysis, DynamicAnalysis, TransactionReceipt) {
         let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
         if !receipt.is_commit_success() {
             panic!("Not commit success: {receipt:?}")
@@ -61,11 +61,12 @@ where
         let dynamic_analysis =
             radix_engine_toolkit::prelude::dynamically_analyze(
                 &manifest,
-                RuntimeToolkitTransactionReceipt::try_from(receipt).unwrap(),
+                RuntimeToolkitTransactionReceipt::try_from(receipt.clone())
+                    .unwrap(),
             )
             .unwrap();
 
-        (static_analysis, dynamic_analysis)
+        (static_analysis, dynamic_analysis, receipt)
     }
 
     fn new_validator(

@@ -25,7 +25,7 @@ fn empty_manifest_has_no_manifest_classification() {
     let manifest = ManifestBuilder::new().build();
 
     // Act
-    let (static_analysis, dynamic_analysis) = ledger.analyze(manifest);
+    let (static_analysis, dynamic_analysis, ..) = ledger.analyze(manifest);
 
     // Assert
     assert_eq!(static_analysis.manifest_classification.len(), 0);

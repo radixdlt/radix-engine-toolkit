@@ -166,6 +166,7 @@ fn transfer_in_pool_redemption_transaction_disqualifies_classification() {
             detailed_manifest_classification,
             ..
         },
+        ..,
     ) = ledger.analyze(manifest);
 
     // Assert
