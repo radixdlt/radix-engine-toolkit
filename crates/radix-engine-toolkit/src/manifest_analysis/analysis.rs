@@ -277,7 +277,7 @@ pub fn dynamically_analyze(
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccountDepositSettingsUpdate),
             entity_securify_classification
-                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::EntitySecurify),
             access_controller_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
@@ -357,7 +357,7 @@ mod composite_analyzer {
                 ()
             ),
             entity_securify_classification: (
-                DynamicAnalyzerWrapper<EntitySecurifyAnalyzer>,
+                EntitySecurifyAnalyzer,
                 ()
             ),
             access_controller_recovery: (
