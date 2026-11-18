@@ -292,102 +292,93 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    match context.instruction() {
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMethod(CallMethod {
-                address,
-                method_name,
-                ..
-            }),
-        ) => {
-            let grouped_entity_type = match address {
-                ManifestGlobalAddress::Static(static_address) => {
-                    static_address.as_node_id().entity_type()
-                }
-                ManifestGlobalAddress::Named(named_address) => context
-                    .named_address_store()
-                    .get(named_address)
-                    .and_then(BlueprintId::entity_type),
-            }
-            .map(GroupedEntityType::from);
+    is_permitted_invocation(context)
+        || is_xrd_withdraw(context)
+        || is_xrd_contribution_to_named_access_controller(context)
+        || is_permitted_non_invocation(context)
+}
 
-            match (grouped_entity_type, method_name.as_str()) {
-                // Selective Permissions
-                (
-                    Some(GroupedEntityType::AccountEntities(..)),
-                    // Allow invocation of "securify" on account
-                    ACCOUNT_SECURIFY_IDENT
-                    // Allow invocations related to fee payment
-                    | ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
-                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
-                    | ACCOUNT_LOCK_FEE_IDENT
-                )
-                | (
-                    Some(GroupedEntityType::IdentityEntities(..)),
-                    // Allow invocation of "securify" on identities
-                    IDENTITY_SECURIFY_IDENT
-                )
-                | (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    // Normally used to create proof for fee payment if fee payer
-                    // is already securified with an AC
-                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
-                )
-                => true,
-                (
-                    Some(GroupedEntityType::AccountEntities(..)),
-                    ACCOUNT_WITHDRAW_IDENT,
-                ) if is_xrd_withdraw(context) => true,
-                (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_CONTRIBUTE_RECOVERY_FEE_IDENT,
-                ) if is_xrd_contribution_to_named_access_controller(context)
-                => true,
+fn is_permitted_invocation(context: InstructionContext<'_>) -> bool {
+    matches!(
+        context,
+        InstructionContext::InvocationInstruction {
+            typed_native_invocation: Some(
+                TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                    invocation:
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::Securify(..)
+                                // Fee payment
+                                | AccountBlueprintMethod::LockFee(..)
+                                | AccountBlueprintMethod::LockContingentFee(..)
+                                | AccountBlueprintMethod::CreateProofOfAmount(..)
+                                | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                            ),
+                        )
+                        | TypedManifestNativeInvocation::IdentityBlueprintInvocation(
+                            IdentityBlueprintInvocation::Method(
+                                IdentityBlueprintMethod::Securify(..),
+                            ),
+                        )
+                        // Normally used to create a proof for fee payment when
+                        // the fee payer is already securified.
+                        | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::CreateProof(..),
+                            ),
+                        )
+                        // Setting metadata such as the owner keys of the
+                        // securified entity.
+                        | TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                            MetadataBlueprintInvocation::Method(
+                                MetadataBlueprintMethod::Set(..),
+                            ),
+                        ),
+                }
+                | TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::BlueprintFunction(..),
+                    invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Function(
+                                AccessControllerBlueprintFunction::Create(..),
+                            ),
+                        ),
+                },
+            ),
+            ..
+        }
+    )
+}
+
+fn is_permitted_non_invocation(context: InstructionContext<'_>) -> bool {
+    match context {
+        InstructionContext::NonInvocationInstruction {
+            instruction, ..
+        } => {
+            match instruction {
+                // These are the instructions for creating proofs with the owner
+                // badge that was put on the worktop after securifying the
+                // entity. They are mainly needed for setting the owner_keys
+                // metadata on the entity.
+                GroupedInstruction::ProofInstructions(..)
+                | GroupedInstruction::TakeFromWorktopInstructions(..) => true,
+                // Address allocation for the new access controller.
+                GroupedInstruction::AddressAllocationInstructions(
+                    AddressAllocationInstructions::AllocateGlobalAddress(
+                        AllocateGlobalAddress {
+                            package_address,
+                            blueprint_name,
+                        },
+                    ),
+                ) => {
+                    *package_address == ACCESS_CONTROLLER_PACKAGE
+                        && blueprint_name == ACCESS_CONTROLLER_BLUEPRINT
+                }
                 _ => false,
             }
         }
-
-        // These are the instructions for creating proofs with the account badge
-        // that was just put on the worktop after securifying the account.
-        // It is mainly needed for setting the owner_keys metadata on the account.
-        GroupedInstruction::ProofInstructions(..)
-        | GroupedInstruction::TakeFromWorktopInstructions(..)
-        | GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMetadataMethod(..),
-        ) => true,
-
-        // Address allocation for the new access controller to be created
-        GroupedInstruction::AddressAllocationInstructions(..) => true,
-
-        // Create access controller function
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallFunction(CallFunction {
-                package_address: ManifestPackageAddress::Static(package_address),
-                blueprint_name,
-                function_name,
-                args,
-            }),
-        ) => {
-            let blueprint_id =
-                BlueprintId::new(package_address, blueprint_name);
-            let typed_invocation =
-                TypedManifestNativeInvocation::from_function_invocation(
-                    &blueprint_id,
-                    function_name,
-                    args,
-                );
-            match typed_invocation {
-                Ok(Some(
-                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Function(
-                            AccessControllerBlueprintFunction::Create(..)
-                        )
-                    )
-                ))  => true,
-                _ => false
-            }
-        }
-        _ => false,
+        InstructionContext::InvocationInstruction { .. } => false,
     }
 }
 

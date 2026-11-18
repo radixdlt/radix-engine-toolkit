@@ -17,6 +17,14 @@
 
 use crate::internal_prelude::*;
 
+/// Classifies manifests that initiate the recovery of one or more access
+/// controllers.
+///
+/// The output lists the access controllers for which a recovery is initiated.
+/// The manifest may also confirm that recovery in the same transaction (quick
+/// or timed confirmation), and may cancel or stop an older recovery proposal
+/// that the new one replaces. Those instructions are permitted, but they don't
+/// add access controllers to the output.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct AccessControllerRecoveryAnalyzer(AccessControllerRecoveryOutput);
 
@@ -88,56 +96,49 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    match context.instruction() {
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMethod(CallMethod {
-                address,
-                method_name,
-                ..
+    matches!(
+        context,
+        InstructionContext::InvocationInstruction {
+            typed_native_invocation: Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    // Fee payment
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::LockFee(..)
+                            | AccountBlueprintMethod::LockContingentFee(..)
+                            | AccountBlueprintMethod::CreateProofOfAmount(..)
+                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            // Fee payment. The proof is needed when the fee
+                            // payer is itself a securified account.
+                            AccessControllerBlueprintMethod::CreateProof(..)
+                            | AccessControllerBlueprintMethod::LockRecoveryFee(..)
+                            // Initiating the recovery
+                            | AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
+                            | AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
+                            // Confirming the recovery in the same transaction
+                            | AccessControllerBlueprintMethod::QuickConfirmPrimaryRoleRecoveryProposal(..)
+                            | AccessControllerBlueprintMethod::QuickConfirmRecoveryRoleRecoveryProposal(..)
+                            | AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
+                            // Replacing an existing recovery proposal
+                            | AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
+                            | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..)
+                            | AccessControllerBlueprintMethod::StopTimedRecovery(..),
+                        ),
+                    )
+                    // Updating the metadata of the recovered entity, e.g. its
+                    // owner keys.
+                    | TypedManifestNativeInvocation::MetadataBlueprintInvocation(
+                        MetadataBlueprintInvocation::Method(
+                            MetadataBlueprintMethod::Set(..),
+                        ),
+                    ),
             }),
-        ) => {
-            let grouped_entity_type = match address {
-                ManifestGlobalAddress::Static(static_address) => {
-                    static_address.as_node_id().entity_type()
-                }
-                ManifestGlobalAddress::Named(named_address) => context
-                    .named_address_store()
-                    .get(named_address)
-                    .and_then(BlueprintId::entity_type),
-            }
-            .map(GroupedEntityType::from);
-
-            match (grouped_entity_type, method_name.as_str()) {
-                // Fee Payment
-                (
-                    Some(GroupedEntityType::AccountEntities(..)),
-                    ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
-                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
-                    | ACCOUNT_LOCK_FEE_IDENT,
-                )
-                | (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT
-                    | ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
-                ) => true,
-                // Recovery idents - starting and confirming
-                (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT
-                    | ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT
-                    | ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    // Allow cancelling an existing recovery proposal
-                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
-                ) => true,
-                _ => false,
-            }
+            ..
         }
-        // Metadata updates are allowed when performing recovery
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMetadataMethod(..),
-        ) => true,
-        _ => false,
-    }
+    )
 }

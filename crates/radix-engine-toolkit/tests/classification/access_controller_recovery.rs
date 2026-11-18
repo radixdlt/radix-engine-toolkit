@@ -35,7 +35,7 @@ fn initiate_recovery_as_primary_and_quick_confirm_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }.into(),
                 timed_recovery_delay_in_minutes: None,
             }
         )
@@ -47,7 +47,7 @@ fn initiate_recovery_as_primary_and_quick_confirm_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }.into(),
                 timed_recovery_delay_in_minutes: None,
             }
         );
@@ -97,7 +97,7 @@ fn initiate_recovery_as_recovery_and_quick_confirm_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }.into(),
                 timed_recovery_delay_in_minutes: None,
             }
         )
@@ -109,7 +109,7 @@ fn initiate_recovery_as_recovery_and_quick_confirm_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }.into(),
                 timed_recovery_delay_in_minutes: None,
             }
         );
@@ -160,7 +160,8 @@ fn initiate_recovery_as_recovery_timed_confirmation_is_classified_as_recovery()
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         );
@@ -217,7 +218,8 @@ fn initiate_recovery_with_lock_fee_on_access_controller() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         );
@@ -269,7 +271,8 @@ fn stop_timed_recovery_and_initiate_recovery_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: Some(1),
             },
         )
@@ -293,7 +296,8 @@ fn stop_timed_recovery_and_initiate_recovery_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: Some(1),
             },
         )
@@ -305,7 +309,8 @@ fn stop_timed_recovery_and_initiate_recovery_is_classified_as_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: None,
             },
         );

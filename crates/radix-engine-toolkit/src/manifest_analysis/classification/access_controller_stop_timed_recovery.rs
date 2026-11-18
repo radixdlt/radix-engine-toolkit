@@ -34,8 +34,7 @@ impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
 
-    type RequirementState =
-        AnyOfRequirement<(AccessControllerStopTimedRecovery,)>;
+    type RequirementState = AccessControllerStopTimedRecoveryRequirementState;
 
     fn new(
         _: Self::Initializer,
@@ -83,49 +82,97 @@ impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
     }
 }
 
-fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    match context.instruction() {
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMethod(CallMethod {
-                address,
-                method_name,
-                ..
-            }),
-        ) => {
-            let grouped_entity_type = match address {
-                ManifestGlobalAddress::Static(static_address) => {
-                    static_address.as_node_id().entity_type()
-                }
-                ManifestGlobalAddress::Named(named_address) => context
-                    .named_address_store()
-                    .get(named_address)
-                    .and_then(BlueprintId::entity_type),
-            }
-            .map(GroupedEntityType::from);
+/// Requires at least one timed recovery to be stopped, and every recovery
+/// proposal cancelled in the manifest to belong to an access controller whose
+/// timed recovery is also stopped in it.
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct AccessControllerStopTimedRecoveryRequirementState {
+    stopped_access_controllers:
+        IndexSet<ResolvedManifestAddress<GlobalAddress>>,
+    cancelled_access_controllers:
+        IndexSet<ResolvedManifestAddress<GlobalAddress>>,
+}
 
-            match (grouped_entity_type, method_name.as_str()) {
-                // Fee Payment
-                (
-                    Some(GroupedEntityType::AccountEntities(..)),
-                    ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
-                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
-                    | ACCOUNT_LOCK_FEE_IDENT,
-                )
-                | (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT
-                    | ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
-                ) => true,
-                // Stop timed recovery + cancellation of the proposal
-                (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT
-                    | ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT
-                    | ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
-                ) => true,
-                _ => false,
-            }
+impl ManifestAnalyzerRequirementState
+    for AccessControllerStopTimedRecoveryRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        let all_cancellations_are_stopped = self
+            .cancelled_access_controllers
+            .is_subset(&self.stopped_access_controllers);
+
+        if !self.stopped_access_controllers.is_empty()
+            && all_cancellations_are_stopped
+        {
+            RequirementState::Fulfilled
+        } else {
+            RequirementState::CurrentlyUnfulfilled
         }
-        _ => false,
     }
+
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        let InstructionContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                    invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(method),
+                        ),
+                }),
+            ..
+        } = context
+        else {
+            return;
+        };
+
+        match method {
+            AccessControllerBlueprintMethod::StopTimedRecovery(..) => {
+                self.stopped_access_controllers.insert(receiver.clone());
+            }
+            AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
+            | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..) => {
+                self.cancelled_access_controllers.insert(receiver.clone());
+            }
+            _ => {}
+        }
+    }
+}
+
+fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
+    matches!(
+        context,
+        InstructionContext::InvocationInstruction {
+            typed_native_invocation: Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    // Fee payment
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::LockFee(..)
+                            | AccountBlueprintMethod::LockContingentFee(..)
+                            | AccountBlueprintMethod::CreateProofOfAmount(..)
+                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            // Fee payment. The proof is needed when the fee
+                            // payer is itself a securified account.
+                            AccessControllerBlueprintMethod::CreateProof(..)
+                            | AccessControllerBlueprintMethod::LockRecoveryFee(..)
+                            // Stopping the timed recovery
+                            | AccessControllerBlueprintMethod::StopTimedRecovery(..)
+                            // Cancelling the stopped recovery proposal in the
+                            // same transaction. The requirement state checks
+                            // that it targets an access controller whose timed
+                            // recovery is stopped.
+                            | AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
+                            | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..),
+                        ),
+                    ),
+            }),
+            ..
+        }
+    )
 }

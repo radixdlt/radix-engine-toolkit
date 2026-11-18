@@ -171,7 +171,8 @@ where
                                 primary_role: rule!(allow_all),
                                 recovery_role: rule!(allow_all),
                                 confirmation_role: rule!(allow_all),
-                            },
+                            }
+                            .into(),
                             timed_recovery_delay_in_minutes: Some(10),
                             address_reservation: Some(address_reservation),
                         },

@@ -37,7 +37,8 @@ fn confirm_timed_recovery_manifest_classified_as_confirm_timed_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: Some(10),
             },
         )
@@ -68,7 +69,8 @@ fn confirm_timed_recovery_manifest_classified_as_confirm_timed_recovery() {
                     primary_role: rule!(allow_all),
                     recovery_role: rule!(allow_all),
                     confirmation_role: rule!(allow_all),
-                },
+                }
+                .into(),
                 timed_recovery_delay_in_minutes: Some(10),
             },
         )

@@ -84,46 +84,33 @@ impl ManifestStaticAnalyzer for AccessControllerConfirmTimedRecoveryAnalyzer {
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    match context.instruction() {
-        GroupedInstruction::InvocationInstructions(
-            InvocationInstructions::CallMethod(CallMethod {
-                address,
-                method_name,
-                ..
+    matches!(
+        context,
+        InstructionContext::InvocationInstruction {
+            typed_native_invocation: Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                invocation:
+                    // Fee payment
+                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                        AccountBlueprintInvocation::Method(
+                            AccountBlueprintMethod::LockFee(..)
+                            | AccountBlueprintMethod::LockContingentFee(..)
+                            | AccountBlueprintMethod::CreateProofOfAmount(..)
+                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            // Fee payment. The proof is needed when the fee
+                            // payer is itself a securified account.
+                            AccessControllerBlueprintMethod::CreateProof(..)
+                            | AccessControllerBlueprintMethod::LockRecoveryFee(..)
+                            // Confirm timed recovery
+                            | AccessControllerBlueprintMethod::TimedConfirmRecovery(..),
+                        ),
+                    ),
             }),
-        ) => {
-            let grouped_entity_type = match address {
-                ManifestGlobalAddress::Static(static_address) => {
-                    static_address.as_node_id().entity_type()
-                }
-                ManifestGlobalAddress::Named(named_address) => context
-                    .named_address_store()
-                    .get(named_address)
-                    .and_then(BlueprintId::entity_type),
-            }
-            .map(GroupedEntityType::from);
-
-            match (grouped_entity_type, method_name.as_str()) {
-                // Fee Payment
-                (
-                    Some(GroupedEntityType::AccountEntities(..)),
-                    ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
-                    | ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
-                    | ACCOUNT_LOCK_FEE_IDENT,
-                )
-                | (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_CREATE_PROOF_IDENT
-                    | ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
-                ) => true,
-                // Confirm timed recovery
-                (
-                    Some(GroupedEntityType::AccessControllerEntities(..)),
-                    ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
-                ) => true,
-                _ => false,
-            }
+            ..
         }
-        _ => false,
-    }
+    )
 }
