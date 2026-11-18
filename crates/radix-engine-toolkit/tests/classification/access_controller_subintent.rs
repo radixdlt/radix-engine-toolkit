@@ -201,3 +201,123 @@ fn recovery_subintent_yielding_resources_to_parent_is_not_classified_as_recovery
     assert!(!classification
         .contains(&ManifestClassification::AccessControllerRecovery));
 }
+
+/// Asserts that an enclosed subintent (one that starts by asserting the
+/// worktop is empty) gets the expected classification, both as a subintent and
+/// as the transaction manifest that `as_enclosed` turns it into.
+fn assert_enclosed_classification(
+    builder: ManifestBuilder<SubintentManifestV2>,
+    expected: ManifestClassification,
+) {
+    let manifest = builder.yield_to_parent(()).build();
+    assert!(
+        classify(&manifest).contains(&expected),
+        "subintent not classified as {expected:?}"
+    );
+
+    let enclosed = radix_engine_toolkit::functions::transaction_v2::subintent_manifest::as_enclosed(&manifest)
+        .expect("Must be an enclosed subintent");
+    let StaticAnalysis {
+        manifest_classification,
+        ..
+    } = statically_analyze(&enclosed).unwrap();
+    assert!(
+        manifest_classification.contains(&expected),
+        "enclosed manifest not classified as {expected:?}"
+    );
+}
+
+#[test]
+fn enclosed_recovery_subintent_is_classified_as_recovery() {
+    let mut allocator = TestAddressAllocator::new();
+    let access_controller = allocator.new_access_controller_address();
+    assert_enclosed_classification(
+        ManifestBuilder::new_subintent_v2()
+            .assert_worktop_is_empty()
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+                AccessControllerInitiateRecoveryAsRecoveryManifestInput {
+                    rule_set: rule_set(),
+                    timed_recovery_delay_in_minutes: None,
+                },
+            )
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                AccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
+                    rule_set: rule_set(),
+                    timed_recovery_delay_in_minutes: None,
+                },
+            ),
+        ManifestClassification::AccessControllerRecovery,
+    );
+}
+
+#[test]
+fn enclosed_stop_timed_recovery_subintent_is_classified_as_stop_timed_recovery()
+{
+    let mut allocator = TestAddressAllocator::new();
+    let access_controller = allocator.new_access_controller_address();
+    assert_enclosed_classification(
+        ManifestBuilder::new_subintent_v2()
+            .assert_worktop_is_empty()
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
+                AccessControllerStopTimedRecoveryManifestInput {
+                    rule_set: rule_set(),
+                    timed_recovery_delay_in_minutes: None,
+                },
+            )
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                AccessControllerCancelRecoveryRoleRecoveryProposalManifestInput {},
+            ),
+        ManifestClassification::AccessControllerStopTimedRecovery,
+    );
+}
+
+#[test]
+fn enclosed_confirm_timed_recovery_subintent_is_classified_as_confirm_timed_recovery(
+) {
+    let mut allocator = TestAddressAllocator::new();
+    let access_controller = allocator.new_access_controller_address();
+    assert_enclosed_classification(
+        ManifestBuilder::new_subintent_v2()
+            .assert_worktop_is_empty()
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
+                AccessControllerTimedConfirmRecoveryManifestInput {
+                    rule_set: rule_set(),
+                    timed_recovery_delay_in_minutes: Some(10),
+                },
+            ),
+        ManifestClassification::AccessControllerConfirmTimedRecovery,
+    );
+}
+
+#[test]
+fn asserting_worktop_contains_only_some_resources_is_not_recovery() {
+    let mut allocator = TestAddressAllocator::new();
+    let access_controller = allocator.new_access_controller_address();
+    let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_resources_only(
+            ManifestResourceConstraints::new().with_exact_amount(XRD, 0),
+        )
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+            AccessControllerInitiateRecoveryAsRecoveryManifestInput {
+                rule_set: rule_set(),
+                timed_recovery_delay_in_minutes: None,
+            },
+        )
+        .yield_to_parent(())
+        .build();
+
+    assert!(!classify(&manifest)
+        .contains(&ManifestClassification::AccessControllerRecovery));
+}

@@ -10,7 +10,8 @@ This changelog captures the changes made to the toolkit between releases.
 * Added the `AccessControllerRecovery` manifest classification. Its detailed output lists each recovery proposal initiated in the manifest, with the access controller, the proposer, the proposed rule set and the timed recovery delay. Confirmations, cancellations, stops and XRD recovery fee contributions are only permitted on access controllers whose recovery the manifest initiates.
 * Added the `AccessControllerStopTimedRecovery` manifest classification. Cancelling a recovery proposal is only permitted on access controllers whose timed recovery the manifest also stops.
 * Added the `AccessControllerConfirmTimedRecovery` manifest classification.
-* The three access controller classifications also apply to subintent manifests, as long as they don't yield anything back to the parent.
+* The three access controller classifications also apply to subintent manifests, including enclosed ones, as long as they don't yield anything back to the parent.
+* Fixed `as_enclosed` treating a subintent as enclosed when its first instruction asserts that specific resources are on the worktop. It now returns `None` unless that assertion is an `ASSERT_WORKTOP_IS_EMPTY`.
 
 ### `radix-engine-toolkit-uniffi` Crate
 

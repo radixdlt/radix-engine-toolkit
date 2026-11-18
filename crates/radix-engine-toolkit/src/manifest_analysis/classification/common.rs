@@ -22,10 +22,16 @@ use crate::internal_prelude::*;
 
 /// Whether the instruction is permitted when the manifest is a subintent.
 ///
-/// `VERIFY_PARENT` is permitted, and so is `YIELD_TO_PARENT` as long as it
-/// doesn't pass anything back to the parent. This keeps resources withdrawn in
-/// the subintent from being handed to the parent. Transaction manifests can't
-/// contain these instructions, so this doesn't affect them.
+/// * `VERIFY_PARENT` is permitted.
+/// * `YIELD_TO_PARENT` is permitted as long as it doesn't pass anything back
+///   to the parent. This keeps resources withdrawn in the subintent from being
+///   handed to the parent.
+/// * `ASSERT_WORKTOP_IS_EMPTY` (an `ASSERT_WORKTOP_RESOURCES_ONLY` without
+///   constraints) is permitted, since enclosed subintents start with it. It
+///   can't move resources.
+///
+/// Transaction manifests can't contain the first two instructions, and the
+/// assertion doesn't change what they do, so this doesn't affect them.
 pub(super) fn is_permitted_subintent_instruction(
     context: InstructionContext<'_>,
 ) -> bool {
@@ -36,6 +42,11 @@ pub(super) fn is_permitted_subintent_instruction(
         GroupedInstruction::SubintentInstructions(
             SubintentInstructions::VerifyParent(..),
         ) => true,
+        GroupedInstruction::AssertionInstructions(
+            AssertionInstructions::AssertWorktopResourcesOnly(
+                AssertWorktopResourcesOnly { constraints },
+            ),
+        ) => constraints.specified_resources().is_empty(),
         _ => false,
     }
 }
