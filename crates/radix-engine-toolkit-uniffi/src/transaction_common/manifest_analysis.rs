@@ -1944,8 +1944,16 @@ impl ToNative for AccountDefaultDepositRule {
 
 #[derive(Clone, Debug, Record)]
 pub struct EntitySecurifyOutput {
-    pub securified_accounts: Vec<Arc<Address>>,
-    pub securified_identities: Vec<Arc<Address>>,
+    pub securify_operations: Vec<EntitySecurifyOperation>,
+}
+
+/// An account or identity being securified, together with the security
+/// structure of the access controller created for it.
+#[derive(Clone, Debug, Record)]
+pub struct EntitySecurifyOperation {
+    pub entity_address: Arc<Address>,
+    pub rule_set: RuleSet,
+    pub timed_recovery_delay_in_minutes: Option<u32>,
 }
 
 impl FromNativeWithNetworkContext for EntitySecurifyOutput {
@@ -1953,28 +1961,54 @@ impl FromNativeWithNetworkContext for EntitySecurifyOutput {
 
     fn from_native(
         Self::Native {
-            securified_accounts,
-            securified_identities,
+            securify_operations,
         }: Self::Native,
         network_id: u8,
     ) -> Self {
         Self {
-            securified_accounts: securified_accounts
+            // Operations on entities that don't have a static address yet, or
+            // whose rule set can't be converted into a typed rule set (e.g.,
+            // it refers to a named address), can't be represented here and
+            // are skipped.
+            securify_operations: securify_operations
                 .into_iter()
-                .filter_map(|account| account.into_static())
-                .map(|account| {
-                    Arc::new(Address::from_node_id(account, network_id))
-                })
-                .collect(),
-
-            securified_identities: securified_identities
-                .into_iter()
-                .filter_map(|identity| identity.into_static())
-                .map(|identity| {
-                    Arc::new(Address::from_node_id(identity, network_id))
+                .filter_map(|operation| {
+                    EntitySecurifyOperation::from_native(operation, network_id)
                 })
                 .collect(),
         }
+    }
+}
+
+impl EntitySecurifyOperation {
+    fn from_native(
+        toolkit::EntitySecurifyOperation {
+            entity_address,
+            rule_set,
+            timed_recovery_delay_in_minutes,
+        }: toolkit::EntitySecurifyOperation,
+        network_id: u8,
+    ) -> Option<Self> {
+        let entity_address = entity_address.into_static()?;
+        let engine::ManifestRuleSet {
+            primary_role,
+            recovery_role,
+            confirmation_role,
+        } = rule_set;
+        let rule_set = engine::RuleSet {
+            primary_role: primary_role.try_into_typed().ok()?,
+            recovery_role: recovery_role.try_into_typed().ok()?,
+            confirmation_role: confirmation_role.try_into_typed().ok()?,
+        };
+
+        Some(Self {
+            entity_address: Arc::new(Address::from_node_id(
+                entity_address,
+                network_id,
+            )),
+            rule_set: <RuleSet as FromNative>::from_native(rule_set),
+            timed_recovery_delay_in_minutes,
+        })
     }
 }
 
