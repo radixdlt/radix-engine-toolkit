@@ -2,6 +2,20 @@
 
 This changelog captures the changes made to the toolkit between releases.
 
+## Unreleased
+
+### `radix-engine-toolkit` Crate
+
+* Added the `EntitySecurify` manifest classification. Its detailed output lists each securified account or identity with the rule set and timed recovery delay of the access controller created for it.
+* Added the `AccessControllerRecovery` manifest classification. Its detailed output lists each recovery proposal initiated in the manifest, with the access controller, the proposer, the proposed rule set and the timed recovery delay. Confirmations, cancellations, stops and XRD recovery fee contributions are only permitted on access controllers whose recovery the manifest initiates.
+* Added the `AccessControllerStopTimedRecovery` manifest classification. Cancelling a recovery proposal is only permitted on access controllers whose timed recovery the manifest also stops.
+* Added the `AccessControllerConfirmTimedRecovery` manifest classification.
+* The three access controller classifications also apply to subintent manifests, as long as they don't yield anything back to the parent.
+
+### `radix-engine-toolkit-uniffi` Crate
+
+* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerStopTimedRecovery` and `AccessControllerConfirmTimedRecovery` variants to `ManifestClassification` and `DetailedManifestClassification`, with the `EntitySecurifyOutput`, `AccessControllerRecoveryOutput`, `AccessControllerStopTimedRecoveryOutput` and `AccessControllerConfirmTimedRecoveryOutput` records.
+
 ## Cuttlefish Protocol Update 
 
 ### `radix-engine-toolkit` Crate 

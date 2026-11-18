@@ -175,3 +175,29 @@ fn confirm_timed_recovery_subintent_is_classified_as_confirm_timed_recovery() {
         &ManifestClassification::AccessControllerConfirmTimedRecovery
     ));
 }
+
+#[test]
+fn recovery_subintent_yielding_resources_to_parent_is_not_classified_as_recovery(
+) {
+    // Arrange
+    let mut allocator = TestAddressAllocator::new();
+    let access_controller = allocator.new_access_controller_address();
+    let manifest = ManifestBuilder::new_subintent_v2()
+        .call_method(
+            access_controller,
+            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+            AccessControllerInitiateRecoveryAsRecoveryManifestInput {
+                rule_set: rule_set(),
+                timed_recovery_delay_in_minutes: None,
+            },
+        )
+        .yield_to_parent((ManifestExpression::EntireWorktop,))
+        .build();
+
+    // Act
+    let classification = classify(&manifest);
+
+    // Assert
+    assert!(!classification
+        .contains(&ManifestClassification::AccessControllerRecovery));
+}

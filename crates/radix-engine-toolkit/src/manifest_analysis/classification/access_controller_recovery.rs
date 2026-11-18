@@ -15,22 +15,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::common::*;
 use crate::internal_prelude::*;
 
 /// Classifies manifests that initiate the recovery of one or more access
 /// controllers.
 ///
-/// The output lists the access controllers for which a recovery is initiated.
-/// The manifest may also confirm that recovery in the same transaction (quick
-/// or timed confirmation), and may cancel or stop an older recovery proposal
-/// that the new one replaces. Those instructions are permitted, but they don't
-/// add access controllers to the output.
+/// The output lists the recovery proposals initiated in the manifest. The
+/// manifest may also confirm a recovery (quick or timed), cancel or stop an
+/// older proposal that the new one replaces, and top up the recovery fee vault
+/// with XRD, but only on access controllers whose recovery it initiates.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct AccessControllerRecoveryAnalyzer(AccessControllerRecoveryOutput);
+pub struct AccessControllerRecoveryAnalyzer {
+    recovery_proposals:
+        IndexMap<(ComponentAddress, Proposer), (RuleSet, Option<u32>)>,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct AccessControllerRecoveryOutput {
-    pub access_controllers: Vec<ComponentAddress>,
+    pub recovery_proposals: Vec<AccessControllerRecoveryProposal>,
+}
+
+/// A recovery proposal initiated on an access controller.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AccessControllerRecoveryProposal {
+    pub access_controller: ComponentAddress,
+    /// The role that initiated the recovery.
+    pub proposer: Proposer,
+    /// The proposed rules that replace the access controller's current ones.
+    pub rule_set: RuleSet,
+    pub timed_recovery_delay_in_minutes: Option<u32>,
 }
 
 impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
@@ -40,10 +54,7 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
     type PermissionState =
         CallbackPermissionState<PermissionStateStaticCallback>;
 
-    type RequirementState = AnyOfRequirement<(
-        AccessControllerInitiateRecoveryAsPrimary,
-        AccessControllerInitiateRecoveryAsRecovery,
-    )>;
+    type RequirementState = AccessControllerRecoveryRequirementState;
 
     fn new(
         _: Self::Initializer,
@@ -56,99 +67,233 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
     }
 
     fn output(self) -> Self::Output {
-        self.0
+        AccessControllerRecoveryOutput {
+            recovery_proposals: self
+                .recovery_proposals
+                .into_iter()
+                .map(
+                    |(
+                        (access_controller, proposer),
+                        (rule_set, timed_recovery_delay_in_minutes),
+                    )| AccessControllerRecoveryProposal {
+                        access_controller,
+                        proposer,
+                        rule_set,
+                        timed_recovery_delay_in_minutes,
+                    },
+                )
+                .collect(),
+        }
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
-        let InstructionContext::InvocationInstruction {
-            typed_native_invocation:
-                Some(TypedNativeInvocation {
-                    receiver:
-                     ManifestInvocationReceiver::GlobalMethod(
-                            ResolvedManifestAddress::Static {
-                                static_address: ac_address,
-                            },
-                    ),
-
-                    invocation:
-                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
-                        )
-                    ) | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
-                        )
-                    ),
-                }),
-            ..
-        } = context
+        let Some((access_controller, proposer, rule_set, delay)) =
+            initiated_recovery(context)
         else {
             return;
         };
+        let ResolvedManifestAddress::Static { static_address } =
+            access_controller
+        else {
+            return;
+        };
+        let Some(rule_set) = typed_rule_set(rule_set) else {
+            return;
+        };
+        let access_controller = ComponentAddress::try_from(*static_address)
+            .expect(
+                "Must succeed since the typed invocation conversion succeeded",
+            );
 
-        let ac_address = ComponentAddress::try_from(*ac_address).expect(
-            "Must succeed since the typed invocation conversion succeeded",
-        );
+        self.recovery_proposals
+            .insert((access_controller, proposer), (rule_set, delay));
+    }
+}
 
-        self.0.access_controllers.push(ac_address);
+/// The requirements for classifying a manifest as an access controller
+/// recovery:
+///
+/// * At least one recovery is initiated.
+/// * Every confirmation, cancellation, stop and recovery fee contribution
+///   targets an access controller whose recovery is initiated in the manifest.
+/// * XRD is withdrawn from an account only to contribute it to the recovery
+///   fee vault.
+/// * Every proposed rule set can be shown to the user, i.e. it doesn't refer
+///   to anything that only exists in the manifest.
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct AccessControllerRecoveryRequirementState {
+    initiated_access_controllers:
+        IndexSet<ResolvedManifestAddress<GlobalAddress>>,
+    other_targeted_access_controllers:
+        IndexSet<ResolvedManifestAddress<GlobalAddress>>,
+    has_xrd_withdrawal: bool,
+    has_xrd_contribution: bool,
+    invalid_manifest: bool,
+}
+
+impl ManifestAnalyzerRequirementState
+    for AccessControllerRecoveryRequirementState
+{
+    fn requirement_state(&self) -> RequirementState {
+        if self.invalid_manifest {
+            RequirementState::PermanentlyUnfulfilled
+        } else if !self.initiated_access_controllers.is_empty()
+            && self
+                .other_targeted_access_controllers
+                .is_subset(&self.initiated_access_controllers)
+            && self.has_xrd_withdrawal == self.has_xrd_contribution
+        {
+            RequirementState::Fulfilled
+        } else {
+            RequirementState::CurrentlyUnfulfilled
+        }
+    }
+
+    fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        if let Some((access_controller, _, rule_set, _)) =
+            initiated_recovery(context)
+        {
+            self.initiated_access_controllers
+                .insert(access_controller.clone());
+            self.invalid_manifest |= !matches!(
+                access_controller,
+                ResolvedManifestAddress::Static { .. }
+            ) || typed_rule_set(rule_set).is_none();
+        } else if let Some(access_controller) =
+            xrd_recovery_fee_contribution_receiver(context)
+        {
+            self.has_xrd_contribution = true;
+            self.other_targeted_access_controllers
+                .insert(access_controller.clone());
+        } else if is_xrd_withdraw(context) {
+            self.has_xrd_withdrawal = true;
+        } else if let InstructionContext::InvocationInstruction {
+            typed_native_invocation:
+                Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                    invocation:
+                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                AccessControllerBlueprintMethod::QuickConfirmPrimaryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::QuickConfirmRecoveryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
+                                | AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::StopTimedRecovery(..),
+                            ),
+                        ),
+                }),
+            ..
+        } = context
+        {
+            self.other_targeted_access_controllers
+                .insert(receiver.clone());
+        }
+    }
+}
+
+/// If the instruction initiates a recovery, returns the access controller, the
+/// proposer, the proposed rule set and the timed recovery delay.
+fn initiated_recovery<'a>(
+    context: InstructionContext<'a>,
+) -> Option<(
+    &'a ResolvedManifestAddress<GlobalAddress>,
+    Proposer,
+    &'a ManifestRuleSet,
+    Option<u32>,
+)> {
+    let InstructionContext::InvocationInstruction {
+        typed_native_invocation:
+            Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                invocation:
+                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(method),
+                    ),
+            }),
+        ..
+    } = context
+    else {
+        return None;
+    };
+
+    match method {
+        AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(
+            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
+                rule_set,
+                timed_recovery_delay_in_minutes,
+            },
+        ) => Some((
+            receiver,
+            Proposer::Primary,
+            rule_set,
+            *timed_recovery_delay_in_minutes,
+        )),
+        AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(
+            AccessControllerInitiateRecoveryAsRecoveryManifestInput {
+                rule_set,
+                timed_recovery_delay_in_minutes,
+            },
+        ) => Some((
+            receiver,
+            Proposer::Recovery,
+            rule_set,
+            *timed_recovery_delay_in_minutes,
+        )),
+        _ => None,
     }
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    // Lets the manifest be used as a subintent. Transaction manifests can't
-    // contain these instructions, so this doesn't affect them.
-    let is_permitted_subintent_instruction = matches!(
-        context.instruction(),
-        GroupedInstruction::SubintentInstructions(
-            SubintentInstructions::YieldToParent(..)
-                | SubintentInstructions::VerifyParent(..)
+    is_permitted_subintent_instruction(context)
+        || is_account_or_identity_metadata_set(context)
+        || is_xrd_withdraw(context)
+        || xrd_recovery_fee_contribution_receiver(context).is_some()
+        || matches!(
+            context,
+            InstructionContext::NonInvocationInstruction {
+                // Taking the withdrawn XRD from the worktop to contribute it
+                // to the recovery fee vault.
+                instruction: GroupedInstruction::TakeFromWorktopInstructions(..),
+                ..
+            }
         )
-    );
-
-    is_permitted_subintent_instruction || matches!(
-        context,
-        InstructionContext::InvocationInstruction {
-            typed_native_invocation: Some(TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    // Fee payment
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::LockFee(..)
-                            | AccountBlueprintMethod::LockContingentFee(..)
-                            | AccountBlueprintMethod::CreateProofOfAmount(..)
-                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+        || matches!(
+            context,
+            InstructionContext::InvocationInstruction {
+                typed_native_invocation: Some(TypedNativeInvocation {
+                    receiver: ManifestInvocationReceiver::GlobalMethod(..),
+                    invocation:
+                        // Fee payment
+                        TypedManifestNativeInvocation::AccountBlueprintInvocation(
+                            AccountBlueprintInvocation::Method(
+                                AccountBlueprintMethod::LockFee(..)
+                                | AccountBlueprintMethod::LockContingentFee(..)
+                                | AccountBlueprintMethod::CreateProofOfAmount(..)
+                                | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                            ),
+                        )
+                        | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                            AccessControllerBlueprintInvocation::Method(
+                                // Fee payment. The proof is needed when the fee
+                                // payer is itself a securified account.
+                                AccessControllerBlueprintMethod::CreateProof(..)
+                                | AccessControllerBlueprintMethod::LockRecoveryFee(..)
+                                // Initiating the recovery
+                                | AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
+                                | AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
+                                // Confirming the recovery in the same transaction
+                                | AccessControllerBlueprintMethod::QuickConfirmPrimaryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::QuickConfirmRecoveryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
+                                // Replacing an existing recovery proposal
+                                | AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..)
+                                | AccessControllerBlueprintMethod::StopTimedRecovery(..),
+                            ),
                         ),
-                    )
-                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            // Fee payment. The proof is needed when the fee
-                            // payer is itself a securified account.
-                            AccessControllerBlueprintMethod::CreateProof(..)
-                            | AccessControllerBlueprintMethod::LockRecoveryFee(..)
-                            // Initiating the recovery
-                            | AccessControllerBlueprintMethod::InitiateRecoveryAsPrimary(..)
-                            | AccessControllerBlueprintMethod::InitiateRecoveryAsRecovery(..)
-                            // Confirming the recovery in the same transaction
-                            | AccessControllerBlueprintMethod::QuickConfirmPrimaryRoleRecoveryProposal(..)
-                            | AccessControllerBlueprintMethod::QuickConfirmRecoveryRoleRecoveryProposal(..)
-                            | AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
-                            // Replacing an existing recovery proposal
-                            | AccessControllerBlueprintMethod::CancelPrimaryRoleRecoveryProposal(..)
-                            | AccessControllerBlueprintMethod::CancelRecoveryRoleRecoveryProposal(..)
-                            | AccessControllerBlueprintMethod::StopTimedRecovery(..),
-                        ),
-                    )
-                    // Updating the metadata of the recovered entity, e.g. its
-                    // owner keys.
-                    | TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                        MetadataBlueprintInvocation::Method(
-                            MetadataBlueprintMethod::Set(..),
-                        ),
-                    ),
-            }),
-            ..
-        }
-    )
+                }),
+                ..
+            }
+        )
 }

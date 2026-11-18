@@ -44,11 +44,11 @@ fn securify_account_classifies_as_entity_securify() {
 
     let reservation = builder.address_reservation("ac_reservation");
     let bucket = builder.bucket("bucket");
-    let rule_set = ManifestRuleSet::from(RuleSet {
+    let rule_set = RuleSet {
         primary_role: rule!(allow_all),
         recovery_role: rule!(deny_all),
         confirmation_role: rule!(allow_all),
-    });
+    };
     let timed_recovery_delay_in_minutes = Some(1_440);
 
     let builder = builder.call_function(
@@ -57,7 +57,7 @@ fn securify_account_classifies_as_entity_securify() {
         ACCESS_CONTROLLER_CREATE_IDENT,
         AccessControllerCreateManifestInput {
             controlled_asset: bucket,
-            rule_set: rule_set.clone(),
+            rule_set: rule_set.clone().into(),
             timed_recovery_delay_in_minutes,
             address_reservation: Some(reservation),
         },
@@ -92,7 +92,7 @@ fn securify_account_classifies_as_entity_securify() {
     assert_eq!(
         securify_operations,
         &vec![EntitySecurifyOperation {
-            entity_address: ManifestGlobalAddress::Static(account.into()),
+            entity_address: account.into(),
             rule_set,
             timed_recovery_delay_in_minutes,
         }]
@@ -133,11 +133,11 @@ fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
     let access_controller_address = ManifestGlobalAddress::Named(
         ManifestNamedAddress(access_controller_reservation.0),
     );
-    let rule_set = ManifestRuleSet::from(RuleSet {
+    let rule_set = RuleSet {
         primary_role: rule!(allow_all),
         recovery_role: rule!(deny_all),
         confirmation_role: rule!(allow_all),
-    });
+    };
     let timed_recovery_delay_in_minutes = Some(20_160);
 
     let manifest = builder
@@ -147,7 +147,7 @@ fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
             ACCESS_CONTROLLER_CREATE_IDENT,
             AccessControllerCreateManifestInput {
                 controlled_asset: owner_badge,
-                rule_set: rule_set.clone(),
+                rule_set: rule_set.clone().into(),
                 timed_recovery_delay_in_minutes,
                 address_reservation: Some(access_controller_reservation),
             },
@@ -191,7 +191,7 @@ fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
     assert_eq!(
         securify_operations,
         &vec![EntitySecurifyOperation {
-            entity_address: ManifestGlobalAddress::Static(account.into()),
+            entity_address: account.into(),
             rule_set,
             timed_recovery_delay_in_minutes,
         }]
@@ -520,11 +520,11 @@ fn securify_identity_classifies_as_entity_securify() {
 
     let reservation = builder.address_reservation("ac_reservation");
     let bucket = builder.bucket("bucket");
-    let rule_set = ManifestRuleSet::from(RuleSet {
+    let rule_set = RuleSet {
         primary_role: rule!(deny_all),
         recovery_role: rule!(allow_all),
         confirmation_role: rule!(deny_all),
-    });
+    };
     let timed_recovery_delay_in_minutes = None;
 
     let builder = builder.call_function(
@@ -533,7 +533,7 @@ fn securify_identity_classifies_as_entity_securify() {
         ACCESS_CONTROLLER_CREATE_IDENT,
         AccessControllerCreateManifestInput {
             controlled_asset: bucket,
-            rule_set: rule_set.clone(),
+            rule_set: rule_set.clone().into(),
             timed_recovery_delay_in_minutes,
             address_reservation: Some(reservation),
         },
@@ -568,7 +568,7 @@ fn securify_identity_classifies_as_entity_securify() {
     assert_eq!(
         securify_operations,
         &vec![EntitySecurifyOperation {
-            entity_address: ManifestGlobalAddress::Static(identity.into()),
+            entity_address: identity.into(),
             rule_set,
             timed_recovery_delay_in_minutes,
         }]
@@ -613,16 +613,16 @@ fn multiple_entities_are_paired_with_structures_by_owner_badge() {
     let second_bucket = builder.bucket("second_bucket");
     let first_reservation = builder.address_reservation("first_reservation");
     let second_reservation = builder.address_reservation("second_reservation");
-    let first_rule_set = ManifestRuleSet::from(RuleSet {
+    let first_rule_set = RuleSet {
         primary_role: rule!(allow_all),
         recovery_role: rule!(deny_all),
         confirmation_role: rule!(allow_all),
-    });
-    let second_rule_set = ManifestRuleSet::from(RuleSet {
+    };
+    let second_rule_set = RuleSet {
         primary_role: rule!(deny_all),
         recovery_role: rule!(allow_all),
         confirmation_role: rule!(deny_all),
-    });
+    };
 
     let manifest = builder
         .call_function(
@@ -631,7 +631,7 @@ fn multiple_entities_are_paired_with_structures_by_owner_badge() {
             ACCESS_CONTROLLER_CREATE_IDENT,
             AccessControllerCreateManifestInput {
                 controlled_asset: second_bucket,
-                rule_set: second_rule_set.clone(),
+                rule_set: second_rule_set.clone().into(),
                 timed_recovery_delay_in_minutes: Some(20),
                 address_reservation: Some(second_reservation),
             },
@@ -642,7 +642,7 @@ fn multiple_entities_are_paired_with_structures_by_owner_badge() {
             ACCESS_CONTROLLER_CREATE_IDENT,
             AccessControllerCreateManifestInput {
                 controlled_asset: first_bucket,
-                rule_set: first_rule_set.clone(),
+                rule_set: first_rule_set.clone().into(),
                 timed_recovery_delay_in_minutes: Some(10),
                 address_reservation: Some(first_reservation),
             },
@@ -676,19 +676,102 @@ fn multiple_entities_are_paired_with_structures_by_owner_badge() {
         securify_operations,
         &vec![
             EntitySecurifyOperation {
-                entity_address: ManifestGlobalAddress::Static(
-                    second_account.into(),
-                ),
+                entity_address: second_account.into(),
                 rule_set: second_rule_set,
                 timed_recovery_delay_in_minutes: Some(20),
             },
             EntitySecurifyOperation {
-                entity_address: ManifestGlobalAddress::Static(
-                    first_account.into(),
-                ),
+                entity_address: first_account.into(),
                 rule_set: first_rule_set,
                 timed_recovery_delay_in_minutes: Some(10),
             },
         ]
     );
+}
+
+/// A securify of an account, with extra instructions added by `extra` after
+/// the account is securified. The address of the new access controller is
+/// allocated with the given package and blueprint.
+fn securify_manifest_with(
+    allocated_blueprint: (PackageAddress, &str),
+    extra: impl FnOnce(ManifestBuilder, ComponentAddress) -> ManifestBuilder,
+) -> TransactionManifestV1 {
+    let mut allocator = TestAddressAllocator::new();
+    let account = allocator.new_account_address();
+    let builder = ManifestBuilder::new()
+        .call_method(
+            account,
+            ACCOUNT_SECURIFY_IDENT,
+            AccountSecurifyManifestInput {},
+        )
+        .take_from_worktop(ACCOUNT_OWNER_BADGE, 1, "owner_badge")
+        .allocate_global_address(
+            allocated_blueprint.0,
+            allocated_blueprint.1,
+            "reservation",
+            "access_controller",
+        );
+    let builder = extra(builder, account);
+    let owner_badge = builder.bucket("owner_badge");
+    let reservation = builder.address_reservation("reservation");
+    builder
+        .call_function(
+            ACCESS_CONTROLLER_PACKAGE,
+            ACCESS_CONTROLLER_BLUEPRINT,
+            ACCESS_CONTROLLER_CREATE_IDENT,
+            AccessControllerCreateManifestInput {
+                controlled_asset: owner_badge,
+                rule_set: RuleSet {
+                    primary_role: rule!(allow_all),
+                    recovery_role: rule!(allow_all),
+                    confirmation_role: rule!(allow_all),
+                }
+                .into(),
+                timed_recovery_delay_in_minutes: None,
+                address_reservation: Some(reservation),
+            },
+        )
+        .build()
+}
+
+fn is_classified_as_securify(manifest: &TransactionManifestV1) -> bool {
+    let StaticAnalysis {
+        manifest_classification,
+        ..
+    } = statically_analyze(manifest).unwrap();
+    manifest_classification.contains(&ManifestClassification::EntitySecurify)
+}
+
+#[test]
+fn securify_base_manifest_classifies_as_entity_securify() {
+    assert!(is_classified_as_securify(&securify_manifest_with(
+        (ACCESS_CONTROLLER_PACKAGE, ACCESS_CONTROLLER_BLUEPRINT),
+        |builder, _| builder
+    )));
+}
+
+#[test]
+fn securify_with_non_access_controller_address_allocation_does_not_classify() {
+    let manifest = securify_manifest_with(
+        (ACCOUNT_PACKAGE, ACCOUNT_BLUEPRINT),
+        |builder, _| builder,
+    );
+    assert!(!is_classified_as_securify(&manifest));
+}
+
+#[test]
+fn securify_with_metadata_removal_does_not_classify() {
+    let manifest = securify_manifest_with(
+        (ACCESS_CONTROLLER_PACKAGE, ACCESS_CONTROLLER_BLUEPRINT),
+        |builder, account| {
+            builder.call_metadata_method(
+                account,
+                METADATA_REMOVE_IDENT,
+                MetadataRemoveInput {
+                    key: "owner_keys".into(),
+                },
+            )
+        },
+    );
+    assert!(!is_classified_as_securify(&manifest));
 }

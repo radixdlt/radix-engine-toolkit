@@ -15,20 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::common::*;
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct EntitySecurifyAnalyzer {
     output: EntitySecurifyOutput,
-    entities_by_owner_badge_id:
-        IndexMap<NonFungibleLocalId, ManifestGlobalAddress>,
+    entities_by_owner_badge_id: IndexMap<NonFungibleLocalId, GlobalAddress>,
 }
 
 /// A securify operation and the security structure proposed for the entity.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EntitySecurifyOperation {
-    pub entity_address: ManifestGlobalAddress,
-    pub rule_set: ManifestRuleSet,
+    pub entity_address: GlobalAddress,
+    pub rule_set: RuleSet,
     pub timed_recovery_delay_in_minutes: Option<u32>,
 }
 
@@ -91,7 +91,10 @@ impl ManifestDynamicAnalyzer for EntitySecurifyAnalyzer {
 
         match typed_invocation {
             TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
+                receiver:
+                    ManifestInvocationReceiver::GlobalMethod(
+                        ResolvedManifestAddress::Static { static_address },
+                    ),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
                         AccountBlueprintInvocation::Method(
@@ -112,7 +115,7 @@ impl ManifestDynamicAnalyzer for EntitySecurifyAnalyzer {
                 };
 
                 self.entities_by_owner_badge_id
-                    .insert(owner_badge_id.clone(), receiver.into());
+                    .insert(owner_badge_id.clone(), *static_address);
             }
 
             TypedNativeInvocation {
@@ -135,11 +138,16 @@ impl ManifestDynamicAnalyzer for EntitySecurifyAnalyzer {
                 else {
                     return;
                 };
+                // The static requirements reject rule sets that can't be
+                // converted.
+                let Some(rule_set) = typed_rule_set(&input.rule_set) else {
+                    return;
+                };
 
                 self.output.securify_operations.push(
                     EntitySecurifyOperation {
                         entity_address,
-                        rule_set: input.rule_set.clone(),
+                        rule_set,
                         timed_recovery_delay_in_minutes: input
                             .timed_recovery_delay_in_minutes,
                     },
@@ -218,6 +226,13 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
                 ),
             ) => {
                 self.pending_entity_count += 1;
+                // Only existing entities can be securified.
+                self.invalid_manifest |= !matches!(
+                    typed_invocation.receiver,
+                    ManifestInvocationReceiver::GlobalMethod(
+                        ResolvedManifestAddress::Static { .. }
+                    )
+                );
             }
             TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
                 AccessControllerBlueprintInvocation::Function(
@@ -233,6 +248,8 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
 
                 self.pending_entity_count = pending_entity_count;
                 self.paired_entity_count += 1;
+                // The proposed rules must be possible to show to the user.
+                self.invalid_manifest |= typed_rule_set(&input.rule_set).is_none();
 
                 if let Some(address_reservation) = input.address_reservation {
                     // AllocateGlobalAddress assigns the reservation and named
@@ -293,6 +310,8 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     is_permitted_invocation(context)
+        // Setting metadata such as the owner keys of the securified entity.
+        || is_account_or_identity_metadata_set(context)
         || is_xrd_withdraw(context)
         || is_xrd_contribution_to_named_access_controller(context)
         || is_permitted_non_invocation(context)
@@ -326,13 +345,6 @@ fn is_permitted_invocation(context: InstructionContext<'_>) -> bool {
                         | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
                             AccessControllerBlueprintInvocation::Method(
                                 AccessControllerBlueprintMethod::CreateProof(..),
-                            ),
-                        )
-                        // Setting metadata such as the owner keys of the
-                        // securified entity.
-                        | TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                            MetadataBlueprintInvocation::Method(
-                                MetadataBlueprintMethod::Set(..),
                             ),
                         ),
                 }
@@ -382,62 +394,11 @@ fn is_permitted_non_invocation(context: InstructionContext<'_>) -> bool {
     }
 }
 
-fn is_xrd_withdraw(context: InstructionContext<'_>) -> bool {
-    matches!(
-        context,
-        InstructionContext::InvocationInstruction {
-            typed_native_invocation: Some(TypedNativeInvocation {
-                invocation:
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::Withdraw(
-                                AccountWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(XRD),
-                                    ..
-                                },
-                            ),
-                        ),
-                    ),
-                ..
-            }),
-            ..
-        }
-    )
-}
-
 fn is_xrd_contribution_to_named_access_controller(
     context: InstructionContext<'_>,
 ) -> bool {
-    let InstructionContext::InvocationInstruction {
-        typed_native_invocation:
-            Some(TypedNativeInvocation {
-                receiver:
-                    ManifestInvocationReceiver::GlobalMethod(
-                        ResolvedManifestAddress::Named { .. },
-                    ),
-                invocation:
-                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::ContributeRecoveryFee(..),
-                        ),
-                    ),
-            }),
-        static_analysis_invocation_io,
-        ..
-    } = context
-    else {
-        return false;
-    };
-
-    let specified_resources =
-        static_analysis_invocation_io.input.specified_resources();
-    !specified_resources.is_empty()
-        && specified_resources
-            .keys()
-            .all(|resource_address| resource_address == &XRD)
-        && !static_analysis_invocation_io
-            .input
-            .unspecified_resources()
-            .may_be_present()
+    matches!(
+        xrd_recovery_fee_contribution_receiver(context),
+        Some(ResolvedManifestAddress::Named { .. })
+    )
 }

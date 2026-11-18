@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::common::*;
 use crate::internal_prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -78,7 +79,9 @@ impl ManifestStaticAnalyzer for AccessControllerStopTimedRecoveryAnalyzer {
             "Must succeed since the typed invocation conversion succeeded",
         );
 
-        self.0.access_controllers.push(ac_address);
+        if !self.0.access_controllers.contains(&ac_address) {
+            self.0.access_controllers.push(ac_address);
+        }
     }
 }
 
@@ -140,17 +143,7 @@ impl ManifestAnalyzerRequirementState
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    // Lets the manifest be used as a subintent. Transaction manifests can't
-    // contain these instructions, so this doesn't affect them.
-    let is_permitted_subintent_instruction = matches!(
-        context.instruction(),
-        GroupedInstruction::SubintentInstructions(
-            SubintentInstructions::YieldToParent(..)
-                | SubintentInstructions::VerifyParent(..)
-        )
-    );
-
-    is_permitted_subintent_instruction || matches!(
+    is_permitted_subintent_instruction(context) || matches!(
         context,
         InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(TypedNativeInvocation {

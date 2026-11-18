@@ -19,6 +19,7 @@ mod access_controller_confirm_timed_recovery;
 mod access_controller_recovery;
 mod access_controller_stop_timed_recovery;
 mod account_settings_update;
+mod common;
 mod entity_securify;
 mod general;
 mod pool_contribution;

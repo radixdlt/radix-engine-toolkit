@@ -1966,70 +1966,75 @@ impl FromNativeWithNetworkContext for EntitySecurifyOutput {
         network_id: u8,
     ) -> Self {
         Self {
-            // Operations on entities that don't have a static address yet, or
-            // whose rule set can't be converted into a typed rule set (e.g.,
-            // it refers to a named address), can't be represented here and
-            // are skipped.
             securify_operations: securify_operations
                 .into_iter()
-                .filter_map(|operation| {
-                    EntitySecurifyOperation::from_native(operation, network_id)
-                })
+                .map(
+                    |toolkit::EntitySecurifyOperation {
+                         entity_address,
+                         rule_set,
+                         timed_recovery_delay_in_minutes,
+                     }| EntitySecurifyOperation {
+                        entity_address: Arc::new(Address::from_node_id(
+                            entity_address,
+                            network_id,
+                        )),
+                        rule_set: <RuleSet as FromNative>::from_native(
+                            rule_set,
+                        ),
+                        timed_recovery_delay_in_minutes,
+                    },
+                )
                 .collect(),
         }
     }
 }
 
-impl EntitySecurifyOperation {
-    fn from_native(
-        toolkit::EntitySecurifyOperation {
-            entity_address,
-            rule_set,
-            timed_recovery_delay_in_minutes,
-        }: toolkit::EntitySecurifyOperation,
-        network_id: u8,
-    ) -> Option<Self> {
-        let entity_address = entity_address.into_static()?;
-        let engine::ManifestRuleSet {
-            primary_role,
-            recovery_role,
-            confirmation_role,
-        } = rule_set;
-        let rule_set = engine::RuleSet {
-            primary_role: primary_role.try_into_typed().ok()?,
-            recovery_role: recovery_role.try_into_typed().ok()?,
-            confirmation_role: confirmation_role.try_into_typed().ok()?,
-        };
-
-        Some(Self {
-            entity_address: Arc::new(Address::from_node_id(
-                entity_address,
-                network_id,
-            )),
-            rule_set: <RuleSet as FromNative>::from_native(rule_set),
-            timed_recovery_delay_in_minutes,
-        })
-    }
-}
-
 #[derive(Clone, Debug, Record)]
 pub struct AccessControllerRecoveryOutput {
-    pub access_controllers: Vec<Arc<Address>>,
+    pub recovery_proposals: Vec<AccessControllerRecoveryProposal>,
+}
+
+/// A recovery proposal initiated on an access controller.
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryProposal {
+    pub access_controller: Arc<Address>,
+    /// The role that initiated the recovery.
+    pub proposer: Proposer,
+    /// The proposed rules that replace the access controller's current ones.
+    pub rule_set: RuleSet,
+    pub timed_recovery_delay_in_minutes: Option<u32>,
 }
 
 impl FromNativeWithNetworkContext for AccessControllerRecoveryOutput {
     type Native = toolkit::AccessControllerRecoveryOutput;
 
     fn from_native(
-        Self::Native { access_controllers }: Self::Native,
+        Self::Native { recovery_proposals }: Self::Native,
         network_id: u8,
     ) -> Self {
         Self {
-            access_controllers: access_controllers
+            recovery_proposals: recovery_proposals
                 .into_iter()
-                .map(|ac_address| {
-                    Arc::new(Address::from_node_id(ac_address, network_id))
-                })
+                .map(
+                    |toolkit::AccessControllerRecoveryProposal {
+                         access_controller,
+                         proposer,
+                         rule_set,
+                         timed_recovery_delay_in_minutes,
+                     }| AccessControllerRecoveryProposal {
+                        access_controller: Arc::new(Address::from_node_id(
+                            access_controller,
+                            network_id,
+                        )),
+                        proposer: <Proposer as FromNative>::from_native(
+                            proposer,
+                        ),
+                        rule_set: <RuleSet as FromNative>::from_native(
+                            rule_set,
+                        ),
+                        timed_recovery_delay_in_minutes,
+                    },
+                )
                 .collect(),
         }
     }
