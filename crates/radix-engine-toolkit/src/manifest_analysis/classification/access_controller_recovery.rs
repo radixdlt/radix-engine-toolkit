@@ -96,7 +96,17 @@ impl ManifestStaticAnalyzer for AccessControllerRecoveryAnalyzer {
 }
 
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    matches!(
+    // Lets the manifest be used as a subintent. Transaction manifests can't
+    // contain these instructions, so this doesn't affect them.
+    let is_permitted_subintent_instruction = matches!(
+        context.instruction(),
+        GroupedInstruction::SubintentInstructions(
+            SubintentInstructions::YieldToParent(..)
+                | SubintentInstructions::VerifyParent(..)
+        )
+    );
+
+    is_permitted_subintent_instruction || matches!(
         context,
         InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(TypedNativeInvocation {
