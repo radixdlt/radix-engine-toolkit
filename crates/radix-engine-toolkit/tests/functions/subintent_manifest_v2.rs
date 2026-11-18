@@ -49,3 +49,20 @@ fn static_analysis_succeeds_for_subintent() {
     // Act & Assert
     let _ = statically_analyze(&manifest);
 }
+
+#[test]
+fn subintent_manifest_expecting_initial_resources_is_not_considered_enclosed() {
+    // Arrange
+    let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_resources_only(
+            ManifestResourceConstraints::new().with_at_least_amount(XRD, 1),
+        )
+        .yield_to_parent(())
+        .build();
+
+    // Act
+    let enclosed_manifest = as_enclosed(&manifest);
+
+    // Assert
+    assert!(enclosed_manifest.is_none());
+}

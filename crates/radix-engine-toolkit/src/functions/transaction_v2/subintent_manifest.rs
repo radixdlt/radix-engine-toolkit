@@ -53,7 +53,7 @@ pub fn as_enclosed(
     else {
         return None;
     };
-    if !constraints.specified_resources().len() == 0 {
+    if !constraints.specified_resources().is_empty() {
         return None;
     }
 
