@@ -86,8 +86,10 @@ pub fn statically_analyze(
         account_settings_update_classification,
         entity_securify_classification,
         access_controller_recovery,
-        access_controller_stop_timed_recovery,
-        access_controller_confirm_timed_recovery,
+        access_controller_timed_recovery,
+        access_controller_confirm_recovery,
+        access_controller_cancel_recovery,
+        access_controller_primary_role_lock,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -121,11 +123,16 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::EntitySecurify),
             access_controller_recovery
                 .map(|_| ManifestClassification::AccessControllerRecovery),
-            access_controller_stop_timed_recovery.map(|_| {
-                ManifestClassification::AccessControllerStopTimedRecovery
+            access_controller_timed_recovery
+                .map(|_| ManifestClassification::AccessControllerTimedRecovery),
+            access_controller_confirm_recovery.map(|_| {
+                ManifestClassification::AccessControllerConfirmRecovery
             }),
-            access_controller_confirm_timed_recovery.map(|_| {
-                ManifestClassification::AccessControllerConfirmTimedRecovery
+            access_controller_cancel_recovery.map(|_| {
+                ManifestClassification::AccessControllerCancelRecovery
+            }),
+            access_controller_primary_role_lock.map(|_| {
+                ManifestClassification::AccessControllerPrimaryRoleLock
             }),
         ]
         .into_iter()
@@ -233,8 +240,10 @@ pub fn dynamically_analyze(
         account_settings_update_classification,
         entity_securify_classification,
         access_controller_recovery,
-        access_controller_stop_timed_recovery,
-        access_controller_confirm_timed_recovery,
+        access_controller_timed_recovery,
+        access_controller_confirm_recovery,
+        access_controller_cancel_recovery,
+        access_controller_primary_role_lock,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -282,12 +291,18 @@ pub fn dynamically_analyze(
             access_controller_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccessControllerRecovery),
-            access_controller_stop_timed_recovery
+            access_controller_timed_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
-                .map(DetailedManifestClassification::AccessControllerStopTimedRecovery),
-            access_controller_confirm_timed_recovery
+                .map(DetailedManifestClassification::AccessControllerTimedRecovery),
+            access_controller_confirm_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
-                .map(DetailedManifestClassification::AccessControllerConfirmTimedRecovery),
+                .map(DetailedManifestClassification::AccessControllerConfirmRecovery),
+            access_controller_cancel_recovery
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerCancelRecovery),
+            access_controller_primary_role_lock
+                .map(CombinedAnalysisOutput::into_static_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerPrimaryRoleLock),
         ]
         .into_iter()
         .flatten()
@@ -364,12 +379,20 @@ mod composite_analyzer {
                 DynamicAnalyzerWrapper<AccessControllerRecoveryAnalyzer>,
                 ()
             ),
-            access_controller_stop_timed_recovery: (
-                DynamicAnalyzerWrapper<AccessControllerStopTimedRecoveryAnalyzer>,
+            access_controller_timed_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerTimedRecoveryAnalyzer>,
                 ()
             ),
-            access_controller_confirm_timed_recovery: (
-                DynamicAnalyzerWrapper<AccessControllerConfirmTimedRecoveryAnalyzer>,
+            access_controller_confirm_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerConfirmRecoveryAnalyzer>,
+                ()
+            ),
+            access_controller_cancel_recovery: (
+                DynamicAnalyzerWrapper<AccessControllerCancelRecoveryAnalyzer>,
+                ()
+            ),
+            access_controller_primary_role_lock: (
+                DynamicAnalyzerWrapper<AccessControllerPrimaryRoleLockAnalyzer>,
                 ()
             ),
         }

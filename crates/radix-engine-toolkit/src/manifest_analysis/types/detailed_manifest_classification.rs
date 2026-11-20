@@ -70,16 +70,19 @@ pub enum DetailedManifestClassification {
     /// is securified, its owner_keys is updated and an access controller is
     /// created.
     EntitySecurify(EntitySecurifyOutput),
-    /// A manifest that starts the access controller recovery, it is either
-    /// confirmed in the same transaction, or it is a timed recovery, currently
-    /// the difference is not important.
+    /// A manifest that proposes new rules for access controllers and confirms
+    /// them in the same transaction.
     AccessControllerRecovery(AccessControllerRecoveryOutput),
-    /// A manifest that stops the timed recovery.
-    /// It can as well contain instructions to cancel the given recovery proposal.
-    AccessControllerStopTimedRecovery(
-        AccessControllerStopTimedRecoveryAnalyzerOutput,
-    ),
-    AccessControllerConfirmTimedRecovery(
-        AccessControllerConfirmTimedRecoveryOutput,
-    ),
+    /// A manifest that starts a timed recovery of access controllers: it
+    /// proposes new rules as the recovery role without confirming them.
+    AccessControllerTimedRecovery(AccessControllerTimedRecoveryOutput),
+    /// A manifest that confirms recoveries already proposed on access
+    /// controllers.
+    AccessControllerConfirmRecovery(AccessControllerConfirmRecoveryOutput),
+    /// A manifest that stops or cancels recoveries already proposed on access
+    /// controllers.
+    AccessControllerCancelRecovery(AccessControllerCancelRecoveryOutput),
+    /// A manifest that locks or unlocks the primary role of access
+    /// controllers.
+    AccessControllerPrimaryRoleLock(AccessControllerPrimaryRoleLockOutput),
 }

@@ -717,8 +717,10 @@ pub enum ManifestClassification {
     AccountDepositSettingsUpdate,
     EntitySecurify,
     AccessControllerRecovery,
-    AccessControllerStopTimedRecovery,
-    AccessControllerConfirmTimedRecovery,
+    AccessControllerTimedRecovery,
+    AccessControllerConfirmRecovery,
+    AccessControllerCancelRecovery,
+    AccessControllerPrimaryRoleLock,
 }
 
 impl FromNative for ManifestClassification {
@@ -741,11 +743,17 @@ impl FromNative for ManifestClassification {
             Self::Native::AccessControllerRecovery => {
                 Self::AccessControllerRecovery
             }
-            Self::Native::AccessControllerStopTimedRecovery => {
-                Self::AccessControllerStopTimedRecovery
+            Self::Native::AccessControllerTimedRecovery => {
+                Self::AccessControllerTimedRecovery
             }
-            Self::Native::AccessControllerConfirmTimedRecovery => {
-                Self::AccessControllerConfirmTimedRecovery
+            Self::Native::AccessControllerConfirmRecovery => {
+                Self::AccessControllerConfirmRecovery
+            }
+            Self::Native::AccessControllerCancelRecovery => {
+                Self::AccessControllerCancelRecovery
+            }
+            Self::Native::AccessControllerPrimaryRoleLock => {
+                Self::AccessControllerPrimaryRoleLock
             }
         }
     }
@@ -782,11 +790,17 @@ pub enum DetailedManifestClassification {
     AccessControllerRecovery {
         value: AccessControllerRecoveryOutput,
     },
-    AccessControllerStopTimedRecovery {
-        value: AccessControllerStopTimedRecoveryOutput,
+    AccessControllerTimedRecovery {
+        value: AccessControllerTimedRecoveryOutput,
     },
-    AccessControllerConfirmTimedRecovery {
-        value: AccessControllerConfirmTimedRecoveryOutput,
+    AccessControllerConfirmRecovery {
+        value: AccessControllerConfirmRecoveryOutput,
+    },
+    AccessControllerCancelRecovery {
+        value: AccessControllerCancelRecoveryOutput,
+    },
+    AccessControllerPrimaryRoleLock {
+        value: AccessControllerPrimaryRoleLockOutput,
     },
 }
 
@@ -848,15 +862,29 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
                     ),
                 }
             }
-            Self::Native::AccessControllerStopTimedRecovery(output) => {
-                Self::AccessControllerStopTimedRecovery {
+            Self::Native::AccessControllerTimedRecovery(output) => {
+                Self::AccessControllerTimedRecovery {
                     value: FromNativeWithNetworkContext::from_native(
                         output, network_id,
                     ),
                 }
             }
-            Self::Native::AccessControllerConfirmTimedRecovery(output) => {
-                Self::AccessControllerConfirmTimedRecovery {
+            Self::Native::AccessControllerConfirmRecovery(output) => {
+                Self::AccessControllerConfirmRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerCancelRecovery(output) => {
+                Self::AccessControllerCancelRecovery {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerPrimaryRoleLock(output) => {
+                Self::AccessControllerPrimaryRoleLock {
                     value: FromNativeWithNetworkContext::from_native(
                         output, network_id,
                     ),
@@ -1994,14 +2022,16 @@ pub struct AccessControllerRecoveryOutput {
     pub recovery_proposals: Vec<AccessControllerRecoveryProposal>,
 }
 
-/// A recovery proposal initiated on an access controller.
+/// A recovery proposed and confirmed on an access controller.
 #[derive(Clone, Debug, Record)]
 pub struct AccessControllerRecoveryProposal {
     pub access_controller: Arc<Address>,
-    /// The role that initiated the recovery.
+    /// The role that proposed the recovery.
     pub proposer: Proposer,
-    /// The proposed rules that replace the access controller's current ones.
+    /// The rules that replace the access controller's current ones.
     pub rule_set: RuleSet,
+    /// The timed recovery delay named in the proposal. The engine doesn't
+    /// apply it: the access controller keeps the delay it was created with.
     pub timed_recovery_delay_in_minutes: Option<u32>,
 }
 
@@ -2040,49 +2070,251 @@ impl FromNativeWithNetworkContext for AccessControllerRecoveryOutput {
     }
 }
 
-#[derive(Clone, Debug, Record)]
-pub struct AccessControllerStopTimedRecoveryOutput {
-    pub access_controllers: Vec<Arc<Address>>,
+fn access_controller_address(
+    access_controller: engine::ComponentAddress,
+    network_id: u8,
+) -> Arc<Address> {
+    Arc::new(Address::from_node_id(access_controller, network_id))
 }
 
-impl FromNativeWithNetworkContext for AccessControllerStopTimedRecoveryOutput {
-    type Native = toolkit::AccessControllerStopTimedRecoveryAnalyzerOutput;
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerTimedRecoveryOutput {
+    pub timed_recoveries: Vec<AccessControllerTimedRecovery>,
+}
+
+/// A timed recovery started on an access controller.
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerTimedRecovery {
+    pub access_controller: Arc<Address>,
+    /// The rules that replace the access controller's current ones once the
+    /// recovery is confirmed.
+    pub rule_set: RuleSet,
+    /// The timed recovery delay named in the proposal. It isn't the delay
+    /// before the recovery can be confirmed, which is the access controller's
+    /// own, and the engine doesn't apply it when the recovery is confirmed.
+    pub timed_recovery_delay_in_minutes: Option<u32>,
+    /// Whether the primary role is locked until the recovery is confirmed.
+    pub locks_primary_role: bool,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerTimedRecoveryOutput {
+    type Native = toolkit::AccessControllerTimedRecoveryOutput;
 
     fn from_native(
-        Self::Native { access_controllers }: Self::Native,
+        Self::Native { timed_recoveries }: Self::Native,
         network_id: u8,
     ) -> Self {
         Self {
-            access_controllers: access_controllers
+            timed_recoveries: timed_recoveries
                 .into_iter()
-                .map(|ac_address| {
-                    Arc::new(Address::from_node_id(ac_address, network_id))
-                })
+                .map(
+                    |toolkit::AccessControllerTimedRecovery {
+                         access_controller,
+                         rule_set,
+                         timed_recovery_delay_in_minutes,
+                         locks_primary_role,
+                     }| AccessControllerTimedRecovery {
+                        access_controller: access_controller_address(
+                            access_controller,
+                            network_id,
+                        ),
+                        rule_set: <RuleSet as FromNative>::from_native(
+                            rule_set,
+                        ),
+                        timed_recovery_delay_in_minutes,
+                        locks_primary_role,
+                    },
+                )
                 .collect(),
         }
     }
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct AccessControllerConfirmTimedRecoveryOutput {
-    pub access_controllers: Vec<Arc<Address>>,
+pub struct AccessControllerConfirmRecoveryOutput {
+    pub confirmations: Vec<AccessControllerRecoveryConfirmation>,
 }
 
-impl FromNativeWithNetworkContext
-    for AccessControllerConfirmTimedRecoveryOutput
-{
-    type Native = toolkit::AccessControllerConfirmTimedRecoveryOutput;
+/// A recovery confirmed on an access controller.
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryConfirmation {
+    pub access_controller: Arc<Address>,
+    /// The role that proposed the recovery.
+    pub proposer: Proposer,
+    pub kind: RecoveryConfirmationKind,
+    /// The rules that replace the access controller's current ones.
+    pub rule_set: RuleSet,
+    /// The timed recovery delay named in the proposal. The engine doesn't
+    /// apply it: the access controller keeps the delay it was created with.
+    pub timed_recovery_delay_in_minutes: Option<u32>,
+}
+
+#[derive(Clone, Copy, Debug, Enum)]
+pub enum RecoveryConfirmationKind {
+    /// Confirmed by a role other than the proposer.
+    Quick,
+    /// Confirmed after the recovery role's timed recovery delay has passed,
+    /// which needs no role.
+    Timed,
+}
+
+impl FromNative for RecoveryConfirmationKind {
+    type Native = toolkit::RecoveryConfirmationKind;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            Self::Native::Quick => Self::Quick,
+            Self::Native::Timed => Self::Timed,
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccessControllerConfirmRecoveryOutput {
+    type Native = toolkit::AccessControllerConfirmRecoveryOutput;
 
     fn from_native(
-        Self::Native { access_controllers }: Self::Native,
+        Self::Native { confirmations }: Self::Native,
         network_id: u8,
     ) -> Self {
         Self {
-            access_controllers: access_controllers
+            confirmations: confirmations
                 .into_iter()
-                .map(|ac_address| {
-                    Arc::new(Address::from_node_id(ac_address, network_id))
-                })
+                .map(
+                    |toolkit::AccessControllerRecoveryConfirmation {
+                         access_controller,
+                         proposer,
+                         kind,
+                         rule_set,
+                         timed_recovery_delay_in_minutes,
+                     }| AccessControllerRecoveryConfirmation {
+                        access_controller: access_controller_address(
+                            access_controller,
+                            network_id,
+                        ),
+                        proposer: <Proposer as FromNative>::from_native(
+                            proposer,
+                        ),
+                        kind: <RecoveryConfirmationKind as FromNative>::from_native(
+                            kind,
+                        ),
+                        rule_set: <RuleSet as FromNative>::from_native(
+                            rule_set,
+                        ),
+                        timed_recovery_delay_in_minutes,
+                    },
+                )
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerCancelRecoveryOutput {
+    pub cancellations: Vec<AccessControllerRecoveryCancellation>,
+}
+
+/// The recoveries stopped or cancelled on an access controller.
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryCancellation {
+    pub access_controller: Arc<Address>,
+    /// The recovery role's proposal whose timed recovery is stopped, if any.
+    pub stopped_timed_recovery: Option<RecoveryProposal>,
+    /// The proposers whose recovery proposals are cancelled.
+    pub cancelled_proposers: Vec<Proposer>,
+    pub unlocks_primary_role: bool,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerCancelRecoveryOutput {
+    type Native = toolkit::AccessControllerCancelRecoveryOutput;
+
+    fn from_native(
+        Self::Native { cancellations }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            cancellations: cancellations
+                .into_iter()
+                .map(
+                    |toolkit::AccessControllerRecoveryCancellation {
+                         access_controller,
+                         stopped_timed_recovery,
+                         cancelled_proposers,
+                         unlocks_primary_role,
+                     }| {
+                        AccessControllerRecoveryCancellation {
+                            access_controller: access_controller_address(
+                                access_controller,
+                                network_id,
+                            ),
+                            stopped_timed_recovery: stopped_timed_recovery.map(
+                                <RecoveryProposal as FromNative>::from_native,
+                            ),
+                            cancelled_proposers: cancelled_proposers
+                                .into_iter()
+                                .map(<Proposer as FromNative>::from_native)
+                                .collect(),
+                            unlocks_primary_role,
+                        }
+                    },
+                )
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerPrimaryRoleLockOutput {
+    pub operations: Vec<AccessControllerPrimaryRoleLockOperation>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerPrimaryRoleLockOperation {
+    pub access_controller: Arc<Address>,
+    pub operation: PrimaryRoleLockOperation,
+}
+
+#[derive(Clone, Copy, Debug, Enum)]
+pub enum PrimaryRoleLockOperation {
+    Lock,
+    Unlock,
+}
+
+impl FromNative for PrimaryRoleLockOperation {
+    type Native = toolkit::PrimaryRoleLockOperation;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            Self::Native::Lock => Self::Lock,
+            Self::Native::Unlock => Self::Unlock,
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccessControllerPrimaryRoleLockOutput {
+    type Native = toolkit::AccessControllerPrimaryRoleLockOutput;
+
+    fn from_native(
+        Self::Native { operations }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            operations: operations
+                .into_iter()
+                .map(
+                    |toolkit::AccessControllerPrimaryRoleLockOperation {
+                         access_controller,
+                         operation,
+                     }| AccessControllerPrimaryRoleLockOperation {
+                        access_controller: access_controller_address(
+                            access_controller,
+                            network_id,
+                        ),
+                        operation:
+                            <PrimaryRoleLockOperation as FromNative>::from_native(
+                                operation,
+                            ),
+                    },
+                )
                 .collect(),
         }
     }

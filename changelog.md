@@ -7,15 +7,18 @@ This changelog captures the changes made to the toolkit between releases.
 ### `radix-engine-toolkit` Crate
 
 * Added the `EntitySecurify` manifest classification. Its detailed output lists each securified account or identity with the rule set and timed recovery delay of the access controller created for it.
-* Added the `AccessControllerRecovery` manifest classification. Its detailed output lists each recovery proposal initiated in the manifest, with the access controller, the proposer, the proposed rule set and the timed recovery delay. Confirmations, cancellations, stops and XRD recovery fee contributions are only permitted on access controllers whose recovery the manifest initiates.
-* Added the `AccessControllerStopTimedRecovery` manifest classification. Cancelling a recovery proposal is only permitted on access controllers whose timed recovery the manifest also stops.
-* Added the `AccessControllerConfirmTimedRecovery` manifest classification.
-* The three access controller classifications also apply to subintent manifests, including enclosed ones, as long as they don't yield anything back to the parent.
+* Added five access controller manifest classifications. Besides their access controller calls, they only permit paying the fee and the subintent instructions of an enclosed subintent that yields nothing back, so a manifest of any of them withdraws nothing, contributes nothing and sets no metadata. A manifest is of at most one of them, and every access controller it calls must fit that one:
+  * `AccessControllerRecovery`: on each access controller, one recovery is proposed and then quick confirmed with the same proposer, rule set and timed recovery delay, so the output lists exactly the rules enacted.
+  * `AccessControllerTimedRecovery`: on each access controller, one recovery is proposed by the recovery role and not confirmed, optionally locking the primary role.
+  * `AccessControllerConfirmRecovery`: on each access controller, a recovery already proposed is quick or timed confirmed. The output lists the rules the confirmation names, which the engine checks against the proposal.
+  * `AccessControllerCancelRecovery`: on each access controller, the timed recovery is stopped and/or recovery proposals are cancelled, optionally unlocking the primary role.
+  * `AccessControllerPrimaryRoleLock`: on each access controller, the primary role is locked or unlocked.
+* The timed recovery delay in the outputs is the one named in the proposal. The engine doesn't apply it when a recovery is confirmed: an access controller keeps the delay it was created with.
 * Fixed `as_enclosed` treating a subintent as enclosed when its first instruction asserts that specific resources are on the worktop. It now returns `None` unless that assertion is an `ASSERT_WORKTOP_IS_EMPTY`.
 
 ### `radix-engine-toolkit-uniffi` Crate
 
-* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerStopTimedRecovery` and `AccessControllerConfirmTimedRecovery` variants to `ManifestClassification` and `DetailedManifestClassification`, with the `EntitySecurifyOutput`, `AccessControllerRecoveryOutput`, `AccessControllerStopTimedRecoveryOutput` and `AccessControllerConfirmTimedRecoveryOutput` records.
+* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerTimedRecovery`, `AccessControllerConfirmRecovery`, `AccessControllerCancelRecovery` and `AccessControllerPrimaryRoleLock` variants to `ManifestClassification` and `DetailedManifestClassification`, with their output records.
 
 ## Cuttlefish Protocol Update 
 

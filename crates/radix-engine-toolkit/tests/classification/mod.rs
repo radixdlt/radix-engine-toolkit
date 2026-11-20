@@ -15,10 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod access_controller_confirm_timed_recovery;
+mod access_controller_cancel_recovery;
+mod access_controller_confirm_recovery;
+mod access_controller_ledger_effects;
+mod access_controller_other_effects;
+mod access_controller_primary_role_lock;
 mod access_controller_recovery;
-mod access_controller_stop_timed_recovery;
 mod access_controller_subintent;
+mod access_controller_timed_recovery;
+mod access_controller_unshowable_calls;
+mod access_controller_utils;
 mod account_deposit_settings;
 mod entity_securify;
 mod general;

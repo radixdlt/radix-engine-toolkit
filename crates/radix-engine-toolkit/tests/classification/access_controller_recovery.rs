@@ -15,601 +15,342 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::access_controller_utils::*;
 use crate::prelude::*;
 
-#[test]
-fn initiate_recovery_as_primary_and_quick_confirm_is_classified_as_recovery() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (account, access_controller) = ledger.new_allow_all_access_controller();
+const RECOVERY: Option<ManifestClassification> =
+    Some(ManifestClassification::AccessControllerRecovery);
 
-    let builder = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .set_metadata(account, "owner_keys", "not important")
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }.into(),
-                timed_recovery_delay_in_minutes: None,
-            }
-        )
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
-            AccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
-               rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }.into(),
-                timed_recovery_delay_in_minutes: None,
-            }
-        );
-
-    let manifest = builder.build();
-
-    // Act
-    let (
-        StaticAnalysis {
-            manifest_classification,
-            ..
-        },
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
-
-    assert!(manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
-
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an access controller recovery transaction")
-    };
-
-    assert_eq!(
-        recovery_proposals
-            .iter()
-            .map(|proposal| proposal.access_controller)
-            .collect::<Vec<_>>(),
-        vec![access_controller]
-    );
+/// Proposes `proposal` as `proposer` on `access_controller` and quick confirms
+/// it.
+fn recover(
+    builder: ManifestBuilder,
+    access_controller: ComponentAddress,
+    proposer: Proposer,
+    proposal: RecoveryProposal,
+) -> ManifestBuilder {
+    builder
+        .initiate_recovery(access_controller, proposer, proposal.clone())
+        .quick_confirm_recovery(access_controller, proposer, proposal)
 }
 
-#[test]
-fn initiate_recovery_as_recovery_and_quick_confirm_is_classified_as_recovery() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (account, access_controller) = ledger.new_allow_all_access_controller();
-
-    let builder = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .set_metadata(account, "owner_keys", "not important")
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }.into(),
-                timed_recovery_delay_in_minutes: None,
-            }
-        )
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
-            AccessControllerQuickConfirmPrimaryRoleRecoveryProposalManifestInput {
-               rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }.into(),
-                timed_recovery_delay_in_minutes: None,
-            }
-        );
-
-    let manifest = builder.build();
-
-    // Act
-    let (
-        StaticAnalysis {
-            manifest_classification,
-            ..
-        },
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
-
-    assert!(manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
-
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an access controller recovery transaction")
-    };
-
-    assert_eq!(
-        recovery_proposals
-            .iter()
-            .map(|proposal| proposal.access_controller)
-            .collect::<Vec<_>>(),
-        vec![access_controller]
-    );
+fn addresses() -> (ComponentAddress, ComponentAddress, ComponentAddress) {
+    let mut allocator = TestAddressAllocator::new();
+    (
+        allocator.new_account_address(),
+        allocator.new_access_controller_address(),
+        allocator.new_access_controller_address(),
+    )
 }
 
-#[test]
-fn initiate_recovery_as_recovery_timed_confirmation_is_classified_as_recovery()
-{
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (account, access_controller) = ledger.new_allow_all_access_controller();
-
-    let builder = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .set_metadata(account, "owner_keys", "not important")
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }
-                .into(),
-                timed_recovery_delay_in_minutes: None,
-            },
-        );
-
-    let manifest = builder.build();
-
-    // Act
-    let (
-        StaticAnalysis {
-            manifest_classification,
-            ..
-        },
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
-
-    assert!(manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
-
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an entity securify transaction")
-    };
-
-    assert_eq!(
-        recovery_proposals
-            .iter()
-            .map(|proposal| proposal.access_controller)
-            .collect::<Vec<_>>(),
-        vec![access_controller]
-    );
-}
-
-#[test]
-fn initiate_recovery_with_lock_fee_on_access_controller() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (account, access_controller) = ledger.new_allow_all_access_controller();
-
-    let builder = ManifestBuilder::new()
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
-            AccessControllerLockRecoveryFeeManifestInput {
-                amount: Decimal::one(),
-            },
-        )
-        .lock_fee(account, 10)
-        .set_metadata(account, "owner_keys", "not important")
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }
-                .into(),
-                timed_recovery_delay_in_minutes: None,
-            },
-        );
-
-    let manifest = builder.build();
-
-    // Act
-    let (
-        StaticAnalysis {
-            manifest_classification,
-            ..
-        },
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
-
-    assert!(manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
-
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an entity securify transaction")
-    };
-
-    assert_eq!(
-        recovery_proposals
-            .iter()
-            .map(|proposal| proposal.access_controller)
-            .collect::<Vec<_>>(),
-        vec![access_controller]
-    );
-}
-
-#[test]
-fn stop_timed_recovery_and_initiate_recovery_is_classified_as_recovery() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (pk, _, account) = ledger.new_account(true);
-    let access_controller =
-        ledger.new_allow_all_access_controller_for_account((pk, account));
-
-    // First initiate a timed recovery to have something to stop
-    let initiate_timed_recovery_manifest = ManifestBuilder::new()
-        .lock_fee_from_faucet()
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }
-                .into(),
-                timed_recovery_delay_in_minutes: Some(1),
-            },
-        )
-        .build();
-
-    ledger
-        .execute_manifest(
-            initiate_timed_recovery_manifest,
-            vec![NonFungibleGlobalId::from_public_key(&pk)],
-        )
-        .expect_commit_success();
-
-    // Now build a manifest that stops timed recovery and initiates a new recovery
-    let builder = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
-            AccessControllerStopTimedRecoveryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }
-                .into(),
-                timed_recovery_delay_in_minutes: Some(1),
-            },
-        )
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
-            AccessControllerInitiateRecoveryAsPrimaryManifestInput {
-                rule_set: RuleSet {
-                    primary_role: rule!(allow_all),
-                    recovery_role: rule!(allow_all),
-                    confirmation_role: rule!(allow_all),
-                }
-                .into(),
-                timed_recovery_delay_in_minutes: None,
-            },
-        );
-
-    let manifest = builder.build();
-
-    // Act
-    let (
-        StaticAnalysis {
-            manifest_classification,
-            ..
-        },
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
-
-    // Assert - should be classified as Recovery, not StopTimedRecovery
-    assert!(manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
-
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an access controller recovery transaction")
-    };
-
-    assert_eq!(
-        recovery_proposals
-            .iter()
-            .map(|proposal| proposal.access_controller)
-            .collect::<Vec<_>>(),
-        vec![access_controller]
-    );
-}
-
-fn allow_all_rule_set() -> RuleSet {
-    RuleSet {
-        primary_role: rule!(allow_all),
-        recovery_role: rule!(allow_all),
-        confirmation_role: rule!(allow_all),
+fn other(proposer: Proposer) -> Proposer {
+    match proposer {
+        Proposer::Primary => Proposer::Recovery,
+        Proposer::Recovery => Proposer::Primary,
     }
 }
 
-fn initiate_recovery_input(
-) -> AccessControllerInitiateRecoveryAsRecoveryManifestInput {
-    AccessControllerInitiateRecoveryAsRecoveryManifestInput {
-        rule_set: allow_all_rule_set().into(),
-        timed_recovery_delay_in_minutes: None,
-    }
-}
-
-fn is_classified_as_recovery(manifest: &TransactionManifestV1) -> bool {
-    let StaticAnalysis {
-        manifest_classification,
-        ..
-    } = statically_analyze(manifest).unwrap();
-    manifest_classification
-        .contains(&ManifestClassification::AccessControllerRecovery)
-}
-
 #[test]
-fn recovery_output_contains_the_proposed_rule_set() {
-    // Arrange
-    let mut ledger =
-        LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (account, access_controller) = ledger.new_allow_all_access_controller();
-    let rule_set = RuleSet {
-        primary_role: rule!(deny_all),
-        recovery_role: rule!(allow_all),
-        confirmation_role: rule!(allow_all),
-    };
-
-    let manifest = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .call_method(
+fn proposing_and_confirming_shows_the_rules_enacted() {
+    for proposer in PROPOSERS {
+        // Arrange
+        let (mut ledger, account, access_controller) =
+            ledger_with_access_controller();
+        let manifest = recover(
+            ManifestBuilder::new().lock_fee(account, 10),
             access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            AccessControllerInitiateRecoveryAsRecoveryManifestInput {
-                rule_set: rule_set.clone().into(),
-                timed_recovery_delay_in_minutes: Some(10),
-            },
+            proposer,
+            proposal(new_rules(), Some(5)),
         )
         .build();
 
+        // Act
+        let class = detailed_access_controller_class(&mut ledger, manifest);
+
+        // Assert
+        assert_eq!(
+            class,
+            DetailedManifestClassification::AccessControllerRecovery(
+                AccessControllerRecoveryOutput {
+                    recovery_proposals: vec![
+                        AccessControllerRecoveryProposal {
+                            access_controller,
+                            proposer,
+                            rule_set: new_rules(),
+                            timed_recovery_delay_in_minutes: Some(5),
+                        }
+                    ],
+                }
+            )
+        );
+    }
+}
+
+#[test]
+fn fee_payment_is_permitted() {
+    // Arrange
+    let (mut ledger, account, access_controller) =
+        ledger_with_access_controller();
+    let manifest = recover(
+        ManifestBuilder::new()
+            .call_method(
+                access_controller,
+                ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
+                AccessControllerLockRecoveryFeeManifestInput {
+                    amount: Decimal::one(),
+                },
+            )
+            .lock_contingent_fee(account, 10),
+        access_controller,
+        Proposer::Recovery,
+        proposal(allow_all(), None),
+    )
+    .build();
+
     // Act
-    let (
-        _,
-        DynamicAnalysis {
-            detailed_manifest_classification,
-            ..
-        },
-    ) = ledger.analyze(manifest);
+    let class = detailed_access_controller_class(&mut ledger, manifest);
 
     // Assert
-    let Some(DetailedManifestClassification::AccessControllerRecovery(
-        AccessControllerRecoveryOutput { recovery_proposals },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an access controller recovery transaction")
-    };
-    assert_eq!(
-        recovery_proposals,
-        &vec![AccessControllerRecoveryProposal {
-            access_controller,
-            proposer: Proposer::Recovery,
-            rule_set,
-            timed_recovery_delay_in_minutes: Some(10),
-        }]
+    assert!(matches!(
+        class,
+        DetailedManifestClassification::AccessControllerRecovery(..)
+    ));
+}
+
+#[test]
+fn recovering_several_access_controllers_is_recovery() {
+    let (_, access_controller, other_access_controller) = addresses();
+    let builder = recover(
+        ManifestBuilder::new(),
+        access_controller,
+        Proposer::Primary,
+        proposal(allow_all(), None),
     );
+    let builder = recover(
+        builder,
+        other_access_controller,
+        Proposer::Recovery,
+        proposal(deny_all(), None),
+    );
+    assert_access_controller_class(builder.build(), RECOVERY);
 }
 
+/// A proposal left unconfirmed may never be enacted, or be enacted later
+/// without the manifest's signers.
 #[test]
-fn confirming_another_access_controller_is_not_recovery() {
-    // Arrange
-    let mut allocator = TestAddressAllocator::new();
-    let account = allocator.new_account_address();
-    let access_controller1 = allocator.new_access_controller_address();
-    let access_controller2 = allocator.new_access_controller_address();
-    let manifest = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .call_method(
-            access_controller1,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            initiate_recovery_input(),
-        )
-        .call_method(
-            access_controller2,
-            ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
-            AccessControllerQuickConfirmRecoveryRoleRecoveryProposalManifestInput {
-                rule_set: allow_all_rule_set().into(),
-                timed_recovery_delay_in_minutes: None,
-            },
+fn leaving_a_proposal_unconfirmed_is_not_recovery() {
+    let (_, access_controller, other_access_controller) = addresses();
+    let builder = recover(
+        ManifestBuilder::new(),
+        access_controller,
+        Proposer::Primary,
+        proposal(allow_all(), None),
+    );
+    let manifest = builder
+        .initiate_recovery(
+            other_access_controller,
+            Proposer::Primary,
+            proposal(allow_all(), None),
         )
         .build();
-
-    // Act & Assert
-    assert!(!is_classified_as_recovery(&manifest));
+    assert_access_controller_class(manifest, None);
 }
 
+/// The attack the class prevents: the rules enacted are confirmed before a
+/// harmless proposal that would otherwise replace them in the output.
 #[test]
-fn stopping_another_access_controller_is_not_recovery() {
-    // Arrange
-    let mut allocator = TestAddressAllocator::new();
-    let account = allocator.new_account_address();
-    let access_controller1 = allocator.new_access_controller_address();
-    let access_controller2 = allocator.new_access_controller_address();
-    let manifest = ManifestBuilder::new()
-        .lock_fee(account, 10)
-        .call_method(
-            access_controller2,
-            ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
-            AccessControllerStopTimedRecoveryManifestInput {
-                rule_set: allow_all_rule_set().into(),
-                timed_recovery_delay_in_minutes: None,
-            },
-        )
-        .call_method(
-            access_controller1,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            initiate_recovery_input(),
-        )
-        .build();
-
-    // Act & Assert
-    assert!(!is_classified_as_recovery(&manifest));
-}
-
-#[test]
-fn locking_contingent_fee_is_permitted_in_recovery() {
-    // Arrange
-    let mut allocator = TestAddressAllocator::new();
-    let account = allocator.new_account_address();
-    let access_controller = allocator.new_access_controller_address();
-    let manifest = ManifestBuilder::new()
-        .lock_contingent_fee(account, 10)
-        .call_method(
+fn confirming_a_recovery_and_proposing_another_is_not_recovery() {
+    let (_, access_controller, _) = addresses();
+    for proposer in PROPOSERS {
+        let builder = recover(
+            ManifestBuilder::new(),
             access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            initiate_recovery_input(),
-        )
-        .build();
-
-    // Act & Assert
-    assert!(is_classified_as_recovery(&manifest));
-}
-
-/// A recovery that also withdraws XRD from an account and contributes it to the
-/// recovery fee vault of either the recovered access controller or another one.
-fn recovery_with_xrd_top_up(
-    top_up_recovered_controller: bool,
-) -> TransactionManifestV1 {
-    let mut allocator = TestAddressAllocator::new();
-    let account = allocator.new_account_address();
-    let access_controller = allocator.new_access_controller_address();
-    let other_access_controller = allocator.new_access_controller_address();
-    let top_up_target = if top_up_recovered_controller {
-        access_controller
-    } else {
-        other_access_controller
-    };
-
-    ManifestBuilder::new()
-        .call_method(
-            access_controller,
-            ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-            initiate_recovery_input(),
-        )
-        .withdraw_from_account(account, XRD, 100)
-        .take_from_worktop(XRD, 100, "xrd")
-        .then(|builder| {
-            let bucket = builder.bucket("xrd");
-            builder.call_method(
-                top_up_target,
-                ACCESS_CONTROLLER_CONTRIBUTE_RECOVERY_FEE_IDENT,
-                AccessControllerContributeRecoveryFeeManifestInput { bucket },
+            proposer,
+            proposal(deny_all(), None),
+        );
+        let manifest = builder
+            .initiate_recovery(
+                access_controller,
+                proposer,
+                proposal(allow_all(), None),
             )
-        })
-        .build()
+            .build();
+        assert_access_controller_class(manifest, None);
+    }
 }
 
 #[test]
-fn xrd_top_up_of_recovered_access_controller_is_permitted_in_recovery() {
-    assert!(is_classified_as_recovery(&recovery_with_xrd_top_up(true)));
+fn proposing_twice_on_the_same_access_controller_is_not_recovery() {
+    let (_, access_controller, _) = addresses();
+    for first in PROPOSERS {
+        for second in PROPOSERS {
+            let manifest = ManifestBuilder::new()
+                .initiate_recovery(
+                    access_controller,
+                    first,
+                    proposal(allow_all(), None),
+                )
+                .initiate_recovery(
+                    access_controller,
+                    second,
+                    proposal(allow_all(), None),
+                )
+                .quick_confirm_recovery(
+                    access_controller,
+                    second,
+                    proposal(allow_all(), None),
+                )
+                .build();
+            assert_access_controller_class(manifest, None);
+        }
+    }
 }
 
 #[test]
-fn xrd_top_up_of_another_access_controller_is_not_recovery() {
-    assert!(!is_classified_as_recovery(&recovery_with_xrd_top_up(false)));
+fn confirming_anything_but_the_proposal_is_not_recovery() {
+    let (_, access_controller, _) = addresses();
+    let proposed = proposal(allow_all(), Some(10));
+    for proposer in PROPOSERS {
+        for (confirmed_proposer, confirmed) in [
+            (proposer, proposal(deny_all(), Some(10))),
+            (proposer, proposal(allow_all(), None)),
+            (other(proposer), proposed.clone()),
+        ] {
+            let manifest = ManifestBuilder::new()
+                .initiate_recovery(
+                    access_controller,
+                    proposer,
+                    proposed.clone(),
+                )
+                .quick_confirm_recovery(
+                    access_controller,
+                    confirmed_proposer,
+                    confirmed,
+                )
+                .build();
+            assert_access_controller_class(manifest, None);
+        }
+    }
 }
 
-/// A recovery of a fresh access controller, with extra instructions added by
+/// The confirmation confirms a recovery already on the ledger, not the one
+/// proposed.
+#[test]
+fn confirming_before_proposing_is_not_recovery() {
+    let (_, access_controller, _) = addresses();
+    for proposer in PROPOSERS {
+        let manifest = ManifestBuilder::new()
+            .quick_confirm_recovery(
+                access_controller,
+                proposer,
+                proposal(allow_all(), None),
+            )
+            .initiate_recovery(
+                access_controller,
+                proposer,
+                proposal(allow_all(), None),
+            )
+            .build();
+        assert_access_controller_class(manifest, None);
+    }
+}
+
+#[test]
+fn other_access_controller_calls_are_not_recovery() {
+    let (_, access_controller, _) = addresses();
+    let others: [fn(ManifestBuilder, ComponentAddress) -> ManifestBuilder; 6] = [
+        |builder, access_controller| {
+            builder.timed_confirm_recovery(
+                access_controller,
+                proposal(allow_all(), None),
+            )
+        },
+        |builder, access_controller| {
+            builder.stop_timed_recovery(
+                access_controller,
+                proposal(allow_all(), None),
+            )
+        },
+        |builder, access_controller| {
+            builder.cancel_recovery(access_controller, Proposer::Primary)
+        },
+        |builder, access_controller| {
+            builder.cancel_recovery(access_controller, Proposer::Recovery)
+        },
+        |builder, access_controller| {
+            builder.lock_primary_role(access_controller)
+        },
+        |builder, access_controller| {
+            builder.unlock_primary_role(access_controller)
+        },
+    ];
+    for other in others {
+        for other_first in [true, false] {
+            let mut builder = ManifestBuilder::new();
+            if other_first {
+                builder = other(builder, access_controller);
+            }
+            builder = recover(
+                builder,
+                access_controller,
+                Proposer::Recovery,
+                proposal(allow_all(), None),
+            );
+            if !other_first {
+                builder = other(builder, access_controller);
+            }
+            assert_access_controller_class(builder.build(), None);
+        }
+    }
+}
+
+#[test]
+fn topping_up_another_access_controller_is_not_recovery() {
+    let (account, access_controller, other_access_controller) = addresses();
+    let builder = recover(
+        ManifestBuilder::new(),
+        access_controller,
+        Proposer::Recovery,
+        proposal(allow_all(), None),
+    );
+    let manifest =
+        top_up_recovery_fee(builder, account, other_access_controller).build();
+    assert_access_controller_class(manifest, None);
+}
+
+/// A recovery of an access controller, with extra instructions added by
 /// `extra`.
 fn recovery_with(
     extra: impl FnOnce(ManifestBuilder, ComponentAddress) -> ManifestBuilder,
 ) -> TransactionManifestV1 {
-    let mut allocator = TestAddressAllocator::new();
-    let account = allocator.new_account_address();
-    let access_controller = allocator.new_access_controller_address();
-    let builder = ManifestBuilder::new().call_method(
+    let (account, access_controller, _) = addresses();
+    let builder = recover(
+        ManifestBuilder::new(),
         access_controller,
-        ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-        initiate_recovery_input(),
+        Proposer::Recovery,
+        proposal(allow_all(), None),
     );
     extra(builder, account).build()
 }
 
 #[test]
-fn xrd_withdrawal_without_top_up_is_not_recovery() {
+fn withdrawing_xrd_without_topping_up_is_not_recovery() {
     let manifest = recovery_with(|builder, account| {
         builder
             .withdraw_from_account(account, XRD, 100)
             .try_deposit_entire_worktop_or_abort(account, None)
     });
-    assert!(!is_classified_as_recovery(&manifest));
+    assert_access_controller_class(manifest, None);
 }
 
 #[test]
-fn non_xrd_withdrawal_is_not_recovery() {
+fn withdrawing_other_resources_is_not_recovery() {
     let manifest = recovery_with(|builder, account| {
         builder
             .withdraw_from_account(account, ACCOUNT_OWNER_BADGE, 1)
             .try_deposit_entire_worktop_or_abort(account, None)
     });
-    assert!(!is_classified_as_recovery(&manifest));
-}
-
-#[test]
-fn setting_account_metadata_is_permitted_in_recovery() {
-    let manifest = recovery_with(|builder, account| {
-        builder.set_metadata(account, "owner_keys", "not important")
-    });
-    assert!(is_classified_as_recovery(&manifest));
+    assert_access_controller_class(manifest, None);
 }
 
 #[test]
@@ -623,7 +364,7 @@ fn removing_account_metadata_is_not_recovery() {
             },
         )
     });
-    assert!(!is_classified_as_recovery(&manifest));
+    assert_access_controller_class(manifest, None);
 }
 
 #[test]
@@ -631,5 +372,5 @@ fn setting_resource_metadata_is_not_recovery() {
     let manifest = recovery_with(|builder, _| {
         builder.set_metadata(XRD, "name", "not important")
     });
-    assert!(!is_classified_as_recovery(&manifest));
+    assert_access_controller_class(manifest, None);
 }

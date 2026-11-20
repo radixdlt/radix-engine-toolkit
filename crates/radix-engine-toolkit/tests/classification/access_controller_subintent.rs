@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::access_controller_utils::*;
 use crate::prelude::*;
 
 fn rule_set() -> ManifestRuleSet {
@@ -24,6 +25,10 @@ fn rule_set() -> ManifestRuleSet {
         confirmation_role: rule!(allow_all),
     }
     .into()
+}
+
+fn is_access_controller_class(class: &ManifestClassification) -> bool {
+    ACCESS_CONTROLLER_CLASSES.contains(class)
 }
 
 fn classify(manifest: &SubintentManifestV2) -> Vec<ManifestClassification> {
@@ -68,7 +73,8 @@ fn recovery_subintent_is_classified_as_recovery() {
 }
 
 #[test]
-fn recovery_subintent_with_verify_parent_is_classified_as_recovery() {
+fn timed_recovery_subintent_with_verify_parent_is_classified_as_timed_recovery()
+{
     // Arrange
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
@@ -90,7 +96,7 @@ fn recovery_subintent_with_verify_parent_is_classified_as_recovery() {
 
     // Assert
     assert!(classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
+        .contains(&ManifestClassification::AccessControllerTimedRecovery));
 }
 
 #[test]
@@ -116,12 +122,11 @@ fn recovery_subintent_with_yield_to_child_is_not_classified_as_recovery() {
     let classification = classify(&manifest);
 
     // Assert
-    assert!(!classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
+    assert!(!classification.iter().any(is_access_controller_class));
 }
 
 #[test]
-fn stop_timed_recovery_subintent_is_classified_as_stop_timed_recovery() {
+fn stop_timed_recovery_subintent_is_classified_as_cancel_recovery() {
     // Arrange
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
@@ -147,11 +152,11 @@ fn stop_timed_recovery_subintent_is_classified_as_stop_timed_recovery() {
 
     // Assert
     assert!(classification
-        .contains(&ManifestClassification::AccessControllerStopTimedRecovery));
+        .contains(&ManifestClassification::AccessControllerCancelRecovery));
 }
 
 #[test]
-fn confirm_timed_recovery_subintent_is_classified_as_confirm_timed_recovery() {
+fn confirm_timed_recovery_subintent_is_classified_as_confirm_recovery() {
     // Arrange
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
@@ -171,9 +176,8 @@ fn confirm_timed_recovery_subintent_is_classified_as_confirm_timed_recovery() {
     let classification = classify(&manifest);
 
     // Assert
-    assert!(classification.contains(
-        &ManifestClassification::AccessControllerConfirmTimedRecovery
-    ));
+    assert!(classification
+        .contains(&ManifestClassification::AccessControllerConfirmRecovery));
 }
 
 #[test]
@@ -198,8 +202,7 @@ fn recovery_subintent_yielding_resources_to_parent_is_not_classified_as_recovery
     let classification = classify(&manifest);
 
     // Assert
-    assert!(!classification
-        .contains(&ManifestClassification::AccessControllerRecovery));
+    assert!(!classification.iter().any(is_access_controller_class));
 }
 
 /// Asserts that an enclosed subintent (one that starts by asserting the
@@ -255,8 +258,7 @@ fn enclosed_recovery_subintent_is_classified_as_recovery() {
 }
 
 #[test]
-fn enclosed_stop_timed_recovery_subintent_is_classified_as_stop_timed_recovery()
-{
+fn enclosed_stop_timed_recovery_subintent_is_classified_as_cancel_recovery() {
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     assert_enclosed_classification(
@@ -275,13 +277,13 @@ fn enclosed_stop_timed_recovery_subintent_is_classified_as_stop_timed_recovery()
                 ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
                 AccessControllerCancelRecoveryRoleRecoveryProposalManifestInput {},
             ),
-        ManifestClassification::AccessControllerStopTimedRecovery,
+        ManifestClassification::AccessControllerCancelRecovery,
     );
 }
 
 #[test]
-fn enclosed_confirm_timed_recovery_subintent_is_classified_as_confirm_timed_recovery(
-) {
+fn enclosed_confirm_timed_recovery_subintent_is_classified_as_confirm_recovery()
+{
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     assert_enclosed_classification(
@@ -295,7 +297,7 @@ fn enclosed_confirm_timed_recovery_subintent_is_classified_as_confirm_timed_reco
                     timed_recovery_delay_in_minutes: Some(10),
                 },
             ),
-        ManifestClassification::AccessControllerConfirmTimedRecovery,
+        ManifestClassification::AccessControllerConfirmRecovery,
     );
 }
 
@@ -318,6 +320,5 @@ fn asserting_worktop_contains_only_some_resources_is_not_recovery() {
         .yield_to_parent(())
         .build();
 
-    assert!(!classify(&manifest)
-        .contains(&ManifestClassification::AccessControllerRecovery));
+    assert!(!classify(&manifest).iter().any(is_access_controller_class));
 }

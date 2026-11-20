@@ -302,27 +302,6 @@ impl<F: FnMut(InstructionContext<'_>) -> bool>
             )
         })
     }
-
-    pub fn access_controller_confirm_timed_recovery(
-    ) -> DefaultInstructionPresentRequirement {
-        InstructionPresentRequirement::new(|context| {
-            matches!(
-                context,
-                InstructionContext::InvocationInstruction {
-                    typed_native_invocation: Some(TypedNativeInvocation {
-                        invocation:
-                        TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                            AccessControllerBlueprintInvocation::Method(
-                                AccessControllerBlueprintMethod::TimedConfirmRecovery(..)
-                            )
-                        ),
-                        ..
-                    }),
-                    ..
-                }
-            )
-        })
-    }
 }
 
 impl<F: FnMut(InstructionContext<'_>) -> bool> ManifestAnalyzerRequirementState
@@ -395,5 +374,4 @@ define_instruction_present_type! {
     /* Pools */
     PoolContributeInstructionPresentRequirement => pool_contribute,
     PoolRedeemInstructionPresentRequirement => pool_redeem,
-    AccessControllerConfirmTimedRecovery => access_controller_confirm_timed_recovery,
 }
