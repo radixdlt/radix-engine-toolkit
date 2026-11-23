@@ -322,3 +322,274 @@ fn asserting_worktop_contains_only_some_resources_is_not_recovery() {
 
     assert!(!classify(&manifest).iter().any(is_access_controller_class));
 }
+
+type Subintent = ManifestBuilder<SubintentManifestV2>;
+
+/// A subintent of each class that may be a pre-authorization, by the calls it
+/// makes on an access controller and the account it may deposit into.
+#[allow(clippy::type_complexity)]
+fn subintent_classes() -> [(
+    ManifestClassification,
+    fn(Subintent, ComponentAddress, ComponentAddress) -> Subintent,
+); 6] {
+    [
+        (
+            ManifestClassification::AccessControllerRecovery,
+            |builder, access_controller, _| {
+                builder
+                    .initiate_recovery(
+                        access_controller,
+                        Proposer::Recovery,
+                        proposal(allow_all(), None),
+                    )
+                    .quick_confirm_recovery(
+                        access_controller,
+                        Proposer::Recovery,
+                        proposal(allow_all(), None),
+                    )
+            },
+        ),
+        (
+            ManifestClassification::AccessControllerTimedRecovery,
+            |builder, access_controller, _| {
+                builder.initiate_recovery(
+                    access_controller,
+                    Proposer::Recovery,
+                    proposal(allow_all(), None),
+                )
+            },
+        ),
+        (
+            ManifestClassification::AccessControllerConfirmRecovery,
+            |builder, access_controller, _| {
+                builder.quick_confirm_recovery(
+                    access_controller,
+                    Proposer::Primary,
+                    proposal(allow_all(), None),
+                )
+            },
+        ),
+        (
+            ManifestClassification::AccessControllerCancelRecovery,
+            |builder, access_controller, _| {
+                builder.cancel_recovery(access_controller, Proposer::Primary)
+            },
+        ),
+        (
+            ManifestClassification::AccessControllerPrimaryRoleLock,
+            |builder, access_controller, _| {
+                builder.lock_primary_role(access_controller)
+            },
+        ),
+        (
+            ManifestClassification::AccessControllerRecoveryFee,
+            |builder, access_controller, account| {
+                builder
+                    .withdraw_recovery_fee(access_controller, 10)
+                    .try_deposit_entire_worktop_or_abort(account, None)
+            },
+        ),
+    ]
+}
+
+fn access_controller_classes_of(
+    manifest: &SubintentManifestV2,
+) -> Vec<ManifestClassification> {
+    classify(manifest)
+        .into_iter()
+        .filter(is_access_controller_class)
+        .collect()
+}
+
+/// The access controller classes of the transaction manifest that
+/// `as_enclosed` turns an enclosed subintent into, which is what gets
+/// previewed and dynamically analyzed.
+fn enclosed_access_controller_classes_of(
+    manifest: &SubintentManifestV2,
+) -> Vec<ManifestClassification> {
+    let enclosed = radix_engine_toolkit::functions::transaction_v2::subintent_manifest::as_enclosed(manifest)
+        .expect("Must be an enclosed subintent");
+    let StaticAnalysis {
+        manifest_classification,
+        ..
+    } = statically_analyze(&enclosed).unwrap();
+    manifest_classification
+        .into_iter()
+        .filter(is_access_controller_class)
+        .collect()
+}
+
+/// The fee of a transaction is paid by whoever submits it. In a subintent a fee
+/// lock either fails or is a contingent one, a payment the class's output
+/// doesn't show, so a subintent may not pay the fee, even though a transaction
+/// manifest of the same class may, see `access_controller_other_effects`.
+///
+/// The same holds for the transaction manifest an enclosed subintent is turned
+/// into to preview it, which no longer yields to its parent.
+#[test]
+fn paying_the_fee_in_a_subintent_is_not_classified() {
+    let mut allocator = TestAddressAllocator::new();
+    let account = allocator.new_account_address();
+    let access_controller = allocator.new_access_controller_address();
+    let other_access_controller = allocator.new_access_controller_address();
+    let fee_payments: [fn(
+        Subintent,
+        ComponentAddress,
+        ComponentAddress,
+    ) -> Subintent; 5] = [
+        |builder, account, _| builder.lock_fee(account, 10),
+        |builder, account, _| builder.lock_contingent_fee(account, 10),
+        |builder, account, _| {
+            builder.create_proof_from_account_of_amount(account, XRD, 1)
+        },
+        // The proof of a securified account's badge, so that it can pay.
+        |builder, _, access_controller| {
+            builder.call_method(
+                access_controller,
+                ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                (),
+            )
+        },
+        |builder, _, access_controller| {
+            builder.call_method(
+                access_controller,
+                ACCESS_CONTROLLER_LOCK_RECOVERY_FEE_IDENT,
+                AccessControllerLockRecoveryFeeManifestInput {
+                    amount: Decimal::one(),
+                },
+            )
+        },
+    ];
+
+    for (class, calls) in subintent_classes() {
+        let without_fee = calls(
+            ManifestBuilder::new_subintent_v2().assert_worktop_is_empty(),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        assert_eq!(access_controller_classes_of(&without_fee), vec![class]);
+        assert_eq!(
+            enclosed_access_controller_classes_of(&without_fee),
+            vec![class]
+        );
+
+        for pay_fee in fee_payments {
+            let fee_first = calls(
+                pay_fee(
+                    ManifestBuilder::new_subintent_v2()
+                        .assert_worktop_is_empty(),
+                    account,
+                    other_access_controller,
+                ),
+                access_controller,
+                account,
+            )
+            .yield_to_parent(())
+            .build();
+            let fee_last = pay_fee(
+                calls(
+                    ManifestBuilder::new_subintent_v2()
+                        .assert_worktop_is_empty(),
+                    access_controller,
+                    account,
+                ),
+                account,
+                other_access_controller,
+            )
+            .yield_to_parent(())
+            .build();
+            for manifest in [fee_first, fee_last] {
+                assert_eq!(
+                    access_controller_classes_of(&manifest),
+                    vec![],
+                    "{class:?}"
+                );
+                assert_eq!(
+                    enclosed_access_controller_classes_of(&manifest),
+                    vec![],
+                    "{class:?} as an enclosed manifest"
+                );
+            }
+        }
+    }
+}
+
+/// Yielding to the parent before the end lets the parent run its own
+/// instructions between the subintent's.
+#[test]
+fn yielding_to_the_parent_before_the_end_is_not_classified() {
+    let mut allocator = TestAddressAllocator::new();
+    let account = allocator.new_account_address();
+    let access_controller = allocator.new_access_controller_address();
+
+    for (class, calls) in subintent_classes() {
+        let start =
+            || ManifestBuilder::new_subintent_v2().assert_worktop_is_empty();
+        // Yielding, or verifying the parent, after the class's calls.
+        let yields_twice = calls(start(), access_controller, account)
+            .yield_to_parent(())
+            .yield_to_parent(())
+            .build();
+        assert_eq!(access_controller_classes_of(&yields_twice), vec![class]);
+
+        let yields_first =
+            calls(start().yield_to_parent(()), access_controller, account)
+                .yield_to_parent(())
+                .build();
+        let verifies_after_yielding =
+            calls(start(), access_controller, account)
+                .yield_to_parent(())
+                .verify_parent(rule!(allow_all))
+                .yield_to_parent(())
+                .build();
+        let asserts_after_yielding = calls(start(), access_controller, account)
+            .yield_to_parent(())
+            .assert_worktop_is_empty()
+            .yield_to_parent(())
+            .build();
+        for manifest in [
+            yields_first,
+            verifies_after_yielding,
+            asserts_after_yielding,
+        ] {
+            assert_eq!(
+                access_controller_classes_of(&manifest),
+                vec![],
+                "{class:?}"
+            );
+        }
+    }
+
+    // Between the calls of a class: the parent could hand XRD of its own to
+    // the subintent before it deposits what it withdrew.
+    let manifests = [
+        ManifestBuilder::new_subintent_v2()
+            .assert_worktop_is_empty()
+            .initiate_recovery(
+                access_controller,
+                Proposer::Recovery,
+                proposal(allow_all(), None),
+            )
+            .yield_to_parent(())
+            .quick_confirm_recovery(
+                access_controller,
+                Proposer::Recovery,
+                proposal(allow_all(), None),
+            )
+            .yield_to_parent(())
+            .build(),
+        ManifestBuilder::new_subintent_v2()
+            .assert_worktop_is_empty()
+            .withdraw_recovery_fee(access_controller, 10)
+            .yield_to_parent(())
+            .take_all_from_worktop(XRD, "xrd")
+            .try_deposit_or_abort(account, None, "xrd")
+            .yield_to_parent(())
+            .build(),
+    ];
+    for manifest in manifests {
+        assert_eq!(access_controller_classes_of(&manifest), vec![]);
+    }
+}

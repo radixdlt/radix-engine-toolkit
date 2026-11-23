@@ -199,6 +199,23 @@ fn other_access_controller_methods_are_not_classified() {
             ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
             manifest_args!(),
         ),
+        (
+            ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+            manifest_args!(),
+        ),
+        // These two hand the controlled badge out of the access controller.
+        (
+            ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+            manifest_args!(),
+        ),
+        (
+            ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+            manifest_args!(),
+        ),
+        (
+            ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
+            manifest_args!(IndexSet::<NonFungibleLocalId>::new()),
+        ),
     ] {
         let manifest = ManifestBuilder::new()
             .lock_primary_role(access_controller)

@@ -58,8 +58,9 @@ pub enum ManifestClassification {
     AccountDepositSettingsUpdate,
     /// A manifest that securifies entities by moving their badge
     /// to a newly created access controller. In this manifest class the entity
-    /// is securified, its owner_keys is updated and an access controller is
-    /// created.
+    /// is securified and an access controller is created; nothing else, such
+    /// as updating its owner_keys or topping up the access controller, is
+    /// permitted.
     EntitySecurify,
     /// A manifest that proposes new rules for access controllers and confirms
     /// them in the same transaction.
@@ -76,4 +77,8 @@ pub enum ManifestClassification {
     /// A manifest that locks or unlocks the primary role of access
     /// controllers.
     AccessControllerPrimaryRoleLock,
+    /// A manifest that tops up the recovery fee vaults of access controllers
+    /// with XRD withdrawn from accounts, or withdraws XRD from them into
+    /// accounts.
+    AccessControllerRecoveryFee,
 }

@@ -17,7 +17,8 @@
 
 //! Besides its access controller calls, a manifest of an access controller
 //! class may only pay the fee: anything else it does wouldn't be in the
-//! class's output.
+//! class's output. The recovery fee class, which also moves XRD, is tested in
+//! `access_controller_recovery_fee`.
 
 use super::access_controller_utils::*;
 use crate::prelude::*;

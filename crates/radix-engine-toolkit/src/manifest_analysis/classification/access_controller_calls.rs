@@ -19,7 +19,8 @@
 //! same instructions and records the same access controller calls, and differs
 //! only in which calls, in which order, it accepts on each access controller.
 //! Besides access controller calls, the classes only permit paying the fee, so
-//! a manifest of any of them withdraws nothing and changes nothing else.
+//! a manifest of any of them withdraws nothing and changes nothing else. A
+//! subintent may not even pay the fee, see `SubintentRestrictions`.
 //! Each class is an [`AccessControllerClass`], analyzed by an
 //! [`AccessControllerAnalyzer`] of it.
 
@@ -71,20 +72,30 @@ pub struct AccessControllerCalls {
     /// that only exists in the manifest, or proposes rules that can't be shown
     /// to the user.
     invalid: bool,
+    subintent_restrictions: SubintentRestrictions,
 }
 
 impl AccessControllerCalls {
     /// The calls on each access controller, if the manifest calls at least
-    /// one and every call can be classified.
+    /// one, every call can be classified, and, if it's a subintent, it keeps
+    /// to the `SubintentRestrictions`.
     pub fn by_access_controller(
         &self,
     ) -> Option<&IndexMap<ComponentAddress, Vec<AccessControllerCall>>> {
-        (!self.invalid && !self.calls.is_empty()).then_some(&self.calls)
+        (!self.is_invalid() && !self.calls.is_empty()).then_some(&self.calls)
+    }
+
+    /// Whether the manifest can't be of any access controller class, whatever
+    /// follows.
+    fn is_invalid(&self) -> bool {
+        self.invalid || self.subintent_restrictions.are_violated()
     }
 
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
+        self.subintent_restrictions
+            .process_instruction(context, is_fee_payment(context));
         if let Some((receiver, call)) = access_controller_call(context) {
-            match (static_access_controller(receiver), call) {
+            match (static_component(receiver), call) {
                 (Some(access_controller), Some(call)) => {
                     self.calls.entry(access_controller).or_default().push(call)
                 }
@@ -160,7 +171,7 @@ impl<C: AccessControllerClass> ManifestAnalyzerRequirementState
     for AccessControllerRequirementState<C>
 {
     fn requirement_state(&self) -> RequirementState {
-        if self.calls.invalid {
+        if self.calls.is_invalid() {
             RequirementState::PermanentlyUnfulfilled
         } else if C::classify(&self.calls).is_some() {
             RequirementState::Fulfilled
@@ -180,36 +191,6 @@ fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
     is_permitted_subintent_instruction(context)
         || access_controller_call(context).is_some()
         || is_fee_payment(context)
-}
-
-/// Locking the fee, and creating the proofs it or the access controller calls
-/// need: of an access controller's badge when the fee payer is securified, or
-/// of badges an access controller's roles require.
-fn is_fee_payment(context: InstructionContext<'_>) -> bool {
-    matches!(
-        context,
-        InstructionContext::InvocationInstruction {
-            typed_native_invocation: Some(TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(..),
-                invocation:
-                    TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                        AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::LockFee(..)
-                            | AccountBlueprintMethod::LockContingentFee(..)
-                            | AccountBlueprintMethod::CreateProofOfAmount(..)
-                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
-                        ),
-                    )
-                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::CreateProof(..)
-                            | AccessControllerBlueprintMethod::LockRecoveryFee(..),
-                        ),
-                    ),
-            }),
-            ..
-        }
-    )
 }
 
 /// If the instruction is an access controller call, returns the access
@@ -329,13 +310,4 @@ fn recovery_proposal(
         rule_set: typed_rule_set(rule_set)?,
         timed_recovery_delay_in_minutes,
     })
-}
-
-fn static_access_controller(
-    address: &ResolvedManifestAddress<GlobalAddress>,
-) -> Option<ComponentAddress> {
-    let ResolvedManifestAddress::Static { static_address } = address else {
-        return None;
-    };
-    ComponentAddress::try_from(*static_address).ok()
 }

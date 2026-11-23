@@ -23,12 +23,13 @@ use radix_transactions::manifest::BuildableManifest;
 pub const PROPOSERS: [Proposer; 2] = [Proposer::Primary, Proposer::Recovery];
 
 /// Every access controller class.
-pub const ACCESS_CONTROLLER_CLASSES: [ManifestClassification; 5] = [
+pub const ACCESS_CONTROLLER_CLASSES: [ManifestClassification; 6] = [
     ManifestClassification::AccessControllerRecovery,
     ManifestClassification::AccessControllerTimedRecovery,
     ManifestClassification::AccessControllerConfirmRecovery,
     ManifestClassification::AccessControllerCancelRecovery,
     ManifestClassification::AccessControllerPrimaryRoleLock,
+    ManifestClassification::AccessControllerRecoveryFee,
 ];
 
 pub fn rule_set(rule: AccessRule) -> RuleSet {
@@ -190,6 +191,21 @@ pub trait AccessControllerManifestBuilder: Sized {
             (),
         )
     }
+
+    /// Withdraws XRD from the recovery fee vault onto the worktop.
+    fn withdraw_recovery_fee(
+        self,
+        access_controller: ComponentAddress,
+        amount: impl Into<Decimal>,
+    ) -> Self {
+        self.call(
+            access_controller,
+            ACCESS_CONTROLLER_WITHDRAW_RECOVERY_FEE_IDENT,
+            AccessControllerWithdrawRecoveryFeeManifestInput {
+                amount: amount.into(),
+            },
+        )
+    }
 }
 
 impl<M: BuildableManifest> AccessControllerManifestBuilder
@@ -207,24 +223,58 @@ where
     }
 }
 
-/// Withdraws XRD from `account` and contributes it to the recovery fee vault of
-/// `access_controller`.
+/// Withdraws 100 XRD from `account` and contributes it to the recovery fee
+/// vault of `access_controller`.
 pub fn top_up_recovery_fee(
     builder: ManifestBuilder,
     account: ComponentAddress,
     access_controller: ComponentAddress,
 ) -> ManifestBuilder {
+    top_up_recovery_fee_by(builder, account, access_controller, 100)
+}
+
+/// Withdraws `amount` XRD from `account` and contributes it to the recovery
+/// fee vault of `access_controller`.
+pub fn top_up_recovery_fee_by(
+    builder: ManifestBuilder,
+    account: ComponentAddress,
+    access_controller: ComponentAddress,
+    amount: impl Into<Decimal>,
+) -> ManifestBuilder {
+    let amount = amount.into();
+    let bucket = builder.generate_bucket_name("xrd");
     builder
-        .withdraw_from_account(account, XRD, 100)
-        .take_from_worktop(XRD, 100, "xrd")
-        .then(|builder| {
-            let bucket = builder.bucket("xrd");
-            builder.call_method(
-                access_controller,
-                ACCESS_CONTROLLER_CONTRIBUTE_RECOVERY_FEE_IDENT,
-                AccessControllerContributeRecoveryFeeManifestInput { bucket },
-            )
-        })
+        .withdraw_from_account(account, XRD, amount)
+        .take_from_worktop(XRD, amount, &bucket)
+        .contribute_recovery_fee(access_controller, &bucket)
+}
+
+pub trait ContributeRecoveryFee {
+    /// Contributes the bucket named `bucket` to the recovery fee vault of
+    /// `access_controller`.
+    fn contribute_recovery_fee(
+        self,
+        access_controller: ComponentAddress,
+        bucket: &str,
+    ) -> Self;
+}
+
+impl<M: BuildableManifest> ContributeRecoveryFee for ManifestBuilder<M>
+where
+    M::Instruction: From<InstructionV1>,
+{
+    fn contribute_recovery_fee(
+        self,
+        access_controller: ComponentAddress,
+        bucket: &str,
+    ) -> Self {
+        let bucket = self.bucket(bucket);
+        self.call_method(
+            access_controller,
+            ACCESS_CONTROLLER_CONTRIBUTE_RECOVERY_FEE_IDENT,
+            AccessControllerContributeRecoveryFeeManifestInput { bucket },
+        )
+    }
 }
 
 /// The access controller classes of the manifest, statically.
@@ -278,6 +328,7 @@ pub fn detailed_access_controller_class(
                     | DetailedManifestClassification::AccessControllerConfirmRecovery(..)
                     | DetailedManifestClassification::AccessControllerCancelRecovery(..)
                     | DetailedManifestClassification::AccessControllerPrimaryRoleLock(..)
+                    | DetailedManifestClassification::AccessControllerRecoveryFee(..)
             )
         })
         .collect::<Vec<_>>();

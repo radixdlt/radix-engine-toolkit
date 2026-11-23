@@ -31,10 +31,6 @@ fn securify_account_classifies_as_entity_securify() {
             AccountSecurifyManifestInput {},
         )
         .take_from_worktop(ACCOUNT_OWNER_BADGE, 1, "bucket")
-        .create_proof_from_bucket_of_all("bucket", "proof")
-        .push_to_auth_zone("proof")
-        .set_metadata(account, "owner_keys", "not important")
-        .drop_auth_zone_proofs()
         .allocate_global_address(
             ACCESS_CONTROLLER_PACKAGE,
             ACCESS_CONTROLLER_BLUEPRINT,
@@ -99,8 +95,11 @@ fn securify_account_classifies_as_entity_securify() {
     );
 }
 
+/// The recovery fee vault of the access controller created is topped up in a
+/// transaction of its own, of the recovery fee class.
 #[test]
-fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
+fn securify_account_with_initial_access_controller_xrd_top_up_does_not_classify(
+) {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -116,10 +115,6 @@ fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
             AccountSecurifyManifestInput {},
         )
         .take_from_worktop(ACCOUNT_OWNER_BADGE, 1, "owner_badge")
-        .create_proof_from_bucket_of_all("owner_badge", "owner_badge_proof")
-        .push_to_auth_zone("owner_badge_proof")
-        .set_metadata(account, "owner_keys", "not important")
-        .drop_auth_zone_proofs()
         .allocate_global_address(
             ACCESS_CONTROLLER_PACKAGE,
             ACCESS_CONTROLLER_BLUEPRINT,
@@ -178,24 +173,23 @@ fn securify_account_with_initial_access_controller_xrd_top_up_classifies() {
     ) = ledger.analyze(manifest);
 
     // Assert
-    assert!(manifest_classification
-        .contains(&ManifestClassification::EntitySecurify));
-    let Some(DetailedManifestClassification::EntitySecurify(
-        EntitySecurifyOutput {
-            securify_operations,
-        },
-    )) = detailed_manifest_classification.last()
-    else {
-        panic!("Not an entity securify transaction")
-    };
-    assert_eq!(
-        securify_operations,
-        &vec![EntitySecurifyOperation {
-            entity_address: account.into(),
-            rule_set,
-            timed_recovery_delay_in_minutes,
-        }]
-    );
+    for class in [
+        ManifestClassification::EntitySecurify,
+        ManifestClassification::AccessControllerRecoveryFee,
+    ] {
+        assert!(!manifest_classification.contains(&class));
+    }
+    assert!(!detailed_manifest_classification
+        .iter()
+        .any(|classification| {
+            matches!(
+                classification,
+                DetailedManifestClassification::EntitySecurify(..)
+                    | DetailedManifestClassification::AccessControllerRecoveryFee(
+                        ..
+                    )
+            )
+        }));
 }
 
 #[test]
@@ -289,8 +283,8 @@ fn securify_account_with_xrd_withdrawal_without_contribution_does_not_classify()
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = ledger.new_account(true);
 
-    // A zero amount keeps the manifest executable while still exercising the
-    // analyzer's withdrawal/contribution pairing requirement.
+    // A zero amount keeps the manifest executable, so withdrawing is the only
+    // reason this classification is rejected.
     let builder = ManifestBuilder::new()
         .withdraw_from_account(account, XRD, 0)
         .call_method(
@@ -507,10 +501,6 @@ fn securify_identity_classifies_as_entity_securify() {
     let builder = ManifestBuilder::new()
         .call_method(identity, IDENTITY_SECURIFY_IDENT, ())
         .take_from_worktop(IDENTITY_OWNER_BADGE, 1, "bucket")
-        .create_proof_from_bucket_of_all("bucket", "proof")
-        .push_to_auth_zone("proof")
-        .set_metadata(identity, "owner_keys", "not important")
-        .drop_auth_zone_proofs()
         .allocate_global_address(
             ACCESS_CONTROLLER_PACKAGE,
             ACCESS_CONTROLLER_BLUEPRINT,
@@ -759,6 +749,47 @@ fn securify_with_non_access_controller_address_allocation_does_not_classify() {
     assert!(!is_classified_as_securify(&manifest));
 }
 
+/// Setting metadata, even the securified entity's owner keys, isn't in the
+/// output, so it's done in a transaction of its own.
+#[test]
+fn securify_with_metadata_set_does_not_classify() {
+    let sets: [fn(ManifestBuilder, ComponentAddress) -> ManifestBuilder; 3] = [
+        |builder, account| {
+            builder.set_metadata(account, "owner_keys", "not important")
+        },
+        |builder, account| {
+            builder.set_metadata(account, "name", "not important")
+        },
+        |builder, _| {
+            let other_account =
+                TestAddressAllocator::new().new_account_address();
+            builder.set_metadata(other_account, "owner_keys", "not important")
+        },
+    ];
+    for set in sets {
+        let manifest = securify_manifest_with(
+            (ACCESS_CONTROLLER_PACKAGE, ACCESS_CONTROLLER_BLUEPRINT),
+            set,
+        );
+        assert!(!is_classified_as_securify(&manifest));
+    }
+}
+
+/// Proofs of the owner badge were only needed to set metadata.
+#[test]
+fn securify_with_owner_badge_proof_does_not_classify() {
+    let manifest = securify_manifest_with(
+        (ACCESS_CONTROLLER_PACKAGE, ACCESS_CONTROLLER_BLUEPRINT),
+        |builder, _| {
+            builder
+                .create_proof_from_bucket_of_all("owner_badge", "proof")
+                .push_to_auth_zone("proof")
+                .drop_auth_zone_proofs()
+        },
+    );
+    assert!(!is_classified_as_securify(&manifest));
+}
+
 #[test]
 fn securify_with_metadata_removal_does_not_classify() {
     let manifest = securify_manifest_with(
@@ -774,4 +805,122 @@ fn securify_with_metadata_removal_does_not_classify() {
         },
     );
     assert!(!is_classified_as_securify(&manifest));
+}
+
+fn create_access_controller(
+    builder: ManifestBuilder,
+    controlled_asset: &str,
+    rule_set: RuleSet,
+) -> ManifestBuilder {
+    let controlled_asset = builder.bucket(controlled_asset);
+    builder.call_function(
+        ACCESS_CONTROLLER_PACKAGE,
+        ACCESS_CONTROLLER_BLUEPRINT,
+        ACCESS_CONTROLLER_CREATE_IDENT,
+        AccessControllerCreateManifestInput {
+            controlled_asset,
+            rule_set: rule_set.into(),
+            timed_recovery_delay_in_minutes: None,
+            address_reservation: None,
+        },
+    )
+}
+
+fn securify(
+    builder: ManifestBuilder,
+    account: ComponentAddress,
+) -> ManifestBuilder {
+    builder.call_method(
+        account,
+        ACCOUNT_SECURIFY_IDENT,
+        AccountSecurifyManifestInput {},
+    )
+}
+
+fn shown_rule_set() -> RuleSet {
+    RuleSet {
+        primary_role: rule!(allow_all),
+        recovery_role: rule!(deny_all),
+        confirmation_role: rule!(deny_all),
+    }
+}
+
+fn other_rule_set() -> RuleSet {
+    RuleSet {
+        primary_role: rule!(deny_all),
+        recovery_role: rule!(allow_all),
+        confirmation_role: rule!(allow_all),
+    }
+}
+
+/// An access controller created with the owner badges of several entities
+/// controls them all, but would be paired with one of them at most. The
+/// manifest below commits, with as many access controllers created as entities
+/// securified since one is created with no owner badge, and two of the
+/// accounts end up under rules that an output pairing one entity with one
+/// access controller couldn't show.
+#[test]
+fn access_controller_created_with_several_owner_badges_does_not_classify() {
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, first_account) = ledger.new_account(true);
+    let (_, _, second_account) = ledger.new_account(true);
+    let (_, _, third_account) = ledger.new_account(true);
+
+    let builder = securify(ManifestBuilder::new(), first_account)
+        .take_from_worktop(ACCOUNT_OWNER_BADGE, 1, "one_badge");
+    let builder = securify(builder, second_account);
+    let builder = securify(builder, third_account)
+        .take_all_from_worktop(ACCOUNT_OWNER_BADGE, "two_badges")
+        .take_from_worktop(ACCOUNT_OWNER_BADGE, 0, "no_badge");
+    let builder =
+        create_access_controller(builder, "one_badge", shown_rule_set());
+    let builder =
+        create_access_controller(builder, "two_badges", other_rule_set());
+    let manifest =
+        create_access_controller(builder, "no_badge", shown_rule_set()).build();
+
+    // Act
+    let (
+        StaticAnalysis {
+            manifest_classification,
+            ..
+        },
+        DynamicAnalysis {
+            detailed_manifest_classification,
+            ..
+        },
+    ) = ledger.analyze(manifest);
+
+    // Assert
+    assert!(!manifest_classification
+        .contains(&ManifestClassification::EntitySecurify));
+    assert!(!detailed_manifest_classification
+        .iter()
+        .any(|class| matches!(
+            class,
+            DetailedManifestClassification::EntitySecurify(..)
+        )));
+}
+
+/// Taking all the owner badges on the worktop is taking exactly one when only
+/// one entity has been securified since the last was taken.
+#[test]
+fn taking_all_owner_badges_of_one_entity_classifies_as_entity_securify() {
+    let mut allocator = TestAddressAllocator::new();
+    let first_account = allocator.new_account_address();
+    let second_account = allocator.new_account_address();
+
+    let builder = securify(ManifestBuilder::new(), first_account)
+        .take_all_from_worktop(ACCOUNT_OWNER_BADGE, "first_badge");
+    let builder = securify(builder, second_account)
+        .take_all_from_worktop(ACCOUNT_OWNER_BADGE, "second_badge");
+    let builder =
+        create_access_controller(builder, "first_badge", shown_rule_set());
+    let manifest =
+        create_access_controller(builder, "second_badge", other_rule_set())
+            .build();
+
+    assert!(is_classified_as_securify(&manifest));
 }

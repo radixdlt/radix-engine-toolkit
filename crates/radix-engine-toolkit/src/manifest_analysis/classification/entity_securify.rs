@@ -127,6 +127,8 @@ impl ManifestDynamicAnalyzer for EntitySecurifyAnalyzer {
                         ),
                     ),
             } => {
+                // The static requirements only let an access controller be
+                // created with exactly one owner badge.
                 let Some(owner_badge_id) = owner_badge_local_id(
                     &dynamic_analysis_invocation_io.input,
                 ) else {
@@ -184,9 +186,6 @@ fn owner_badge_local_id(
 pub struct EntitySecurifyStaticRequirementState {
     pending_entity_count: usize,
     paired_entity_count: usize,
-    created_access_controller_addresses: IndexSet<ManifestNamedAddress>,
-    has_xrd_withdrawal: bool,
-    has_xrd_contribution: bool,
     invalid_manifest: bool,
 }
 
@@ -194,9 +193,7 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
     fn requirement_state(&self) -> RequirementState {
         if self.invalid_manifest {
             RequirementState::PermanentlyUnfulfilled
-        } else if self.paired_entity_count > 0
-            && self.pending_entity_count == 0
-            && self.has_xrd_withdrawal == self.has_xrd_contribution
+        } else if self.paired_entity_count > 0 && self.pending_entity_count == 0
         {
             RequirementState::Fulfilled
         } else {
@@ -207,7 +204,7 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
     fn process_instruction(&mut self, context: InstructionContext<'_>) {
         let InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(typed_invocation),
-            named_address_store,
+            static_analysis_invocation_io,
             ..
         } = context
         else {
@@ -250,71 +247,41 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
                 self.paired_entity_count += 1;
                 // The proposed rules must be possible to show to the user.
                 self.invalid_manifest |= typed_rule_set(&input.rule_set).is_none();
-
-                if let Some(address_reservation) = input.address_reservation {
-                    // AllocateGlobalAddress assigns the reservation and named
-                    // address for an allocation the same index.
-                    let named_address =
-                        ManifestNamedAddress(address_reservation.0);
-                    let access_controller_blueprint = BlueprintId::new(
-                        &ACCESS_CONTROLLER_PACKAGE,
-                        ACCESS_CONTROLLER_BLUEPRINT,
-                    );
-
-                    if named_address_store.get(&named_address)
-                        == Some(&access_controller_blueprint)
-                    {
-                        self.created_access_controller_addresses
-                            .insert(named_address);
-                    }
-                }
-            }
-            TypedManifestNativeInvocation::AccountBlueprintInvocation(
-                AccountBlueprintInvocation::Method(
-                    AccountBlueprintMethod::Withdraw(
-                        AccountWithdrawManifestInput {
-                            resource_address: ManifestResourceAddress::Static(
-                                XRD,
-                            ),
-                            ..
-                        },
-                    ),
-                ),
-            ) => {
-                self.has_xrd_withdrawal = true;
-            }
-            TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                AccessControllerBlueprintInvocation::Method(
-                    AccessControllerBlueprintMethod::ContributeRecoveryFee(..),
-                ),
-            ) => {
-                self.has_xrd_contribution = true;
-
-                let is_created_access_controller = matches!(
-                    &typed_invocation.receiver,
-                    ManifestInvocationReceiver::GlobalMethod(
-                        ResolvedManifestAddress::Named {
-                            named_address,
-                            ..
-                        }
-                    ) if self
-                        .created_access_controller_addresses
-                        .contains(named_address)
-                );
-                self.invalid_manifest |= !is_created_access_controller;
+                // Each access controller controls exactly one of the entities
+                // securified. Otherwise one created with several owner badges,
+                // or with none, would still be counted as one entity's, and
+                // the entities it controls wouldn't be in the output.
+                self.invalid_manifest |=
+                    !is_one_owner_badge(&static_analysis_invocation_io.input);
             }
             _ => {}
         }
     }
 }
 
+/// Whether the resources are known to be exactly one account or identity owner
+/// badge, and nothing else.
+fn is_one_owner_badge(resources: &TrackedResources) -> bool {
+    let mut specified_resources = resources.specified_resources().iter();
+    let (Some((resource_address, resource)), None) =
+        (specified_resources.next(), specified_resources.next())
+    else {
+        return false;
+    };
+
+    (resource_address == &ACCOUNT_OWNER_BADGE
+        || resource_address == &IDENTITY_OWNER_BADGE)
+        && resource.bounds().get_exact_amount() == Some(Decimal::ONE)
+        && !resources.unspecified_resources().may_be_present()
+}
+
+/// Securifying, creating the access controllers, and paying the fee. Nothing
+/// else is permitted, since the output wouldn't show it: setting metadata,
+/// such as the entities' owner keys, and topping up the recovery fee vault of
+/// an access controller created here are each done in a transaction of their
+/// own, the latter of the recovery fee class.
 fn is_instruction_permitted(context: InstructionContext<'_>) -> bool {
-    is_permitted_invocation(context)
-        // Setting metadata such as the owner keys of the securified entity.
-        || is_account_or_identity_metadata_set(context)
-        || is_xrd_withdraw(context)
-        || is_xrd_contribution_to_named_access_controller(context)
-        || is_permitted_non_invocation(context)
+    is_permitted_invocation(context) || is_permitted_non_invocation(context)
 }
 
 fn is_permitted_invocation(context: InstructionContext<'_>) -> bool {
@@ -369,12 +336,9 @@ fn is_permitted_non_invocation(context: InstructionContext<'_>) -> bool {
             instruction, ..
         } => {
             match instruction {
-                // These are the instructions for creating proofs with the owner
-                // badge that was put on the worktop after securifying the
-                // entity. They are mainly needed for setting the owner_keys
-                // metadata on the entity.
-                GroupedInstruction::ProofInstructions(..)
-                | GroupedInstruction::TakeFromWorktopInstructions(..) => true,
+                // Taking the owner badge that securifying put on the worktop,
+                // to pass it to the access controller created.
+                GroupedInstruction::TakeFromWorktopInstructions(..) => true,
                 // Address allocation for the new access controller.
                 GroupedInstruction::AddressAllocationInstructions(
                     AddressAllocationInstructions::AllocateGlobalAddress(
@@ -392,13 +356,4 @@ fn is_permitted_non_invocation(context: InstructionContext<'_>) -> bool {
         }
         InstructionContext::InvocationInstruction { .. } => false,
     }
-}
-
-fn is_xrd_contribution_to_named_access_controller(
-    context: InstructionContext<'_>,
-) -> bool {
-    matches!(
-        xrd_recovery_fee_contribution_receiver(context),
-        Some(ResolvedManifestAddress::Named { .. })
-    )
 }

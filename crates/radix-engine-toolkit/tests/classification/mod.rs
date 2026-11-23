@@ -21,6 +21,7 @@ mod access_controller_ledger_effects;
 mod access_controller_other_effects;
 mod access_controller_primary_role_lock;
 mod access_controller_recovery;
+mod access_controller_recovery_fee;
 mod access_controller_subintent;
 mod access_controller_timed_recovery;
 mod access_controller_unshowable_calls;

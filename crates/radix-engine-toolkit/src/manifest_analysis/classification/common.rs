@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//! Permission checks shared by the access controller and entity securify
+//! Checks shared by the access controller, recovery fee and entity securify
 //! analyzers.
 
 use crate::internal_prelude::*;
@@ -31,7 +31,8 @@ use crate::internal_prelude::*;
 ///   can't move resources.
 ///
 /// Transaction manifests can't contain the first two instructions, and the
-/// assertion doesn't change what they do, so this doesn't affect them.
+/// assertion doesn't change what they do. One that starts with it is held to
+/// the `SubintentRestrictions`, though.
 pub(super) fn is_permitted_subintent_instruction(
     context: InstructionContext<'_>,
 ) -> bool {
@@ -42,103 +43,132 @@ pub(super) fn is_permitted_subintent_instruction(
         GroupedInstruction::SubintentInstructions(
             SubintentInstructions::VerifyParent(..),
         ) => true,
+        instruction => is_assert_worktop_is_empty(instruction),
+    }
+}
+
+/// Whether the instruction is an `ASSERT_WORKTOP_IS_EMPTY`: an
+/// `ASSERT_WORKTOP_RESOURCES_ONLY` without constraints.
+fn is_assert_worktop_is_empty(instruction: &GroupedInstruction) -> bool {
+    matches!(
+        instruction,
         GroupedInstruction::AssertionInstructions(
             AssertionInstructions::AssertWorktopResourcesOnly(
                 AssertWorktopResourcesOnly { constraints },
             ),
-        ) => constraints.specified_resources().is_empty(),
-        _ => false,
-    }
-}
-
-/// Whether the instruction sets a metadata field on an account or identity,
-/// e.g. its `owner_keys`.
-pub(super) fn is_account_or_identity_metadata_set(
-    context: InstructionContext<'_>,
-) -> bool {
-    matches!(
-        context,
-        InstructionContext::InvocationInstruction {
-            typed_native_invocation: Some(TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
-                invocation:
-                    TypedManifestNativeInvocation::MetadataBlueprintInvocation(
-                        MetadataBlueprintInvocation::Method(
-                            MetadataBlueprintMethod::Set(..),
-                        ),
-                    ),
-            }),
-            ..
-        } if matches!(
-            receiver.grouped_entity_type(),
-            Some(
-                GroupedEntityType::AccountEntities(..)
-                    | GroupedEntityType::IdentityEntities(..)
-            )
-        )
+        ) if constraints.specified_resources().is_empty()
     )
 }
 
-/// Whether the instruction withdraws XRD from an account.
-pub(super) fn is_xrd_withdraw(context: InstructionContext<'_>) -> bool {
+/// What a subintent of the access controller and recovery fee classes may not
+/// do, on top of their permitted instructions:
+///
+/// * Pay the fee. The transaction a subintent is part of is paid for by
+///   whoever submits it, and in a subintent a fee lock either fails, or is a
+///   contingent one: a payment of up to the whole transaction's cost, which
+///   the parent decides and the class's output doesn't show.
+/// * Hand control back to the parent before its last instruction. The parent
+///   would run its own instructions between the subintent's.
+///
+/// A manifest is known to be a subintent once it yields to or verifies its
+/// parent, which every subintent does and a transaction manifest can't. It's
+/// also taken to be one when it starts with `ASSERT_WORKTOP_IS_EMPTY`: that's
+/// how an enclosed subintent starts, and all that's left to tell it by once
+/// `as_enclosed` has turned it into a transaction manifest to preview, without
+/// its `YIELD_TO_PARENT`. So transaction manifests that don't start with that
+/// assertion, such as those the wallet builds, may pay the fee.
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub(super) struct SubintentRestrictions {
+    is_subintent: bool,
+    pays_fee: bool,
+    yielded_to_parent: bool,
+    acts_after_yielding: bool,
+}
+
+impl SubintentRestrictions {
+    pub(super) fn process_instruction(
+        &mut self,
+        context: InstructionContext<'_>,
+        is_fee_payment: bool,
+    ) {
+        match context.instruction() {
+            GroupedInstruction::SubintentInstructions(
+                SubintentInstructions::YieldToParent(..),
+            ) => {
+                self.is_subintent = true;
+                self.yielded_to_parent = true;
+            }
+            GroupedInstruction::SubintentInstructions(
+                SubintentInstructions::VerifyParent(..),
+            ) => {
+                self.is_subintent = true;
+                self.acts_after_yielding |= self.yielded_to_parent;
+            }
+            instruction => {
+                self.is_subintent |= *context.instruction_index().value() == 0
+                    && is_assert_worktop_is_empty(instruction);
+                self.acts_after_yielding |= self.yielded_to_parent;
+            }
+        }
+        self.pays_fee |= is_fee_payment;
+    }
+
+    /// Whether the manifest does something it may not, which nothing later in
+    /// it can undo.
+    pub(super) fn are_violated(&self) -> bool {
+        self.is_subintent && (self.pays_fee || self.acts_after_yielding)
+    }
+}
+
+/// Whether the resources are known to be only XRD.
+pub(super) fn is_only_xrd(resources: &TrackedResources) -> bool {
+    let specified_resources = resources.specified_resources();
+    !specified_resources.is_empty()
+        && specified_resources
+            .keys()
+            .all(|resource_address| resource_address == &XRD)
+        && !resources.unspecified_resources().may_be_present()
+}
+
+/// Locking the fee, and creating the proofs it or the access controller calls
+/// need: of an access controller's badge when the fee payer is securified, or
+/// of badges an access controller's roles require.
+pub(super) fn is_fee_payment(context: InstructionContext<'_>) -> bool {
     matches!(
         context,
         InstructionContext::InvocationInstruction {
             typed_native_invocation: Some(TypedNativeInvocation {
+                receiver: ManifestInvocationReceiver::GlobalMethod(..),
                 invocation:
                     TypedManifestNativeInvocation::AccountBlueprintInvocation(
                         AccountBlueprintInvocation::Method(
-                            AccountBlueprintMethod::Withdraw(
-                                AccountWithdrawManifestInput {
-                                    resource_address:
-                                        ManifestResourceAddress::Static(XRD),
-                                    ..
-                                },
-                            ),
+                            AccountBlueprintMethod::LockFee(..)
+                            | AccountBlueprintMethod::LockContingentFee(..)
+                            | AccountBlueprintMethod::CreateProofOfAmount(..)
+                            | AccountBlueprintMethod::CreateProofOfNonFungibles(..),
+                        ),
+                    )
+                    | TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
+                        AccessControllerBlueprintInvocation::Method(
+                            AccessControllerBlueprintMethod::CreateProof(..)
+                            | AccessControllerBlueprintMethod::LockRecoveryFee(..),
                         ),
                     ),
-                ..
             }),
             ..
         }
     )
 }
 
-/// If the instruction contributes only XRD to the recovery fee vault of an
-/// access controller, returns that access controller.
-pub(super) fn xrd_recovery_fee_contribution_receiver<'a>(
-    context: InstructionContext<'a>,
-) -> Option<&'a ResolvedManifestAddress<GlobalAddress>> {
-    let InstructionContext::InvocationInstruction {
-        typed_native_invocation:
-            Some(TypedNativeInvocation {
-                receiver: ManifestInvocationReceiver::GlobalMethod(receiver),
-                invocation:
-                    TypedManifestNativeInvocation::AccessControllerBlueprintInvocation(
-                        AccessControllerBlueprintInvocation::Method(
-                            AccessControllerBlueprintMethod::ContributeRecoveryFee(..),
-                        ),
-                    ),
-            }),
-        static_analysis_invocation_io,
-        ..
-    } = context
-    else {
+/// The component at the address, if the address is known outside the
+/// manifest.
+pub(super) fn static_component(
+    address: &ResolvedManifestAddress<GlobalAddress>,
+) -> Option<ComponentAddress> {
+    let ResolvedManifestAddress::Static { static_address } = address else {
         return None;
     };
-
-    let specified_resources =
-        static_analysis_invocation_io.input.specified_resources();
-    let contributes_only_xrd = !specified_resources.is_empty()
-        && specified_resources
-            .keys()
-            .all(|resource_address| resource_address == &XRD)
-        && !static_analysis_invocation_io
-            .input
-            .unspecified_resources()
-            .may_be_present();
-
-    contributes_only_xrd.then_some(receiver)
+    ComponentAddress::try_from(*static_address).ok()
 }
 
 /// Converts a rule set from a manifest into a typed rule set. This fails when

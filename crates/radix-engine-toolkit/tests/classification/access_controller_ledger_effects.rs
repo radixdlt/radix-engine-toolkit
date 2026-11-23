@@ -523,3 +523,130 @@ fn primary_role_lock_does_what_it_shows() {
         );
     }
 }
+
+/// Classifies the recovery fee manifest made of `calls`, executes it, and
+/// returns its output and how the XRD balance of each of `components` changed.
+fn classify_and_execute_recovery_fee<const N: usize>(
+    ledger: &mut DefaultLedgerSimulator,
+    fee_payer: ComponentAddress,
+    components: [ComponentAddress; N],
+    calls: impl Fn(ManifestBuilder) -> ManifestBuilder,
+) -> (AccessControllerRecoveryFeeOutput, [Decimal; N]) {
+    let class = detailed_access_controller_class(
+        ledger,
+        calls(ManifestBuilder::new().lock_fee(fee_payer, 10)).build(),
+    );
+    let DetailedManifestClassification::AccessControllerRecoveryFee(output) =
+        class
+    else {
+        panic!("Not a recovery fee manifest: {class:?}")
+    };
+
+    let before = components
+        .map(|component| ledger.get_component_balance(component, XRD));
+    // The faucet pays the fee, so only what the manifest moves changes.
+    execute(ledger, calls);
+    let changes = std::array::from_fn(|index| {
+        ledger.get_component_balance(components[index], XRD) - before[index]
+    });
+
+    (output, changes)
+}
+
+#[test]
+fn top_up_moves_the_xrd_shown() {
+    // Arrange
+    let (mut ledger, account, access_controller) =
+        ledger_with_access_controller();
+    let (_, other_access_controller) = ledger.new_allow_all_access_controller();
+
+    // Act
+    let (output, changes) = classify_and_execute_recovery_fee(
+        &mut ledger,
+        account,
+        [account, access_controller, other_access_controller],
+        |builder| {
+            // The account is controlled by the access controller.
+            let builder = builder.call_method(
+                access_controller,
+                ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+                (),
+            );
+            let builder =
+                top_up_recovery_fee_by(builder, account, access_controller, 30);
+            let builder =
+                top_up_recovery_fee_by(builder, account, access_controller, 20);
+            top_up_recovery_fee_by(builder, account, other_access_controller, 5)
+        },
+    );
+
+    // Assert
+    assert_eq!(
+        output,
+        AccessControllerRecoveryFeeOutput {
+            contributions: vec![
+                AccessControllerRecoveryFeeTransfer {
+                    access_controller,
+                    xrd_amount: dec!(50),
+                },
+                AccessControllerRecoveryFeeTransfer {
+                    access_controller: other_access_controller,
+                    xrd_amount: dec!(5),
+                },
+            ],
+            withdrawals: vec![],
+            account_withdrawals: vec![AccountRecoveryFeeTransfer {
+                account,
+                xrd_amount: dec!(55),
+            }],
+            account_deposits: vec![],
+        }
+    );
+    assert_eq!(changes, [dec!(-55), dec!(50), dec!(5)]);
+}
+
+#[test]
+fn withdrawal_moves_the_xrd_shown() {
+    // Arrange
+    let (mut ledger, account, access_controller) =
+        ledger_with_access_controller();
+    let (_, other_access_controller) = ledger.new_allow_all_access_controller();
+    let (_, _, other_account) = ledger.new_allocated_account();
+
+    // Act
+    let (output, changes) = classify_and_execute_recovery_fee(
+        &mut ledger,
+        account,
+        [access_controller, other_access_controller, other_account],
+        |builder| {
+            builder
+                .withdraw_recovery_fee(access_controller, 7)
+                .withdraw_recovery_fee(other_access_controller, 3)
+                .try_deposit_entire_worktop_or_abort(other_account, None)
+        },
+    );
+
+    // Assert
+    assert_eq!(
+        output,
+        AccessControllerRecoveryFeeOutput {
+            contributions: vec![],
+            withdrawals: vec![
+                AccessControllerRecoveryFeeTransfer {
+                    access_controller,
+                    xrd_amount: dec!(7),
+                },
+                AccessControllerRecoveryFeeTransfer {
+                    access_controller: other_access_controller,
+                    xrd_amount: dec!(3),
+                },
+            ],
+            account_withdrawals: vec![],
+            account_deposits: vec![AccountRecoveryFeeTransfer {
+                account: other_account,
+                xrd_amount: dec!(10),
+            }],
+        }
+    );
+    assert_eq!(changes, [dec!(-7), dec!(-3), dec!(10)]);
+}

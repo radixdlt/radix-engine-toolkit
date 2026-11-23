@@ -6,19 +6,21 @@ This changelog captures the changes made to the toolkit between releases.
 
 ### `radix-engine-toolkit` Crate
 
-* Added the `EntitySecurify` manifest classification. Its detailed output lists each securified account or identity with the rule set and timed recovery delay of the access controller created for it.
+* Added the `EntitySecurify` manifest classification. Its detailed output lists each securified account or identity with the rule set and timed recovery delay of the access controller created for it. Besides securifying and creating the access controllers, it only permits paying the fee: it doesn't permit setting metadata, including the entities' `owner_keys`, or withdrawing XRD and contributing to the recovery fee vaults of the access controllers it creates. Each is done in a transaction of its own, a top-up in a manifest of the `AccessControllerRecoveryFee` class. Each access controller must be created with exactly one owner badge, so every entity securified is in the output with the rules that control it.
 * Added five access controller manifest classifications. Besides their access controller calls, they only permit paying the fee and the subintent instructions of an enclosed subintent that yields nothing back, so a manifest of any of them withdraws nothing, contributes nothing and sets no metadata. A manifest is of at most one of them, and every access controller it calls must fit that one:
   * `AccessControllerRecovery`: on each access controller, one recovery is proposed and then quick confirmed with the same proposer, rule set and timed recovery delay, so the output lists exactly the rules enacted.
   * `AccessControllerTimedRecovery`: on each access controller, one recovery is proposed by the recovery role and not confirmed, optionally locking the primary role.
   * `AccessControllerConfirmRecovery`: on each access controller, a recovery already proposed is quick or timed confirmed. The output lists the rules the confirmation names, which the engine checks against the proposal.
   * `AccessControllerCancelRecovery`: on each access controller, the timed recovery is stopped and/or recovery proposals are cancelled, optionally unlocking the primary role.
   * `AccessControllerPrimaryRoleLock`: on each access controller, the primary role is locked or unlocked.
+* Added the `AccessControllerRecoveryFee` manifest classification. The manifest either tops up the recovery fee vaults of access controllers with XRD withdrawn from accounts, depositing nothing, or withdraws XRD from them and deposits it into accounts, withdrawing nothing from accounts. Besides that, it only permits paying the fee. Its detailed output, from dynamic analysis, lists the XRD moved into or out of each access controller and account.
+* A subintent of an access controller class, or of `AccessControllerRecoveryFee`, may not pay the fee, and may only yield to its parent as its last instructions. In a subintent a fee lock either fails or is a contingent one, a payment the output doesn't show, and yielding earlier would let the parent run its own instructions in between. Transaction manifests of these classes may still pay the fee, unless they start with `ASSERT_WORKTOP_IS_EMPTY`: that's what `as_enclosed` turns an enclosed subintent into, so they're held to the same rules.
 * The timed recovery delay in the outputs is the one named in the proposal. The engine doesn't apply it when a recovery is confirmed: an access controller keeps the delay it was created with.
 * Fixed `as_enclosed` treating a subintent as enclosed when its first instruction asserts that specific resources are on the worktop. It now returns `None` unless that assertion is an `ASSERT_WORKTOP_IS_EMPTY`.
 
 ### `radix-engine-toolkit-uniffi` Crate
 
-* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerTimedRecovery`, `AccessControllerConfirmRecovery`, `AccessControllerCancelRecovery` and `AccessControllerPrimaryRoleLock` variants to `ManifestClassification` and `DetailedManifestClassification`, with their output records.
+* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerTimedRecovery`, `AccessControllerConfirmRecovery`, `AccessControllerCancelRecovery`, `AccessControllerPrimaryRoleLock` and `AccessControllerRecoveryFee` variants to `ManifestClassification` and `DetailedManifestClassification`, with their output records.
 
 ## Cuttlefish Protocol Update 
 

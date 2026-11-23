@@ -721,6 +721,7 @@ pub enum ManifestClassification {
     AccessControllerConfirmRecovery,
     AccessControllerCancelRecovery,
     AccessControllerPrimaryRoleLock,
+    AccessControllerRecoveryFee,
 }
 
 impl FromNative for ManifestClassification {
@@ -754,6 +755,9 @@ impl FromNative for ManifestClassification {
             }
             Self::Native::AccessControllerPrimaryRoleLock => {
                 Self::AccessControllerPrimaryRoleLock
+            }
+            Self::Native::AccessControllerRecoveryFee => {
+                Self::AccessControllerRecoveryFee
             }
         }
     }
@@ -801,6 +805,9 @@ pub enum DetailedManifestClassification {
     },
     AccessControllerPrimaryRoleLock {
         value: AccessControllerPrimaryRoleLockOutput,
+    },
+    AccessControllerRecoveryFee {
+        value: AccessControllerRecoveryFeeOutput,
     },
 }
 
@@ -885,6 +892,13 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
             }
             Self::Native::AccessControllerPrimaryRoleLock(output) => {
                 Self::AccessControllerPrimaryRoleLock {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
+            Self::Native::AccessControllerRecoveryFee(output) => {
+                Self::AccessControllerRecoveryFee {
                     value: FromNativeWithNetworkContext::from_native(
                         output, network_id,
                     ),
@@ -2316,6 +2330,93 @@ impl FromNativeWithNetworkContext for AccessControllerPrimaryRoleLockOutput {
                     },
                 )
                 .collect(),
+        }
+    }
+}
+
+/// The XRD a manifest moves into or out of recovery fee vaults. Only one side
+/// is filled: `contributions` and `account_withdrawals` when it tops up,
+/// `withdrawals` and `account_deposits` when it withdraws.
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryFeeOutput {
+    /// The XRD contributed to each access controller's recovery fee vault.
+    pub contributions: Vec<AccessControllerRecoveryFeeTransfer>,
+    /// The XRD withdrawn from each access controller's recovery fee vault.
+    pub withdrawals: Vec<AccessControllerRecoveryFeeTransfer>,
+    /// The XRD withdrawn from each account, to contribute.
+    pub account_withdrawals: Vec<AccountRecoveryFeeTransfer>,
+    /// The XRD deposited into each account, from what was withdrawn.
+    pub account_deposits: Vec<AccountRecoveryFeeTransfer>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccessControllerRecoveryFeeTransfer {
+    pub access_controller: Arc<Address>,
+    pub xrd_amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountRecoveryFeeTransfer {
+    pub account: Arc<Address>,
+    pub xrd_amount: Arc<Decimal>,
+}
+
+impl FromNativeWithNetworkContext for AccessControllerRecoveryFeeOutput {
+    type Native = toolkit::AccessControllerRecoveryFeeOutput;
+
+    fn from_native(
+        Self::Native {
+            contributions,
+            withdrawals,
+            account_withdrawals,
+            account_deposits,
+        }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        let access_controller_transfers =
+            |transfers: Vec<toolkit::AccessControllerRecoveryFeeTransfer>| {
+                transfers
+                    .into_iter()
+                    .map(
+                        |toolkit::AccessControllerRecoveryFeeTransfer {
+                             access_controller,
+                             xrd_amount,
+                         }| {
+                            AccessControllerRecoveryFeeTransfer {
+                                access_controller: access_controller_address(
+                                    access_controller,
+                                    network_id,
+                                ),
+                                xrd_amount: Arc::new(Decimal(xrd_amount)),
+                            }
+                        },
+                    )
+                    .collect()
+            };
+        let account_transfers = |transfers: Vec<
+            toolkit::AccountRecoveryFeeTransfer,
+        >| {
+            transfers
+                .into_iter()
+                .map(
+                    |toolkit::AccountRecoveryFeeTransfer {
+                         account,
+                         xrd_amount,
+                     }| AccountRecoveryFeeTransfer {
+                        account: Arc::new(Address::from_node_id(
+                            account, network_id,
+                        )),
+                        xrd_amount: Arc::new(Decimal(xrd_amount)),
+                    },
+                )
+                .collect()
+        };
+
+        Self {
+            contributions: access_controller_transfers(contributions),
+            withdrawals: access_controller_transfers(withdrawals),
+            account_withdrawals: account_transfers(account_withdrawals),
+            account_deposits: account_transfers(account_deposits),
         }
     }
 }

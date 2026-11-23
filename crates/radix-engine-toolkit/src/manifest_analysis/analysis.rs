@@ -90,6 +90,7 @@ pub fn statically_analyze(
         access_controller_confirm_recovery,
         access_controller_cancel_recovery,
         access_controller_primary_role_lock,
+        access_controller_recovery_fee,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -134,6 +135,8 @@ pub fn statically_analyze(
             access_controller_primary_role_lock.map(|_| {
                 ManifestClassification::AccessControllerPrimaryRoleLock
             }),
+            access_controller_recovery_fee
+                .map(|_| ManifestClassification::AccessControllerRecoveryFee),
         ]
         .into_iter()
         .flatten()
@@ -244,6 +247,7 @@ pub fn dynamically_analyze(
         access_controller_confirm_recovery,
         access_controller_cancel_recovery,
         access_controller_primary_role_lock,
+        access_controller_recovery_fee,
     } = resolved_composite_output
     else {
         unreachable!()
@@ -303,6 +307,9 @@ pub fn dynamically_analyze(
             access_controller_primary_role_lock
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccessControllerPrimaryRoleLock),
+            access_controller_recovery_fee
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
+                .map(DetailedManifestClassification::AccessControllerRecoveryFee),
         ]
         .into_iter()
         .flatten()
@@ -393,6 +400,10 @@ mod composite_analyzer {
             ),
             access_controller_primary_role_lock: (
                 DynamicAnalyzerWrapper<AccessControllerPrimaryRoleLockAnalyzer>,
+                ()
+            ),
+            access_controller_recovery_fee: (
+                AccessControllerRecoveryFeeAnalyzer,
                 ()
             ),
         }
