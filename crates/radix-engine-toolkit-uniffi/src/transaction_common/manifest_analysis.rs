@@ -716,6 +716,7 @@ pub enum ManifestClassification {
     PoolRedemption,
     AccountDepositSettingsUpdate,
     EntitySecurify,
+    SecurifiedEntityCreation,
     AccessControllerRecovery,
     AccessControllerTimedRecovery,
     AccessControllerConfirmRecovery,
@@ -741,6 +742,9 @@ impl FromNative for ManifestClassification {
                 Self::AccountDepositSettingsUpdate
             }
             Self::Native::EntitySecurify => Self::EntitySecurify,
+            Self::Native::SecurifiedEntityCreation => {
+                Self::SecurifiedEntityCreation
+            }
             Self::Native::AccessControllerRecovery => {
                 Self::AccessControllerRecovery
             }
@@ -790,6 +794,9 @@ pub enum DetailedManifestClassification {
     },
     EntitySecurify {
         value: EntitySecurifyOutput,
+    },
+    SecurifiedEntityCreation {
+        value: SecurifiedEntityCreationOutput,
     },
     AccessControllerRecovery {
         value: AccessControllerRecoveryOutput,
@@ -862,6 +869,13 @@ impl FromNativeWithNetworkContext for DetailedManifestClassification {
                     output, network_id,
                 ),
             },
+            Self::Native::SecurifiedEntityCreation(output) => {
+                Self::SecurifiedEntityCreation {
+                    value: FromNativeWithNetworkContext::from_native(
+                        output, network_id,
+                    ),
+                }
+            }
             Self::Native::AccessControllerRecovery(output) => {
                 Self::AccessControllerRecovery {
                     value: FromNativeWithNetworkContext::from_native(
@@ -2016,6 +2030,51 @@ impl FromNativeWithNetworkContext for EntitySecurifyOutput {
                          rule_set,
                          timed_recovery_delay_in_minutes,
                      }| EntitySecurifyOperation {
+                        entity_address: Arc::new(Address::from_node_id(
+                            entity_address,
+                            network_id,
+                        )),
+                        rule_set: <RuleSet as FromNative>::from_native(
+                            rule_set,
+                        ),
+                        timed_recovery_delay_in_minutes,
+                    },
+                )
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct SecurifiedEntityCreationOutput {
+    pub created_entities: Vec<CreatedSecurifiedEntity>,
+}
+
+/// An account or identity created, together with the security structure of
+/// the access controller created to hold its owner badge.
+#[derive(Clone, Debug, Record)]
+pub struct CreatedSecurifiedEntity {
+    pub entity_address: Arc<Address>,
+    pub rule_set: RuleSet,
+    pub timed_recovery_delay_in_minutes: Option<u32>,
+}
+
+impl FromNativeWithNetworkContext for SecurifiedEntityCreationOutput {
+    type Native = toolkit::SecurifiedEntityCreationOutput;
+
+    fn from_native(
+        Self::Native { created_entities }: Self::Native,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            created_entities: created_entities
+                .into_iter()
+                .map(
+                    |toolkit::CreatedSecurifiedEntity {
+                         entity_address,
+                         rule_set,
+                         timed_recovery_delay_in_minutes,
+                     }| CreatedSecurifiedEntity {
                         entity_address: Arc::new(Address::from_node_id(
                             entity_address,
                             network_id,

@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//! Checks shared by the access controller, recovery fee and entity securify
-//! analyzers.
+//! Checks shared by the access controller, recovery fee, entity securify and
+//! securified entity creation analyzers.
 
 use crate::internal_prelude::*;
 
@@ -186,4 +186,42 @@ pub(super) fn typed_rule_set(rule_set: &ManifestRuleSet) -> Option<RuleSet> {
         recovery_role: recovery_role.try_into_typed().ok()?,
         confirmation_role: confirmation_role.try_into_typed().ok()?,
     })
+}
+
+/// The one account or identity owner badge in the invocation IO, unless there
+/// are none or several.
+pub(super) fn owner_badge_local_id(
+    invocation_io_items: &InvocationIoItems,
+) -> Option<&NonFungibleLocalId> {
+    let mut owner_badge_ids = invocation_io_items
+        .items_iter()
+        .filter_map(|item| match item {
+            InvocationIoItem::NonFungible(resource_address, ids)
+                if resource_address == &ACCOUNT_OWNER_BADGE
+                    || resource_address == &IDENTITY_OWNER_BADGE =>
+            {
+                Some(ids)
+            }
+            _ => None,
+        })
+        .flat_map(|ids| ids.iter());
+
+    let owner_badge_id = owner_badge_ids.next()?;
+    owner_badge_ids.next().is_none().then_some(owner_badge_id)
+}
+
+/// Whether the resources are known to be exactly one account or identity owner
+/// badge, and nothing else.
+pub(super) fn is_one_owner_badge(resources: &TrackedResources) -> bool {
+    let mut specified_resources = resources.specified_resources().iter();
+    let (Some((resource_address, resource)), None) =
+        (specified_resources.next(), specified_resources.next())
+    else {
+        return false;
+    };
+
+    (resource_address == &ACCOUNT_OWNER_BADGE
+        || resource_address == &IDENTITY_OWNER_BADGE)
+        && resource.bounds().get_exact_amount() == Some(Decimal::ONE)
+        && !resources.unspecified_resources().may_be_present()
 }

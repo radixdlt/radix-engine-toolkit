@@ -85,6 +85,7 @@ pub fn statically_analyze(
         pool_redemption_classification,
         account_settings_update_classification,
         entity_securify_classification,
+        securified_entity_creation_classification,
         access_controller_recovery,
         access_controller_timed_recovery,
         access_controller_confirm_recovery,
@@ -122,6 +123,8 @@ pub fn statically_analyze(
                 .map(|_| ManifestClassification::AccountDepositSettingsUpdate),
             entity_securify_classification
                 .map(|_| ManifestClassification::EntitySecurify),
+            securified_entity_creation_classification
+                .map(|_| ManifestClassification::SecurifiedEntityCreation),
             access_controller_recovery
                 .map(|_| ManifestClassification::AccessControllerRecovery),
             access_controller_timed_recovery
@@ -242,6 +245,7 @@ pub fn dynamically_analyze(
         pool_redemption_classification,
         account_settings_update_classification,
         entity_securify_classification,
+        securified_entity_creation_classification,
         access_controller_recovery,
         access_controller_timed_recovery,
         access_controller_confirm_recovery,
@@ -292,6 +296,9 @@ pub fn dynamically_analyze(
             entity_securify_classification
                 .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
                 .map(DetailedManifestClassification::EntitySecurify),
+            securified_entity_creation_classification
+                .map(CombinedAnalysisOutput::into_dynamic_analyzer_output)
+                .map(DetailedManifestClassification::SecurifiedEntityCreation),
             access_controller_recovery
                 .map(CombinedAnalysisOutput::into_static_analyzer_output)
                 .map(DetailedManifestClassification::AccessControllerRecovery),
@@ -380,6 +387,10 @@ mod composite_analyzer {
             ),
             entity_securify_classification: (
                 EntitySecurifyAnalyzer,
+                ()
+            ),
+            securified_entity_creation_classification: (
+                SecurifiedEntityCreationAnalyzer,
                 ()
             ),
             access_controller_recovery: (

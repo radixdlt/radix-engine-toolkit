@@ -7,6 +7,7 @@ This changelog captures the changes made to the toolkit between releases.
 ### `radix-engine-toolkit` Crate
 
 * Added the `EntitySecurify` manifest classification. Its detailed output lists each securified account or identity with the rule set and timed recovery delay of the access controller created for it. Besides securifying and creating the access controllers, it only permits paying the fee: it doesn't permit setting metadata, including the entities' `owner_keys`, or withdrawing XRD and contributing to the recovery fee vaults of the access controllers it creates. Each is done in a transaction of its own, a top-up in a manifest of the `AccessControllerRecoveryFee` class. Each access controller must be created with exactly one owner badge, so every entity securified is in the output with the rules that control it.
+* Added the `SecurifiedEntityCreation` manifest classification, for a manifest that creates accounts or identities with `create` and puts each one's owner badge into an access controller it creates, so they're securified from the start. Its detailed output lists each entity created, its address derived from its owner badge, with the rule set and timed recovery delay of its access controller. Like `EntitySecurify`, it only permits paying the fee besides that, and each access controller must be created with exactly one of the owner badges. Entities created with `create_advanced`, whose owner role isn't an owner badge, aren't permitted.
 * Added five access controller manifest classifications. Besides their access controller calls, they only permit paying the fee and the subintent instructions of an enclosed subintent that yields nothing back, so a manifest of any of them withdraws nothing, contributes nothing and sets no metadata. A manifest is of at most one of them, and every access controller it calls must fit that one:
   * `AccessControllerRecovery`: on each access controller, one recovery is proposed and then quick confirmed with the same proposer, rule set and timed recovery delay, so the output lists exactly the rules enacted.
   * `AccessControllerTimedRecovery`: on each access controller, one recovery is proposed by the recovery role and not confirmed, optionally locking the primary role.
@@ -20,7 +21,7 @@ This changelog captures the changes made to the toolkit between releases.
 
 ### `radix-engine-toolkit-uniffi` Crate
 
-* Added the `EntitySecurify`, `AccessControllerRecovery`, `AccessControllerTimedRecovery`, `AccessControllerConfirmRecovery`, `AccessControllerCancelRecovery`, `AccessControllerPrimaryRoleLock` and `AccessControllerRecoveryFee` variants to `ManifestClassification` and `DetailedManifestClassification`, with their output records.
+* Added the `EntitySecurify`, `SecurifiedEntityCreation`, `AccessControllerRecovery`, `AccessControllerTimedRecovery`, `AccessControllerConfirmRecovery`, `AccessControllerCancelRecovery`, `AccessControllerPrimaryRoleLock` and `AccessControllerRecoveryFee` variants to `ManifestClassification` and `DetailedManifestClassification`, with their output records.
 
 ## Cuttlefish Protocol Update 
 

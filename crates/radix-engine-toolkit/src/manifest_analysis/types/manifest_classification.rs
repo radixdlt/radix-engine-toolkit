@@ -62,6 +62,11 @@ pub enum ManifestClassification {
     /// as updating its owner_keys or topping up the access controller, is
     /// permitted.
     EntitySecurify,
+    /// A manifest that creates accounts or identities, each with an access
+    /// controller holding its owner badge, so they're securified from the
+    /// start. Nothing else, such as setting their owner_keys or topping up the
+    /// access controllers, is permitted.
+    SecurifiedEntityCreation,
     /// A manifest that proposes new rules for access controllers and confirms
     /// them in the same transaction.
     AccessControllerRecovery,

@@ -32,6 +32,7 @@ mod general;
 mod general_subintent;
 mod pool_contribution;
 mod pool_redemption;
+mod securified_entity_creation;
 mod transfer;
 mod validator_claim;
 mod validator_stake;

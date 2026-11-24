@@ -161,26 +161,6 @@ impl ManifestDynamicAnalyzer for EntitySecurifyAnalyzer {
     }
 }
 
-fn owner_badge_local_id(
-    invocation_io_items: &InvocationIoItems,
-) -> Option<&NonFungibleLocalId> {
-    let mut owner_badge_ids = invocation_io_items
-        .items_iter()
-        .filter_map(|item| match item {
-            InvocationIoItem::NonFungible(resource_address, ids)
-                if resource_address == &ACCOUNT_OWNER_BADGE
-                    || resource_address == &IDENTITY_OWNER_BADGE =>
-            {
-                Some(ids)
-            }
-            _ => None,
-        })
-        .flat_map(|ids| ids.iter());
-
-    let owner_badge_id = owner_badge_ids.next()?;
-    owner_badge_ids.next().is_none().then_some(owner_badge_id)
-}
-
 /// The static requirements for classifying a manifest as an entity securify.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct EntitySecurifyStaticRequirementState {
@@ -257,22 +237,6 @@ impl ManifestAnalyzerRequirementState for EntitySecurifyStaticRequirementState {
             _ => {}
         }
     }
-}
-
-/// Whether the resources are known to be exactly one account or identity owner
-/// badge, and nothing else.
-fn is_one_owner_badge(resources: &TrackedResources) -> bool {
-    let mut specified_resources = resources.specified_resources().iter();
-    let (Some((resource_address, resource)), None) =
-        (specified_resources.next(), specified_resources.next())
-    else {
-        return false;
-    };
-
-    (resource_address == &ACCOUNT_OWNER_BADGE
-        || resource_address == &IDENTITY_OWNER_BADGE)
-        && resource.bounds().get_exact_amount() == Some(Decimal::ONE)
-        && !resources.unspecified_resources().may_be_present()
 }
 
 /// Securifying, creating the access controllers, and paying the fee. Nothing
