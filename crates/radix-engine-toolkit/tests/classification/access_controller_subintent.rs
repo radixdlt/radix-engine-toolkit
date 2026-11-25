@@ -45,6 +45,7 @@ fn recovery_subintent_is_classified_as_recovery() {
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
         .call_method(
             access_controller,
             ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
@@ -79,6 +80,7 @@ fn timed_recovery_subintent_with_verify_parent_is_classified_as_timed_recovery()
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
         .verify_parent(rule!(allow_all))
         .call_method(
             access_controller,
@@ -106,6 +108,7 @@ fn recovery_subintent_with_yield_to_child_is_not_classified_as_recovery() {
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
         .use_child("child", SubintentHash(Hash([0; 32])))
+        .assert_worktop_is_empty()
         .call_method(
             access_controller,
             ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
@@ -131,6 +134,7 @@ fn stop_timed_recovery_subintent_is_classified_as_cancel_recovery() {
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
         .call_method(
             access_controller,
             ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
@@ -161,6 +165,7 @@ fn confirm_timed_recovery_subintent_is_classified_as_confirm_recovery() {
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
         .call_method(
             access_controller,
             ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
@@ -187,6 +192,7 @@ fn recovery_subintent_yielding_resources_to_parent_is_not_classified_as_recovery
     let mut allocator = TestAddressAllocator::new();
     let access_controller = allocator.new_access_controller_address();
     let manifest = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
         .call_method(
             access_controller,
             ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
@@ -527,13 +533,18 @@ fn yielding_to_the_parent_before_the_end_is_not_classified() {
     for (class, calls) in subintent_classes() {
         let start =
             || ManifestBuilder::new_subintent_v2().assert_worktop_is_empty();
-        // Yielding, or verifying the parent, after the class's calls.
+        let yields_once = calls(start(), access_controller, account)
+            .yield_to_parent(())
+            .build();
+        assert_eq!(access_controller_classes_of(&yields_once), vec![class]);
+
+        // Yielding, verifying the parent, or asserting, after the class's
+        // calls and a first yield. Only the last instruction may yield, even
+        // when the subintent does nothing in between.
         let yields_twice = calls(start(), access_controller, account)
             .yield_to_parent(())
             .yield_to_parent(())
             .build();
-        assert_eq!(access_controller_classes_of(&yields_twice), vec![class]);
-
         let yields_first =
             calls(start().yield_to_parent(()), access_controller, account)
                 .yield_to_parent(())
@@ -550,6 +561,7 @@ fn yielding_to_the_parent_before_the_end_is_not_classified() {
             .yield_to_parent(())
             .build();
         for manifest in [
+            yields_twice,
             yields_first,
             verifies_after_yielding,
             asserts_after_yielding,
@@ -591,5 +603,84 @@ fn yielding_to_the_parent_before_the_end_is_not_classified() {
     ];
     for manifest in manifests {
         assert_eq!(access_controller_classes_of(&manifest), vec![]);
+    }
+}
+
+/// An open subintent, one that doesn't start with `ASSERT_WORKTOP_IS_EMPTY`,
+/// can't be turned into a transaction manifest by `as_enclosed` to preview it,
+/// so it would only ever get a static class, which names no rules.
+#[test]
+fn open_subintent_is_not_classified() {
+    let mut allocator = TestAddressAllocator::new();
+    let account = allocator.new_account_address();
+    let access_controller = allocator.new_access_controller_address();
+
+    for (class, calls) in subintent_classes() {
+        let enclosed = calls(
+            ManifestBuilder::new_subintent_v2().assert_worktop_is_empty(),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        assert_eq!(access_controller_classes_of(&enclosed), vec![class]);
+        let enclosed_verifying_parent = calls(
+            ManifestBuilder::new_subintent_v2()
+                .assert_worktop_is_empty()
+                .verify_parent(rule!(allow_all)),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        assert_eq!(
+            access_controller_classes_of(&enclosed_verifying_parent),
+            vec![class]
+        );
+
+        let open = calls(
+            ManifestBuilder::new_subintent_v2(),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        let open_verifying_parent = calls(
+            ManifestBuilder::new_subintent_v2().verify_parent(rule!(allow_all)),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        // The assertion isn't the first instruction.
+        let asserting_after_verifying_parent = calls(
+            ManifestBuilder::new_subintent_v2()
+                .verify_parent(rule!(allow_all))
+                .assert_worktop_is_empty(),
+            access_controller,
+            account,
+        )
+        .yield_to_parent(())
+        .build();
+        let asserting_after_the_calls = calls(
+            ManifestBuilder::new_subintent_v2(),
+            access_controller,
+            account,
+        )
+        .assert_worktop_is_empty()
+        .yield_to_parent(())
+        .build();
+        for manifest in [
+            open,
+            open_verifying_parent,
+            asserting_after_verifying_parent,
+            asserting_after_the_calls,
+        ] {
+            assert_eq!(
+                access_controller_classes_of(&manifest),
+                vec![],
+                "{class:?}"
+            );
+        }
     }
 }

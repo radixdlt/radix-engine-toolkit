@@ -18,6 +18,13 @@
 use super::common::*;
 use crate::internal_prelude::*;
 
+/// Analyzes manifests that create accounts or identities and put each one's
+/// owner badge into an access controller they create.
+///
+/// Such a manifest is also classified `General`, which permits the function
+/// calls it makes, so consumers should prefer the most specific class:
+/// `SecurifiedEntityCreation` is the one that shows the rules each entity is
+/// created under.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct SecurifiedEntityCreationAnalyzer {
     output: SecurifiedEntityCreationOutput,

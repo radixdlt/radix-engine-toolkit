@@ -526,3 +526,31 @@ fn subintent_moving_unknown_resources_is_not_classified() {
         assert_eq!(subintent_classes(&manifest), vec![]);
     }
 }
+
+/// A subintent that isn't enclosed can't be previewed, so it isn't classified
+/// even when it only moves XRD it names.
+#[test]
+fn open_subintent_moving_only_xrd_is_not_classified() {
+    let Addresses {
+        account,
+        access_controller,
+        ..
+    } = addresses();
+
+    let top_up = ManifestBuilder::new_subintent_v2()
+        .withdraw_from_account(account, XRD, 100)
+        .take_all_from_worktop(XRD, "xrd")
+        .contribute_recovery_fee(access_controller, "xrd")
+        .yield_to_parent(())
+        .build();
+    let withdraw = ManifestBuilder::new_subintent_v2()
+        .withdraw_recovery_fee(access_controller, 10)
+        .take_all_from_worktop(XRD, "xrd")
+        .try_deposit_or_abort(account, None, "xrd")
+        .yield_to_parent(())
+        .build();
+
+    for manifest in [top_up, withdraw] {
+        assert_eq!(subintent_classes(&manifest), vec![]);
+    }
+}

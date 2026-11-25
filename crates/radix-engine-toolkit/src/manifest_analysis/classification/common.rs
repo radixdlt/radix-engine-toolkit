@@ -68,7 +68,12 @@ fn is_assert_worktop_is_empty(instruction: &GroupedInstruction) -> bool {
 ///   contingent one: a payment of up to the whole transaction's cost, which
 ///   the parent decides and the class's output doesn't show.
 /// * Hand control back to the parent before its last instruction. The parent
-///   would run its own instructions between the subintent's.
+///   would run its own instructions between the subintent's. This includes
+///   yielding to the parent more than once, even if nothing follows.
+/// * Be open: start with anything but `ASSERT_WORKTOP_IS_EMPTY`. An open
+///   subintent can't be turned into a transaction manifest by `as_enclosed`,
+///   so it can't be previewed. It would only ever get a static class, which
+///   names no rules: they're in the detailed class that comes with a preview.
 ///
 /// A manifest is known to be a subintent once it yields to or verifies its
 /// parent, which every subintent does and a transaction manifest can't. It's
@@ -80,6 +85,9 @@ fn is_assert_worktop_is_empty(instruction: &GroupedInstruction) -> bool {
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub(super) struct SubintentRestrictions {
     is_subintent: bool,
+    /// Whether the first instruction is an `ASSERT_WORKTOP_IS_EMPTY`, as in
+    /// an enclosed subintent.
+    starts_with_assert_worktop_is_empty: bool,
     pays_fee: bool,
     yielded_to_parent: bool,
     acts_after_yielding: bool,
@@ -96,6 +104,9 @@ impl SubintentRestrictions {
                 SubintentInstructions::YieldToParent(..),
             ) => {
                 self.is_subintent = true;
+                // Only the last instruction may yield, so yielding again is
+                // acting after yielding.
+                self.acts_after_yielding |= self.yielded_to_parent;
                 self.yielded_to_parent = true;
             }
             GroupedInstruction::SubintentInstructions(
@@ -105,8 +116,12 @@ impl SubintentRestrictions {
                 self.acts_after_yielding |= self.yielded_to_parent;
             }
             instruction => {
-                self.is_subintent |= *context.instruction_index().value() == 0
-                    && is_assert_worktop_is_empty(instruction);
+                let starts_with_assert_worktop_is_empty =
+                    *context.instruction_index().value() == 0
+                        && is_assert_worktop_is_empty(instruction);
+                self.is_subintent |= starts_with_assert_worktop_is_empty;
+                self.starts_with_assert_worktop_is_empty |=
+                    starts_with_assert_worktop_is_empty;
                 self.acts_after_yielding |= self.yielded_to_parent;
             }
         }
@@ -116,7 +131,10 @@ impl SubintentRestrictions {
     /// Whether the manifest does something it may not, which nothing later in
     /// it can undo.
     pub(super) fn are_violated(&self) -> bool {
-        self.is_subintent && (self.pays_fee || self.acts_after_yielding)
+        self.is_subintent
+            && (!self.starts_with_assert_worktop_is_empty
+                || self.pays_fee
+                || self.acts_after_yielding)
     }
 }
 

@@ -48,12 +48,18 @@ pub fn as_enclosed(
 ) -> Option<TransactionManifestV2> {
     let [assert_worktop_empty_instruction @ InstructionV2::AssertWorktopResourcesOnly(
         AssertWorktopResourcesOnly { constraints },
-    ), other_instructions @ .., InstructionV2::YieldToParent(..)] =
+    ), other_instructions @ .., InstructionV2::YieldToParent(YieldToParent { args })] =
         instructions.as_slice()
     else {
         return None;
     };
     if !constraints.specified_resources().is_empty() {
+        return None;
+    }
+    // The final yield is dropped from the enclosed manifest, so it may not
+    // pass anything back to the parent: what it passes would be missing from
+    // the preview.
+    if *args != ManifestValue::unit() {
         return None;
     }
 

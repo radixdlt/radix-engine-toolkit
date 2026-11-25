@@ -24,8 +24,11 @@ use crate::internal_prelude::*;
 /// timed. A confirmation names the rule set and timed recovery delay it
 /// confirms, and fails unless they're the proposed ones, so the output shows
 /// exactly the rules enacted. Confirming also unlocks the primary role and
-/// discards the access controller's other recovery proposal, if any. Besides
-/// the access controller calls, the manifest may only pay the fee.
+/// discards the access controller's other recovery proposal, if any. In fact
+/// the engine resets the access controller's whole state machine on a
+/// confirmation, quick or timed, so it also discards pending badge withdraw
+/// attempts. Besides the access controller calls, the manifest may only pay
+/// the fee.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct AccessControllerConfirmRecoveryClass;
 

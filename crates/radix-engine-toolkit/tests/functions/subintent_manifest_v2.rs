@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::utils::TestAddressAllocator;
 use radix_engine_toolkit::functions::transaction_v2::subintent_manifest::{
     as_enclosed, statically_analyze,
 };
@@ -65,4 +66,30 @@ fn subintent_manifest_expecting_initial_resources_is_not_considered_enclosed() {
 
     // Assert
     assert!(enclosed_manifest.is_none());
+}
+
+#[test]
+fn subintent_manifest_yielding_resources_to_its_parent_is_not_considered_enclosed(
+) {
+    // Arrange
+    let account = TestAddressAllocator::new().new_account_address();
+    let yielding_bucket = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
+        .withdraw_from_account(account, XRD, 10)
+        .take_all_from_worktop(XRD, "xrd")
+        .yield_to_parent_with_name_lookup(|lookup| (lookup.bucket("xrd"),))
+        .build();
+    let yielding_entire_worktop = ManifestBuilder::new_subintent_v2()
+        .assert_worktop_is_empty()
+        .withdraw_from_account(account, XRD, 10)
+        .yield_to_parent((ManifestExpression::EntireWorktop,))
+        .build();
+
+    for manifest in [yielding_bucket, yielding_entire_worktop] {
+        // Act
+        let enclosed_manifest = as_enclosed(&manifest);
+
+        // Assert
+        assert!(enclosed_manifest.is_none());
+    }
 }

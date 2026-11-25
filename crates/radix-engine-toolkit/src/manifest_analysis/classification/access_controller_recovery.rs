@@ -24,7 +24,9 @@ use crate::internal_prelude::*;
 /// quick confirms that same proposal: the same proposer, rule set and timed
 /// recovery delay. So the proposals in the output are exactly the rules the
 /// manifest enacts. Confirming also unlocks the primary role and discards the
-/// access controller's other recovery proposal, if any. Besides the access
+/// access controller's other recovery proposal, if any. In fact the engine
+/// resets the access controller's whole state machine on a confirmation, so it
+/// also discards pending badge withdraw attempts. Besides the access
 /// controller calls, the manifest may only pay the fee.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct AccessControllerRecoveryClass;
